@@ -40,10 +40,10 @@
             </el-form>
           </el-tab-pane>
           <el-tab-pane label="CA 登录" name="ca">
-            <div class="ca-login">
+            <div id="login-ca-panel" class="ca-login">
               <el-icon :size="60" color="#409EFF"><Lock /></el-icon>
               <p>请插入 CA 数字证书 UKey</p>
-              <el-button type="primary" @click="caLogin">检测证书并登录</el-button>
+              <el-button id="login-ca-btn" type="primary" @click="caLogin">检测证书并登录</el-button>
               <div class="ca-tips">
                 <el-link type="primary">下载 CA 驱动</el-link>
                 <span>|</span>
@@ -52,19 +52,19 @@
             </div>
           </el-tab-pane>
           <el-tab-pane label="手机登录" name="phone">
-            <el-form :model="phoneForm" label-position="top">
+            <el-form id="login-phone-panel" :model="phoneForm" label-position="top">
               <el-form-item label="手机号">
                 <el-input v-model="phoneForm.phone" placeholder="请输入手机号" />
               </el-form-item>
               <el-form-item label="验证码">
                 <el-input v-model="phoneForm.code" placeholder="请输入验证码">
                   <template #append>
-                    <el-button @click="sendCode">获取验证码</el-button>
+                    <el-button id="login-phone-code" @click="sendCode">获取验证码</el-button>
                   </template>
                 </el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" style="width: 100%" @click="login">登录</el-button>
+                <el-button id="login-phone-submit" type="primary" style="width: 100%" @click="login">登录</el-button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
@@ -136,6 +136,7 @@ const sendCode = () => {
 }
 
 const startTour = () => {
+  activeTab.value = 'account'
   const driverObj = driver({
     showProgress: true,
     allowClose: true,
@@ -145,7 +146,7 @@ const startTour = () => {
         element: '#login-tabs',
         popover: {
           title: '选择登录方式',
-          description: '支持账号密码、CA 数字证书、手机验证码三种登录方式。',
+          description: '平台支持账号密码、CA 数字证书、手机验证码三种登录方式，点击标签切换。',
           side: 'bottom',
           align: 'center'
         }
@@ -157,16 +158,48 @@ const startTour = () => {
           description: '平台支持招标人、招标代理、投标人、评标专家、监督人员、平台管理员六种角色，登录后进入对应工作台。',
           side: 'right',
           align: 'center'
-        }
+        },
+        onHighlighted: () => { activeTab.value = 'account' }
       },
       {
         element: '#login-submit',
         popover: {
-          title: '进入工作台',
-          description: '输入账号密码后点击登录，系统将按角色展示不同菜单和功能。',
+          title: '账号密码登录',
+          description: '选择角色并输入账号密码后，点击登录进入工作台。',
           side: 'top',
           align: 'center'
-        }
+        },
+        onHighlighted: () => { activeTab.value = 'account' }
+      },
+      {
+        element: '#login-ca-panel',
+        popover: {
+          title: 'CA 数字证书登录',
+          description: '插入 CA UKey 后，点击“检测证书并登录”完成高安全身份认证。首次使用请下载 CA 驱动或申请证书。',
+          side: 'left',
+          align: 'center'
+        },
+        onHighlighted: () => { activeTab.value = 'ca' }
+      },
+      {
+        element: '#login-phone-panel',
+        popover: {
+          title: '手机验证码登录',
+          description: '输入手机号，点击“获取验证码”，输入收到的短信验证码后登录。',
+          side: 'left',
+          align: 'center'
+        },
+        onHighlighted: () => { activeTab.value = 'phone' }
+      },
+      {
+        element: '#login-phone-code',
+        popover: {
+          title: '获取验证码',
+          description: '系统会向您的手机发送一条短信验证码，演示环境固定为 123456。',
+          side: 'top',
+          align: 'center'
+        },
+        onHighlighted: () => { activeTab.value = 'phone' }
       }
     ]
   })
