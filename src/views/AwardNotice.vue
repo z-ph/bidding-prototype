@@ -52,6 +52,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Select } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -64,16 +65,16 @@ const form = reactive({
 })
 
 const sign = () => {
-  alert('电子签章成功')
+  ElMessage.success('电子签章成功')
   form.signed = true
 }
 
 const preview = () => {
-  alert('打开中标通知书预览')
+  ElMessage.success('打开中标通知书预览')
 }
 
 const send = () => {
-  alert('中标通知书已发送给中标人')
+  ElMessage.success('中标通知书已发送给中标人')
   router.push('/admin/contract-archive')
 }
 </script>

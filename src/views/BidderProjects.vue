@@ -49,6 +49,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const activeTab = ref('available')
@@ -69,7 +70,7 @@ const statusType = (s) => {
 }
 
 const viewDetail = (row) => {
-  alert(`查看项目详情：${row.name}`)
+  ElMessage.success(`查看项目详情：${row.name}`)
 }
 
 const register = (row) => {

@@ -78,6 +78,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Check, Lock } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const activeTab = ref('account')
@@ -114,19 +115,19 @@ const phoneForm = ref({
 const login = () => {
   const role = form.value.role
   localStorage.setItem('bidding-role', role)
-  alert(`以 ${roleNames[role]} 身份登录成功`)
+  ElMessage.success(`以 ${roleNames[role]} 身份登录成功`)
   router.push(dashboardMap[role])
 }
 
 const caLogin = () => {
   const role = form.value.role
   localStorage.setItem('bidding-role', role)
-  alert('检测到 CA 证书，正在验证...\n（演示环境跳过真实 CA 验证）')
+  ElMessage.success('检测到 CA 证书，正在验证...\n（演示环境跳过真实 CA 验证）')
   router.push(dashboardMap[role])
 }
 
 const sendCode = () => {
-  alert('验证码已发送：123456')
+  ElMessage.success('验证码已发送：123456')
 }
 </script>
 

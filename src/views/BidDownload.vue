@@ -44,6 +44,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const files = ref([
   { name: 'XX市轨道交通设备采购项目-招标文件.pdf', version: 'V1.0', updateTime: '2026-07-01 10:00', size: '5.2 MB' },
@@ -52,11 +53,11 @@ const files = ref([
 ])
 
 const preview = (row) => {
-  alert(`在线预览：${row.name}`)
+  ElMessage.success(`在线预览：${row.name}`)
 }
 
 const download = (row) => {
-  alert(`开始下载：${row.name}`)
+  ElMessage.success(`开始下载：${row.name}`)
 }
 </script>
 

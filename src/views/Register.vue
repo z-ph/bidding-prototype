@@ -68,6 +68,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -86,7 +87,7 @@ const form = reactive({
 const fileList = ref([])
 
 const submit = () => {
-  alert('注册信息已提交，等待平台审核')
+  ElMessage.success('注册信息已提交，等待平台审核')
   router.push('/login')
 }
 </script>

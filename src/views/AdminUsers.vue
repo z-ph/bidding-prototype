@@ -78,6 +78,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const search = reactive({ name: '', role: '' })
 const users = ref([
@@ -91,14 +92,14 @@ const users = ref([
 const dialogVisible = ref(false)
 const form = reactive({ account: '', name: '', role: '', org: '' })
 
-const load = () => alert('查询用户')
-const edit = (row) => alert(`编辑：${row.name}`)
-const setPermission = (row) => alert(`配置 ${row.name} 的菜单权限`)
+const load = () => ElMessage.success('查询用户')
+const edit = (row) => ElMessage.success(`编辑：${row.name}`)
+const setPermission = (row) => ElMessage.success(`配置 ${row.name} 的菜单权限`)
 const toggleStatus = (row) => {
   row.status = row.status === '启用' ? '禁用' : '启用'
 }
 const save = () => {
-  alert('用户已保存')
+  ElMessage.success('用户已保存')
   dialogVisible.value = false
 }
 </script>

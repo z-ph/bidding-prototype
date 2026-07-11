@@ -52,6 +52,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Upload } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -66,7 +67,7 @@ const form = reactive({
 const fileList = ref([])
 
 const submit = () => {
-  alert('报名申请已提交，等待招标方审核')
+  ElMessage.success('报名申请已提交，等待招标方审核')
   router.push('/admin/bidder-projects')
 }
 </script>

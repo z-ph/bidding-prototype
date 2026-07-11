@@ -63,6 +63,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const activeTab = ref('supplier')
 
@@ -80,14 +81,14 @@ const statusType = (s) => {
   return map[s] || ''
 }
 
-const view = (row) => alert(`查看详情：${row.companyName || row.name}`)
+const view = (row) => ElMessage.success(`查看详情：${row.companyName || row.name}`)
 const approve = (row) => {
   row.status = '已通过'
-  alert('审核已通过')
+  ElMessage.success('审核已通过')
 }
 const reject = (row) => {
   row.status = '已驳回'
-  alert('已驳回，原因：资质材料不完整')
+  ElMessage.success('已驳回，原因：资质材料不完整')
 }
 </script>
 

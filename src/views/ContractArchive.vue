@@ -70,6 +70,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Upload } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -84,7 +85,7 @@ const form = reactive({
 const fileList = ref([])
 
 const archive = () => {
-  alert('合同归档完成，项目已结束')
+  ElMessage.success('合同归档完成，项目已结束')
   router.push('/admin/projects')
 }
 </script>

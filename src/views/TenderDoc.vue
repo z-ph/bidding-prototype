@@ -73,6 +73,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { Upload } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const catalog = ref([
   {
@@ -111,15 +112,15 @@ const selectNode = (data) => {
 }
 
 const saveDoc = () => {
-  alert('招标文件已保存')
+  ElMessage.success('招标文件已保存')
 }
 
 const previewDoc = () => {
-  alert('打开招标文件预览')
+  ElMessage.success('打开招标文件预览')
 }
 
 const publishDoc = () => {
-  alert('招标文件已生成，可关联项目发布')
+  ElMessage.success('招标文件已生成，可关联项目发布')
 }
 </script>
 

@@ -32,6 +32,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const logs = ref([
   { time: '2026-07-08 14:50:12', operator: '张三', role: '招标人', action: '进入开标大厅', ip: '192.168.1.10', result: '成功' },
@@ -42,7 +43,7 @@ const logs = ref([
 ])
 
 const exportLogs = () => {
-  alert('操作日志导出中...')
+  ElMessage.success('操作日志导出中...')
 }
 </script>
 

@@ -50,6 +50,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const selected = ref('')
@@ -66,10 +67,10 @@ const form = reactive({
 
 const confirm = () => {
   if (!selected.value) {
-    alert('请先选择中标人')
+    ElMessage.success('请先选择中标人')
     return
   }
-  alert(`已确认中标人：${selected.value}`)
+  ElMessage.success(`已确认中标人：${selected.value}`)
   router.push('/admin/award-notice')
 }
 </script>

@@ -142,6 +142,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { Document, EditPen } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const activeStep = ref(0)
 
@@ -158,19 +159,19 @@ const bidders = reactive([
 ])
 
 const voteLeader = (row) => {
-  alert(`已推选 ${row.name} 为评标组长`)
+  ElMessage.success(`已推选 ${row.name} 为评标组长`)
 }
 
 const viewDoc = (name) => {
-  alert(`在线查阅：${name}`)
+  ElMessage.success(`在线查阅：${name}`)
 }
 
 const submitAll = () => {
-  alert('评分已提交')
+  ElMessage.success('评分已提交')
 }
 
 const finish = () => {
-  alert('电子签名完成，评标结果已提交')
+  ElMessage.success('电子签名完成，评标结果已提交')
 }
 </script>
 

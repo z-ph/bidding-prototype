@@ -55,6 +55,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const dicts = ref([
   {
@@ -79,13 +80,13 @@ const dicts = ref([
 const dialogVisible = ref(false)
 const form = reactive({ name: '', code: '', parent: '' })
 
-const edit = (row) => alert(`编辑字典：${row.name}`)
+const edit = (row) => ElMessage.success(`编辑字典：${row.name}`)
 const addChild = (row) => {
   form.parent = row.code
   dialogVisible.value = true
 }
 const save = () => {
-  alert('字典项已保存')
+  ElMessage.success('字典项已保存')
   dialogVisible.value = false
 }
 </script>

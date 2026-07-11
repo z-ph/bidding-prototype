@@ -170,6 +170,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import {
   Folder, Document, VideoPlay, Star,
   Plus, Upload, Bell, Timer,
@@ -250,7 +251,7 @@ const recentProjects = ref([
 ])
 
 const handleTodo = (todo) => router.push(todo.path)
-const viewProject = (row) => alert(`查看项目详情：${row.name}`)
+const viewProject = (row) => ElMessage.success(`查看项目详情：${row.name}`)
 const continueProject = (row) => {
   const map = {
     '招标中': '/admin/tender-doc',

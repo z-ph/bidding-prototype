@@ -62,6 +62,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const dialogVisible = ref(false)
 const objections = ref([
@@ -78,11 +79,11 @@ const statusType = (s) => {
 
 const reply = (row) => {
   row.status = '已答复'
-  alert('异议已答复')
+  ElMessage.success('异议已答复')
 }
-const view = (row) => alert(`查看异议：${row.content}`)
+const view = (row) => ElMessage.success(`查看异议：${row.content}`)
 const submit = () => {
-  alert('异议已提交')
+  ElMessage.success('异议已提交')
   dialogVisible.value = false
 }
 </script>

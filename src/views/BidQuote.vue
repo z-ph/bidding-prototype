@@ -79,6 +79,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const quote = reactive({
   totalPrice: '',
@@ -93,7 +94,7 @@ const items = ref([
 ])
 
 const saveQuote = () => {
-  alert('报价已保存，请继续上传投标文件')
+  ElMessage.success('报价已保存，请继续上传投标文件')
 }
 </script>
 

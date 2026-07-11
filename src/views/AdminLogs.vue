@@ -44,6 +44,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const search = reactive({ operator: '', type: '' })
 const logs = ref([
@@ -53,8 +54,8 @@ const logs = ref([
   { time: '2026-07-08 11:00:45', type: '关键业务', operator: '李四', action: '发布招标公告', ip: '192.168.1.11', result: '成功' },
 ])
 
-const load = () => alert('查询日志')
-const exportLogs = () => alert('导出系统日志')
+const load = () => ElMessage.success('查询日志')
+const exportLogs = () => ElMessage.success('导出系统日志')
 </script>
 
 <style scoped>

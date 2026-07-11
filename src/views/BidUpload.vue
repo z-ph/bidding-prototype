@@ -94,6 +94,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { UploadFilled, SuccessFilled } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const projects = ref([
   { id: 1, name: 'XX市轨道交通设备采购项目' },
@@ -123,11 +124,11 @@ const removeFile = (row) => {
 }
 
 const encryptAndUpload = () => {
-  alert('正在使用 CA 公钥加密投标文件并上传...\n上传成功！')
+  ElMessage.success('正在使用 CA 公钥加密投标文件并上传...\n上传成功！')
 }
 
 const saveDraft = () => {
-  alert('投标文件草稿已保存')
+  ElMessage.success('投标文件草稿已保存')
 }
 </script>
 

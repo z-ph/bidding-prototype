@@ -99,6 +99,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const activeTab = ref('summary')
 
@@ -124,15 +125,15 @@ const reportForm = reactive({
 })
 
 const saveReport = () => {
-  alert('评标报告已保存')
+  ElMessage.success('评标报告已保存')
 }
 
 const exportReport = () => {
-  alert('评标报告 PDF 导出中...')
+  ElMessage.success('评标报告 PDF 导出中...')
 }
 
 const submitResult = () => {
-  alert('评标结果已提交，进入中标公示流程')
+  ElMessage.success('评标结果已提交，进入中标公示流程')
 }
 </script>
 

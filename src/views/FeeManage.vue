@@ -55,6 +55,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const activeTab = ref('pending')
 
@@ -69,14 +70,14 @@ const paidFees = ref([
 
 const approve = (row) => {
   row.status = '已通过'
-  alert('审核通过')
+  ElMessage.success('审核通过')
 }
 const reject = (row) => {
   row.status = '已驳回'
-  alert('已驳回')
+  ElMessage.success('已驳回')
 }
 const refund = (row) => {
-  alert(`退还 ${row.bidder} 的 ${row.type}`)
+  ElMessage.success(`退还 ${row.bidder} 的 ${row.type}`)
 }
 </script>
 

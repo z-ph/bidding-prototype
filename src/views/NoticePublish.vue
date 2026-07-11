@@ -107,6 +107,7 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const projects = ref([
   { id: 1, name: 'XX市轨道交通设备采购项目' },
@@ -137,11 +138,11 @@ const formatTime = (t) => {
 }
 
 const saveDraft = () => {
-  alert('公告草稿已保存')
+  ElMessage.success('公告草稿已保存')
 }
 
 const publish = () => {
-  alert('公告已发布')
+  ElMessage.success('公告已发布')
 }
 </script>
 

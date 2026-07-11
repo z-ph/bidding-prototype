@@ -59,6 +59,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -71,7 +72,7 @@ const form = reactive({
 const fileList = ref([])
 
 const submit = () => {
-  alert('缴纳申请已提交，等待代理机构审核')
+  ElMessage.success('缴纳申请已提交，等待代理机构审核')
   router.push('/admin/bidder-projects')
 }
 </script>

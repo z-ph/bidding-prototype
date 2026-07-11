@@ -62,6 +62,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const dialogVisible = ref(false)
 const invoices = ref([
@@ -82,11 +83,11 @@ const statusType = (s) => {
 }
 
 const download = (row) => {
-  alert(`下载电子发票：${row.project}`)
+  ElMessage.success(`下载电子发票：${row.project}`)
 }
 
 const submit = () => {
-  alert('发票申请已提交')
+  ElMessage.success('发票申请已提交')
   dialogVisible.value = false
 }
 </script>

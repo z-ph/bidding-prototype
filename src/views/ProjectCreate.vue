@@ -173,6 +173,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const activeStep = ref(0)
@@ -214,7 +215,7 @@ const formatTime = (t) => {
 }
 
 const submit = () => {
-  alert('项目已提交审核，即将跳转项目列表')
+  ElMessage.success('项目已提交审核，即将跳转项目列表')
   router.push('/admin/projects')
 }
 </script>

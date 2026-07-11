@@ -86,6 +86,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Collection, Document, Download, Help, User, OfficeBuilding } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const noticeType = ref('all')
 
@@ -118,11 +119,11 @@ const quickLinks = [
 ]
 
 const handleRowClick = (row) => {
-  alert(`查看公告详情：${row.title}`)
+  ElMessage.success(`查看公告详情：${row.title}`)
 }
 
 const register = (row) => {
-  alert(`报名参加：${row.title}\n请先登录系统`)
+  ElMessage.success(`报名参加：${row.title}\n请先登录系统`)
 }
 </script>
 

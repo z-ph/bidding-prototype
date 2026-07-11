@@ -122,6 +122,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const currentStage = ref(0)
@@ -161,7 +162,7 @@ const decryptType = (status) => {
 }
 
 const refresh = () => {
-  alert('状态已刷新')
+  ElMessage.success('状态已刷新')
 }
 
 const goEvaluate = () => {

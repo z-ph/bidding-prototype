@@ -82,6 +82,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const loading = ref(false)
@@ -143,11 +144,11 @@ const reset = () => {
 }
 
 const viewDetail = (row) => {
-  alert(`查看项目详情：${row.name}`)
+  ElMessage.success(`查看项目详情：${row.name}`)
 }
 
 const edit = (row) => {
-  alert(`编辑项目：${row.name}`)
+  ElMessage.success(`编辑项目：${row.name}`)
 }
 
 const nextStep = (row) => {
