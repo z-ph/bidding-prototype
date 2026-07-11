@@ -9,12 +9,13 @@
           </div>
           <div class="hall-meta">
             <el-tag type="success">评标中</el-tag>
+            <el-button type="primary" plain :icon="QuestionFilled" @click="startTour">评标引导</el-button>
             <el-button type="primary" @click="submitAll">提交我的评分</el-button>
           </div>
         </div>
       </template>
 
-      <el-steps :active="activeStep" finish-status="success" simple style="margin-bottom: 24px">
+      <el-steps id="expert-steps" :active="activeStep" finish-status="success" simple style="margin-bottom: 24px">
         <el-step title="专家签到" />
         <el-step title="推选组长" />
         <el-step title="查阅资料" />
@@ -141,7 +142,9 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { Document, EditPen } from '@element-plus/icons-vue'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
+import { Document, EditPen, QuestionFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const activeStep = ref(0)
@@ -172,6 +175,44 @@ const submitAll = () => {
 
 const finish = () => {
   ElMessage.success('电子签名完成，评标结果已提交')
+}
+
+const startTour = () => {
+  const driverObj = driver({
+    showProgress: true,
+    allowClose: true,
+    overlayColor: 'rgba(0, 21, 41, 0.75)',
+    steps: [
+      {
+        element: '#expert-steps',
+        popover: {
+          title: '评标流程',
+          description: '评标共分为 5 步：专家签到 → 推选组长 → 查阅资料 → 在线评分 → 电子签名。',
+          side: 'bottom',
+          align: 'center'
+        }
+      },
+      {
+        element: '.step-content',
+        popover: {
+          title: '当前步骤',
+          description: '按提示完成当前步骤操作，完成后点击底部按钮进入下一步。',
+          side: 'right',
+          align: 'start'
+        }
+      },
+      {
+        element: '.hall-meta .el-button--primary:not(.is-plain)',
+        popover: {
+          title: '提交评分',
+          description: '所有专家评分并签名后，点击此处提交评标结果。',
+          side: 'bottom',
+          align: 'center'
+        }
+      }
+    ]
+  })
+  driverObj.drive()
 }
 </script>
 

@@ -12,10 +12,13 @@
         </div>
       </div>
       <div class="login-right">
-        <el-tabs v-model="activeTab" type="border-card">
+        <div style="text-align: right; margin-bottom: 12px">
+          <el-button link :icon="QuestionFilled" @click="startTour">查看登录引导</el-button>
+        </div>
+        <el-tabs id="login-tabs" v-model="activeTab" type="border-card">
           <el-tab-pane label="账号登录" name="account">
             <el-form :model="form" label-position="top">
-              <el-form-item label="角色">
+              <el-form-item id="login-role" label="角色">
                 <el-select v-model="form.role" placeholder="选择角色" style="width: 100%">
                   <el-option label="招标人" value="tenderee" />
                   <el-option label="招标代理" value="agent" />
@@ -32,7 +35,7 @@
                 <el-input v-model="form.password" type="password" placeholder="请输入密码" />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" style="width: 100%" @click="login">登录</el-button>
+                <el-button id="login-submit" type="primary" style="width: 100%" @click="login">登录</el-button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
@@ -77,7 +80,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Check, Lock } from '@element-plus/icons-vue'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
+import { Check, Lock, QuestionFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -128,6 +133,44 @@ const caLogin = () => {
 
 const sendCode = () => {
   ElMessage.success('验证码已发送：123456')
+}
+
+const startTour = () => {
+  const driverObj = driver({
+    showProgress: true,
+    allowClose: true,
+    overlayColor: 'rgba(0, 21, 41, 0.75)',
+    steps: [
+      {
+        element: '#login-tabs',
+        popover: {
+          title: '选择登录方式',
+          description: '支持账号密码、CA 数字证书、手机验证码三种登录方式。',
+          side: 'bottom',
+          align: 'center'
+        }
+      },
+      {
+        element: '#login-role',
+        popover: {
+          title: '选择您的角色',
+          description: '平台支持招标人、招标代理、投标人、评标专家、监督人员、平台管理员六种角色，登录后进入对应工作台。',
+          side: 'right',
+          align: 'center'
+        }
+      },
+      {
+        element: '#login-submit',
+        popover: {
+          title: '进入工作台',
+          description: '输入账号密码后点击登录，系统将按角色展示不同菜单和功能。',
+          side: 'top',
+          align: 'center'
+        }
+      }
+    ]
+  })
+  driverObj.drive()
 }
 </script>
 

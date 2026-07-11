@@ -4,9 +4,10 @@
       <template #header>
         <div class="card-header">
           <span>项目中心</span>
+          <el-button type="primary" plain :icon="QuestionFilled" @click="startTour">投标引导</el-button>
         </div>
       </template>
-      <el-tabs v-model="activeTab" type="border-card">
+      <el-tabs id="bidder-tabs" v-model="activeTab" type="border-card">
         <el-tab-pane label="可参与项目" name="available">
           <el-table :data="availableProjects" style="width: 100%">
             <el-table-column prop="name" label="项目名称" min-width="260" />
@@ -49,6 +50,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
+import { QuestionFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -85,6 +89,44 @@ const goAction = (row, action) => {
     upload: '/admin/bid-upload'
   }
   router.push(`${map[action]}?projectId=${row.id}`)
+}
+
+const startTour = () => {
+  const driverObj = driver({
+    showProgress: true,
+    allowClose: true,
+    overlayColor: 'rgba(0, 21, 41, 0.75)',
+    steps: [
+      {
+        element: '#bidder-tabs',
+        popover: {
+          title: '项目中心',
+          description: '左侧是您可以参与的项目，右侧是您已报名项目的进度跟踪。',
+          side: 'bottom',
+          align: 'center'
+        }
+      },
+      {
+        element: '.el-table__row:first-child .el-button--small',
+        popover: {
+          title: '报名参加',
+          description: '找到合适项目后，点击“报名”填写信息并上传资质。',
+          side: 'left',
+          align: 'center'
+        }
+      },
+      {
+        element: '#tab-joined',
+        popover: {
+          title: '跟踪进度',
+          description: '在“我参与的项目”中查看当前状态，并按提示完成缴费、下载、报价、上传标书等操作。',
+          side: 'top',
+          align: 'center'
+        }
+      }
+    ]
+  })
+  driverObj.drive()
 }
 </script>
 

@@ -14,8 +14,9 @@
         <el-button link>下载中心</el-button>
       </div>
       <div class="actions">
+        <el-button link :icon="QuestionFilled" @click="startTour">新手指引</el-button>
         <el-button link @click="$router.push('/register')">注册</el-button>
-        <el-button type="primary" @click="$router.push('/login')">登录</el-button>
+        <el-button id="portal-login-btn" type="primary" @click="$router.push('/login')">登录</el-button>
       </div>
     </el-header>
 
@@ -40,7 +41,7 @@
     </div>
 
     <!-- 交易信息 -->
-    <div class="section">
+    <div id="portal-notice-section" class="section">
       <div class="section-title">
         <h2>交易信息</h2>
         <el-radio-group v-model="noticeType" size="small">
@@ -51,7 +52,7 @@
           <el-radio-button label="result">中标公告</el-radio-button>
         </el-radio-group>
       </div>
-      <el-table :data="filteredNotices" style="width: 100%" @row-click="handleRowClick">
+      <el-table id="portal-notice-table" :data="filteredNotices" style="width: 100%" @row-click="handleRowClick">
         <el-table-column prop="title" label="公告标题" min-width="300">
           <template #default="{ row }">
             <el-link type="primary">{{ row.title }}</el-link>
@@ -73,7 +74,7 @@
     </div>
 
     <!-- 快速入口 -->
-    <div class="section quick-links">
+    <div id="portal-quick-links" class="section quick-links">
       <el-card v-for="link in quickLinks" :key="link.title" class="quick-card" shadow="hover" @click="$router.push(link.path)">
         <el-icon :size="40" :color="link.color"><component :is="link.icon" /></el-icon>
         <h3>{{ link.title }}</h3>
@@ -85,10 +86,68 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Collection, Document, Download, Help, User, OfficeBuilding } from '@element-plus/icons-vue'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
+import { Collection, Document, Download, Help, User, OfficeBuilding, QuestionFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
 const noticeType = ref('all')
+
+const startTour = () => {
+  const driverObj = driver({
+    showProgress: true,
+    allowClose: true,
+    overlayColor: 'rgba(0, 21, 41, 0.75)',
+    steps: [
+      {
+        element: '.logo',
+        popover: {
+          title: '欢迎来到招投标采购平台',
+          description: '这里是平台门户，您可以浏览公告、注册账号或登录系统。',
+          side: 'bottom',
+          align: 'center'
+        }
+      },
+      {
+        element: '#portal-notice-section',
+        popover: {
+          title: '交易信息',
+          description: '这里展示所有招标公告、变更公告、候选人公示和中标公告，您可以按类型筛选。',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        element: '#portal-notice-table .el-button',
+        popover: {
+          title: '报名参加项目',
+          description: '看到合适的项目后，点击“报名”按钮即可进入投标流程。',
+          side: 'left',
+          align: 'center'
+        }
+      },
+      {
+        element: '#portal-quick-links',
+        popover: {
+          title: '快速入口',
+          description: '供应商注册、下载中心、帮助中心、招标人入口，一键直达。',
+          side: 'top',
+          align: 'start'
+        }
+      },
+      {
+        element: '#portal-login-btn',
+        popover: {
+          title: '开始体验',
+          description: '点击登录，选择您的角色，进入对应的工作台。',
+          side: 'bottom',
+          align: 'center'
+        }
+      }
+    ]
+  })
+  driverObj.drive()
+}
 
 const notices = ref([
   { id: 1, title: 'XX市轨道交通设备采购项目招标公告', typeName: '招标公告', tagType: 'primary', purchaseMode: '公开招标', publishTime: '2026-07-01', deadline: '2026-07-20', canRegister: true },

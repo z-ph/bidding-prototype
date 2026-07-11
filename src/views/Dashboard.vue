@@ -1,8 +1,11 @@
 <template>
   <div class="dashboard">
     <div class="role-banner">
-      <h2>{{ roleTitle }}</h2>
-      <p>{{ roleSubtitle }}</p>
+      <div>
+        <h2>{{ roleTitle }}</h2>
+        <p>{{ roleSubtitle }}</p>
+      </div>
+      <el-button type="primary" plain :icon="QuestionFilled" @click="startTour">工作台引导</el-button>
     </div>
 
     <!-- 招标人/代理工作台 -->
@@ -26,7 +29,7 @@
         <el-col :span="16">
           <el-card title="待办事项" class="todo-card">
             <template #header>
-              <div class="card-header">
+              <div id="dashboard-todos" class="card-header">
                 <span>待办事项</span>
                 <el-tag type="danger">{{ todos.length }} 项待处理</el-tag>
               </div>
@@ -44,7 +47,7 @@
         <el-col :span="8">
           <el-card class="quick-card">
             <template #header>
-              <div class="card-header"><span>快捷入口</span></div>
+              <div id="dashboard-quick" class="card-header"><span>快捷入口</span></div>
             </template>
             <div class="quick-grid">
               <div v-for="item in quickEntries" :key="item.title" class="quick-entry" @click="$router.push(item.path)">
@@ -170,11 +173,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import { ElMessage } from 'element-plus'
 import {
   Folder, Document, VideoPlay, Star,
   Plus, Upload, Bell, Timer,
-  Wallet, Collection, Search, DocumentChecked
+  Wallet, Collection, Search, DocumentChecked,
+  QuestionFilled
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -261,6 +267,142 @@ const continueProject = (row) => {
   }
   router.push(map[row.stage] || '/admin/projects')
 }
+
+const startTour = () => {
+  const commonSteps = [
+    {
+      element: '.role-banner',
+      popover: {
+        title: roleTitle.value,
+        description: roleSubtitle.value,
+        side: 'bottom',
+        align: 'center'
+      }
+    }
+  ]
+
+  const roleSteps = {
+    tenderee: [
+      {
+        element: '.stat-row',
+        popover: {
+          title: '数据概览',
+          description: '快速了解进行中项目、待开标、待评标和今日截止等核心数据。',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '#dashboard-todos',
+        popover: {
+          title: '待办事项',
+          description: '这里列出需要您处理的最新待办，点击“处理”可直达对应页面。',
+          side: 'right',
+          align: 'start'
+        }
+      },
+      {
+        element: '#dashboard-quick',
+        popover: {
+          title: '快捷入口',
+          description: '创建项目、发布公告、上传文件、编辑招标文件，一键进入常用功能。',
+          side: 'left',
+          align: 'start'
+        }
+      }
+    ],
+    agent: [
+      {
+        element: '.stat-row',
+        popover: {
+          title: '数据概览',
+          description: '快速了解进行中项目、待开标、待评标和今日截止等核心数据。',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '#dashboard-todos',
+        popover: {
+          title: '待办事项',
+          description: '报名审核、评标报告、公告发布等需要您处理的待办。',
+          side: 'right',
+          align: 'start'
+        }
+      },
+      {
+        element: '#dashboard-quick',
+        popover: {
+          title: '快捷入口',
+          description: '创建项目、发布公告、上传文件、编辑招标文件，一键进入常用功能。',
+          side: 'left',
+          align: 'start'
+        }
+      }
+    ],
+    bidder: [
+      {
+        element: '.stat-row',
+        popover: {
+          title: '我的投标看板',
+          description: '可参与项目、已报名项目、待缴费、待上传标书一目了然。',
+          side: 'bottom',
+          align: 'start'
+        }
+      },
+      {
+        element: '.todo-card',
+        popover: {
+          title: '投标待办',
+          description: '系统会按项目进度提醒您接下来该做什么，点击“去处理”即可继续。',
+          side: 'right',
+          align: 'start'
+        }
+      }
+    ],
+    expert: [
+      {
+        element: '.el-card',
+        popover: {
+          title: '评标任务',
+          description: '这里显示分配给您评标的项目，点击“开始评标”进入评标大厅。',
+          side: 'bottom',
+          align: 'start'
+        }
+      }
+    ],
+    supervisor: [
+      {
+        element: '.el-card',
+        popover: {
+          title: '监督概览',
+          description: '查看今日开标、评标场次和异常预警，进入监督大厅可查看详细过程。',
+          side: 'bottom',
+          align: 'start'
+        }
+      }
+    ],
+    admin: [
+      {
+        element: '.stat-row',
+        popover: {
+          title: '平台运营数据',
+          description: '注册供应商、待审核供应商、平台项目、异常预警等核心指标。',
+          side: 'bottom',
+          align: 'start'
+        }
+      }
+    ]
+  }
+
+  const driverObj = driver({
+    showProgress: true,
+    allowClose: true,
+    overlayColor: 'rgba(0, 21, 41, 0.75)',
+    steps: [...commonSteps, ...(roleSteps[role.value] || [])]
+  })
+  driverObj.drive()
+}
 </script>
 
 <style scoped>
@@ -275,6 +417,9 @@ const continueProject = (row) => {
   color: #fff;
   padding: 24px;
   border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .role-banner h2 {
