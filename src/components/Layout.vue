@@ -71,7 +71,7 @@ const pageTitle = computed(() => {
 })
 
 const menuItems = computed(() => {
-  const common = [{ index: '/admin/dashboard', title: '控制面板', icon: Odometer }]
+  const common = [{ index: '/admin/dashboard', title: '主页', icon: Odometer }]
 
   // 招标人：突出需求、审批、定标、合同
   const tendereeMenus = [
@@ -145,6 +145,7 @@ const menuItems = computed(() => {
   ]
 
   const adminMenus = [
+    { index: '/admin/dashboard', title: '主页', icon: Odometer },
     { index: '/admin/admin-dashboard', title: '管理控制台', icon: Odometer },
     { index: '/admin/admin-users', title: '用户权限', icon: User },
     { index: '/admin/admin-dictionary', title: '参数字典', icon: SetUp },
