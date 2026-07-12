@@ -33,16 +33,6 @@
         </div>
       </div>
 
-      <!-- 操作提示 -->
-      <div class="review-hint" @click.stop>
-        <el-alert
-          :title="hintTitle"
-          type="info"
-          show-icon
-          :closable="false"
-        />
-      </div>
-
       <!-- 元素高亮框 -->
       <div
         v-if="hoveredRect && mode === 'element' && !formVisible"
@@ -203,12 +193,6 @@ const form = ref({
   pagePath: '',
   pageUrl: '',
   pageName: ''
-})
-
-const hintTitle = computed(() => {
-  return mode.value === 'element'
-    ? '元素模式：鼠标悬停高亮，点击元素添加评审'
-    : '视图模式：按住鼠标左键拖拽，框定视图范围'
 })
 
 const canSubmit = computed(() => form.value.title.trim() && form.value.suggestion.trim())
@@ -603,15 +587,6 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.review-hint {
-  position: fixed;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 480px;
-  z-index: 10000;
 }
 
 .highlight-box {
