@@ -3,7 +3,6 @@
 
   <!-- 全局页面评审入口 -->
   <el-button
-    v-if="showReviewFab"
     class="review-fab"
     type="primary"
     circle
@@ -16,18 +15,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref } from 'vue'
 import { EditPen } from '@element-plus/icons-vue'
 import ReviewTool from './components/ReviewTool.vue'
 
-const route = useRoute()
 const reviewActive = ref(false)
-
-const showReviewFab = computed(() => {
-  // 登录/注册页不显示评审入口，其他页面均可评审
-  return !['/login', '/register'].includes(route.path)
-})
 </script>
 
 <style>
