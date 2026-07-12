@@ -2,9 +2,15 @@
   <teleport to="body">
     <div v-if="active" class="review-overlay" @click="handleOverlayClick">
       <!-- 顶部工具栏 -->
-      <div class="review-toolbar" @click.stop>
+      <div
+        class="review-toolbar"
+        :class="{ 'is-dragging': isDraggingToolbar }"
+        :style="toolbarStyle"
+        @click.stop
+        @mousedown="onToolbarMouseDown"
+      >
         <div class="toolbar-left">
-          <span class="toolbar-title">页面评审模式</span>
+          <span class="toolbar-title" title="按住此处可拖动">页面评审模式</span>
           <el-radio-group v-model="mode" size="small">
             <el-radio-button label="element">选择元素</el-radio-button>
             <el-radio-button label="viewport">框定视图</el-radio-button>
@@ -178,6 +184,11 @@ const dragRect = ref(null)
 const isDragging = ref(false)
 const dragStart = ref({ x: 0, y: 0 })
 
+// 工具栏拖动状态
+const toolbarPos = ref({ x: 0, y: 0 })
+const isDraggingToolbar = ref(false)
+const toolbarDragStart = ref({ x: 0, y: 0 })
+
 const form = ref({
   type: 'element',
   title: '',
@@ -210,6 +221,13 @@ const dragRectStyle = computed(() => {
     top: r.y + 'px',
     width: r.width + 'px',
     height: r.height + 'px'
+  }
+})
+
+const toolbarStyle = computed(() => {
+  const { x, y } = toolbarPos.value
+  return {
+    transform: `translate(calc(-50% + ${x}px), ${y}px)`
   }
 })
 
@@ -279,6 +297,7 @@ function getSafeTarget(e) {
 }
 
 function onMouseMove(e) {
+  if (isDraggingToolbar.value) return
   if (mode.value !== 'element' || formVisible.value || isDragging.value) return
   const target = getSafeTarget(e)
   if (!target) {
@@ -323,6 +342,7 @@ function onElementClick(e) {
 }
 
 function onMouseDown(e) {
+  if (isDraggingToolbar.value) return
   if (mode.value !== 'viewport' || formVisible.value) return
   isDragging.value = true
   dragStart.value = { x: e.clientX + window.scrollX, y: e.clientY + window.scrollY }
@@ -330,6 +350,7 @@ function onMouseDown(e) {
 }
 
 function onMouseMoveDrag(e) {
+  if (isDraggingToolbar.value) return
   if (!isDragging.value) return
   const x = e.clientX + window.scrollX
   const y = e.clientY + window.scrollY
@@ -342,12 +363,35 @@ function onMouseMoveDrag(e) {
 }
 
 function onMouseUp(e) {
+  if (isDraggingToolbar.value) {
+    isDraggingToolbar.value = false
+    return
+  }
   if (!isDragging.value) return
   isDragging.value = false
   if (dragRect.value && dragRect.value.width > 10 && dragRect.value.height > 10) {
     openForm('viewport', { ...dragRect.value })
   }
   dragRect.value = null
+}
+
+function onToolbarMouseDown(e) {
+  // 只有按住标题或工具栏空白处时才可拖动，避免按钮、下拉菜单被拦截
+  const isDragHandle = e.target.classList?.contains('toolbar-title') || e.target.classList?.contains('review-toolbar')
+  if (!isDragHandle) return
+  isDraggingToolbar.value = true
+  toolbarDragStart.value = {
+    x: e.clientX - toolbarPos.value.x,
+    y: e.clientY - toolbarPos.value.y
+  }
+}
+
+function onToolbarMouseMove(e) {
+  if (!isDraggingToolbar.value) return
+  toolbarPos.value = {
+    x: e.clientX - toolbarDragStart.value.x,
+    y: e.clientY - toolbarDragStart.value.y
+  }
 }
 
 function onKeyDown(e) {
@@ -461,6 +505,7 @@ function bindEvents() {
   document.addEventListener('click', onElementClick, true)
   document.addEventListener('mousedown', onMouseDown)
   document.addEventListener('mousemove', onMouseMoveDrag)
+  document.addEventListener('mousemove', onToolbarMouseMove)
   document.addEventListener('mouseup', onMouseUp)
   document.addEventListener('keydown', onKeyDown)
 }
@@ -471,6 +516,7 @@ function unbindEvents() {
   document.removeEventListener('click', onElementClick, true)
   document.removeEventListener('mousedown', onMouseDown)
   document.removeEventListener('mousemove', onMouseMoveDrag)
+  document.removeEventListener('mousemove', onToolbarMouseMove)
   document.removeEventListener('mouseup', onMouseUp)
   document.removeEventListener('keydown', onKeyDown)
 }
@@ -530,6 +576,11 @@ onUnmounted(() => {
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 10000;
+  user-select: none;
+}
+
+.review-toolbar.is-dragging {
+  cursor: grabbing;
 }
 
 .toolbar-left {
@@ -541,6 +592,11 @@ onUnmounted(() => {
 .toolbar-title {
   font-weight: bold;
   color: #001529;
+  cursor: grab;
+}
+
+.toolbar-title:active {
+  cursor: grabbing;
 }
 
 .toolbar-right {
