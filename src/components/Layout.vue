@@ -50,40 +50,21 @@
     </el-container>
   </el-container>
 
-  <!-- 页面评审入口 -->
-  <el-button
-    v-if="showReviewFab"
-    class="review-fab"
-    type="primary"
-    circle
-    size="large"
-    :icon="EditPen"
-    title="页面评审"
-    @click="reviewActive = true"
-  />
-  <ReviewTool v-model:active="reviewActive" />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   UserFilled, Collection, Odometer, Folder, Document, Bell, Upload, VideoPlay, Star,
   User, SetUp, List, DocumentChecked, Money, Warning, Trophy, Wallet, Tickets,
-  OfficeBuilding, Message, EditPen
+  OfficeBuilding, Message
 } from '@element-plus/icons-vue'
 import { useRole } from '../composables/useRole.js'
-import ReviewTool from '../components/ReviewTool.vue'
 
 const router = useRouter()
 const route = useRoute()
 const { role, roleName, userName, clearRole } = useRole()
-
-const reviewActive = ref(false)
-const showReviewFab = computed(() => {
-  // 在后台管理页面内显示评审入口，登录/注册/门户页不显示
-  return route.path.startsWith('/admin')
-})
 
 const pageTitle = computed(() => {
   return route.meta?.title || route.name
@@ -233,13 +214,5 @@ const logout = () => {
 .main-content {
   padding: 20px;
   background-color: #f5f7fa;
-}
-
-.review-fab {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 </style>
