@@ -71,7 +71,7 @@
           <el-table-column prop="type" label="采购方式" width="120" />
           <el-table-column prop="stage" label="当前阶段" width="140">
             <template #default="{ row }">
-              <el-tag :type="row.stageType">{{ row.stage }}</el-tag>
+              <StatusTag :label="row.stage" :status="row.stage" />
             </template>
           </el-table-column>
           <el-table-column prop="deadline" label="截止时间" width="150" />
@@ -172,7 +172,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { ElMessage } from 'element-plus'
@@ -182,14 +182,11 @@ import {
   Wallet, Collection, Search, DocumentChecked,
   QuestionFilled
 } from '@element-plus/icons-vue'
+import { useRole } from '../composables/useRole.js'
+import StatusTag from '../components/StatusTag.vue'
 
 const router = useRouter()
-const route = useRoute()
-const role = computed(() => {
-  const urlRole = route.query.role
-  if (urlRole && typeof urlRole === 'string') return urlRole
-  return localStorage.getItem('bidding-role') || 'tenderee'
-})
+const { role } = useRole()
 
 const roleMap = {
   tenderee: '招标人工作台',
@@ -226,34 +223,52 @@ const bidderStats = ref([
   { title: '待上传标书', value: 2, icon: Upload, bg: '#F56C6C' },
 ])
 
-const todos = ref([
+const tendereeTodos = [
   { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请确认开标安排', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall' },
   { id: 2, content: '办公桌椅采购项目有 2 家供应商报名，请审核资质', type: 'primary', time: '2026-07-08 09:30', path: '/admin/projects' },
-  { id: 3, content: '软件开发服务项目评标报告待提交', type: 'danger', time: '2026-07-07 16:00', path: '/admin/evaluation-hall' },
-  { id: 4, content: '物业服务采购项目中标公告待发布', type: 'success', time: '2026-07-07 11:20', path: '/admin/notice-publish' },
-])
+  { id: 3, content: '软件开发服务项目评标报告待审批', type: 'danger', time: '2026-07-07 16:00', path: '/admin/award-confirm' },
+  { id: 4, content: '物业服务采购项目中标公告待发布', type: 'success', time: '2026-07-07 11:20', path: '/admin/notice-publish' }
+]
+
+const agentTodos = [
+  { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请完成开标前准备', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall' },
+  { id: 2, content: '办公桌椅采购项目招标文件需复核后发布', type: 'primary', time: '2026-07-08 09:30', path: '/admin/tender-doc' },
+  { id: 3, content: '软件开发服务项目评标报告待汇总提交', type: 'danger', time: '2026-07-07 16:00', path: '/admin/evaluation-hall' },
+  { id: 4, content: '物业服务采购项目中标通知书待发送', type: 'success', time: '2026-07-07 11:20', path: '/admin/award-notice' }
+]
+
+const todos = computed(() => role.value === 'agent' ? agentTodos : tendereeTodos)
 
 const bidderTodos = ref([
   { id: 1, content: 'XX市轨道交通设备采购项目已报名通过，请缴纳招标文件费', type: 'warning', time: '2026-07-08', path: '/admin/bid-payment' },
-  { id: 2, content: '软件开发服务项目待上传投标文件并报价', type: 'danger', time: '2026-07-07', path: '/admin/bid-upload' },
+  { id: 2, content: '软件开发服务项目待上传投标文件并报价', type: 'danger', time: '2026-07-07', path: '/admin/bid-upload' }
 ])
 
 const expertTasks = ref([
-  { project: 'XX市轨道交通设备采购项目', stage: '评标中', deadline: '2026-07-10 17:00' },
+  { project: 'XX市轨道交通设备采购项目', stage: '评标中', deadline: '2026-07-10 17:00' }
 ])
 
-const quickEntries = [
+const tendereeQuickEntries = [
   { title: '创建项目', icon: Plus, color: '#409EFF', path: '/admin/projects/create' },
-  { title: '发布公告', icon: Bell, color: '#E6A23C', path: '/admin/notice-publish' },
-  { title: '上传文件', icon: Upload, color: '#67C23A', path: '/admin/bid-upload' },
-  { title: '招标文件', icon: Document, color: '#909399', path: '/admin/tender-doc' },
+  { title: '审批文件', icon: Document, color: '#909399', path: '/admin/tender-doc' },
+  { title: '确认中标', icon: Bell, color: '#E6A23C', path: '/admin/award-confirm' },
+  { title: '合同归档', icon: DocumentChecked, color: '#67C23A', path: '/admin/contract-archive' }
 ]
 
+const agentQuickEntries = [
+  { title: '创建项目', icon: Plus, color: '#409EFF', path: '/admin/projects/create' },
+  { title: '发布公告', icon: Bell, color: '#E6A23C', path: '/admin/notice-publish' },
+  { title: '开标大厅', icon: VideoPlay, color: '#67C23A', path: '/admin/opening-hall' },
+  { title: '评标大厅', icon: Star, color: '#F56C6C', path: '/admin/evaluation-hall' }
+]
+
+const quickEntries = computed(() => role.value === 'agent' ? agentQuickEntries : tendereeQuickEntries)
+
 const recentProjects = ref([
-  { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', stage: '报名中', stageType: 'primary', deadline: '2026-07-20 17:00' },
-  { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', stage: '待开标', stageType: 'warning', deadline: '2026-07-18 14:00' },
-  { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', stage: '评标中', stageType: 'danger', deadline: '2026-07-15 09:00' },
-  { id: 4, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', stage: '招标中', stageType: 'success', deadline: '2026-07-25 17:00' },
+  { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', stage: '报名中', deadline: '2026-07-20 17:00' },
+  { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', stage: '待开标', deadline: '2026-07-18 14:00' },
+  { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', stage: '评标中', deadline: '2026-07-15 09:00' },
+  { id: 4, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', stage: '招标中', deadline: '2026-07-25 17:00' }
 ])
 
 const handleTodo = (todo) => router.push(todo.path)

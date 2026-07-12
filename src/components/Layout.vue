@@ -34,11 +34,11 @@
         <div class="breadcrumb">
           <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/admin/dashboard' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item>{{ $route.name }}</el-breadcrumb-item>
+            <el-breadcrumb-item>{{ pageTitle }}</el-breadcrumb-item>
           </el-breadcrumb>
         </div>
         <div class="user-info">
-          <el-tag size="small" type="info">{{ roleName }}</el-tag>
+          <el-tag size="small" type="info" effect="dark">{{ roleName }}</el-tag>
           <el-avatar :size="32" :icon="UserFilled" />
           <span>{{ userName }}</span>
           <el-button link @click="logout">退出</el-button>
@@ -49,51 +49,51 @@
       </el-main>
     </el-container>
   </el-container>
+
+  <!-- 页面评审入口 -->
+  <el-button
+    v-if="showReviewFab"
+    class="review-fab"
+    type="primary"
+    circle
+    size="large"
+    :icon="EditPen"
+    title="页面评审"
+    @click="reviewActive = true"
+  />
+  <ReviewTool v-model:active="reviewActive" />
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   UserFilled, Collection, Odometer, Folder, Document, Bell, Upload, VideoPlay, Star,
-  User, SetUp, List, DocumentChecked, Money, Warning, Trophy, Wallet, Tickets
+  User, SetUp, List, DocumentChecked, Money, Warning, Trophy, Wallet, Tickets,
+  OfficeBuilding, Message, EditPen
 } from '@element-plus/icons-vue'
+import { useRole } from '../composables/useRole.js'
+import ReviewTool from '../components/ReviewTool.vue'
 
 const router = useRouter()
-
 const route = useRoute()
-const role = computed(() => {
-  const urlRole = route.query.role
-  if (urlRole && typeof urlRole === 'string') return urlRole
-  return localStorage.getItem('bidding-role') || 'tenderee'
+const { role, roleName, userName, clearRole } = useRole()
+
+const reviewActive = ref(false)
+const showReviewFab = computed(() => {
+  // 在后台管理页面内显示评审入口，登录/注册/门户页不显示
+  return route.path.startsWith('/admin')
 })
 
-const roleMap = {
-  tenderee: '招标人',
-  agent: '招标代理',
-  bidder: '投标人/供应商',
-  expert: '评标专家',
-  supervisor: '监督人员',
-  admin: '平台管理员'
-}
-
-const roleName = computed(() => roleMap[role.value] || '未知角色')
-const userName = computed(() => {
-  const names = {
-    tenderee: '张三',
-    agent: '李四',
-    bidder: 'A科技有限公司',
-    expert: '专家甲',
-    supervisor: '王监督',
-    admin: '平台管理员'
-  }
-  return names[role.value] || '用户'
+const pageTitle = computed(() => {
+  return route.meta?.title || route.name
 })
 
 const menuItems = computed(() => {
   const common = [{ index: '/admin/dashboard', title: '控制面板', icon: Odometer }]
 
-  const tenderMenus = [
+  // 招标人：突出需求、审批、定标、合同
+  const tendereeMenus = [
     {
       index: '/admin/projects',
       title: '项目管理',
@@ -106,11 +106,35 @@ const menuItems = computed(() => {
     },
     { index: '/admin/tender-doc', title: '招标文件', icon: Document },
     { index: '/admin/notice-publish', title: '发布公告', icon: Bell },
+    { index: '/admin/opening-hall', title: '开标大厅', icon: VideoPlay },
     { index: '/admin/fee-manage', title: '费用管理', icon: Wallet },
     { index: '/admin/objection-manage', title: '异议管理', icon: Warning },
     { index: '/admin/award-confirm', title: '确认中标人', icon: Trophy },
     { index: '/admin/award-notice', title: '中标通知书', icon: Tickets },
-    { index: '/admin/contract-archive', title: '合同归档', icon: DocumentChecked }
+    { index: '/admin/contract-archive', title: '合同归档', icon: DocumentChecked },
+    { index: '/admin/message-center', title: '消息中心', icon: Message }
+  ]
+
+  // 招标代理：突出委托项目、文件编制、公告、开评标准备和通知书
+  const agentMenus = [
+    {
+      index: '/admin/projects',
+      title: '委托项目',
+      icon: Folder,
+      children: [
+        { index: '/admin/projects', title: '项目列表' },
+        { index: '/admin/projects/create', title: '创建项目' },
+        { index: '/admin/projects/track', title: '项目跟踪' }
+      ]
+    },
+    { index: '/admin/tender-doc', title: '招标文件编制', icon: Document },
+    { index: '/admin/notice-publish', title: '公告发布', icon: Bell },
+    { index: '/admin/opening-hall', title: '开标大厅', icon: VideoPlay },
+    { index: '/admin/evaluation-hall', title: '评标大厅', icon: Star },
+    { index: '/admin/fee-manage', title: '费用管理', icon: Wallet },
+    { index: '/admin/objection-manage', title: '异议处理', icon: Warning },
+    { index: '/admin/award-notice', title: '中标通知书', icon: Tickets },
+    { index: '/admin/message-center', title: '消息中心', icon: Message }
   ]
 
   const bidderMenus = [
@@ -120,17 +144,23 @@ const menuItems = computed(() => {
     { index: '/admin/bid-download', title: '下载文件', icon: Document },
     { index: '/admin/bid-quote', title: '在线报价', icon: Wallet },
     { index: '/admin/bid-upload', title: '上传投标文件', icon: Upload },
-    { index: '/admin/bidder-invoices', title: '发票申请', icon: Tickets }
+    { index: '/admin/supplier-profile', title: '企业档案', icon: OfficeBuilding },
+    { index: '/admin/bidder-invoices', title: '发票申请', icon: Tickets },
+    { index: '/admin/message-center', title: '消息中心', icon: Message }
   ]
 
   const expertMenus = [
     { index: '/admin/expert-project', title: '评标任务', icon: Star },
-    { index: '/admin/bid-download', title: '查阅资料', icon: Document }
+    { index: '/admin/bid-download', title: '查阅资料', icon: Document },
+    { index: '/admin/expert-profile', title: '专家信息', icon: User },
+    { index: '/admin/message-center', title: '消息中心', icon: Message }
   ]
 
   const supervisorMenus = [
     { index: '/admin/supervisor-hall', title: '监督大厅', icon: VideoPlay },
-    { index: '/admin/supervisor-logs', title: '操作日志', icon: List }
+    { index: '/admin/supervisor-abnormal', title: '异常登记', icon: Warning },
+    { index: '/admin/supervisor-logs', title: '操作日志', icon: List },
+    { index: '/admin/message-center', title: '消息中心', icon: Message }
   ]
 
   const adminMenus = [
@@ -138,12 +168,14 @@ const menuItems = computed(() => {
     { index: '/admin/admin-users', title: '用户权限', icon: User },
     { index: '/admin/admin-dictionary', title: '参数字典', icon: SetUp },
     { index: '/admin/admin-supplier-audit', title: '准入审核', icon: DocumentChecked },
-    { index: '/admin/admin-logs', title: '日志审计', icon: List }
+    { index: '/admin/organization', title: '组织机构', icon: OfficeBuilding },
+    { index: '/admin/admin-logs', title: '日志审计', icon: List },
+    { index: '/admin/message-center', title: '消息中心', icon: Message }
   ]
 
   const roleMenus = {
-    tenderee: [...common, ...tenderMenus],
-    agent: [...common, ...tenderMenus],
+    tenderee: [...common, ...tendereeMenus],
+    agent: [...common, ...agentMenus],
     bidder: [...common, ...bidderMenus],
     expert: [...common, ...expertMenus],
     supervisor: [...common, ...supervisorMenus],
@@ -154,7 +186,7 @@ const menuItems = computed(() => {
 })
 
 const logout = () => {
-  localStorage.removeItem('bidding-role')
+  clearRole()
   router.push('/login')
 }
 </script>
@@ -201,5 +233,13 @@ const logout = () => {
 .main-content {
   padding: 20px;
   background-color: #f5f7fa;
+}
+
+.review-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 </style>

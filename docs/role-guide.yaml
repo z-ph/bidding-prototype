@@ -1,0 +1,404 @@
+meta:
+  profile: default
+  theme: tech-blue
+  layout: horizontal
+  title: "招投标系统角色指引矩阵"
+  description: "横向为阶段，纵向为角色，格子内为关键操作"
+  canvas: 1800x1100
+
+nodes:
+  # 阶段表头
+  - id: header_prep
+    label: 招标准备
+    type: text
+    bounds: { x: 160, y: 20, width: 240, height: 40 }
+    style:
+      fillColor: "#1E40AF"
+      fontColor: "#FFFFFF"
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: header_bid
+    label: 投标阶段
+    type: text
+    bounds: { x: 420, y: 20, width: 240, height: 40 }
+    style:
+      fillColor: "#1E40AF"
+      fontColor: "#FFFFFF"
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: header_open
+    label: 开标
+    type: text
+    bounds: { x: 680, y: 20, width: 240, height: 40 }
+    style:
+      fillColor: "#1E40AF"
+      fontColor: "#FFFFFF"
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: header_eval
+    label: 评标
+    type: text
+    bounds: { x: 940, y: 20, width: 240, height: 40 }
+    style:
+      fillColor: "#1E40AF"
+      fontColor: "#FFFFFF"
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: header_award
+    label: 定标
+    type: text
+    bounds: { x: 1200, y: 20, width: 240, height: 40 }
+    style:
+      fillColor: "#1E40AF"
+      fontColor: "#FFFFFF"
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: header_archive
+    label: 归档
+    type: text
+    bounds: { x: 1460, y: 20, width: 240, height: 40 }
+    style:
+      fillColor: "#1E40AF"
+      fontColor: "#FFFFFF"
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+
+  # 角色表头
+  - id: role_tenderee
+    label: 招标人
+    type: user
+    bounds: { x: 20, y: 80, width: 120, height: 120 }
+    style:
+      fillColor: "#EFF6FF"
+      strokeColor: "#2563EB"
+      strokeWidth: 2
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: role_agent
+    label: 招标代理
+    type: user
+    bounds: { x: 20, y: 220, width: 120, height: 120 }
+    style:
+      fillColor: "#F0FDF4"
+      strokeColor: "#059669"
+      strokeWidth: 2
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: role_bidder
+    label: 投标人
+    type: user
+    bounds: { x: 20, y: 360, width: 120, height: 120 }
+    style:
+      fillColor: "#FFFBEB"
+      strokeColor: "#D97706"
+      strokeWidth: 2
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: role_expert
+    label: 评标专家
+    type: user
+    bounds: { x: 20, y: 500, width: 120, height: 120 }
+    style:
+      fillColor: "#FDF2F8"
+      strokeColor: "#DB2777"
+      strokeWidth: 2
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: role_supervisor
+    label: 监督人员
+    type: user
+    bounds: { x: 20, y: 640, width: 120, height: 120 }
+    style:
+      fillColor: "#FEF2F2"
+      strokeColor: "#DC2626"
+      strokeWidth: 2
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+  - id: role_admin
+    label: 平台管理员
+    type: user
+    bounds: { x: 20, y: 780, width: 120, height: 120 }
+    style:
+      fillColor: "#F3F4F6"
+      strokeColor: "#475569"
+      strokeWidth: 2
+      fontSize: 14
+      bold: true
+      align: center
+      verticalAlign: middle
+
+  # 招标人操作
+  - id: t_create
+    label: 创建项目\n编制需求
+    type: process
+    bounds: { x: 180, y: 90, width: 200, height: 100 }
+    style:
+      fillColor: "#EFF6FF"
+  - id: t_approve_doc
+    label: 审批招标文件
+    type: decision
+    bounds: { x: 200, y: 240, width: 160, height: 80 }
+    style:
+      fillColor: "#EFF6FF"
+  - id: t_confirm
+    label: 确认中标结果
+    type: decision
+    bounds: { x: 1220, y: 100, width: 200, height: 80 }
+    style:
+      fillColor: "#EFF6FF"
+  - id: t_contract
+    label: 签订合同\n归档资料
+    type: terminal
+    bounds: { x: 1480, y: 100, width: 200, height: 80 }
+    style:
+      fillColor: "#EFF6FF"
+
+  # 招标代理操作
+  - id: a_publish
+    label: 发布公告\n发售招标文件
+    type: process
+    bounds: { x: 180, y: 230, width: 200, height: 100 }
+    style:
+      fillColor: "#F0FDF4"
+  - id: a_open
+    label: 组织开标会议\n解密唱标
+    type: process
+    bounds: { x: 700, y: 230, width: 200, height: 100 }
+    style:
+      fillColor: "#F0FDF4"
+  - id: a_eval
+    label: 组织评标会议\n协调流程
+    type: process
+    bounds: { x: 960, y: 230, width: 200, height: 100 }
+    style:
+      fillColor: "#F0FDF4"
+  - id: a_notice
+    label: 发布中标通知书
+    type: process
+    bounds: { x: 1220, y: 230, width: 200, height: 100 }
+    style:
+      fillColor: "#F0FDF4"
+
+  # 投标人操作
+  - id: b_register
+    label: 注册/报名\n购买标书
+    type: process
+    bounds: { x: 440, y: 370, width: 200, height: 100 }
+    style:
+      fillColor: "#FFFBEB"
+  - id: b_download
+    label: 下载招标文件\n缴纳保证金
+    type: process
+    bounds: { x: 440, y: 510, width: 200, height: 100 }
+    style:
+      fillColor: "#FFFBEB"
+  - id: b_submit
+    label: 编制并提交\n加密投标文件
+    type: process
+    bounds: { x: 440, y: 650, width: 200, height: 100 }
+    style:
+      fillColor: "#FFFBEB"
+  - id: b_quote
+    label: 开标时\n解密报价
+    type: process
+    bounds: { x: 700, y: 370, width: 200, height: 100 }
+    style:
+      fillColor: "#FFFBEB"
+
+  # 评标专家操作
+  - id: e_checkin
+    label: 签到场\n签署承诺书
+    type: process
+    bounds: { x: 960, y: 370, width: 200, height: 100 }
+    style:
+      fillColor: "#FDF2F8"
+  - id: e_leader
+    label: 推选组长\n分配任务
+    type: decision
+    bounds: { x: 960, y: 510, width: 200, height: 100 }
+    style:
+      fillColor: "#FDF2F8"
+  - id: e_review
+    label: 查阅投标文件\n资格/符合性评审
+    type: process
+    bounds: { x: 960, y: 650, width: 200, height: 100 }
+    style:
+      fillColor: "#FDF2F8"
+  - id: e_score
+    label: 技术/商务\n量化评分
+    type: process
+    bounds: { x: 960, y: 790, width: 200, height: 100 }
+    style:
+      fillColor: "#FDF2F8"
+  - id: e_sign
+    label: 复核评分表\n电子签名
+    type: terminal
+    bounds: { x: 1220, y: 370, width: 200, height: 100 }
+    style:
+      fillColor: "#FDF2F8"
+
+  # 监督人员操作
+  - id: s_open
+    label: 监督开标\n查看唱标记录
+    type: process
+    bounds: { x: 700, y: 510, width: 200, height: 100 }
+    style:
+      fillColor: "#FEF2F2"
+  - id: s_eval
+    label: 监督评标\n查看专家行为日志
+    type: process
+    bounds: { x: 700, y: 650, width: 200, height: 100 }
+    style:
+      fillColor: "#FEF2F2"
+  - id: s_audit
+    label: 全程审计日志\n异常预警
+    type: process
+    bounds: { x: 1480, y: 510, width: 200, height: 100 }
+    style:
+      fillColor: "#FEF2F2"
+
+  # 平台管理员操作
+  - id: m_user
+    label: 用户权限\n角色配置
+    type: process
+    bounds: { x: 180, y: 790, width: 200, height: 100 }
+    style:
+      fillColor: "#F3F4F6"
+  - id: m_dict
+    label: 数据字典\n流程配置
+    type: process
+    bounds: { x: 440, y: 790, width: 200, height: 100 }
+    style:
+      fillColor: "#F3F4F6"
+  - id: m_vendor
+    label: 供应商审核\nCA证书管理
+    type: process
+    bounds: { x: 700, y: 790, width: 200, height: 100 }
+    style:
+      fillColor: "#F3F4F6"
+  - id: m_log
+    label: 系统日志\n运维监控
+    type: process
+    bounds: { x: 1480, y: 790, width: 200, height: 100 }
+    style:
+      fillColor: "#F3F4F6"
+
+  # 图例说明
+  - id: legend_main
+    label: 主流程 →
+    type: text
+    bounds: { x: 20, y: 940, width: 120, height: 30 }
+    style:
+      fillColor: "#FFFFFF"
+      fontColor: "#1E40AF"
+      fontSize: 12
+      bold: true
+  - id: legend_support
+    label: 监督/管理支持 —
+    type: text
+    bounds: { x: 160, y: 940, width: 160, height: 30 }
+    style:
+      fillColor: "#FFFFFF"
+      fontColor: "#64748B"
+      fontSize: 12
+      bold: true
+
+edges:
+  # 主流程
+  - from: t_create
+    to: t_approve_doc
+    type: primary
+  - from: t_approve_doc
+    to: a_publish
+    type: primary
+  - from: a_publish
+    to: b_register
+    type: primary
+  - from: b_register
+    to: b_download
+    type: primary
+  - from: b_download
+    to: b_submit
+    type: primary
+  - from: b_submit
+    to: a_open
+    type: primary
+  - from: a_open
+    to: b_quote
+    type: primary
+  - from: a_open
+    to: a_eval
+    type: primary
+  - from: a_eval
+    to: e_checkin
+    type: primary
+  - from: e_checkin
+    to: e_leader
+    type: primary
+  - from: e_leader
+    to: e_review
+    type: primary
+  - from: e_review
+    to: e_score
+    type: primary
+  - from: e_score
+    to: e_sign
+    type: primary
+  - from: e_sign
+    to: t_confirm
+    type: primary
+  - from: t_confirm
+    to: a_notice
+    type: primary
+  - from: a_notice
+    to: t_contract
+    type: primary
+
+  # 监督线
+  - from: a_open
+    to: s_open
+    type: optional
+    label: 监督
+  - from: a_eval
+    to: s_eval
+    type: optional
+    label: 监督
+  - from: s_open
+    to: s_audit
+    type: data
+  - from: s_eval
+    to: s_audit
+    type: data
+
+  # 管理支持线
+  - from: m_user
+    to: m_dict
+    type: data
+  - from: m_dict
+    to: m_vendor
+    type: data
+  - from: m_vendor
+    to: m_log
+    type: data

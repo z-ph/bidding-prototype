@@ -1,0 +1,183 @@
+// 角色与页面权限配置
+// 解决：URL 改角色、越权访问、页面按钮权限边界等问题
+
+export const ROLE_NAMES = {
+  tenderee: '招标人',
+  agent: '招标代理',
+  bidder: '投标人/供应商',
+  expert: '评标专家',
+  supervisor: '监督人员',
+  admin: '平台管理员'
+}
+
+export const ROLE_COLORS = {
+  tenderee: '#2563EB',
+  agent: '#059669',
+  bidder: '#D97706',
+  expert: '#DB2777',
+  supervisor: '#DC2626',
+  admin: '#475569'
+}
+
+// 页面路径 => 允许访问的角色列表
+export const PAGE_PERMISSIONS = {
+  // 通用首页
+  '/admin/dashboard': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+
+  // 招标人/招标代理共用页面
+  '/admin/projects': ['tenderee', 'agent'],
+  '/admin/projects/create': ['tenderee', 'agent'],
+  '/admin/projects/track': ['tenderee', 'agent'],
+  '/admin/tender-doc': ['tenderee', 'agent'],
+  '/admin/notice-publish': ['tenderee', 'agent'],
+  '/admin/fee-manage': ['tenderee', 'agent'],
+  '/admin/objection-manage': ['tenderee', 'agent'],
+  '/admin/award-confirm': ['tenderee', 'agent'],
+  '/admin/award-notice': ['tenderee', 'agent'],
+  '/admin/contract-archive': ['tenderee', 'agent'],
+
+  // 开标大厅：仅招标人/招标代理/投标人可进入，但操作权限不同
+  '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
+
+  // 评标大厅：仅招标代理/评标专家/监督人员
+  '/admin/evaluation-hall': ['agent', 'expert', 'supervisor'],
+
+  // 投标人页面
+  '/admin/bidder-projects': ['bidder'],
+  '/admin/bid-register': ['bidder'],
+  '/admin/bid-payment': ['bidder'],
+  '/admin/bid-download': ['bidder'],
+  '/admin/bid-quote': ['bidder'],
+  '/admin/bid-upload': ['bidder'],
+  '/admin/bidder-invoices': ['bidder'],
+
+  // 专家页面
+  '/admin/expert-project': ['expert'],
+
+  // 监督页面
+  '/admin/supervisor-hall': ['supervisor'],
+  '/admin/supervisor-logs': ['supervisor'],
+
+  // 管理员页面
+  '/admin/admin-dashboard': ['admin'],
+  '/admin/admin-users': ['admin'],
+  '/admin/admin-dictionary': ['admin'],
+  '/admin/admin-supplier-audit': ['admin'],
+  '/admin/admin-logs': ['admin'],
+  '/admin/organization': ['admin'],
+
+  // 供应商档案
+  '/admin/supplier-profile': ['bidder'],
+
+  // 专家信息
+  '/admin/expert-profile': ['expert'],
+
+  // 消息中心
+  '/admin/message-center': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+
+  // 监督异常登记
+  '/admin/supervisor-abnormal': ['supervisor']
+}
+
+// 账号默认角色映射（演示环境用）
+export const ACCOUNT_ROLE_MAP = {
+  tenderee: 'tenderee',
+  agent: 'agent',
+  bidder: 'bidder',
+  expert: 'expert',
+  supervisor: 'supervisor',
+  admin: 'admin',
+  zhangsan: 'tenderee',
+  lisi: 'agent',
+  gongying: 'bidder',
+  zhuanjia: 'expert',
+  jiandu: 'supervisor'
+}
+
+// 面包屑中文映射
+export const BREADCRUMB_NAMES = {
+  Dashboard: '工作台',
+  ProjectList: '项目列表',
+  ProjectCreate: '创建项目',
+  ProjectTrack: '项目跟踪',
+  TenderDoc: '招标文件',
+  BidUpload: '上传投标文件',
+  OpeningHall: '开标大厅',
+  EvaluationHall: '评标大厅',
+  NoticePublish: '发布公告',
+  BidderProjects: '我参与的项目',
+  BidRegister: '项目报名',
+  BidPayment: '缴纳费用',
+  BidDownload: '下载文件',
+  BidQuote: '在线报价',
+  BidderInvoices: '发票申请',
+  ExpertProject: '评标任务',
+  SupervisorHall: '监督大厅',
+  SupervisorLogs: '操作日志',
+  AdminDashboard: '管理控制台',
+  AdminUsers: '用户权限',
+  AdminDictionary: '参数字典',
+  AdminSupplierAudit: '准入审核',
+  AdminLogs: '日志审计',
+  AwardConfirm: '确认中标人',
+  AwardNotice: '中标通知书',
+  ContractArchive: '合同归档',
+  FeeManage: '费用管理',
+  ObjectionManage: '异议管理',
+  Organization: '组织机构',
+  SupplierProfile: '企业档案',
+  ExpertProfile: '专家信息',
+  MessageCenter: '消息中心',
+  SupervisorAbnormal: '异常登记'
+}
+
+// 统一业务状态颜色
+export const STATUS_COLORS = {
+  // 通用流程状态
+  draft: 'info',        // 草稿：灰色
+  pending: 'warning',   // 待处理：橙色
+  processing: 'primary', // 进行中：蓝色
+  completed: 'success', // 完成：绿色
+  rejected: 'danger',   // 驳回/失败：红色
+  exception: 'danger',  // 异常：红色
+
+  // 业务语义映射
+  草稿: 'info',
+  待提交: 'info',
+  待审核: 'warning',
+  审核中: 'warning',
+  待开标: 'warning',
+  开标中: 'primary',
+  评标中: 'primary',
+  待定标: 'warning',
+  已完成: 'success',
+  已中标: 'success',
+  已发布: 'success',
+  已归档: 'success',
+  已驳回: 'danger',
+  已废标: 'danger',
+  已流标: 'danger',
+  异常: 'danger'
+}
+
+export function getAllowedRoles(path) {
+  return PAGE_PERMISSIONS[path] || []
+}
+
+export function canAccess(path, role) {
+  const allowed = getAllowedRoles(path)
+  return allowed.length === 0 || allowed.includes(role)
+}
+
+export function getRoleName(role) {
+  return ROLE_NAMES[role] || '未知角色'
+}
+
+export function getBreadcrumbName(routeName) {
+  return BREADCRUMB_NAMES[routeName] || routeName
+}
+
+export function resolveRoleFromAccount(account) {
+  const key = String(account).toLowerCase().trim()
+  return ACCOUNT_ROLE_MAP[key] || 'tenderee'
+}

@@ -18,18 +18,8 @@
         <el-tabs id="login-tabs" v-model="activeTab" type="border-card">
           <el-tab-pane label="账号登录" name="account">
             <el-form :model="form" label-position="top">
-              <el-form-item id="login-role" label="角色">
-                <el-select v-model="form.role" placeholder="选择角色" style="width: 100%">
-                  <el-option label="招标人" value="tenderee" />
-                  <el-option label="招标代理" value="agent" />
-                  <el-option label="投标人/供应商" value="bidder" />
-                  <el-option label="评标专家" value="expert" />
-                  <el-option label="监督人员" value="supervisor" />
-                  <el-option label="平台管理员" value="admin" />
-                </el-select>
-              </el-form-item>
               <el-form-item label="账号">
-                <el-input v-model="form.account" placeholder="请输入账号" />
+                <el-input v-model="form.account" placeholder="请输入账号，如 tenderee / agent / bidder" />
               </el-form-item>
               <el-form-item label="密码">
                 <el-input v-model="form.password" type="password" placeholder="请输入密码" />
@@ -38,11 +28,21 @@
                 <el-button id="login-submit" type="primary" style="width: 100%" @click="login">登录</el-button>
               </el-form-item>
             </el-form>
+            <div class="role-hint">
+              <p>演示账号与角色：</p>
+              <p>tenderee → 招标人，agent → 招标代理，bidder → 投标人，</p>
+              <p>expert → 评标专家，supervisor → 监督人员，admin → 管理员</p>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="CA 登录" name="ca">
             <div id="login-ca-panel" class="ca-login">
               <el-icon :size="60" color="#409EFF"><Lock /></el-icon>
               <p>请插入 CA 数字证书 UKey</p>
+              <el-form :model="form" label-position="top" class="ca-account-form">
+                <el-form-item label="账号">
+                  <el-input v-model="form.account" placeholder="请输入账号以确定角色" />
+                </el-form-item>
+              </el-form>
               <el-button id="login-ca-btn" type="primary" @click="caLogin">检测证书并登录</el-button>
               <div class="ca-tips">
                 <el-link type="primary">下载 CA 驱动</el-link>
@@ -64,7 +64,7 @@
                 </el-input>
               </el-form-item>
               <el-form-item>
-                <el-button id="login-phone-submit" type="primary" style="width: 100%" @click="login">登录</el-button>
+                <el-button id="login-phone-submit" type="primary" style="width: 100%" @click="phoneLogin">登录</el-button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
@@ -84,18 +84,12 @@ import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { Check, Lock, QuestionFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useRole } from '../composables/useRole.js'
+import { resolveRoleFromAccount, ROLE_NAMES } from '../config/permissions.js'
 
 const router = useRouter()
+const { setRole } = useRole()
 const activeTab = ref('account')
-
-const roleNames = {
-  tenderee: '招标人',
-  agent: '招标代理',
-  bidder: '投标人/供应商',
-  expert: '评标专家',
-  supervisor: '监督人员',
-  admin: '平台管理员'
-}
 
 const dashboardMap = {
   tenderee: '/admin/dashboard',
@@ -107,8 +101,7 @@ const dashboardMap = {
 }
 
 const form = ref({
-  role: 'tenderee',
-  account: 'admin',
+  account: 'tenderee',
   password: '123456'
 })
 
@@ -117,22 +110,43 @@ const phoneForm = ref({
   code: ''
 })
 
+function doLogin(account, loginType = '账号') {
+  const resolvedRole = resolveRoleFromAccount(account)
+  setRole(resolvedRole, account)
+  ElMessage.success(`以 ${ROLE_NAMES[resolvedRole]} 身份登录成功（${loginType}）`)
+  router.push(dashboardMap[resolvedRole])
+}
+
 const login = () => {
-  const role = form.value.role
-  localStorage.setItem('bidding-role', role)
-  ElMessage.success(`以 ${roleNames[role]} 身份登录成功`)
-  router.push(dashboardMap[role])
+  if (!form.value.account) {
+    ElMessage.warning('请输入账号')
+    return
+  }
+  doLogin(form.value.account, '账号密码')
 }
 
 const caLogin = () => {
-  const role = form.value.role
-  localStorage.setItem('bidding-role', role)
-  ElMessage.success('检测到 CA 证书，正在验证...\n（演示环境跳过真实 CA 验证）')
-  router.push(dashboardMap[role])
+  doLogin(form.value.account, 'CA 证书')
 }
 
 const sendCode = () => {
+  if (!phoneForm.value.phone) {
+    ElMessage.warning('请输入手机号')
+    return
+  }
   ElMessage.success('验证码已发送：123456')
+}
+
+const phoneLogin = () => {
+  if (!phoneForm.value.phone) {
+    ElMessage.warning('请输入手机号')
+    return
+  }
+  if (!phoneForm.value.code) {
+    ElMessage.warning('请输入验证码')
+    return
+  }
+  doLogin(phoneForm.value.phone, '手机')
 }
 
 const startTour = () => {
@@ -263,12 +277,18 @@ const startTour = () => {
 
 .ca-login {
   text-align: center;
-  padding: 40px 20px;
+  padding: 20px 20px;
 }
 
 .ca-login p {
-  margin: 20px 0;
+  margin: 12px 0;
   color: #666;
+}
+
+.ca-account-form {
+  max-width: 280px;
+  margin: 0 auto 16px;
+  text-align: left;
 }
 
 .ca-tips {
@@ -277,6 +297,20 @@ const startTour = () => {
   justify-content: center;
   gap: 16px;
   color: #ccc;
+}
+
+.role-hint {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #606266;
+  line-height: 1.6;
+}
+
+.role-hint p {
+  margin: 0;
 }
 
 .register-link {
