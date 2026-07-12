@@ -1,0 +1,42 @@
+{
+  "name": "react-page-review",
+  "version": "0.1.0",
+  "description": "A React page review tool for collecting UI feedback with element selection and viewport boxing.",
+  "type": "module",
+  "main": "./dist/react-page-review.umd.cjs",
+  "module": "./dist/react-page-review.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/react-page-review.js",
+      "require": "./dist/react-page-review.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite": "^5.0.0"
+  },
+  "keywords": [
+    "react",
+    "review",
+    "feedback",
+    "ui-review",
+    "annotation"
+  ],
+  "license": "MIT"
+}
