@@ -17,7 +17,8 @@
 <script setup>
 import { ref } from 'vue'
 import { EditPen } from '@element-plus/icons-vue'
-import ReviewTool from './components/ReviewTool.vue'
+import { ReviewTool } from 'vue-page-review'
+import 'vue-page-review/style.css'
 
 const reviewActive = ref(false)
 </script>
