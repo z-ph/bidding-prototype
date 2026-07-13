@@ -20,6 +20,17 @@
       </div>
     </el-header>
 
+    <!-- 交易信息筛选 -->
+    <div class="filter-nav">
+      <el-radio-group v-model="noticeType" size="large">
+        <el-radio-button label="all">全部</el-radio-button>
+        <el-radio-button label="tender">招标公告</el-radio-button>
+        <el-radio-button label="change">变更公告</el-radio-button>
+        <el-radio-button label="candidate">候选人公示</el-radio-button>
+        <el-radio-button label="result">中标公告</el-radio-button>
+      </el-radio-group>
+    </div>
+
     <!-- Banner -->
     <div class="banner">
       <h1>全流程电子化招投标采购平台</h1>
@@ -44,13 +55,6 @@
     <div id="portal-notice-section" class="section">
       <div class="section-title">
         <h2>交易信息</h2>
-        <el-radio-group v-model="noticeType" size="small">
-          <el-radio-button label="all">全部</el-radio-button>
-          <el-radio-button label="tender">招标公告</el-radio-button>
-          <el-radio-button label="change">变更公告</el-radio-button>
-          <el-radio-button label="candidate">候选人公示</el-radio-button>
-          <el-radio-button label="result">中标公告</el-radio-button>
-        </el-radio-group>
       </div>
       <el-table id="portal-notice-table" :data="filteredNotices" style="width: 100%" @row-click="handleRowClick">
         <el-table-column prop="title" label="公告标题" min-width="300">
@@ -219,6 +223,17 @@ const register = (row) => {
 .nav {
   display: flex;
   gap: 10px;
+}
+
+.filter-nav {
+  background-color: #fff;
+  border-bottom: 1px solid #e4e7ed;
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px;
+  position: sticky;
+  top: 60px;
+  z-index: 99;
 }
 
 .banner {
