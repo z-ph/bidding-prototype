@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { RouterProvider } from 'react-router-dom'
 import { Button } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
-import { ReviewTool } from 'react-page-review'
-import 'react-page-review/style.css'
+import PageReview from './components/PageReview/index.jsx'
 import router from './router/index.jsx'
 
 function App() {
@@ -21,7 +20,7 @@ function App() {
         title="页面评审"
         onClick={() => setReviewActive(true)}
       />
-      <ReviewTool active={reviewActive} onActiveChange={setReviewActive} />
+      <PageReview active={reviewActive} onActiveChange={setReviewActive} />
       <style>{`
         * {
           margin: 0;

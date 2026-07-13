@@ -15,7 +15,7 @@
     "driver.js": "^1.6.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-page-review": "^0.5.6",
+    "react-page-review": "^0.6.0",
     "react-router-dom": "^6.30.0"
   },
   "devDependencies": {

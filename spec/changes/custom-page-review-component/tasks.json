@@ -1,0 +1,86 @@
+[
+  {
+    "number": 1,
+    "category": "依赖",
+    "task": "升级 react-page-review 到 0.6.0",
+    "steps": [
+      {
+        "step": "npm install react-page-review@^0.6.0",
+        "completed": true
+      },
+      {
+        "step": "确认 getNodeInfo / captureElement 等可导入",
+        "completed": true
+      }
+    ],
+    "passes": true
+  },
+  {
+    "number": 2,
+    "category": "组件",
+    "task": "实现 src/components/PageReview 自封装组件",
+    "steps": [
+      {
+        "step": "index.jsx：受控 active、overlay portal、ESC 退出",
+        "completed": true
+      },
+      {
+        "step": "元素选择与 hover 高亮（getNodeInfo）",
+        "completed": true
+      },
+      {
+        "step": "框定视图拖拽选区",
+        "completed": true
+      },
+      {
+        "step": "antd Modal 表单 + 截图 + addReview",
+        "completed": true
+      },
+      {
+        "step": "评审列表（删除 / 标记解决）与三种导出",
+        "completed": true
+      },
+      {
+        "step": "PageReview.css 自有样式",
+        "completed": true
+      }
+    ],
+    "passes": true
+  },
+  {
+    "number": 3,
+    "category": "集成",
+    "task": "App.jsx 替换 ReviewTool",
+    "steps": [
+      {
+        "step": "替换为自封装组件，移除 react-page-review/style.css 引入",
+        "completed": true
+      },
+      {
+        "step": "npm run build 通过",
+        "completed": true
+      }
+    ],
+    "passes": true
+  },
+  {
+    "number": 4,
+    "category": "验证",
+    "task": "运行时验证",
+    "steps": [
+      {
+        "step": "默认隐藏 / 打开 / ESC 与按钮退出",
+        "completed": true
+      },
+      {
+        "step": "元素评审提交后记录出现在列表与 localStorage",
+        "completed": true
+      },
+      {
+        "step": "框选评审与导出可用",
+        "completed": true
+      }
+    ],
+    "passes": true
+  }
+]
