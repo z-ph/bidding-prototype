@@ -36,7 +36,7 @@ export default function ContractArchive() {
         }
       >
         <Steps
-          current={4}
+          current={5}
           style={{ marginBottom: 24 }}
           items={[
             { title: '评标结束' },
