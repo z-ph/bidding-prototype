@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   ]
 
   const timelineTypeMap = {
-    warning: 'warning',
+    warning: 'orange',
     primary: 'blue',
     danger: 'red',
     success: 'green'

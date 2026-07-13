@@ -13,7 +13,7 @@ export default function MessageCenter() {
   const unreadMessages = messages.filter((m) => !m.read)
 
   const timelineTypeMap = {
-    warning: 'warning',
+    warning: 'orange',
     primary: 'blue',
     danger: 'red',
     success: 'green',

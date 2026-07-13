@@ -132,7 +132,7 @@ export default function Dashboard() {
   }
 
   const timelineTypeMap = {
-    warning: 'warning',
+    warning: 'orange',
     primary: 'blue',
     danger: 'red',
     success: 'green'
