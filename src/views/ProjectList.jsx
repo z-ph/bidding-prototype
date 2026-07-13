@@ -83,7 +83,7 @@ export default function ProjectList() {
       title: '项目名称',
       dataIndex: 'name',
       key: 'name',
-      minWidth: 240,
+      width: 240,
       render: (name, row) => (
         <Button type="link" onClick={() => viewDetail(row)} style={{ padding: 0 }}>
           {name}
@@ -140,7 +140,7 @@ export default function ProjectList() {
                 placeholder="项目状态"
                 allowClear
                 style={{ width: 140 }}
-                value={search.status || undefined}
+                value={search.status}
                 onChange={(value) => setSearch({ ...search, status: value || '' })}
                 options={[
                   { label: '全部', value: '' },
@@ -186,6 +186,7 @@ export default function ProjectList() {
             total={total}
             pageSize={search.pageSize}
             current={search.page}
+            showTotal={(total) => `共 ${total} 条`}
             onChange={(page) => {
               setSearch({ ...search, page })
               loadProjects()

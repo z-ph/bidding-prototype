@@ -162,7 +162,7 @@ export default function ProjectCreate() {
         {activeStep === 0 && (
           <>
             <h3>项目基本信息</h3>
-            <Form form={form} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
+            <Form form={form} initialValues={{ purchaseMode: 'open' }} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
               <Row gutter={20}>
                 <Col span={12}>
                   <Form.Item label="项目名称" name="name" rules={basicRules.name}>
