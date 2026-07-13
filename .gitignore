@@ -27,3 +27,6 @@ review-assets/
 
 # Worktrees
 .worktrees/
+
+# playwright-cli session artifacts
+.playwright-cli/
