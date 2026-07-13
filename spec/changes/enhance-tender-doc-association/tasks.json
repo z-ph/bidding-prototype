@@ -1,0 +1,57 @@
+[
+  {
+    "number": 1,
+    "category": "数据模型",
+    "task": "扩展项目与文件模板 mock 数据",
+    "steps": [
+      { "step": "在项目数据中增加标段列表、采购方式、文件类型模板字段", "completed": false },
+      { "step": "定义投标文件类型常量：商务标、技术标、报价标、其他", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 2,
+    "category": "招标文件侧",
+    "task": "改造 TenderDoc.vue 关联项目",
+    "steps": [
+      { "step": "在页面顶部增加项目选择器", "completed": false },
+      { "step": "选择项目后动态展示项目标段与文件模板章节", "completed": false },
+      { "step": "生成招标文件前校验项目已选择", "completed": false },
+      { "step": "生成后回显关联项目名称与版本", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 3,
+    "category": "投标文件侧",
+    "task": "改造 BidUpload.vue 按项目模板上传",
+    "steps": [
+      { "step": "选择项目后动态加载标段列表", "completed": false },
+      { "step": "根据招标文件模板生成必填文件类型清单", "completed": false },
+      { "step": "上传文件时要求选择文件类型并校验齐全性", "completed": false },
+      { "step": "提交前校验每个文件类型至少有一份文件", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 4,
+    "category": "引导入口",
+    "task": "增加投标文件制作向导",
+    "steps": [
+      { "step": "在 BidDownload.vue 或 BidUpload.vue 增加“制作投标文件”引导入口", "completed": false },
+      { "step": "向导页展示招标文件要求与已上传状态", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 5,
+    "category": "验证",
+    "task": "构建与功能验证",
+    "steps": [
+      { "step": "运行 npm run build 构建通过", "completed": false },
+      { "step": "验证招标代理可按项目生成招标文件", "completed": false },
+      { "step": "验证投标人可按模板逐项上传投标文件", "completed": false }
+    ],
+    "passes": false
+  }
+]
