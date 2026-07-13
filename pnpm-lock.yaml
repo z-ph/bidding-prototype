@@ -21,8 +21,8 @@ importers:
         specifier: ^3.5.39
         version: 3.5.39
       vue-page-review:
-        specifier: ^0.5.2
-        version: 0.5.2(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39)
+        specifier: ^0.5.3
+        version: 0.5.3(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39)
       vue-router:
         specifier: ^5.1.0
         version: 5.1.0(@vue/compiler-sfc@3.5.39)(rolldown@1.1.5)(vite@8.1.4(yaml@2.9.0))(vue@3.5.39)
@@ -873,8 +873,8 @@ packages:
   vue-component-type-helpers@3.3.7:
     resolution: {integrity: sha512-Skkhw9agYSgsWqv7bxSOGJZa9SaiJbZVGdXuFWnrzKaQYHnw9qbjD630rw6RyMqDbp54nfLCLw5SZA55if7JLg==}
 
-  vue-page-review@0.5.2:
-    resolution: {integrity: sha512-7iWq4pNKGUqUXVOeXbHET0/l1MQQY8cOmoqFKut/fj2wzbQqJGavYsTbVFUsi8iriQisocKEp7uTfP4rshPcEw==}
+  vue-page-review@0.5.3:
+    resolution: {integrity: sha512-X/YIHgnq8cIVg5HTu8W4i1VlNLTRCrnpdjctV1t6VtD1I3V2Emn9ltSdF+2NRgVKcxkxfZkL84npoRg/4g2BGQ==}
     peerDependencies:
       element-plus: ^2.14.0
       vue: ^3.3.0
@@ -1646,7 +1646,7 @@ snapshots:
 
   vue-component-type-helpers@3.3.7: {}
 
-  vue-page-review@0.5.2(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39):
+  vue-page-review@0.5.3(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39):
     dependencies:
       element-plus: 2.14.3(vue@3.5.39)
       html-to-image: 1.11.13
