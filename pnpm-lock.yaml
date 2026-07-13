@@ -21,8 +21,8 @@ importers:
         specifier: ^3.5.39
         version: 3.5.39
       vue-page-review:
-        specifier: ^0.5.0
-        version: 0.5.0(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39)
+        specifier: ^0.5.1
+        version: 0.5.1(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39)
       vue-router:
         specifier: ^5.1.0
         version: 5.1.0(@vue/compiler-sfc@3.5.39)(rolldown@1.1.5)(vite@8.1.4(yaml@2.9.0))(vue@3.5.39)
@@ -705,8 +705,8 @@ packages:
   pkg-types@2.3.1:
     resolution: {integrity: sha512-y+ichcgc2LrADuhLNAx8DFjVfgz91pRxfZdI3UDhxHvcVEZsenLO+7XaU5vOp0u/7V/wZ+plyuQxtrDlZJ+yeg==}
 
-  postcss@8.5.16:
-    resolution: {integrity: sha512-vuwillviilfKZsg0VGj5R/YwwcHx4SLsIOI/7K6mQkWx+l5cUHTjj5g0AasTBcyXsbfTgrwsUNmVUb5xVwyPwg==}
+  postcss@8.5.17:
+    resolution: {integrity: sha512-J7EF+8X+CzRPaJPOv9Ck2wNWJvGnnl3PcNPAdGg6GTLjyVpyQ0yATMSXRFRV01BviT/9Gwuc3rjEyJbDJG9a4w==}
     engines: {node: ^10 || ^12 || >=14}
 
   process-nextick-args@2.0.1:
@@ -873,8 +873,8 @@ packages:
   vue-component-type-helpers@3.3.7:
     resolution: {integrity: sha512-Skkhw9agYSgsWqv7bxSOGJZa9SaiJbZVGdXuFWnrzKaQYHnw9qbjD630rw6RyMqDbp54nfLCLw5SZA55if7JLg==}
 
-  vue-page-review@0.5.0:
-    resolution: {integrity: sha512-FEf3H7UrJxLDGfxIsm1qOT77nEQweTp/K0Z4mr9//WvLBcUTCG08TELFafmZd8laSzMwR5SmxQkGz0ivM2+yxA==}
+  vue-page-review@0.5.1:
+    resolution: {integrity: sha512-W0GaIEEDe/MQ6yiQuWgfx7BeFC6RnXhSQeRvrK/ODnTElCoB6x7lDaugWaNcP2D+f5rzkbhx/tShj2DrV+bYSg==}
     peerDependencies:
       element-plus: ^2.14.0
       vue: ^3.3.0
@@ -1129,7 +1129,7 @@ snapshots:
       '@vue/shared': 3.5.39
       estree-walker: 2.0.2
       magic-string: 0.30.21
-      postcss: 8.5.16
+      postcss: 8.5.17
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.39':
@@ -1526,7 +1526,7 @@ snapshots:
       exsolve: 1.1.0
       pathe: 2.0.3
 
-  postcss@8.5.16:
+  postcss@8.5.17:
     dependencies:
       nanoid: 3.3.15
       picocolors: 1.1.1
@@ -1637,7 +1637,7 @@ snapshots:
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.5
-      postcss: 8.5.16
+      postcss: 8.5.17
       rolldown: 1.1.5
       tinyglobby: 0.2.17
     optionalDependencies:
@@ -1646,7 +1646,7 @@ snapshots:
 
   vue-component-type-helpers@3.3.7: {}
 
-  vue-page-review@0.5.0(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39):
+  vue-page-review@0.5.1(element-plus@2.14.3(vue@3.5.39))(vue@3.5.39):
     dependencies:
       element-plus: 2.14.3(vue@3.5.39)
       html-to-image: 1.11.13
