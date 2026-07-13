@@ -27,6 +27,19 @@
   background: rgba(22, 119, 255, 0.1);
 }
 
+.page-review-selected {
+  position: fixed;
+  z-index: 9001;
+  pointer-events: none;
+  border: 2px solid #fa8c16;
+  background: rgba(250, 140, 22, 0.1);
+  border-radius: 2px;
+}
+
+.page-review-selected.is-box {
+  border-style: dashed;
+}
+
 .page-review-toolbar {
   position: fixed;
   top: 16px;

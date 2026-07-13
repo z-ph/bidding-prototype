@@ -34,6 +34,8 @@ function pageContext() {
   }
 }
 
+let targetSeq = 0
+
 export default function PageReview({ active = false, onActiveChange }) {
   const {
     addReview,
@@ -48,24 +50,29 @@ export default function PageReview({ active = false, onActiveChange }) {
   const [mode, setMode] = useState('element')
   const [hoverRect, setHoverRect] = useState(null)
   const [dragRect, setDragRect] = useState(null)
+  const [targets, setTargets] = useState([])
   const [formOpen, setFormOpen] = useState(false)
   const [listOpen, setListOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [target, setTarget] = useState(null)
+  const [scrollTick, setScrollTick] = useState(0)
   const [form] = Form.useForm()
   const dragStartRef = useRef(null)
   const [, forceUpdate] = useState(0)
 
   const pageReviews = getPageReviews()
 
-  const close = useCallback(() => {
+  const clearTargets = useCallback(() => {
+    setTargets([])
     setHoverRect(null)
     setDragRect(null)
+  }, [])
+
+  const close = useCallback(() => {
+    clearTargets()
     setFormOpen(false)
     setListOpen(false)
-    setTarget(null)
     onActiveChange?.(false)
-  }, [onActiveChange])
+  }, [onActiveChange, clearTargets])
 
   // ESC 退出（表单/列表弹窗打开时交给 antd Modal 自己处理）
   useEffect(() => {
@@ -77,9 +84,21 @@ export default function PageReview({ active = false, onActiveChange }) {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [active, formOpen, listOpen, close])
 
+  // 滚动/缩放时重算高亮位置
+  useEffect(() => {
+    if (!active) return
+    const onScroll = () => setScrollTick(n => n + 1)
+    window.addEventListener('scroll', onScroll, true)
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [active])
+
   const inReviewUi = (el) => !!el?.closest?.('.page-review-ui')
 
-  // 元素选择模式：hover 高亮 + 点击选中
+  // 元素选择模式：hover 高亮 + 点击选中（不弹表单），Cmd/Ctrl+点击多选
   useEffect(() => {
     if (!active || mode !== 'element' || formOpen || listOpen) return
     const onMove = (e) => {
@@ -96,14 +115,25 @@ export default function PageReview({ active = false, onActiveChange }) {
       e.stopPropagation()
       const info = getNodeInfo(e.target)
       if (!info) return
-      setTarget({
-        type: 'element',
+      setHoverRect(null)
+      const item = {
+        id: ++targetSeq,
+        kind: 'element',
         el: e.target,
         info,
         text: (e.target.textContent || '').trim().slice(0, 200)
-      })
-      setHoverRect(null)
-      setFormOpen(true)
+      }
+      if (e.metaKey || e.ctrlKey) {
+        setTargets(prev => {
+          const exists = prev.find(t => t.kind === 'element' && t.el === e.target)
+          return exists ? prev.filter(t => t !== exists) : [...prev, item]
+        })
+      } else {
+        setTargets(prev => {
+          const kept = prev.filter(t => t.kind !== 'element')
+          return [...kept, item]
+        })
+      }
     }
     document.addEventListener('mousemove', onMove, true)
     document.addEventListener('click', onClick, true)
@@ -113,7 +143,7 @@ export default function PageReview({ active = false, onActiveChange }) {
     }
   }, [active, mode, formOpen, listOpen])
 
-  // 框定视图模式：overlay 上拖拽
+  // 框定视图模式：overlay 上拖拽，松手后选区加入目标集合（不弹表单）
   const onOverlayMouseDown = (e) => {
     if (mode !== 'viewport' || formOpen || listOpen) return
     dragStartRef.current = { x: e.clientX, y: e.clientY }
@@ -141,65 +171,82 @@ export default function PageReview({ active = false, onActiveChange }) {
       height: Math.abs(e.clientY - y)
     }
     if (rect.width < 8 || rect.height < 8) return
-    setTarget({
-      type: 'viewport',
-      rect: {
+    setTargets(prev => [...prev, {
+      id: ++targetSeq,
+      kind: 'viewport',
+      pageRect: {
         x: rect.left + window.scrollX,
         y: rect.top + window.scrollY,
         width: rect.width,
         height: rect.height
       }
-    })
-    setFormOpen(true)
+    }])
+  }
+
+  const targetViewRect = (t) => {
+    void scrollTick
+    if (t.kind === 'element') {
+      if (!t.el.isConnected) return null
+      const r = t.el.getBoundingClientRect()
+      return { left: r.left, top: r.top, width: r.width, height: r.height }
+    }
+    return {
+      left: t.pageRect.x - window.scrollX,
+      top: t.pageRect.y - window.scrollY,
+      width: t.pageRect.width,
+      height: t.pageRect.height
+    }
   }
 
   const submitReview = async () => {
     const values = await form.validateFields()
+    if (targets.length === 0) return
     setSubmitting(true)
     try {
       const screenshots = []
-      let dataUrl = null
-      if (target.type === 'element') {
-        dataUrl = await captureElement(target.el)
-      } else {
-        dataUrl = await captureBox(target.rect)
-      }
-      if (dataUrl) {
-        screenshots.push({
-          type: target.type,
-          filename: generateScreenshotFilename(target.type),
-          data: dataUrl
-        })
-      }
-      const ctx = pageContext()
-      const targets = target.type === 'element'
-        ? [{
+      const payloadTargets = []
+      for (const t of targets) {
+        let dataUrl = null
+        if (t.kind === 'element') {
+          dataUrl = await captureElement(t.el)
+          payloadTargets.push({
             type: 'element',
-            selector: target.info.selector,
-            elementText: target.text,
-            elementRect: target.info.rect,
-            aria: target.info.aria,
+            selector: t.info.selector,
+            elementText: t.text,
+            elementRect: t.info.rect,
+            aria: t.info.aria,
             locators: {
-              cssSelector: target.info.selector,
-              xpath: target.info.xpath,
-              aria: target.info.aria,
-              testId: target.info.testId
+              cssSelector: t.info.selector,
+              xpath: t.info.xpath,
+              aria: t.info.aria,
+              testId: t.info.testId
             }
-          }]
-        : [{ type: 'viewport', viewportRect: target.rect }]
+          })
+        } else {
+          dataUrl = await captureBox(t.pageRect)
+          payloadTargets.push({ type: 'viewport', viewportRect: t.pageRect })
+        }
+        if (dataUrl) {
+          screenshots.push({
+            type: t.kind,
+            filename: generateScreenshotFilename(t.kind),
+            data: dataUrl
+          })
+        }
+      }
       addReview({
-        type: target.type,
+        type: payloadTargets.every(t => t.type === 'viewport') ? 'viewport' : 'element',
         title: values.title.trim(),
         severity: values.severity,
         suggestion: values.suggestion.trim(),
-        targets,
+        targets: payloadTargets,
         status: 'open',
         screenshots,
-        ...ctx
+        ...pageContext()
       })
       message.success('评审已提交')
       setFormOpen(false)
-      setTarget(null)
+      clearTargets()
       form.resetFields()
     } catch (err) {
       console.error('submit review failed:', err)
@@ -225,6 +272,16 @@ export default function PageReview({ active = false, onActiveChange }) {
       {dragRect && (
         <div className="page-review-drag-rect page-review-ui" style={dragRect} />
       )}
+      {targets.map(t => {
+        const rect = targetViewRect(t)
+        return rect ? (
+          <div
+            key={t.id}
+            className={`page-review-selected page-review-ui${t.kind === 'viewport' ? ' is-box' : ''}`}
+            style={rect}
+          />
+        ) : null
+      })}
       <div className="page-review-toolbar page-review-ui">
         <span className="page-review-toolbar-title">页面评审</span>
         <Radio.Group
@@ -237,6 +294,18 @@ export default function PageReview({ active = false, onActiveChange }) {
             { value: 'viewport', label: '框定视图' }
           ]}
         />
+        <span className="page-review-count">已选 {targets.length} 个目标</span>
+        <Button
+          size="small"
+          type="primary"
+          disabled={targets.length === 0}
+          onClick={() => setFormOpen(true)}
+        >
+          提交评审
+        </Button>
+        <Button size="small" disabled={targets.length === 0} onClick={clearTargets}>
+          取消选择
+        </Button>
         <Button size="small" onClick={() => setListOpen(true)}>
           评审列表（{pageReviews.length}）
         </Button>
@@ -244,12 +313,12 @@ export default function PageReview({ active = false, onActiveChange }) {
       </div>
 
       <Modal
-        title={target?.type === 'viewport' ? '框选区域评审' : '元素评审'}
+        title={`提交评审（${targets.length} 个目标）`}
         open={formOpen}
         confirmLoading={submitting}
         okText="提交评审"
         onOk={submitReview}
-        onCancel={() => { setFormOpen(false); setTarget(null) }}
+        onCancel={() => setFormOpen(false)}
         destroyOnHidden
         rootClassName="page-review-ui"
       >
@@ -263,11 +332,15 @@ export default function PageReview({ active = false, onActiveChange }) {
           <Form.Item name="suggestion" label="评审建议" rules={[{ required: true, message: '请输入评审建议' }]}>
             <Input.TextArea rows={4} placeholder="详细说明问题与修改建议" maxLength={1000} />
           </Form.Item>
-          {target?.type === 'element' && (
-            <div className="page-review-target-info">
-              目标元素：<code>{target.info.selector}</code>
-            </div>
-          )}
+          <div className="page-review-target-info">
+            {targets.map(t => (
+              <div key={t.id}>
+                {t.kind === 'element'
+                  ? <>元素：<code>{t.info.selector}</code></>
+                  : <>框选区域：{Math.round(t.pageRect.width)}×{Math.round(t.pageRect.height)}</>}
+              </div>
+            ))}
+          </div>
         </Form>
       </Modal>
 
@@ -319,9 +392,11 @@ export default function PageReview({ active = false, onActiveChange }) {
                     <>
                       <div>{item.suggestion}</div>
                       <div className="page-review-item-meta">
-                        {item.targets?.[0]?.type === 'element'
-                          ? <code>{item.targets[0].selector}</code>
-                          : `框选 ${Math.round(item.targets?.[0]?.viewportRect?.width || 0)}×${Math.round(item.targets?.[0]?.viewportRect?.height || 0)}`}
+                        {item.targets?.length > 1
+                          ? `${item.targets.length} 个目标`
+                          : item.targets?.[0]?.type === 'element'
+                            ? <code>{item.targets[0].selector}</code>
+                            : `框选 ${Math.round(item.targets?.[0]?.viewportRect?.width || 0)}×${Math.round(item.targets?.[0]?.viewportRect?.height || 0)}`}
                         {' · '}{new Date(item.createdAt).toLocaleString()}
                       </div>
                     </>
