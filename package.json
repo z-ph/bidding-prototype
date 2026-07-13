@@ -14,7 +14,7 @@
     "driver.js": "^1.6.0",
     "element-plus": "^2.14.2",
     "vue": "^3.5.39",
-    "vue-page-review": "^0.5.3",
+    "vue-page-review": "^0.5.4",
     "vue-router": "^5.1.0"
   },
   "devDependencies": {
