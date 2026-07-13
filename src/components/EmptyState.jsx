@@ -1,5 +1,6 @@
 import { Empty, Button } from 'antd'
 import {
+  BankOutlined,
   FileTextOutlined,
   FolderOpenOutlined,
   InboxOutlined
@@ -8,7 +9,8 @@ import {
 const ICON_MAP = {
   Document: FileTextOutlined,
   Folder: FolderOpenOutlined,
-  Box: InboxOutlined
+  Box: InboxOutlined,
+  OfficeBuilding: BankOutlined
 }
 
 export default function EmptyState({
