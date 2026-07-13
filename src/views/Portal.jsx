@@ -104,7 +104,7 @@ export default function Portal() {
 
   const tagColorMap = {
     primary: 'processing',
-    warning: 'warning',
+    warning: 'orange',
     success: 'success',
     info: 'default'
   }
