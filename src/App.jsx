@@ -1,5 +1,8 @@
+import { RouterProvider } from 'react-router-dom'
+import router from './router/index.jsx'
+
 function App() {
-  return <div>React Migration Scaffold Ready</div>
+  return <RouterProvider router={router} />
 }
 
 export default App
