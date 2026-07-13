@@ -1,0 +1,4 @@
+# 自有包刚发布即需要在本地消费，豁免 pnpm 供应链最小发布时间策略
+minimumReleaseAgeExclude:
+  - react-page-review
+  - vue-page-review

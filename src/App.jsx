@@ -3,7 +3,6 @@ import { RouterProvider } from 'react-router-dom'
 import { Button } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { ReviewTool } from 'react-page-review'
-import 'react-page-review/style.css'
 import router from './router/index.jsx'
 
 function App() {

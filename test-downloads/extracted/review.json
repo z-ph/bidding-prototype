@@ -1,0 +1,192 @@
+{
+  "exportTime": "2026-07-13T16:52:13.870Z",
+  "total": 1,
+  "reviews": [
+    {
+      "id": "rv-1783961532335-xd27bv",
+      "type": "element",
+      "title": "ZIP 导出端到端测试",
+      "severity": "medium",
+      "suggestion": "验证 ZIP 导出包含 json、md 和 images",
+      "targets": [
+        {
+          "type": "element",
+          "selector": "div#portal-quick-links > div:nth-of-type(4) > div > h3",
+          "elementText": "招标人入口",
+          "elementRect": {
+            "x": 970,
+            "y": 1027.15625,
+            "width": 225,
+            "height": 25.71875
+          },
+          "componentTree": {
+            "dom": [
+              {
+                "tag": "body",
+                "selector": "",
+                "xpath": "/html/body/",
+                "rect": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 720
+                }
+              },
+              {
+                "tag": "div",
+                "id": "app",
+                "selector": "#app",
+                "xpath": "//*[@id=\"app\"]",
+                "rect": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 1121.875
+                }
+              },
+              {
+                "tag": "div",
+                "classes": [
+                  "portal"
+                ],
+                "selector": "div.portal",
+                "xpath": "/html/body/div[1]/div[1]",
+                "rect": {
+                  "x": 0,
+                  "y": 0,
+                  "width": 1280,
+                  "height": 1121.875
+                }
+              },
+              {
+                "tag": "div",
+                "id": "portal-quick-links",
+                "classes": [
+                  "section",
+                  "quick-links"
+                ],
+                "selector": "#portal-quick-links",
+                "xpath": "//*[@id=\"portal-quick-links\"]",
+                "rect": {
+                  "x": 40,
+                  "y": 949.15625,
+                  "width": 1200,
+                  "height": 172.71875
+                }
+              },
+              {
+                "tag": "div",
+                "classes": [
+                  "ant-card",
+                  "ant-card-bordered",
+                  "ant-card-hoverable",
+                  "quick-card",
+                  "css-dev-only-do-not-override-mncuj7"
+                ],
+                "selector": "div.ant-card.ant-card-bordered",
+                "xpath": "/html/body/div[1]/div[1]/div[4]/div[4]",
+                "rect": {
+                  "x": 945,
+                  "y": 948.9652099609375,
+                  "width": 275,
+                  "height": 172.71875
+                }
+              },
+              {
+                "tag": "div",
+                "classes": [
+                  "ant-card-body"
+                ],
+                "selector": "div.ant-card-body",
+                "xpath": "/html/body/div[1]/div[1]/div[4]/div[4]/div[1]",
+                "rect": {
+                  "x": 946,
+                  "y": 949.9652099609375,
+                  "width": 273,
+                  "height": 170.71875
+                }
+              },
+              {
+                "tag": "h3",
+                "selector": "div#portal-quick-links > div:nth-of-type(4) > div > h3",
+                "xpath": "/html/body/div[1]/div[1]/div[4]/div[4]/div[1]/h3[1]",
+                "rect": {
+                  "x": 970,
+                  "y": 1026.9652099609375,
+                  "width": 225,
+                  "height": 25.71875
+                },
+                "aria": {
+                  "role": "heading"
+                }
+              }
+            ],
+            "framework": [
+              {
+                "componentName": "App"
+              },
+              {
+                "componentName": "RouterProvider"
+              },
+              {
+                "componentName": "Router"
+              },
+              {
+                "componentName": "DataRoutes"
+              },
+              {
+                "componentName": "RenderErrorBoundary"
+              },
+              {
+                "componentName": "RenderedRoute"
+              },
+              {
+                "componentName": "Portal"
+              }
+            ]
+          },
+          "aria": {
+            "role": "heading"
+          },
+          "locators": {
+            "cssSelector": "div#portal-quick-links > div:nth-of-type(4) > div > h3",
+            "xpath": "/html/body/div[1]/div[1]/div[4]/div[4]/div[1]/h3[1]",
+            "aria": {
+              "role": "heading"
+            }
+          }
+        }
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scroll": {
+        "x": 0,
+        "y": 402
+      },
+      "pagePath": "/bidding-prototype/",
+      "pageUrl": "http://localhost:5173/bidding-prototype/",
+      "pageName": "/bidding-prototype/",
+      "status": "open",
+      "screenshots": [
+        {
+          "type": "element",
+          "filename": "screenshot-element-1783961532335-mjau.png",
+          "imagePath": "images/screenshot-element-1783961532335-mjau.png"
+        }
+      ],
+      "aria": {
+        "role": "heading"
+      },
+      "locators": {
+        "cssSelector": "div#portal-quick-links > div:nth-of-type(4) > div > h3",
+        "xpath": "/html/body/div[1]/div[1]/div[4]/div[4]/div[1]/h3[1]",
+        "aria": {
+          "role": "heading"
+        }
+      },
+      "createdAt": "2026-07-13T16:52:12.335Z"
+    }
+  ]
+}
