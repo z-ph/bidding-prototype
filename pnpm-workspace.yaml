@@ -1,4 +1,6 @@
+minimumReleaseAge: 0
 minimumReleaseAgeExclude:
   - vue-page-review@0.4.2
   - vue-page-review@0.5.0
   - vue-page-review@0.5.1
+  - vue-page-review@0.5.2
