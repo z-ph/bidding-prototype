@@ -30,3 +30,4 @@ review-assets/
 
 # playwright-cli session artifacts
 .playwright-cli/
+test-downloads/
