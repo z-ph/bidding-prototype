@@ -1,10 +1,24 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card, Input, Select, Button, Table, Tag, Pagination, message } from 'antd'
+import { Card, Input, Select, Button, Table, Tag, Pagination, message, Modal } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
+import { useRole } from '../hooks/useRole.js'
+
+function applyDataScope(items, scope, userInfo) {
+  if (!scope || scope === 'all' || !userInfo) return items
+  if (scope === 'enterprise') return items
+  if (scope === 'department') {
+    return items.filter((item) => !item.deptCode || item.deptCode === userInfo.deptCode)
+  }
+  if (scope === 'self') {
+    return items.filter((item) => !item.owner || item.owner === userInfo.nickname || item.owner === userInfo.account)
+  }
+  return items
+}
 
 export default function ProjectList() {
   const navigate = useNavigate()
+  const { role, userInfo, dataScope } = useRole()
   const [loading, setLoading] = useState(false)
   const [total] = useState(50)
   const [search, setSearch] = useState({
@@ -16,12 +30,14 @@ export default function ProjectList() {
   })
 
   const [projects] = useState([
-    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', budget: 850, status: 'registering', publishTime: '2026-07-01', deadline: '2026-07-20' },
-    { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', budget: 45, status: 'pending_open', publishTime: '2026-07-02', deadline: '2026-07-18' },
-    { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', budget: 120, status: 'evaluating', publishTime: '2026-07-03', deadline: '2026-07-15' },
-    { id: 4, name: '物业服务采购项目', code: 'ZB20260704004', type: '公开招标', budget: 60, status: 'done', publishTime: '2026-06-20', deadline: '2026-07-05' },
-    { id: 5, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', budget: 230, status: 'tendering', publishTime: '2026-07-05', deadline: '2026-07-25' }
+    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', budget: 850, status: 'registering', publishTime: '2026-07-01', deadline: '2026-07-20', owner: '张三', deptCode: 'CG' },
+    { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', budget: 45, status: 'pending_open', publishTime: '2026-07-02', deadline: '2026-07-18', owner: '李四', deptCode: 'ZB' },
+    { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', budget: 120, status: 'evaluating', publishTime: '2026-07-03', deadline: '2026-07-15', owner: '张三', deptCode: 'CG' },
+    { id: 4, name: '物业服务采购项目', code: 'ZB20260704004', type: '公开招标', budget: 60, status: 'done', publishTime: '2026-06-20', deadline: '2026-07-05', owner: '王五', deptCode: 'FW' },
+    { id: 5, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', budget: 230, status: 'tendering', publishTime: '2026-07-05', deadline: '2026-07-25', owner: '张三', deptCode: 'CG' }
   ])
+
+  const scopedProjects = useMemo(() => applyDataScope(projects, dataScope, userInfo), [projects, dataScope, userInfo])
 
   const statusMap = {
     draft: { text: '草稿', color: 'default' },
@@ -59,12 +75,26 @@ export default function ProjectList() {
     loadProjects()
   }
 
+  const beforeOpenStatuses = ['draft', 'tendering', 'registering']
+
   const viewDetail = (row) => {
-    message.success(`查看项目详情：${row.name}`)
+    navigate(`/admin/projects/detail/${row.id}`)
   }
 
   const edit = (row) => {
-    message.success(`编辑项目：${row.name}`)
+    navigate(`/admin/projects/edit/${row.id}`)
+  }
+
+  const publish = (row) => {
+    Modal.confirm({
+      title: '发标确认',
+      content: `确认发布项目“${row.name}”？发布后将进入招标中状态并生成招标公告。`,
+      okText: '确认发标',
+      cancelText: '取消',
+      onOk: () => {
+        message.success(`项目“${row.name}”已发标`)
+      }
+    })
   }
 
   const nextStep = (row) => {
@@ -74,7 +104,7 @@ export default function ProjectList() {
       pending_open: '/admin/opening-hall',
       evaluating: '/admin/evaluation-hall'
     }
-    navigate(map[row.status] || '/admin/projects')
+    navigate(`${map[row.status] || '/admin/projects'}?projectId=${row.id}`)
   }
 
   const columns = [
@@ -116,7 +146,12 @@ export default function ProjectList() {
       render: (_, row) => (
         <>
           <Button type="link" onClick={() => viewDetail(row)}>详情</Button>
-          <Button type="link" onClick={() => edit(row)}>编辑</Button>
+          {beforeOpenStatuses.includes(row.status) && (
+            <Button type="link" onClick={() => edit(row)}>编辑</Button>
+          )}
+          {row.status === 'draft' && role === 'tenderee' && (
+            <Button type="link" onClick={() => publish(row)}>发标</Button>
+          )}
           <Button type="link" onClick={() => nextStep(row)}>{nextLabel(row.status)}</Button>
         </>
       )
@@ -168,15 +203,17 @@ export default function ProjectList() {
               <Button type="primary" onClick={loadProjects}>查询</Button>
               <Button onClick={reset}>重置</Button>
             </div>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/projects/create')}>
-              创建项目
-            </Button>
+            {role === 'tenderee' && (
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/projects/create')}>
+                创建项目
+              </Button>
+            )}
           </div>
         }
       >
         <Table
           rowKey="id"
-          dataSource={projects}
+          dataSource={scopedProjects}
           columns={columns}
           loading={loading}
           pagination={false}

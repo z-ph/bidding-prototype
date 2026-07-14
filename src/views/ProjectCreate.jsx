@@ -16,9 +16,11 @@ import {
   Button,
   Row,
   Col,
-  message
+  message,
+  Tooltip,
+  Transfer
 } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import EmptyState from '../components/EmptyState.jsx'
 
 export default function ProjectCreate() {
@@ -47,14 +49,18 @@ export default function ProjectCreate() {
     performance: '',
     financial: '',
     credit: '',
-    allowConsortium: false
+    allowConsortium: false,
+    invitedBidders: []
   })
 
+  const [inviteCode, setInviteCode] = useState('')
+
   const packageBudgetTotal = formData.packages.reduce((sum, p) => sum + (Number(p.budget) || 0), 0)
+  const budgetExceeded = Number(formData.budget) > 0 && packageBudgetTotal > Number(formData.budget)
 
   const canNext = () => {
     if (activeStep === 0) return true
-    if (activeStep === 2) return formData.packages.length > 0
+    if (activeStep === 2) return formData.packages.length > 0 && !budgetExceeded
     return true
   }
 
@@ -97,9 +103,15 @@ export default function ProjectCreate() {
         return
       }
     }
-    if (activeStep === 2 && formData.packages.length === 0) {
-      message.warning('请至少添加一个标段')
-      return
+    if (activeStep === 2) {
+      if (formData.packages.length === 0) {
+        message.warning('请至少添加一个标段')
+        return
+      }
+      if (budgetExceeded) {
+        message.error('标段预算合计超过项目预算，请调整后再继续')
+        return
+      }
     }
     setActiveStep((s) => s + 1)
   }
@@ -143,6 +155,13 @@ export default function ProjectCreate() {
     openTime: [{ required: true, message: '请选择开标时间' }],
     intro: [{ required: true, message: '请输入项目简介' }]
   }
+
+  const registeredBidders = [
+    { key: 'A科技有限公司', title: 'A科技有限公司', description: '已注册供应商' },
+    { key: 'B实业有限公司', title: 'B实业有限公司', description: '已注册供应商' },
+    { key: 'C股份有限公司', title: 'C股份有限公司', description: '已注册供应商' },
+    { key: 'D集团有限公司', title: 'D集团有限公司', description: '已注册供应商' }
+  ]
 
   const steps = ['基本信息', '需求与成员', '标段设置', '供应商要求', '提交审核']
 
@@ -286,9 +305,16 @@ export default function ProjectCreate() {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="需求编号">
+                  <Form.Item label={
+                    <span>
+                      需求编号
+                      <Tooltip title="关联年度采购计划或临时采购申请单号，非必填">
+                        <QuestionCircleOutlined style={{ marginLeft: 6, color: '#999' }} />
+                      </Tooltip>
+                    </span>
+                  }>
                     <Input
-                      placeholder="关联需求单号"
+                      placeholder="关联年度采购计划或临时采购申请单号，非必填"
                       value={formData.demandCode}
                       onChange={(e) => updateField('demandCode', e.target.value)}
                     />
@@ -338,7 +364,14 @@ export default function ProjectCreate() {
             <div className="section-header">
               <div>
                 <h3>标段/包件设置</h3>
-                <p className="section-tip">项目预算：{formData.budget || 0} 万元 · 标段预算合计：{packageBudgetTotal} 万元</p>
+                <p className="section-tip">
+                  项目预算：{formData.budget || 0} 万元 · 标段预算合计：{packageBudgetTotal} 万元
+                  {budgetExceeded && (
+                    <span style={{ color: '#ff4d4f', marginLeft: 12 }}>
+                      标段预算合计超过项目预算
+                    </span>
+                  )}
+                </p>
               </div>
               <Button type="primary" icon={<PlusOutlined />} onClick={addPackage}>添加标段</Button>
             </div>
@@ -391,6 +424,37 @@ export default function ProjectCreate() {
                 </Form.Item>
               </Card>
             ))}
+
+            {formData.purchaseMode === 'invitation' && (
+              <Card title="邀请投标人" size="small" className="invite-card" style={{ marginTop: 16 }}>
+                <p className="section-tip">请从平台已注册企业中选择被邀请人，或输入邀请码邀请外部企业。</p>
+                <Transfer
+                  dataSource={registeredBidders}
+                  titles={['平台注册企业', '已邀请企业']}
+                  targetKeys={formData.invitedBidders}
+                  onChange={(next) => updateField('invitedBidders', next)}
+                  render={(item) => item.title}
+                  listStyle={{ width: 260, height: 260 }}
+                />
+                <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+                  <Input
+                    placeholder="输入外部企业邀请码"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    style={{ width: 260 }}
+                  />
+                  <Button
+                    disabled={!inviteCode}
+                    onClick={() => {
+                      message.success(`已发送邀请码 ${inviteCode} 的邀请`)
+                      setInviteCode('')
+                    }}
+                  >
+                    添加邀请码
+                  </Button>
+                </div>
+              </Card>
+            )}
           </>
         )}
 

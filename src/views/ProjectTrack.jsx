@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, Select, Alert, Timeline, Button } from 'antd'
 import {
   CheckCircleOutlined,
@@ -8,12 +8,16 @@ import {
   PlayCircleOutlined,
   StarOutlined,
   TrophyOutlined,
-  CheckSquareOutlined
+  CheckSquareOutlined,
+  WalletOutlined
 } from '@ant-design/icons'
 
 export default function ProjectTrack() {
   const navigate = useNavigate()
-  const [projectId, setProjectId] = useState('1')
+  const [searchParams] = useSearchParams()
+  const queryProjectId = searchParams.get('projectId')
+  const [projectId, setProjectId] = useState(queryProjectId || '1')
+  const [paid, setPaid] = useState(false)
 
   const iconMap = {
     CheckCircleOutlined,
@@ -22,20 +26,21 @@ export default function ProjectTrack() {
     PlayCircleOutlined,
     StarOutlined,
     TrophyOutlined,
-    CheckSquareOutlined
+    CheckSquareOutlined,
+    WalletOutlined
   }
 
-  const [nodes] = useState([
+  const nodes = [
     { title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
     { title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
     { title: '发布招标公告', desc: '招标公告已发布至门户，供应商可报名', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
-    { title: '投标报名与缴费', desc: '供应商报名并通过审核、缴纳费用', time: '2026-07-05 16:00', color: 'green', icon: 'CheckCircleOutlined' },
-    { title: '上传投标文件', desc: '供应商上传加密投标文件并报价', time: '进行中', color: 'blue', icon: 'UploadOutlined', action: '去上传', path: '/admin/bid-upload' },
+    { title: '投标报名与缴费', desc: paid ? '供应商报名并通过审核、已缴纳费用' : '供应商报名并通过审核、等待缴纳费用', time: paid ? '2026-07-05 16:00' : '进行中', color: paid ? 'green' : 'blue', icon: 'WalletOutlined', action: paid ? undefined : '去缴纳', path: `/admin/bid-payment?projectId=${projectId}` },
+    { title: '上传投标文件', desc: '供应商上传加密投标文件并报价', time: paid ? '进行中' : '待进行', color: paid ? 'blue' : 'gray', icon: 'UploadOutlined', action: paid ? '去上传' : undefined, path: `/admin/bid-upload?projectId=${projectId}` },
     { title: '线上开标', desc: '开标大厅完成签到、解密、唱标', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' },
     { title: '线上评标', desc: '专家评分、生成评标报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
     { title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' },
     { title: '合同归档', desc: '上传合同，项目结束', time: '待进行', color: 'gray', icon: 'CheckSquareOutlined' }
-  ])
+  ]
 
   const go = (path) => navigate(path)
 
@@ -65,6 +70,20 @@ export default function ProjectTrack() {
           closable={false}
           style={{ marginBottom: 20 }}
         />
+
+        <Alert
+          message="演示：点击“去缴纳”模拟完成文件费缴纳，缴纳后流程节点动态更新。"
+          type="warning"
+          showIcon
+          closable={false}
+          style={{ marginBottom: 20 }}
+          action={
+            <Button size="small" onClick={() => setPaid((p) => !p)}>
+              {paid ? '重置缴费状态' : '模拟已缴费'}
+            </Button>
+          }
+        />
+
         <Timeline
           items={nodes.map((node, idx) => {
             const Icon = iconMap[node.icon]

@@ -1,25 +1,29 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Alert, Button, Card, Descriptions, Result, Steps, Table, Tag, message } from 'antd'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Alert, Button, Card, Descriptions, Result, Steps, Table, Tag, message, Modal } from 'antd'
 import { useRole } from '../hooks/useRole.js'
 import StatusTag from '../components/StatusTag.jsx'
 
 export default function OpeningHall() {
   const navigate = useNavigate()
-  const { role, roleName } = useRole()
+  const [searchParams] = useSearchParams()
+  const projectId = searchParams.get('projectId') || '1'
+  const { role, roleName, userName } = useRole()
 
   const [currentStage, setCurrentStage] = useState(0)
 
-  // 主持人：招标人/招标代理可操作开标流程；监督人员只读；投标人只能解密
-  const canOperate = ['tenderee', 'agent'].includes(role)
-  const roleTagColor = canOperate ? 'warning' : 'default'
+  // 主持人：招标人/招标代理可操作开标流程；监督人员只读；投标人只能签到/解密自己
+  const isHost = ['tenderee', 'agent'].includes(role)
+  const isBidder = role === 'bidder'
+  const roleTagColor = isHost ? 'warning' : 'default'
 
   const [attendees, setAttendees] = useState([
-    { role: '招标人', name: '张三', status: '已签到', time: '2026-07-08 14:50' },
-    { role: '招标代理', name: '李四', status: '已签到', time: '2026-07-08 14:52' },
-    { role: '投标人', name: 'A科技有限公司', status: '未签到', time: '-' },
-    { role: '投标人', name: 'B实业有限公司', status: '未签到', time: '-' },
-    { role: '监督人', name: '王监督', status: '未签到', time: '-' }
+    { role: '招标人', name: '张三', status: '未签到', time: '-', self: role === 'tenderee' && userName === '张三' },
+    { role: '招标代理', name: '李四', status: '未签到', time: '-', self: role === 'agent' && userName === '李四' },
+    { role: '投标人', name: 'A科技有限公司', status: '未签到', time: '-', self: role === 'bidder' && userName === 'A科技有限公司' },
+    { role: '投标人', name: 'B实业有限公司', status: '未签到', time: '-', self: false },
+    { role: '投标人', name: 'C股份有限公司', status: '未签到', time: '-', self: false },
+    { role: '监督人', name: '王监督', status: '未签到', time: '-', self: role === 'supervisor' && userName === '王监督' }
   ])
 
   const [bidders, setBidders] = useState([
@@ -35,14 +39,20 @@ export default function OpeningHall() {
   ]
 
   const allCheckedIn = attendees.every((a) => a.status === '已签到')
+  const missingAttendees = attendees.filter((a) => a.status !== '已签到').map((a) => `${a.role}：${a.name}`)
   const allDecrypted = bidders.every((b) => b.status === '已解密')
 
   function canDecrypt(row) {
-    // 演示环境：投标人只能解密自己的；主持人可代演示解密
-    if (role === 'bidder') {
-      return row.name === 'A科技有限公司'
+    // 投标人只能解密自己的投标文件；主持人/代理仅查看状态
+    if (isBidder) {
+      return row.name === userName
     }
-    return canOperate
+    return false
+  }
+
+  const canCheckIn = (row) => {
+    // 各参与方只能签到自己
+    return row.self
   }
 
   const checkIn = (row) => {
@@ -54,11 +64,19 @@ export default function OpeningHall() {
   }
 
   const decrypt = (row) => {
-    const time = new Date().toLocaleString()
-    setBidders((prev) =>
-      prev.map((b) => (b.name === row.name ? { ...b, status: '已解密', time } : b))
-    )
-    message.success(`${row.name} 投标文件解密成功`)
+    Modal.confirm({
+      title: '解密确认',
+      content: `确定对 ${row.name} 的投标文件执行 CA 解密吗？`,
+      okText: '确认解密',
+      cancelText: '取消',
+      onOk: () => {
+        const time = new Date().toLocaleString()
+        setBidders((prev) =>
+          prev.map((b) => (b.name === row.name ? { ...b, status: '已解密', time } : b))
+        )
+        message.success(`${row.name} 投标文件解密成功`)
+      }
+    })
   }
 
   const nextStage = () => {
@@ -67,6 +85,40 @@ export default function OpeningHall() {
 
   const prevStage = () => {
     setCurrentStage((prev) => Math.max(prev - 1, 0))
+  }
+
+  const enterOpening = () => {
+    if (!allCheckedIn) {
+      Modal.confirm({
+        title: '尚有人员未签到',
+        content: (
+          <>
+            <p>当前未签到人员：</p>
+            <ul>
+              {missingAttendees.map((name) => (
+                <li key={name}>{name}</li>
+              ))}
+            </ul>
+            <p>是否仍要继续进入开标？</p>
+          </>
+        ),
+        okText: '强制进入开标',
+        cancelText: '取消',
+        onOk: nextStage
+      })
+    } else {
+      nextStage()
+    }
+  }
+
+  const startDecrypt = () => {
+    Modal.confirm({
+      title: '启动解密',
+      content: '即将进入投标文件解密阶段，请确认已宣读开标纪律。',
+      okText: '确认启动',
+      cancelText: '取消',
+      onOk: nextStage
+    })
   }
 
   const finishOpening = () => {
@@ -94,20 +146,23 @@ export default function OpeningHall() {
       )
     },
     { title: '签到时间', dataIndex: 'time', width: 180 },
-    ...(canOperate
-      ? [
-          {
-            title: '操作',
-            width: 120,
-            render: (_, row) =>
-              row.status !== '已签到' ? (
-                <Button type="primary" size="small" onClick={() => checkIn(row)}>
-                  签到
-                </Button>
-              ) : null
-          }
-        ]
-      : [])
+    {
+      title: '操作',
+      width: 140,
+      render: (_, row) => {
+        if (row.status === '已签到') {
+          return <span className="text-success">已签到</span>
+        }
+        if (canCheckIn(row)) {
+          return (
+            <Button type="primary" size="small" onClick={() => checkIn(row)}>
+              签到
+            </Button>
+          )
+        }
+        return <span className="text-muted">待签到</span>
+      }
+    }
   ]
 
   const bidderColumns = [
@@ -156,7 +211,7 @@ export default function OpeningHall() {
           <div className="hall-header">
             <div>
               <h2>开标大厅</h2>
-              <p className="subtitle">XX市轨道交通设备采购项目 · 标段一：主设备</p>
+              <p className="subtitle">XX市轨道交通设备采购项目 · 标段一：主设备 · 项目ID：{projectId}</p>
             </div>
             <div className="hall-meta">
               <Tag color="error" style={{ fontSize: 14, padding: '4px 12px' }}>
@@ -188,13 +243,22 @@ export default function OpeningHall() {
           {currentStage === 0 && (
             <div className="stage-content">
               <h3>在线签到</h3>
-              <p className="tip">请插入 CA 证书完成身份核验</p>
-              {!canOperate && (
+              <p className="tip">请各参与方使用各自账号完成身份核验签到，不能代他人签到。</p>
+              {!isHost && (
                 <Alert
                   type="info"
                   showIcon
                   closable={false}
-                  message={`您当前以 ${roleName} 身份进入，仅可查看开标过程。`}
+                  message={`您当前以 ${roleName} 身份进入，仅可签到自己并查看开标过程。`}
+                  style={{ marginBottom: 16 }}
+                />
+              )}
+              {missingAttendees.length > 0 && isHost && (
+                <Alert
+                  type="warning"
+                  showIcon
+                  closable={false}
+                  message={`尚有 ${missingAttendees.length} 人未签到：${missingAttendees.join('、')}`}
                   style={{ marginBottom: 16 }}
                 />
               )}
@@ -206,9 +270,9 @@ export default function OpeningHall() {
                 style={{ width: '100%' }}
               />
               <div className="stage-action">
-                {canOperate && (
-                  <Button type="primary" size="large" disabled={!allCheckedIn} onClick={nextStage}>
-                    {allCheckedIn ? '所有人签到完成，进入开标' : '尚有人员未签到'}
+                {isHost && (
+                  <Button type="primary" size="large" onClick={enterOpening}>
+                    {allCheckedIn ? '所有人签到完成，进入开标' : `尚有 ${missingAttendees.length} 人未签到，确认进入开标`}
                   </Button>
                 )}
               </div>
@@ -227,9 +291,9 @@ export default function OpeningHall() {
                 <Descriptions.Item label="开标时间">2026-07-08 15:00</Descriptions.Item>
               </Descriptions>
               <div className="stage-action">
-                {canOperate && <Button onClick={prevStage}>返回</Button>}
-                {canOperate && (
-                  <Button type="primary" size="large" onClick={nextStage}>
+                {isHost && <Button onClick={prevStage}>返回</Button>}
+                {isHost && (
+                  <Button type="primary" size="large" onClick={startDecrypt}>
                     启动解密
                   </Button>
                 )}
@@ -241,7 +305,7 @@ export default function OpeningHall() {
           {currentStage === 2 && (
             <div className="stage-content">
               <h3>投标文件解密</h3>
-              <p className="tip">各投标人使用各自 CA 私钥解密投标文件；解密失败可视为废标</p>
+              <p className="tip">各投标人使用各自 CA 私钥解密投标文件；主持人/代理仅可查看解密状态。</p>
               <Table
                 columns={bidderColumns}
                 dataSource={bidders}
@@ -250,8 +314,8 @@ export default function OpeningHall() {
                 style={{ width: '100%' }}
               />
               <div className="stage-action">
-                {canOperate && <Button onClick={prevStage}>返回</Button>}
-                {canOperate && (
+                {isHost && <Button onClick={prevStage}>返回</Button>}
+                {isHost && (
                   <Button
                     type="primary"
                     size="large"
@@ -278,8 +342,8 @@ export default function OpeningHall() {
                 style={{ width: '100%' }}
               />
               <div className="stage-action">
-                {canOperate && <Button onClick={prevStage}>返回</Button>}
-                {canOperate && (
+                {isHost && <Button onClick={prevStage}>返回</Button>}
+                {isHost && (
                   <Button type="primary" size="large" onClick={finishOpening}>
                     唱标结束
                   </Button>
@@ -296,12 +360,12 @@ export default function OpeningHall() {
                 title="开标结束"
                 subTitle="开标记录已生成，可进入评标环节"
                 extra={[
-                  canOperate && (
+                  isHost && (
                     <Button key="evaluate" type="primary" onClick={goEvaluate}>
                       进入评标大厅
                     </Button>
                   ),
-                  canOperate && (
+                  isHost && (
                     <Button key="replay" onClick={() => setCurrentStage(0)}>
                       重新演示
                     </Button>

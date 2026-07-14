@@ -1,15 +1,18 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Alert,
   Button,
   Card,
   Checkbox,
+  Col,
   Descriptions,
   Divider,
   Form,
+  Input,
   Modal,
   Radio,
-  Select,
+  Row,
   Table,
   Tag,
   Upload,
@@ -19,9 +22,11 @@ import { CheckCircleFilled, UploadOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
 
 export default function BidUpload() {
+  const [searchParams] = useSearchParams()
+  const projectId = searchParams.get('projectId')
   const [form] = Form.useForm()
   const encryptMode = Form.useWatch('encryptMode', form)
-  const projectId = Form.useWatch('projectId', form)
+  const selectedProjectId = Form.useWatch('projectId', form)
   const selectedPackages = Form.useWatch('packages', form) || []
 
   const projects = [
@@ -41,27 +46,40 @@ export default function BidUpload() {
     { name: '报价单.xlsx', type: '报价标', size: '0.8 MB', encrypted: false }
   ])
 
+  const [quote, setQuote] = useState({
+    totalPrice: '',
+    delivery: '',
+    quality: '',
+    payment: ''
+  })
+
+  const [quoteItems, setQuoteItems] = useState([
+    { name: '主设备 A 型', spec: '详见技术参数', quantity: 10, unit: '台', price: '' },
+    { name: '辅材 B 型', spec: '详见技术参数', quantity: 50, unit: '套', price: '' }
+  ])
+
   const [receiptVisible, setReceiptVisible] = useState(false)
   const [submitTime, setSubmitTime] = useState('')
   const [receiptNo, setReceiptNo] = useState('')
 
   const allEncrypted = fileList.length > 0 && fileList.every((f) => f.encrypted)
-  const projectName = (projects.find((item) => item.id === projectId) || {}).name || '-'
+  const projectName = (projects.find((item) => item.id === selectedProjectId) || {}).name || '-'
   const packageNames =
     packages.filter((p) => selectedPackages.includes(p.id)).map((p) => p.name).join('、') || '-'
 
-  const canSubmit = projectId && selectedPackages.length > 0 && fileList.length > 0 && allEncrypted
+  const quoteFilled = quote.totalPrice && quote.delivery && quote.quality && quote.payment
+  const canSubmit = selectedProjectId && selectedPackages.length > 0 && fileList.length > 0 && allEncrypted && quoteFilled
 
   const submitBtnText = (() => {
+    if (!quoteFilled) return '请填写开标一览表'
     if (fileList.length === 0) return '请先上传文件'
     if (!allEncrypted) return '存在未加密文件'
-    if (!projectId || selectedPackages.length === 0) return '请完善投标信息'
+    if (!selectedProjectId || selectedPackages.length === 0) return '请完善投标信息'
     return '正式提交投标文件'
   })()
 
   const handleUploadChange = ({ fileList: next }) => {
     setUploadFiles(next)
-    // 演示：新上传文件默认未加密
     setFileList((prev) => {
       const additions = next
         .filter((f) => !prev.find((item) => item.name === f.name))
@@ -80,9 +98,21 @@ export default function BidUpload() {
     setUploadFiles((prev) => prev.filter((item) => item.name !== row.name))
   }
 
+  const updateQuote = (key, value) => {
+    setQuote((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const updateQuotePrice = (index, value) => {
+    setQuoteItems((prev) => prev.map((item, i) => (i === index ? { ...item, price: value } : item)))
+  }
+
   const submitBid = async () => {
     const valid = await form.validateFields().then(() => true).catch(() => false)
     if (!valid) return
+    if (!quoteFilled) {
+      message.warning('请填写开标一览表')
+      return
+    }
     if (fileList.length === 0) {
       message.warning('请上传投标文件')
       return
@@ -92,10 +122,18 @@ export default function BidUpload() {
       return
     }
 
-    setReceiptNo('ZB' + Date.now())
-    setSubmitTime(new Date().toLocaleString())
-    setReceiptVisible(true)
-    message.success('投标文件已加密并提交成功')
+    Modal.confirm({
+      title: '提交投标文件确认',
+      content: '提交后投标文件将加密锁定，开标前不可修改，是否继续？',
+      okText: '确认提交',
+      cancelText: '取消',
+      onOk: () => {
+        setReceiptNo('ZB' + Date.now())
+        setSubmitTime(new Date().toLocaleString())
+        setReceiptVisible(true)
+        message.success('投标文件已加密并提交成功')
+      }
+    })
   }
 
   const saveDraft = async () => {
@@ -125,6 +163,31 @@ export default function BidUpload() {
     }
   ]
 
+  const quoteColumns = [
+    { title: '分项名称', dataIndex: 'name', key: 'name' },
+    { title: '规格', dataIndex: 'spec', key: 'spec' },
+    { title: '数量', dataIndex: 'quantity', key: 'quantity', width: 120 },
+    { title: '单位', dataIndex: 'unit', key: 'unit', width: 100 },
+    {
+      title: '单价（元）',
+      key: 'price',
+      width: 180,
+      render: (_, row, index) => (
+        <Input
+          value={row.price}
+          onChange={(e) => updateQuotePrice(index, e.target.value)}
+          placeholder="单价"
+        />
+      )
+    },
+    {
+      title: '小计（元）',
+      key: 'subtotal',
+      width: 150,
+      render: (_, row) => row.quantity * (Number(row.price) || 0)
+    }
+  ]
+
   return (
     <div className="bid-upload">
       <Card
@@ -136,7 +199,7 @@ export default function BidUpload() {
         }
       >
         <Alert
-          message="正式提交必须使用 CA 证书加密投标文件，开标前文件内容不可被提前查看。"
+          message="正式提交必须使用 CA 证书加密投标文件，开标前文件内容不可被提前查看。报价将合并到投标文件中一并加密提交。"
           type="info"
           showIcon
           closable={false}
@@ -188,6 +251,62 @@ export default function BidUpload() {
             </Form.Item>
           )}
         </Form>
+
+        <Divider />
+
+        <div className="quote-section">
+          <h3>开标一览表 / 报价</h3>
+          <Form labelCol={{ flex: '0 0 140px' }} wrapperCol={{ flex: 'auto' }} className="quote-form">
+            <Row gutter={20}>
+              <Col span={12}>
+                <Form.Item label="投标报价（万元）" required>
+                  <Input
+                    value={quote.totalPrice}
+                    onChange={(e) => updateQuote('totalPrice', e.target.value)}
+                    placeholder="请输入总报价"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="交货期" required>
+                  <Input
+                    value={quote.delivery}
+                    onChange={(e) => updateQuote('delivery', e.target.value)}
+                    placeholder="例如：60天"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={20}>
+              <Col span={12}>
+                <Form.Item label="质保期" required>
+                  <Input
+                    value={quote.quality}
+                    onChange={(e) => updateQuote('quality', e.target.value)}
+                    placeholder="例如：3年"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="付款方式" required>
+                  <Input
+                    value={quote.payment}
+                    onChange={(e) => updateQuote('payment', e.target.value)}
+                    placeholder="例如：3-6-1"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+          <h4>分项报价</h4>
+          <Table
+            columns={quoteColumns}
+            dataSource={quoteItems}
+            rowKey="name"
+            pagination={false}
+            style={{ width: '100%', marginBottom: 20 }}
+          />
+        </div>
 
         <Divider />
 
@@ -255,9 +374,19 @@ export default function BidUpload() {
         </Descriptions>
       </Modal>
 
+      {projectId && (
+        <Alert
+          message={`当前为项目 ID: ${projectId} 上传投标文件`}
+          type="info"
+          showIcon
+          closable={false}
+          style={{ marginTop: 20 }}
+        />
+      )}
+
       <style>{`
         .bid-upload {
-          max-width: 1000px;
+          max-width: 1100px;
           margin: 0 auto;
         }
         .bid-upload .card-header {
@@ -275,8 +404,12 @@ export default function BidUpload() {
           gap: 10px;
           color: #67C23A;
         }
+        .bid-upload .quote-section h3,
         .bid-upload .file-section h4 {
           margin-bottom: 16px;
+        }
+        .bid-upload .quote-form {
+          margin: 20px 0;
         }
         .bid-upload .actions {
           display: flex;

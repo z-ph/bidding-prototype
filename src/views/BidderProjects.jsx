@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
@@ -6,15 +6,29 @@ import { Alert, Button, Card, Col, Row, Steps, Table, Tabs, message } from 'antd
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
 import EmptyState from '../components/EmptyState.jsx'
+import { useRole } from '../hooks/useRole.js'
+
+function applyDataScope(items, scope, userInfo) {
+  if (!scope || scope === 'all' || !userInfo) return items
+  if (scope === 'enterprise') return items
+  if (scope === 'department') {
+    return items.filter((item) => !item.deptCode || item.deptCode === userInfo.deptCode)
+  }
+  if (scope === 'self') {
+    return items.filter((item) => !item.owner || item.owner === userInfo.nickname || item.owner === userInfo.account)
+  }
+  return items
+}
 
 export default function BidderProjects() {
   const navigate = useNavigate()
+  const { userInfo, dataScope } = useRole()
   const [activeTab, setActiveTab] = useState('available')
 
   const [availableProjects] = useState([
-    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', deadline: '2026-07-20 17:00', status: '可报名', blockReason: '' },
-    { id: 2, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', deadline: '2026-07-25 17:00', status: '未准入', blockReason: '资质待审核' },
-    { id: 3, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', deadline: '已截止', status: '已截止', blockReason: '报名已截止' }
+    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', deadline: '2026-07-20 17:00', status: '可报名', blockReason: '', owner: '张三', deptCode: 'CG' },
+    { id: 2, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', deadline: '2026-07-25 17:00', status: '未准入', blockReason: '资质待审核', owner: '张三', deptCode: 'CG' },
+    { id: 3, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', deadline: '已截止', status: '已截止', blockReason: '报名已截止', owner: '李四', deptCode: 'ZB' }
   ])
 
   const [joinedProjects] = useState([
@@ -22,27 +36,45 @@ export default function BidderProjects() {
       id: 1,
       name: 'XX市轨道交通设备采购项目',
       code: 'ZB20260701001',
-      status: '待缴费',
+      status: '报名待缴费',
       deadline: '2026-07-20 17:00',
       leftDays: 8,
       stepIndex: 1,
-      nextAction: '去缴纳招标文件费',
-      nextPath: '/admin/bid-payment',
-      blockReason: ''
+      paid: false,
+      blockReason: '',
+      owner: '张三',
+      deptCode: 'CG'
+    },
+    {
+      id: 4,
+      name: '实验室设备采购项目',
+      code: 'ZB20260705005',
+      status: '待下载文件',
+      deadline: '2026-07-25 17:00',
+      leftDays: 12,
+      stepIndex: 2,
+      paid: true,
+      blockReason: '',
+      owner: '张三',
+      deptCode: 'CG'
     },
     {
       id: 3,
       name: '软件开发服务项目',
       code: 'ZB20260703003',
-      status: '待上传',
+      status: '待上传标书',
       deadline: '2026-07-15 09:00',
       leftDays: 3,
       stepIndex: 4,
-      nextAction: '上传投标文件',
-      nextPath: '/admin/bid-upload',
-      blockReason: '请确保所有文件已加密后再上传'
+      paid: true,
+      blockReason: '请确保所有文件已加密后再上传',
+      owner: '张三',
+      deptCode: 'CG'
     }
   ])
+
+  const scopedAvailable = useMemo(() => applyDataScope(availableProjects, dataScope, userInfo), [availableProjects, dataScope, userInfo])
+  const scopedJoined = useMemo(() => applyDataScope(joinedProjects, dataScope, userInfo), [joinedProjects, dataScope, userInfo])
 
   const viewDetail = (row) => {
     message.success(`查看项目详情：${row.name}`)
@@ -52,8 +84,44 @@ export default function BidderProjects() {
     navigate(`/admin/bid-register?projectId=${row.id}`)
   }
 
-  const goNextAction = (project) => {
-    navigate(`${project.nextPath}?projectId=${project.id}`)
+  const renderActionButtons = (project) => {
+    const buttons = []
+    if (project.status === '报名待缴费' || !project.paid) {
+      buttons.push(
+        <Button key="pay" type="primary" size="small" onClick={() => navigate(`/admin/bid-payment?projectId=${project.id}`)}>
+          去缴费
+        </Button>
+      )
+    }
+    if (project.status === '待下载文件' || project.paid) {
+      buttons.push(
+        <Button key="download" size="small" onClick={() => navigate(`/admin/bid-download?projectId=${project.id}`)}>
+          下载文件
+        </Button>
+      )
+    }
+    if (project.status === '待上传标书') {
+      buttons.push(
+        <Button key="upload" type="primary" size="small" onClick={() => navigate(`/admin/bid-upload?projectId=${project.id}`)}>
+          上传投标文件
+        </Button>
+      )
+    }
+    if (project.status === '待报价') {
+      buttons.push(
+        <Button key="quote" type="primary" size="small" onClick={() => navigate(`/admin/bid-quote?projectId=${project.id}`)}>
+          在线报价
+        </Button>
+      )
+    }
+    if (buttons.length === 0) {
+      buttons.push(
+        <Button key="track" size="small" onClick={() => navigate(`/admin/projects/track?projectId=${project.id}`)}>
+          跟踪
+        </Button>
+      )
+    }
+    return buttons
   }
 
   const startTour = () => {
@@ -133,7 +201,7 @@ export default function BidderProjects() {
       children: (
         <Table
           columns={availableColumns}
-          dataSource={availableProjects}
+          dataSource={scopedAvailable}
           rowKey="id"
           bordered
           pagination={false}
@@ -147,7 +215,7 @@ export default function BidderProjects() {
       children: (
         <>
           <Row gutter={20}>
-            {joinedProjects.map((project) => (
+            {scopedJoined.map((project) => (
               <Col key={project.id} span={12} style={{ marginBottom: 20 }}>
                 <Card
                   hoverable
@@ -178,16 +246,16 @@ export default function BidderProjects() {
                     )}
                   </div>
                   <div className="progress-footer">
-                    <Button type="primary" onClick={() => goNextAction(project)}>
-                      {project.nextAction}
-                    </Button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {renderActionButtons(project)}
+                    </div>
                     <Button type="link" onClick={() => viewDetail(project)}>查看详情</Button>
                   </div>
                 </Card>
               </Col>
             ))}
           </Row>
-          {joinedProjects.length === 0 && (
+          {scopedJoined.length === 0 && (
             <EmptyState description="您还没有参与任何项目" icon="Folder" />
           )}
         </>

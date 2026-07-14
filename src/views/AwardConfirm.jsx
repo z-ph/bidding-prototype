@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Alert, Button, Card, Form, Input, Radio, Steps, Table, Tag, message } from 'antd'
+import { Alert, Button, Card, Form, Input, Radio, Steps, Table, Tag, message, Modal } from 'antd'
 
 export default function AwardConfirm() {
   const navigate = useNavigate()
@@ -18,11 +18,19 @@ export default function AwardConfirm() {
 
   const confirm = () => {
     if (!selected) {
-      message.success('请先选择中标人')
+      message.warning('请先选择中标人')
       return
     }
-    message.success(`已确认中标人：${selected}`)
-    navigate('/admin/award-notice')
+    Modal.confirm({
+      title: '确认中标人',
+      content: `确定将 ${selected} 确认为本项目中标人吗？确认后将进入中标结果公示环节。`,
+      okText: '确认中标',
+      cancelText: '取消',
+      onOk: () => {
+        message.success(`已确认中标人：${selected}`)
+        navigate('/admin/award-notice')
+      }
+    })
   }
 
   const columns = [

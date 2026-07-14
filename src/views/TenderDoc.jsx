@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Alert,
   Row,
@@ -14,42 +15,105 @@ import {
   Divider,
   Timeline,
   message,
-  Modal
+  Modal,
+  Select
 } from 'antd'
-import { InboxOutlined } from '@ant-design/icons'
+import { InboxOutlined, PlusOutlined, DeleteOutlined, ImportOutlined } from '@ant-design/icons'
+import { useRole } from '../hooks/useRole.js'
+
+const defaultCatalog = [
+  {
+    key: '招标公告',
+    title: '招标公告',
+    children: [
+      { key: '项目概况', title: '项目概况', content: '' },
+      { key: '投标人资格要求', title: '投标人资格要求', content: '' }
+    ]
+  },
+  { key: '投标人须知', title: '投标人须知', content: '' },
+  { key: '评标办法', title: '评标办法', content: '' },
+  { key: '合同条款', title: '合同条款', content: '' },
+  {
+    key: '采购需求',
+    title: '采购需求',
+    children: [
+      { key: '技术规格', title: '技术规格', content: '' },
+      { key: '商务要求', title: '商务要求', content: '' }
+    ]
+  },
+  { key: '投标文件格式', title: '投标文件格式', content: '' }
+]
+
+const templates = [
+  {
+    name: '货物类公开招标',
+    catalog: [
+      {
+        key: '招标公告',
+        title: '招标公告',
+        children: [
+          { key: '项目概况', title: '项目概况', content: '货物类项目概况...' },
+          { key: '投标人资格要求', title: '投标人资格要求', content: '' }
+        ]
+      },
+      { key: '投标人须知', title: '投标人须知', content: '投标人须知正文...' },
+      { key: '评标办法', title: '评标办法', content: '综合评分法...' },
+      { key: '合同条款', title: '合同条款', content: '' },
+      {
+        key: '采购需求',
+        title: '采购需求',
+        children: [
+          { key: '技术规格', title: '技术规格', content: '' },
+          { key: '商务要求', title: '商务要求', content: '' }
+        ]
+      },
+      { key: '投标文件格式', title: '投标文件格式', content: '' }
+    ]
+  },
+  {
+    name: '服务类公开招标',
+    catalog: [
+      {
+        key: '招标公告',
+        title: '招标公告',
+        children: [
+          { key: '项目概况', title: '项目概况', content: '服务类项目概况...' },
+          { key: '投标人资格要求', title: '投标人资格要求', content: '' }
+        ]
+      },
+      { key: '投标人须知', title: '投标人须知', content: '' },
+      { key: '评标办法', title: '评标办法', content: '性价比法...' },
+      { key: '合同条款', title: '合同条款', content: '' },
+      {
+        key: '采购需求',
+        title: '采购需求',
+        children: [
+          { key: '服务要求', title: '服务要求', content: '' },
+          { key: '人员要求', title: '人员要求', content: '' }
+        ]
+      },
+      { key: '投标文件格式', title: '投标文件格式', content: '' }
+    ]
+  }
+]
 
 export default function TenderDoc() {
+  const [searchParams] = useSearchParams()
+  const projectId = searchParams.get('projectId')
+  const { role } = useRole()
+  const canEdit = role === 'tenderee' || role === 'agent'
+
   const [docStatus, setDocStatus] = useState('editing') // editing, reviewed, published
   const version = 'V1.0'
   const [lastUpdate, setLastUpdate] = useState(new Date().toLocaleString())
 
-  const catalog = [
-    {
-      key: '招标公告',
-      title: '招标公告',
-      children: [
-        { key: '项目概况', title: '项目概况', content: '' },
-        { key: '投标人资格要求', title: '投标人资格要求', content: '' }
-      ]
-    },
-    { key: '投标人须知', title: '投标人须知', content: '' },
-    { key: '评标办法', title: '评标办法', content: '' },
-    { key: '合同条款', title: '合同条款', content: '' },
-    {
-      key: '采购需求',
-      title: '采购需求',
-      children: [
-        { key: '技术规格', title: '技术规格', content: '' },
-        { key: '商务要求', title: '商务要求', content: '' }
-      ]
-    },
-    { key: '投标文件格式', title: '投标文件格式', content: '' }
-  ]
-
+  const [catalog, setCatalog] = useState(defaultCatalog)
+  const [selectedKeys, setSelectedKeys] = useState(['招标公告'])
   const [currentNode, setCurrentNode] = useState({
     label: '招标公告',
     content: '【招标公告正文】\n\n一、招标条件\n本项目已由相关部门批准建设，招标人为 XX单位，资金来源为自筹。\n\n二、项目概况与招标范围\n...'
   })
+  const [newNodeName, setNewNodeName] = useState('')
 
   const [fileList, setFileList] = useState([
     { uid: '-1', name: '图纸.zip', size: 1024000 },
@@ -61,27 +125,157 @@ export default function TenderDoc() {
     { id: 2, content: '李四 编辑了“招标公告”章节', time: '2026-07-08 10:30', type: 'info' }
   ])
 
+  const [importVisible, setImportVisible] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+
   const statusLabelMap = { editing: '编辑中', reviewed: '已复核', published: '已发布' }
   const statusColorMap = { editing: 'default', reviewed: 'warning', published: 'success' }
   const timelineColorMap = { primary: 'blue', info: 'gray', success: 'green', warning: 'orange', danger: 'red' }
 
   const canPublish = currentNode.content.length > 50 && fileList.length > 0
 
-  const selectNode = (selectedKeys, info) => {
-    const node = info.node
-    setCurrentNode({
-      label: node.title,
-      content: node.content || `${node.title} 内容待编辑...`
+  const findNode = (nodes, key) => {
+    for (const node of nodes) {
+      if (node.key === key) return node
+      if (node.children) {
+        const found = findNode(node.children, key)
+        if (found) return found
+      }
+    }
+    return null
+  }
+
+  const selectNode = (keys, info) => {
+    const key = keys[0] || info.node.key
+    setSelectedKeys([key])
+    const node = findNode(catalog, key)
+    if (node) {
+      setCurrentNode({
+        label: node.title,
+        content: node.content || `${node.title} 内容待编辑...`
+      })
+    }
+  }
+
+  const updateNodeContent = (nodes, key, title, content) => {
+    return nodes.map((node) => {
+      if (node.key === key) {
+        return { ...node, title, content }
+      }
+      if (node.children) {
+        return { ...node, children: updateNodeContent(node.children, key, title, content) }
+      }
+      return node
     })
+  }
+
+  const addNode = () => {
+    if (!newNodeName.trim()) {
+      message.warning('请输入目录名称')
+      return
+    }
+    const key = `${newNodeName}-${Date.now()}`
+    const newCatalog = [...catalog, { key, title: newNodeName, content: '' }]
+    setCatalog(newCatalog)
+    setNewNodeName('')
+    setHistory((prev) => [
+      { id: Date.now(), content: `新增目录节点“${newNodeName}”`, time: new Date().toLocaleString(), type: 'info' },
+      ...prev
+    ])
+    message.success('目录节点已添加')
+  }
+
+  const deleteNode = () => {
+    const key = selectedKeys[0]
+    if (!key) return
+    Modal.confirm({
+      title: '删除确认',
+      content: `确定删除目录节点“${key}”吗？`,
+      okText: '删除',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: () => {
+        const remove = (nodes) => nodes.filter((n) => n.key !== key).map((n) => ({
+          ...n,
+          children: n.children ? remove(n.children) : undefined
+        }))
+        const newCatalog = remove(catalog)
+        setCatalog(newCatalog)
+        setSelectedKeys(['招标公告'])
+        setCurrentNode({ label: '招标公告', content: '招标公告内容...' })
+        setHistory((prev) => [
+          { id: Date.now(), content: `删除目录节点“${key}”`, time: new Date().toLocaleString(), type: 'warning' },
+          ...prev
+        ])
+        message.success('目录节点已删除')
+      }
+    })
+  }
+
+  const onDrop = (info) => {
+    const dropKey = info.node.key
+    const dragKey = info.dragNode.key
+    const dropPos = info.node.pos.split('-')
+    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1])
+
+    const loop = (data, key, callback) => {
+      data.forEach((item, index, arr) => {
+        if (item.key === key) {
+          callback(item, index, arr)
+          return
+        }
+        if (item.children) {
+          loop(item.children, key, callback)
+        }
+      })
+    }
+
+    const data = JSON.parse(JSON.stringify(catalog))
+    let dragObj
+    loop(data, dragKey, (item, index, arr) => {
+      arr.splice(index, 1)
+      dragObj = item
+    })
+
+    if (!info.dropToGap) {
+      loop(data, dropKey, (item) => {
+        item.children = item.children || []
+        item.children.unshift(dragObj)
+      })
+    } else if ((info.node.children || []).length > 0 && info.node.expanded && dropPosition === 1) {
+      loop(data, dropKey, (item) => {
+        item.children = item.children || []
+        item.children.unshift(dragObj)
+      })
+    } else {
+      let ar
+      let i
+      loop(data, dropKey, (item, index, arr) => {
+        ar = arr
+        i = index
+      })
+      if (dropPosition === -1) {
+        ar.splice(i, 0, dragObj)
+      } else {
+        ar.splice(i + 1, 0, dragObj)
+      }
+    }
+    setCatalog(data)
+    setHistory((prev) => [
+      { id: Date.now(), content: `调整目录节点“${dragKey}”顺序`, time: new Date().toLocaleString(), type: 'info' },
+      ...prev
+    ])
   }
 
   const saveDoc = () => {
     const now = new Date().toLocaleString()
+    const newCatalog = updateNodeContent(catalog, selectedKeys[0], currentNode.label, currentNode.content)
+    setCatalog(newCatalog)
     setLastUpdate(now)
     setHistory((prev) => [
       {
         id: Date.now(),
-        content: `李四 编辑了“${currentNode.label}”章节`,
+        content: `${role === 'tenderee' ? '张三' : '李四'} 编辑了“${currentNode.label}”章节`,
         time: now,
         type: 'info'
       },
@@ -118,6 +312,26 @@ export default function TenderDoc() {
     })
   }
 
+  const importTemplate = () => {
+    if (!selectedTemplate) {
+      message.warning('请选择要导入的模板')
+      return
+    }
+    const tpl = templates.find((t) => t.name === selectedTemplate)
+    if (tpl) {
+      setCatalog(JSON.parse(JSON.stringify(tpl.catalog)))
+      setCurrentNode({ label: '招标公告', content: '招标公告内容...' })
+      setSelectedKeys(['招标公告'])
+      setHistory((prev) => [
+        { id: Date.now(), content: `一键导入模板“${tpl.name}”`, time: new Date().toLocaleString(), type: 'success' },
+        ...prev
+      ])
+      message.success(`已导入模板：${tpl.name}`)
+    }
+    setImportVisible(false)
+    setSelectedTemplate(null)
+  }
+
   return (
     <div className="tender-doc">
       {docStatus === 'published' && (
@@ -137,12 +351,34 @@ export default function TenderDoc() {
             title={
               <div className="card-header"><span>招标文件目录</span></div>
             }
+            extra={
+              canEdit && docStatus !== 'published' && (
+                <>
+                  <Button size="small" icon={<ImportOutlined />} onClick={() => setImportVisible(true)}>导入模板</Button>
+                </>
+              )
+            }
           >
+            {canEdit && docStatus !== 'published' && (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                <Input
+                  size="small"
+                  placeholder="新目录名称"
+                  value={newNodeName}
+                  onChange={(e) => setNewNodeName(e.target.value)}
+                  onPressEnter={addNode}
+                />
+                <Button size="small" icon={<PlusOutlined />} onClick={addNode} />
+                <Button size="small" danger icon={<DeleteOutlined />} onClick={deleteNode} disabled={!selectedKeys[0]} />
+              </div>
+            )}
             <Tree
               treeData={catalog}
               defaultExpandAll
-              selectedKeys={[currentNode.label]}
+              selectedKeys={selectedKeys}
+              draggable={canEdit && docStatus !== 'published'}
               onSelect={selectNode}
+              onDrop={onDrop}
             />
           </Card>
         </Col>
@@ -154,18 +390,19 @@ export default function TenderDoc() {
                 <span>{currentNode.label}</span>
                 <Tag color={statusColorMap[docStatus]}>{statusLabelMap[docStatus]}</Tag>
                 <span className="version-tag">版本 {version}</span>
+                {projectId && <span className="version-tag">项目 ID: {projectId}</span>}
               </div>
             }
             extra={
               <div>
-                <Button disabled={docStatus === 'published'} onClick={saveDoc}>保存</Button>
+                <Button disabled={docStatus === 'published' || !canEdit} onClick={saveDoc}>保存</Button>
                 <Button onClick={previewDoc}>预览</Button>
                 <Button type="primary" disabled={docStatus === 'published' || !canPublish} onClick={publishDoc}>生成招标文件</Button>
               </div>
             }
           >
             <Descriptions column={3} bordered size="small" style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="编制人">李四</Descriptions.Item>
+              <Descriptions.Item label="编制人">{role === 'tenderee' ? '张三' : '李四'}</Descriptions.Item>
               <Descriptions.Item label="复核人">{docStatus === 'published' ? '张三' : '待复核'}</Descriptions.Item>
               <Descriptions.Item label="最近更新">{lastUpdate}</Descriptions.Item>
             </Descriptions>
@@ -175,17 +412,17 @@ export default function TenderDoc() {
                 <Input
                   value={currentNode.label}
                   onChange={(e) => setCurrentNode((prev) => ({ ...prev, label: e.target.value }))}
-                  disabled={docStatus === 'published'}
+                  disabled={docStatus === 'published' || !canEdit}
                 />
               </Form.Item>
             </Form>
 
             <div className="editor-toolbar">
-              <Button size="small" disabled={docStatus === 'published'}>加粗</Button>
-              <Button size="small" disabled={docStatus === 'published'}>标题</Button>
-              <Button size="small" disabled={docStatus === 'published'}>插入表格</Button>
-              <Button size="small" disabled={docStatus === 'published'}>插入评分项</Button>
-              <Button size="small" disabled={docStatus === 'published'}>插入签章位置</Button>
+              <Button size="small" disabled={docStatus === 'published' || !canEdit}>加粗</Button>
+              <Button size="small" disabled={docStatus === 'published' || !canEdit}>标题</Button>
+              <Button size="small" disabled={docStatus === 'published' || !canEdit}>插入表格</Button>
+              <Button size="small" disabled={docStatus === 'published' || !canEdit}>插入评分项</Button>
+              <Button size="small" disabled={docStatus === 'published' || !canEdit}>插入签章位置</Button>
             </div>
 
             <Input.TextArea
@@ -194,7 +431,7 @@ export default function TenderDoc() {
               className="doc-editor"
               value={currentNode.content}
               onChange={(e) => setCurrentNode((prev) => ({ ...prev, content: e.target.value }))}
-              disabled={docStatus === 'published'}
+              disabled={docStatus === 'published' || !canEdit}
             />
 
             <div className="attach-section">
@@ -203,7 +440,7 @@ export default function TenderDoc() {
                 fileList={fileList}
                 onChange={({ fileList }) => setFileList(fileList)}
                 beforeUpload={() => false}
-                disabled={docStatus === 'published'}
+                disabled={docStatus === 'published' || !canEdit}
                 multiple
                 style={{ width: '100%' }}
               >
@@ -232,6 +469,24 @@ export default function TenderDoc() {
           </Card>
         </Col>
       </Row>
+
+      <Modal
+        title="一键导入招标文件模板"
+        open={importVisible}
+        onOk={importTemplate}
+        onCancel={() => { setImportVisible(false); setSelectedTemplate(null) }}
+        okText="导入"
+        cancelText="取消"
+      >
+        <p>选择模板后将覆盖当前目录和默认内容，您可在此基础上修改。</p>
+        <Select
+          placeholder="请选择模板"
+          style={{ width: '100%' }}
+          value={selectedTemplate}
+          onChange={setSelectedTemplate}
+          options={templates.map((t) => ({ label: t.name, value: t.name }))}
+        />
+      </Modal>
 
       <style>{`
         .tender-doc {

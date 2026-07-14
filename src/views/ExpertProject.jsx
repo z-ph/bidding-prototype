@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {
@@ -15,26 +16,94 @@ import {
   Steps,
   Table,
   Tabs,
+  Tag,
   message
 } from 'antd'
 import { EditOutlined, FileTextOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
 
+const evaluationProjects = [
+  { id: '1', name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', stage: '评标中', deadline: '2026-07-10 17:00', isLeader: true },
+  { id: '2', name: '办公桌椅采购项目', code: 'ZB20260702002', stage: '待评标', deadline: '2026-07-12 14:00', isLeader: false },
+  { id: '3', name: '软件开发服务项目', code: 'ZB20260703003', stage: '评标中', deadline: '2026-07-15 09:00', isLeader: false }
+]
+
 export default function ExpertProject() {
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const projectId = searchParams.get('projectId')
+
+  if (!projectId) {
+    return <ProjectList onEnter={(id) => navigate(`/admin/expert-project?projectId=${id}`)} />
+  }
+
+  return <EvaluationDetail projectId={projectId} onBack={() => navigate('/admin/expert-project')} />
+}
+
+function ProjectList({ onEnter }) {
+  const columns = [
+    { title: '项目名称', dataIndex: 'name', minWidth: 260 },
+    { title: '项目编号', dataIndex: 'code', width: 160 },
+    {
+      title: '当前阶段',
+      dataIndex: 'stage',
+      width: 120,
+      render: (stage) => <StatusTag label={stage} status={stage} />
+    },
+    { title: '评标截止', dataIndex: 'deadline', width: 180 },
+    {
+      title: '身份',
+      dataIndex: 'isLeader',
+      width: 100,
+      render: (isLeader) => isLeader ? <Tag color="gold">组长</Tag> : <Tag>成员</Tag>
+    },
+    {
+      title: '操作',
+      width: 150,
+      render: (_, row) => (
+        <Button type="primary" size="small" onClick={() => onEnter(row.id)}>
+          进入评标
+        </Button>
+      )
+    }
+  ]
+
+  return (
+    <div className="expert-project-list">
+      <Card title="评标任务列表">
+        <Table
+          rowKey="id"
+          dataSource={evaluationProjects}
+          columns={columns}
+          pagination={false}
+        />
+      </Card>
+      <style>{`
+        .expert-project-list {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+      `}</style>
+    </div>
+  )
+}
+
+function EvaluationDetail({ projectId, onBack }) {
   const [activeStep, setActiveStep] = useState(0)
   const [declared, setDeclared] = useState(false)
   const [docsRead, setDocsRead] = useState(false)
   const [signed, setSigned] = useState(false)
   const [signTime, setSignTime] = useState('')
   const [submitLocked, setSubmitLocked] = useState(false)
+  const [reportGenerated, setReportGenerated] = useState(false)
 
   const [experts, setExperts] = useState([
-    { name: '专家甲', field: '电子信息', status: '已签到', isLeader: false },
+    { name: '专家甲', field: '电子信息', status: '已签到', isLeader: true },
     { name: '专家乙', field: '机械设备', status: '已签到', isLeader: false },
     { name: '专家丙', field: '工程造价', status: '已签到', isLeader: false }
   ])
 
-  const hasLeader = experts.some((e) => e.isLeader)
+  const isLeader = experts.some((e) => e.name === '专家甲' && e.isLeader)
 
   const [bidders, setBidders] = useState([
     { name: 'A科技有限公司', business: 25, tech: 32, price: 26, comment: '' },
@@ -48,6 +117,8 @@ export default function ExpertProject() {
     b.price !== null && b.price !== undefined &&
     b.comment.trim() !== ''
   )
+
+  const allExpertsSubmitted = submitLocked
 
   const updateBidder = (index, key, value) => {
     setBidders((prev) =>
@@ -105,6 +176,39 @@ export default function ExpertProject() {
       return
     }
     submitAll()
+  }
+
+  const summarizeResults = () => {
+    if (!allExpertsSubmitted) {
+      message.warning('请等待所有专家提交评分')
+      return
+    }
+    Modal.confirm({
+      title: '统计评标结果',
+      content: '系统将汇总所有专家评分并生成推荐意见，是否继续？',
+      okText: '确认统计',
+      cancelText: '取消',
+      onOk: () => {
+        message.success('评标结果已统计汇总')
+        setReportGenerated(true)
+      }
+    })
+  }
+
+  const generateReport = () => {
+    if (!reportGenerated) {
+      message.warning('请先统计评标结果')
+      return
+    }
+    Modal.confirm({
+      title: '生成评标报告',
+      content: '生成评标报告后将进入定标流程，是否继续？',
+      okText: '确认生成',
+      cancelText: '取消',
+      onOk: () => {
+        message.success('评标报告已生成')
+      }
+    })
   }
 
   const startTour = () => {
@@ -224,6 +328,10 @@ export default function ExpertProject() {
     )
   }))
 
+  const reportSummary = bidders
+    .map((b) => ({ ...b, total: (b.business || 0) + (b.tech || 0) + (b.price || 0) }))
+    .sort((a, b) => b.total - a.total)
+
   return (
     <div className="expert-project">
       <Card
@@ -231,7 +339,7 @@ export default function ExpertProject() {
           <div className="hall-header">
             <div>
               <h2>评标项目</h2>
-              <p className="subtitle">XX市轨道交通设备采购项目 · 标段一：主设备</p>
+              <p className="subtitle">XX市轨道交通设备采购项目 · 标段一：主设备 · 项目ID：{projectId}</p>
             </div>
             <div className="hall-meta">
               <StatusTag
@@ -243,12 +351,23 @@ export default function ExpertProject() {
                   评标引导
                 </Button>
               )}
+              <Button onClick={onBack}>返回列表</Button>
               {!submitLocked ? (
                 <Button id="expert-submit-btn" type="primary" onClick={submitAll}>
                   提交我的评分
                 </Button>
               ) : (
                 <Button disabled>已提交</Button>
+              )}
+              {isLeader && submitLocked && (
+                <>
+                  <Button type="primary" ghost onClick={summarizeResults}>
+                    统计评标结果
+                  </Button>
+                  <Button type="primary" onClick={generateReport} disabled={!reportGenerated}>
+                    生成评标报告
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -334,10 +453,10 @@ export default function ExpertProject() {
                 <Button
                   type="primary"
                   size="large"
-                  disabled={!hasLeader}
+                  disabled={!isLeader}
                   onClick={() => setActiveStep((prev) => prev + 1)}
                 >
-                  {hasLeader ? '下一步：查阅资料' : '请先推选组长'}
+                  {isLeader ? '下一步：查阅资料' : '请先推选组长'}
                 </Button>
               </div>
             </div>
@@ -415,6 +534,30 @@ export default function ExpertProject() {
                   {signed && <p className="sign-time">签名时间：{signTime}</p>}
                 </div>
               </Card>
+
+              {isLeader && submitLocked && (
+                <Card title="组长：评标结果汇总" size="small" style={{ marginTop: 20 }}>
+                  <Table
+                    rowKey="name"
+                    dataSource={reportSummary}
+                    pagination={false}
+                    columns={[
+                      { title: '排名', render: (_, __, idx) => idx + 1, width: 80 },
+                      { title: '投标人', dataIndex: 'name' },
+                      { title: '总分', dataIndex: 'total', width: 100 }
+                    ]}
+                  />
+                  <div className="stage-action">
+                    <Button type="primary" ghost onClick={summarizeResults}>
+                      统计评标结果
+                    </Button>
+                    <Button type="primary" onClick={generateReport} disabled={!reportGenerated}>
+                      生成评标报告
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
               <div className="stage-action">
                 <Button
                   disabled={submitLocked}

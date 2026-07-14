@@ -1,12 +1,19 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Alert, Button, Card, Checkbox, Form, Input, Steps, Tag, Upload, message } from 'antd'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Alert, Button, Card, Checkbox, Form, Input, Steps, Tag, Upload, message, Modal } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+
+const requiredQualifications = [
+  { key: '营业执照', label: '营业执照' },
+  { key: 'ISO9001认证', label: 'ISO9001认证' }
+]
 
 export default function BidRegister() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const projectId = searchParams.get('projectId')
   const [form] = Form.useForm()
-  const [fileList, setFileList] = useState([])
+  const [qualificationFiles, setQualificationFiles] = useState({})
 
   const validatePhone = (_, value) => {
     if (!value) {
@@ -38,15 +45,34 @@ export default function BidRegister() {
     email: [{ required: true, validator: validateEmail }]
   }
 
+  const checkQualifications = () => {
+    const missing = requiredQualifications.filter((q) => !qualificationFiles[q.key] || qualificationFiles[q.key].length === 0)
+    return missing
+  }
+
   const submit = async () => {
     const values = await form.validateFields().catch(() => null)
     if (!values) return
-    if (fileList.length === 0) {
-      message.warning('请上传资质文件')
+
+    const missing = checkQualifications()
+    if (missing.length > 0) {
+      Modal.error({
+        title: '资质文件不满足要求',
+        content: `缺少以下资质文件：${missing.map((q) => q.label).join('、')}，请补充后重新提交。`
+      })
       return
     }
-    message.success('报名申请已提交，状态：待审核')
-    navigate('/admin/bidder-projects')
+
+    Modal.confirm({
+      title: '提交报名确认',
+      content: '提交后将进入招标方资质审核，是否继续？',
+      okText: '确认提交',
+      cancelText: '取消',
+      onOk: () => {
+        message.success('报名申请已提交，状态：待审核')
+        navigate('/admin/bidder-projects')
+      }
+    })
   }
 
   return (
@@ -55,7 +81,7 @@ export default function BidRegister() {
         title={
           <div className="card-header">
             <span>项目报名</span>
-            <Tag color="blue">项目：XX市轨道交通设备采购项目</Tag>
+            <Tag color="blue">项目：XX市轨道交通设备采购项目{projectId ? ` · ID: ${projectId}` : ''}</Tag>
           </div>
         }
       >
@@ -67,7 +93,7 @@ export default function BidRegister() {
         />
 
         <Alert
-          message="请确认贵司符合招标公告中的资格要求，提交后将进入招标方审核。"
+          message="请确认贵司符合招标公告中的资格要求，提交后将进入招标方审核。系统会根据项目要求校验资质文件是否齐全。"
           type="info"
           showIcon
           closable={false}
@@ -96,19 +122,33 @@ export default function BidRegister() {
           <Form.Item label="电子邮箱" name="email" rules={rules.email}>
             <Input placeholder="请输入电子邮箱" />
           </Form.Item>
-          <Form.Item label="资质文件" required>
-            <Upload.Dragger
-              fileList={fileList}
-              onChange={({ fileList: next }) => setFileList(next)}
-              beforeUpload={() => false}
-              multiple
-            >
-              <p className="ant-upload-drag-icon">
-                <UploadOutlined style={{ fontSize: 40 }} />
-              </p>
-              <p className="ant-upload-text">拖拽文件到此处或 <em>点击上传</em></p>
-            </Upload.Dragger>
+
+          <Form.Item label="资质文件" required style={{ marginBottom: 0 }}>
+            <Alert
+              message={`本项目要求上传：${requiredQualifications.map((q) => q.label).join('、')}`}
+              type="warning"
+              showIcon
+              closable={false}
+              style={{ marginBottom: 16 }}
+            />
+            {requiredQualifications.map((q) => (
+              <div key={q.key} style={{ marginBottom: 16 }}>
+                <div style={{ marginBottom: 8, fontWeight: 500 }}>{q.label}</div>
+                <Upload.Dragger
+                  fileList={qualificationFiles[q.key] || []}
+                  onChange={({ fileList: next }) => setQualificationFiles((prev) => ({ ...prev, [q.key]: next }))}
+                  beforeUpload={() => false}
+                  multiple={false}
+                >
+                  <p className="ant-upload-drag-icon">
+                    <UploadOutlined style={{ fontSize: 32 }} />
+                  </p>
+                  <p className="ant-upload-text">上传 {q.label}</p>
+                </Upload.Dragger>
+              </div>
+            ))}
           </Form.Item>
+
           <Form.Item label="备注说明" name="remark">
             <Input.TextArea rows={3} placeholder="其他需要说明的内容" />
           </Form.Item>
