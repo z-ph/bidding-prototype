@@ -4,33 +4,33 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
-  // zip 评审 #1-26
-  { id: 'zip-001', source: 'zip', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '查阅资料不应作为左侧单独菜单项', status: '已修复', fix: '从专家菜单移除查阅资料，改为评标流程内步骤入口', commit: 'feat(project)' },
-  { id: 'zip-002', source: 'zip', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '评标组长没有单独统计结果流程', status: '已修复', fix: '增加组长统计评标结果、生成报告入口', commit: 'feat(project)' },
-  { id: 'zip-003', source: 'zip', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '评标任务应是列表而非单个项目窗口', status: '已修复', fix: 'ExpertProject 改为项目列表，点击进入详情', commit: 'feat(project)' },
-  { id: 'zip-004', source: 'zip', module: '通用', page: 'Layout', severity: '中', issue: '主页/工作台命名不一致', status: '已修复', fix: '左侧菜单第一项统一改为“工作台”', commit: 'feat(integration)' },
-  { id: 'zip-005', source: 'zip', module: '企业准入', page: 'SupplierProfile', severity: '中', issue: '供应商档案缺少按项目资质类型的上传接口', status: '已修复', fix: 'SupplierProfile/Register 按资质类型上传', commit: 'feat(auth)' },
-  { id: 'zip-006', source: 'zip', module: '投标人工作流', page: 'BidUpload / BidQuote', severity: '中', issue: '初次报价应在上传投标文件中完成，询比价开标后启用报价大厅', status: '部分修复', fix: '已合并报价输入到 BidUpload，但报价字段未继承项目配置', commit: 'feat(project)' },
-  { id: 'zip-007', source: 'zip', module: '投标人工作流', page: 'BidderProjects / Layout', severity: '中', issue: '缴费/下载/上传不应作为独立控制台菜单项', status: '已修复', fix: '移除左侧独立菜单，按项目状态在项目中心聚合按钮', commit: 'feat(project) / feat(integration)' },
-  { id: 'zip-008', source: 'zip', module: '投标人工作流', page: 'ProjectTrack', severity: '中', issue: '缴纳文件费应为动态步骤', status: '已修复', fix: 'ProjectTrack 缴纳文件费节点动态显示“去缴纳”', commit: 'feat(project)' },
-  { id: 'zip-009', source: 'zip', module: '投标人工作流', page: 'BidRegister', severity: '严重', issue: '资质文件检测不能进入下阶段', status: '已修复', fix: 'BidRegister 按项目资质要求校验缺失项并阻断', commit: 'feat(auth)' },
-  { id: 'zip-010', source: 'zip', module: '通用', page: '多个页面', severity: '中', issue: '敏感操作缺少二次确认弹窗', status: '已修复', fix: '在发标、开标、解密、定标、驳回等操作处增加 Modal.confirm', commit: 'feat(project)' },
-  { id: 'zip-011', source: 'zip', module: '开标/评标大厅', page: 'OpeningHall / ExpertProject', severity: '中', issue: '大厅不应作为顶级菜单，应从项目子页面进入', status: '已修复', fix: '移除大厅顶级菜单，改为从项目列表/跟踪进入', commit: 'feat(integration)' },
-  { id: 'zip-012', source: 'zip', module: '招标文件', page: 'TenderDoc', severity: '中', issue: '缺少一键导入模板按钮', status: '已修复', fix: 'TenderDoc 增加一键导入模板', commit: 'feat(project)' },
-  { id: 'zip-013', source: 'zip', module: '招标文件', page: 'TenderDoc', severity: '中', issue: '招标文件目录应可自定义', status: '已修复', fix: 'TenderDoc 目录树支持增删改与拖拽排序', commit: 'feat(project)' },
-  { id: 'zip-014', source: 'zip', module: '项目管理', page: 'ProjectList / Dashboard', severity: '中', issue: '创建项目应仅招标人可见，招标代理不应有入口', status: '已修复', fix: 'permissions.js 移除 agent 创建权限，Layout/列表隐藏入口', commit: 'feat(integration)' },
-  { id: 'zip-015', source: 'zip', module: '开标大厅', page: 'OpeningHall', severity: '中', issue: '解密操作角色不对，应由投标人自己解密', status: '部分修复', fix: 'Agent 报告已做，但 yy0 复测指出招标人/代理仍可替投标人解密，需重改', commit: 'feat(project)' },
-  { id: 'zip-016', source: 'zip', module: '开标大厅', page: 'OpeningHall', severity: '中', issue: '是否必须所有人签到才能开标，缺了谁应提示', status: '已修复', fix: '显示未签到名单并二次确认', commit: 'feat(project)' },
-  { id: 'zip-017', source: 'zip', module: '开标大厅', page: 'OpeningHall', severity: '中', issue: '签到按钮错误出现，应改为各角色单独签到', status: '已修复', fix: '签到表改为状态队列，仅允许各账号签自己', commit: 'feat(project)' },
-  { id: 'zip-018', source: 'zip', module: '项目管理', page: 'ProjectList', severity: '中', issue: '编辑页缺失，且只有开标前可编辑', status: '已修复', fix: 'ProjectList 根据状态控制编辑按钮显隐', commit: 'feat(project)' },
-  { id: 'zip-019', source: 'zip', module: '项目管理', page: 'ProjectList', severity: '严重', issue: '详情页缺失', status: '已修复', fix: '新增 ProjectDetail.jsx 并接线', commit: 'feat(project) / feat(integration)' },
-  { id: 'zip-020', source: 'zip', module: '项目管理', page: 'ProjectList', severity: '中', issue: '按钮文案不符（进入开标/开标大厅）', status: '已修复', fix: '按状态统一按钮文案', commit: 'feat(project)' },
-  { id: 'zip-021', source: 'zip', module: '项目管理', page: 'ProjectList', severity: '中', issue: '没有发标按钮', status: '已修复', fix: 'ProjectList 增加发标按钮与二次确认', commit: 'feat(project)' },
-  { id: 'zip-022', source: 'zip', module: '招标文件', page: 'TenderDoc', severity: '中', issue: '评标办法编写不应仅代理可做，招标人自行招标也应有入口', status: '部分修复', fix: '已允许招标人编辑，但评分页未配置驱动', commit: 'feat(project)' },
-  { id: 'zip-023', source: 'zip', module: '注册/企业准入', page: 'Register / SupplierProfile', severity: '中', issue: '注册时若没有资质类型上传方式，资质要求无限制作用', status: '已修复', fix: 'Register/SupplierProfile 按资质类型上传', commit: 'feat(auth)' },
-  { id: 'zip-024', source: 'zip', module: '项目管理', page: 'ProjectCreate', severity: '中', issue: '标段合计与项目预算关系不明确', status: '已修复', fix: 'ProjectCreate 实时校验标段合计 ≤ 项目预算', commit: 'feat(project)' },
-  { id: 'zip-025', source: 'zip', module: '项目管理', page: 'ProjectCreate', severity: '中', issue: '需求编号含义不清', status: '已修复', fix: 'ProjectCreate 需求编号增加 tooltip/placeholder', commit: 'feat(project)' },
-  { id: 'zip-026', source: 'zip', module: '项目管理', page: 'ProjectCreate', severity: '中', issue: '招标邀请缺少选择/邀请投标人入口', status: '已修复', fix: 'ProjectCreate 邀请招标步骤增加 Transfer 选择 + 邀请码', commit: 'feat(project)' },
+  // 胡桃评审 #1-26
+  { id: 'zip-001', source: '胡桃', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '查阅资料不应作为左侧单独菜单项', status: '已修复', fix: '从专家菜单移除查阅资料，改为评标流程内步骤入口', commit: 'feat(project)' },
+  { id: 'zip-002', source: '胡桃', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '评标组长没有单独统计结果流程', status: '已修复', fix: '增加组长统计评标结果、生成报告入口', commit: 'feat(project)' },
+  { id: 'zip-003', source: '胡桃', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '评标任务应是列表而非单个项目窗口', status: '已修复', fix: 'ExpertProject 改为项目列表，点击进入详情', commit: 'feat(project)' },
+  { id: 'zip-004', source: '胡桃', module: '通用', page: 'Layout', severity: '中', issue: '主页/工作台命名不一致', status: '已修复', fix: '左侧菜单第一项统一改为“工作台”', commit: 'feat(integration)' },
+  { id: 'zip-005', source: '胡桃', module: '企业准入', page: 'SupplierProfile', severity: '中', issue: '供应商档案缺少按项目资质类型的上传接口', status: '已修复', fix: 'SupplierProfile/Register 按资质类型上传', commit: 'feat(auth)' },
+  { id: 'zip-006', source: '胡桃', module: '投标人工作流', page: 'BidUpload / BidQuote', severity: '中', issue: '初次报价应在上传投标文件中完成，询比价开标后启用报价大厅', status: '部分修复', fix: '已合并报价输入到 BidUpload，但报价字段未继承项目配置', commit: 'feat(project)' },
+  { id: 'zip-007', source: '胡桃', module: '投标人工作流', page: 'BidderProjects / Layout', severity: '中', issue: '缴费/下载/上传不应作为独立控制台菜单项', status: '已修复', fix: '移除左侧独立菜单，按项目状态在项目中心聚合按钮', commit: 'feat(project) / feat(integration)' },
+  { id: 'zip-008', source: '胡桃', module: '投标人工作流', page: 'ProjectTrack', severity: '中', issue: '缴纳文件费应为动态步骤', status: '已修复', fix: 'ProjectTrack 缴纳文件费节点动态显示“去缴纳”', commit: 'feat(project)' },
+  { id: 'zip-009', source: '胡桃', module: '投标人工作流', page: 'BidRegister', severity: '严重', issue: '资质文件检测不能进入下阶段', status: '已修复', fix: 'BidRegister 按项目资质要求校验缺失项并阻断', commit: 'feat(auth)' },
+  { id: 'zip-010', source: '胡桃', module: '通用', page: '多个页面', severity: '中', issue: '敏感操作缺少二次确认弹窗', status: '已修复', fix: '在发标、开标、解密、定标、驳回等操作处增加 Modal.confirm', commit: 'feat(project)' },
+  { id: 'zip-011', source: '胡桃', module: '开标/评标大厅', page: 'OpeningHall / ExpertProject', severity: '中', issue: '大厅不应作为顶级菜单，应从项目子页面进入', status: '已修复', fix: '移除大厅顶级菜单，改为从项目列表/跟踪进入', commit: 'feat(integration)' },
+  { id: 'zip-012', source: '胡桃', module: '招标文件', page: 'TenderDoc', severity: '中', issue: '缺少一键导入模板按钮', status: '已修复', fix: 'TenderDoc 增加一键导入模板', commit: 'feat(project)' },
+  { id: 'zip-013', source: '胡桃', module: '招标文件', page: 'TenderDoc', severity: '中', issue: '招标文件目录应可自定义', status: '已修复', fix: 'TenderDoc 目录树支持增删改与拖拽排序', commit: 'feat(project)' },
+  { id: 'zip-014', source: '胡桃', module: '项目管理', page: 'ProjectList / Dashboard', severity: '中', issue: '创建项目应仅招标人可见，招标代理不应有入口', status: '已修复', fix: 'permissions.js 移除 agent 创建权限，Layout/列表隐藏入口', commit: 'feat(integration)' },
+  { id: 'zip-015', source: '胡桃', module: '开标大厅', page: 'OpeningHall', severity: '中', issue: '解密操作角色不对，应由投标人自己解密', status: '部分修复', fix: 'Agent 报告已做，但 yy0 复测指出招标人/代理仍可替投标人解密，需重改', commit: 'feat(project)' },
+  { id: 'zip-016', source: '胡桃', module: '开标大厅', page: 'OpeningHall', severity: '中', issue: '是否必须所有人签到才能开标，缺了谁应提示', status: '已修复', fix: '显示未签到名单并二次确认', commit: 'feat(project)' },
+  { id: 'zip-017', source: '胡桃', module: '开标大厅', page: 'OpeningHall', severity: '中', issue: '签到按钮错误出现，应改为各角色单独签到', status: '已修复', fix: '签到表改为状态队列，仅允许各账号签自己', commit: 'feat(project)' },
+  { id: 'zip-018', source: '胡桃', module: '项目管理', page: 'ProjectList', severity: '中', issue: '编辑页缺失，且只有开标前可编辑', status: '已修复', fix: 'ProjectList 根据状态控制编辑按钮显隐', commit: 'feat(project)' },
+  { id: 'zip-019', source: '胡桃', module: '项目管理', page: 'ProjectList', severity: '严重', issue: '详情页缺失', status: '已修复', fix: '新增 ProjectDetail.jsx 并接线', commit: 'feat(project) / feat(integration)' },
+  { id: 'zip-020', source: '胡桃', module: '项目管理', page: 'ProjectList', severity: '中', issue: '按钮文案不符（进入开标/开标大厅）', status: '已修复', fix: '按状态统一按钮文案', commit: 'feat(project)' },
+  { id: 'zip-021', source: '胡桃', module: '项目管理', page: 'ProjectList', severity: '中', issue: '没有发标按钮', status: '已修复', fix: 'ProjectList 增加发标按钮与二次确认', commit: 'feat(project)' },
+  { id: 'zip-022', source: '胡桃', module: '招标文件', page: 'TenderDoc', severity: '中', issue: '评标办法编写不应仅代理可做，招标人自行招标也应有入口', status: '部分修复', fix: '已允许招标人编辑，但评分页未配置驱动', commit: 'feat(project)' },
+  { id: 'zip-023', source: '胡桃', module: '注册/企业准入', page: 'Register / SupplierProfile', severity: '中', issue: '注册时若没有资质类型上传方式，资质要求无限制作用', status: '已修复', fix: 'Register/SupplierProfile 按资质类型上传', commit: 'feat(auth)' },
+  { id: 'zip-024', source: '胡桃', module: '项目管理', page: 'ProjectCreate', severity: '中', issue: '标段合计与项目预算关系不明确', status: '已修复', fix: 'ProjectCreate 实时校验标段合计 ≤ 项目预算', commit: 'feat(project)' },
+  { id: 'zip-025', source: '胡桃', module: '项目管理', page: 'ProjectCreate', severity: '中', issue: '需求编号含义不清', status: '已修复', fix: 'ProjectCreate 需求编号增加 tooltip/placeholder', commit: 'feat(project)' },
+  { id: 'zip-026', source: '胡桃', module: '项目管理', page: 'ProjectCreate', severity: '中', issue: '招标邀请缺少选择/邀请投标人入口', status: '已修复', fix: 'ProjectCreate 邀请招标步骤增加 Transfer 选择 + 邀请码', commit: 'feat(project)' },
 
   // yy0 评审
   { id: 'yy0-001', source: 'yy0', module: '开标大厅', page: 'OpeningHall', severity: 'P0', issue: '解密动作应由投标人使用各自 CA 私钥完成，招标人/代理/监督不应代替解密', status: '未修复', fix: '需按 fix-review-issues-20260714 提案重新实现角色隔离', commit: '待修复' },
@@ -45,6 +45,8 @@ const reviewData = [
   { id: 'yy0-010', source: 'yy0', module: '文件版本', page: 'TenderDoc / Downloads / ExpertProject', severity: 'P1', issue: '招标文件附件、下载页、专家查阅页未引用同一文件对象', status: '未修复', fix: '统一文件版本链', commit: '待修复' },
   { id: 'yy0-011', source: 'yy0', module: '项目跟踪', page: 'ProjectTrack', severity: 'P1', issue: '招标人页面出现“上传投标文件”等投标人动作按钮', status: '未修复', fix: '需按角色过滤项目跟踪操作按钮', commit: '待修复' },
   { id: 'yy0-012', source: 'yy0', module: '项目创建', page: 'ProjectCreate', severity: 'P1', issue: '空白标段仍可提交审核', status: '未修复', fix: '需增加标段完整性校验', commit: '待修复' },
+  { id: 'zph-001', source: 'zph', module: '登录/导航', page: 'Login', severity: 'P2', issue: '登录页缺少返回门户首页的入口', status: '已修复', fix: 'Login.jsx 注册链接旁增加「返回首页」', commit: 'fix(portal)' },
+  { id: 'zph-002', source: 'zph', module: '导航', page: 'Layout', severity: 'P2', issue: '各角色工作后台没有返回门户首页的方式', status: '已修复', fix: 'Layout.jsx 左侧 Logo/标题点击返回门户首页', commit: 'fix(portal)' },
 
   // yy0 无问题页面
   { id: 'yy0-ok-001', source: 'yy0', module: '登录', page: 'Login', severity: '无问题', issue: '登录入口、方式切换、演示账号说明清楚', status: '无需修复', fix: '-', commit: '-' },
@@ -172,8 +174,9 @@ export default function ReviewChangeList() {
             value={sourceFilter}
             onChange={setSourceFilter}
             options={[
-              { label: 'zip 评审', value: 'zip' },
-              { label: 'yy0 评审', value: 'yy0' }
+              { label: '胡桃 评审', value: '胡桃' },
+              { label: 'yy0 评审', value: 'yy0' },
+              { label: 'zph 评审', value: 'zph' }
             ]}
           />
         </Space>
