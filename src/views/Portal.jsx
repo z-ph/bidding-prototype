@@ -151,7 +151,7 @@ export default function Portal() {
 
       <div id="portal-notice-section" className="section">
         <div className="section-title">
-          <h2>交易信息</h2>
+          <h2>招标公告</h2>
           <RadioGroup value={noticeType} onChange={(e) => setNoticeType(e.target.value)}>
             <Radio.Button value="all">全部</Radio.Button>
             <Radio.Button value="tender">招标公告</Radio.Button>
