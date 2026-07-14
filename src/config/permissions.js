@@ -59,6 +59,9 @@ export const PAGE_PERMISSIONS = {
   '/admin/supervisor-hall': ['supervisor'],
   '/admin/supervisor-logs': ['supervisor'],
 
+  // 开发效率页面：所有角色可见
+  '/admin/review-change-list': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+
   // 管理员页面
   '/admin/admin-dashboard': ['admin'],
   '/admin/admin-users': ['admin'],

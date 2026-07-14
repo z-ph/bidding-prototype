@@ -42,7 +42,10 @@ function buildItem(item) {
 }
 
 function useMenuItems(role) {
-  const common = [{ key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined }]
+  const common = [
+    { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
+    { key: '/admin/review-change-list', label: '评审变更列表', icon: UnorderedListOutlined }
+  ]
 
   const tendereeMenus = [
     {

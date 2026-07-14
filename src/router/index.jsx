@@ -45,6 +45,7 @@ import NoticeDetail from '../views/NoticeDetail.jsx'
 import Contact from '../views/Contact.jsx'
 import ProjectDetail from '../views/ProjectDetail.jsx'
 import SubAccounts from '../views/SubAccounts.jsx'
+import ReviewChangeList from '../views/ReviewChangeList.jsx'
 
 import Layout from '../components/Layout.jsx'
 import Forbidden from '../components/Forbidden.jsx'
@@ -76,6 +77,7 @@ const routes = [
   { path: '/help', element: <Help /> },
   { path: '/downloads', element: <Downloads /> },
   { path: '/contact', element: <Contact /> },
+  { path: '/review-change-list', element: <ReviewChangeList /> },
   {
     path: '/admin',
     element: <RequireAuth />,
@@ -116,6 +118,7 @@ const routes = [
           { path: 'objection-manage', element: <ObjectionManage />, handle: { title: '异议管理' } },
           { path: 'organization', element: <Organization />, handle: { title: '组织机构' } },
           { path: 'sub-accounts', element: <SubAccounts />, handle: { title: '子账号管理' } },
+          { path: 'review-change-list', element: <ReviewChangeList />, handle: { title: '评审变更列表' } },
           { path: 'supplier-profile', element: <SupplierProfile />, handle: { title: '企业档案' } },
           { path: 'expert-profile', element: <ExpertProfile />, handle: { title: '专家信息' } },
           { path: 'message-center', element: <MessageCenter />, handle: { title: '消息中心' } },

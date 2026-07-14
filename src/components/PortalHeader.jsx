@@ -27,7 +27,7 @@ export default function PortalHeader({ activeKey }) {
           {
             element: '#portal-notice-section',
             popover: {
-              title: '交易信息',
+              title: '招标公告',
               description: '这里展示所有招标公告、变更公告、候选人公示和中标公告，您可以按类型筛选。',
               side: 'top',
               align: 'start'
@@ -78,17 +78,6 @@ export default function PortalHeader({ activeKey }) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const scrollToNotices = () => {
-    if (location.pathname === '/') {
-      document.getElementById('portal-notice-section')?.scrollIntoView({ behavior: 'smooth' })
-    } else {
-      navigate('/')
-      setTimeout(() => {
-        document.getElementById('portal-notice-section')?.scrollIntoView({ behavior: 'smooth' })
-      }, 300)
-    }
-  }
-
   const navItemClass = (key) => (activeKey === key ? 'nav-active' : '')
 
   return (
@@ -100,7 +89,7 @@ export default function PortalHeader({ activeKey }) {
         </div>
         <div className="nav">
           <Button type="link" className={navItemClass('home')} onClick={goHome}>首页</Button>
-          <Button type="link" className={navItemClass('notice')} onClick={scrollToNotices}>交易信息</Button>
+          <Button type="link" className={navItemClass('review')} onClick={() => navigate('/review-change-list')}>评审变更</Button>
           <Button type="link" className={navItemClass('news')} onClick={() => navigate('/news')}>新闻公告</Button>
           <Button type="link" className={navItemClass('help')} onClick={() => navigate('/help')}>帮助中心</Button>
           <Button type="link" className={navItemClass('downloads')} onClick={() => navigate('/downloads')}>下载中心</Button>
