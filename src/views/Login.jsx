@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
@@ -8,7 +8,8 @@ import {
   Form,
   Input,
   message,
-  Space
+  Space,
+  Tag
 } from 'antd'
 import {
   CheckOutlined,
@@ -18,12 +19,50 @@ import {
 import { useRole } from '../hooks/useRole.js'
 import { resolveRoleFromAccount, ROLE_NAMES } from '../config/permissions.js'
 
+const DEMO_ACCOUNTS = {
+  tenderee: '123456',
+  agent: '123456',
+  bidder: '123456',
+  expert: '123456',
+  supervisor: '123456',
+  admin: '123456',
+  zhangsan: '123456',
+  lisi: '123456',
+  gongying: '123456',
+  zhuanjia: '123456',
+  jiandu: '123456'
+}
+
+const DEFAULT_SCOPE_BY_ROLE = {
+  admin: 'all',
+  tenderee: 'enterprise',
+  agent: 'enterprise',
+  bidder: 'enterprise',
+  expert: 'enterprise',
+  supervisor: 'all'
+}
+
 export default function Login() {
   const navigate = useNavigate()
-  const { setRole } = useRole()
+  const { login, isAuthenticated, redirectToWorkspace } = useRole()
   const [activeTab, setActiveTab] = useState('account')
-  const [form] = Form.useForm()
+  const [accountForm] = Form.useForm()
   const [phoneForm] = Form.useForm()
+  const [caForm] = Form.useForm()
+  const [countdown, setCountdown] = useState(0)
+  const [caStatus, setCaStatus] = useState({ status: 'idle', message: '' })
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      redirectToWorkspace()
+    }
+  }, [isAuthenticated, redirectToWorkspace])
+
+  useEffect(() => {
+    if (countdown <= 0) return
+    const id = setInterval(() => setCountdown((c) => c - 1), 1000)
+    return () => clearInterval(id)
+  }, [countdown])
 
   const dashboardMap = {
     tenderee: '/admin/dashboard',
@@ -34,34 +73,61 @@ export default function Login() {
     admin: '/admin/admin-dashboard'
   }
 
-  const doLogin = (account, loginType = '账号') => {
-    const resolvedRole = resolveRoleFromAccount(account)
-    setRole(resolvedRole, account)
-    message.success(`以 ${ROLE_NAMES[resolvedRole]} 身份登录成功（${loginType}）`)
-    navigate(dashboardMap[resolvedRole])
+  const doLogin = (roleValue, accountValue, loginType = '账号') => {
+    const scope = DEFAULT_SCOPE_BY_ROLE[roleValue] || 'all'
+    login(roleValue, accountValue, {}, scope)
+    message.success(`以 ${ROLE_NAMES[roleValue]} 身份登录成功（${loginType}）`)
+    navigate(dashboardMap[roleValue])
   }
 
-  const login = () => {
-    form.validateFields().then((values) => {
-      doLogin(values.account, '账号密码')
-    })
-  }
-
-  const caLogin = () => {
-    form.validateFields(['account']).then((values) => {
-      doLogin(values.account, 'CA 证书')
+  const accountLogin = () => {
+    accountForm.validateFields().then((values) => {
+      const key = String(values.account).toLowerCase().trim()
+      if (!DEMO_ACCOUNTS[key] || DEMO_ACCOUNTS[key] !== values.password) {
+        message.error('账号或密码错误')
+        return
+      }
+      const resolvedRole = resolveRoleFromAccount(values.account)
+      doLogin(resolvedRole, values.account, '账号密码')
     })
   }
 
   const sendCode = () => {
     phoneForm.validateFields(['phone']).then(() => {
       message.success('验证码已发送：123456')
+      setCountdown(60)
     })
   }
 
   const phoneLogin = () => {
     phoneForm.validateFields().then((values) => {
-      doLogin(values.phone, '手机')
+      if (values.code !== '123456') {
+        message.error('验证码错误')
+        return
+      }
+      // 演示环境：手机号登录默认作为投标人
+      doLogin('bidder', values.phone, '手机验证码')
+    })
+  }
+
+  const caLogin = () => {
+    caForm.validateFields(['account']).then((values) => {
+      const account = String(values.account).trim()
+      if (!account) {
+        message.error('请输入账号以确定角色')
+        return
+      }
+      setCaStatus({ status: 'checking', message: '正在检测 CA 证书...' })
+      setTimeout(() => {
+        // 演示环境：输入 ca 模拟检测到合法证书；其他情况模拟未插入 UKey
+        if (account.toLowerCase() === 'ca') {
+          setCaStatus({ status: 'success', message: '证书检测通过' })
+          const resolvedRole = resolveRoleFromAccount('ca') || 'bidder'
+          doLogin(resolvedRole, account, 'CA 证书')
+        } else {
+          setCaStatus({ status: 'error', message: '未检测到 CA 证书，请插入 UKey' })
+        }
+      }, 800)
     })
   }
 
@@ -147,7 +213,7 @@ export default function Login() {
 
   const accountTab = (
     <>
-      <Form form={form} layout="vertical" initialValues={{ account: 'tenderee', password: '123456' }}>
+      <Form form={accountForm} layout="vertical" initialValues={{ account: 'tenderee', password: '123456' }}>
         <Form.Item
           label="账号"
           name="account"
@@ -163,7 +229,7 @@ export default function Login() {
           <Input.Password placeholder="请输入密码" />
         </Form.Item>
         <Form.Item>
-          <Button id="login-submit" type="primary" style={{ width: '100%' }} onClick={login}>登录</Button>
+          <Button id="login-submit" type="primary" style={{ width: '100%' }} onClick={accountLogin}>登录</Button>
         </Form.Item>
       </Form>
       <div id="login-role" className="role-hint">
@@ -174,8 +240,8 @@ export default function Login() {
               key={role.key}
               size="small"
               onClick={() => {
-                form.setFieldsValue({ account: role.key, password: '123456' })
-                doLogin(role.key, '账号密码')
+                accountForm.setFieldsValue({ account: role.key, password: '123456' })
+                doLogin(role.key, role.key, '账号密码')
               }}
             >
               {role.label}
@@ -192,7 +258,7 @@ export default function Login() {
     <div id="login-ca-panel" className="ca-login">
       <LockOutlined style={{ fontSize: 60, color: '#409EFF' }} />
       <p>请插入 CA 数字证书 UKey</p>
-      <Form form={form} layout="vertical" className="ca-account-form">
+      <Form form={caForm} layout="vertical" className="ca-account-form">
         <Form.Item
           label="账号"
           name="account"
@@ -201,12 +267,20 @@ export default function Login() {
           <Input placeholder="请输入账号以确定角色" />
         </Form.Item>
       </Form>
-      <Button id="login-ca-btn" type="primary" onClick={caLogin}>检测证书并登录</Button>
+      <Button id="login-ca-btn" type="primary" onClick={caLogin} loading={caStatus.status === 'checking'}>
+        检测证书并登录
+      </Button>
+      {caStatus.status !== 'idle' && caStatus.status !== 'checking' && (
+        <div style={{ marginTop: 12 }}>
+          <Tag color={caStatus.status === 'success' ? 'success' : 'error'}>{caStatus.message}</Tag>
+        </div>
+      )}
       <div className="ca-tips">
         <Button type="link">下载 CA 驱动</Button>
         <span>|</span>
         <Button type="link">CA 证书申请</Button>
       </div>
+      <p className="ca-demo-tip">演示环境：输入账号 ca 模拟证书检测通过</p>
     </div>
   )
 
@@ -215,7 +289,10 @@ export default function Login() {
       <Form.Item
         label="手机号"
         name="phone"
-        rules={[{ required: true, message: '请输入手机号' }]}
+        rules={[
+          { required: true, message: '请输入手机号' },
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号' }
+        ]}
       >
         <Input placeholder="请输入手机号" />
       </Form.Item>
@@ -227,7 +304,14 @@ export default function Login() {
         <Input
           placeholder="请输入验证码"
           suffix={
-            <Button id="login-phone-code" size="small" onClick={sendCode}>获取验证码</Button>
+            <Button
+              id="login-phone-code"
+              size="small"
+              disabled={countdown > 0}
+              onClick={sendCode}
+            >
+              {countdown > 0 ? `${countdown}s` : '获取验证码'}
+            </Button>
           }
         />
       </Form.Item>
@@ -334,6 +418,11 @@ export default function Login() {
           gap: 16px;
           color: #ccc;
           align-items: center;
+        }
+        .ca-demo-tip {
+          color: #999;
+          font-size: 12px;
+          margin-top: 12px;
         }
         .role-hint {
           margin-top: 16px;

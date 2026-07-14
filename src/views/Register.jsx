@@ -7,15 +7,27 @@ import {
   Input,
   Upload,
   Checkbox,
-  message
+  message,
+  Card,
+  Col,
+  Row,
+  Tag
 } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+
+const bidderQualifications = [
+  { key: '营业执照', label: '营业执照' },
+  { key: 'ISO9001认证', label: 'ISO9001认证' },
+  { key: '安全生产许可证', label: '安全生产许可证' },
+  { key: '特定行业资质', label: '特定行业资质' }
+]
 
 export default function Register() {
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [role, setRole] = useState('tenderee')
   const [fileList, setFileList] = useState([])
+  const [qualificationFiles, setQualificationFiles] = useState({})
 
   const submit = () => {
     form.validateFields().then(() => {
@@ -79,11 +91,36 @@ export default function Register() {
         <Input placeholder="请输入联系人姓名" />
       </Form.Item>
       {renderCommonFields()}
-      <Form.Item label="资质附件">
-        <Upload {...uploadProps}>
-          <Button icon={<UploadOutlined />}>上传营业执照等资质</Button>
-        </Upload>
-      </Form.Item>
+      {isTenderee ? (
+        <Form.Item label="资质附件">
+          <Upload {...uploadProps}>
+            <Button icon={<UploadOutlined />}>上传营业执照等资质</Button>
+          </Upload>
+        </Form.Item>
+      ) : (
+        <Form.Item label="资质附件">
+          <div style={{ marginBottom: 12 }}>
+            <Tag color="blue">按资质类型上传</Tag>
+            <span style={{ color: '#666', marginLeft: 8 }}>便于后续报名系统自动检测</span>
+          </div>
+          <Row gutter={[16, 16]}>
+            {bidderQualifications.map((q) => (
+              <Col span={12} key={q.key}>
+                <Card size="small" title={q.label}>
+                  <Upload
+                    fileList={qualificationFiles[q.key] || []}
+                    onChange={({ fileList: next }) => setQualificationFiles((prev) => ({ ...prev, [q.key]: next }))}
+                    beforeUpload={() => false}
+                    multiple={false}
+                  >
+                    <Button icon={<UploadOutlined />}>上传 {q.label}</Button>
+                  </Upload>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Form.Item>
+      )}
       <Form.Item
         name="agreed"
         valuePropName="checked"

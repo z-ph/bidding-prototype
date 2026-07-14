@@ -1,6 +1,13 @@
 import { useState } from 'react'
-import { Button, Card, Col, DatePicker, Form, Input, Row, Upload, message } from 'antd'
+import { Button, Card, Col, DatePicker, Form, Input, Row, Upload, message, Tag } from 'antd'
 import dayjs from 'dayjs'
+
+const qualificationTypes = [
+  { key: '营业执照', label: '营业执照' },
+  { key: 'ISO9001认证', label: 'ISO9001认证' },
+  { key: '安全生产许可证', label: '安全生产许可证' },
+  { key: '特定行业资质', label: '特定行业资质' }
+]
 
 export default function SupplierProfile() {
   const [form, setForm] = useState({
@@ -11,10 +18,10 @@ export default function SupplierProfile() {
     businessScope: '计算机软硬件、电子设备的研发、销售及技术服务；系统集成；网络工程等。'
   })
 
-  const [fileList, setFileList] = useState([
-    { uid: '1', name: '营业执照.pdf', status: 'done' },
-    { uid: '2', name: 'ISO9001证书.pdf', status: 'done' }
-  ])
+  const [qualificationFiles, setQualificationFiles] = useState({
+    营业执照: [{ uid: '1', name: '营业执照.pdf', status: 'done' }],
+    ISO9001认证: [{ uid: '2', name: 'ISO9001证书.pdf', status: 'done' }]
+  })
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -76,15 +83,27 @@ export default function SupplierProfile() {
               onChange={(e) => updateField('businessScope', e.target.value)}
             />
           </Form.Item>
-          <Form.Item label="资质证书">
-            <Upload
-              fileList={fileList}
-              onChange={({ fileList: next }) => setFileList(next)}
-              beforeUpload={() => false}
-              multiple
-            >
-              <Button type="primary">上传资质</Button>
-            </Upload>
+          <Form.Item label="资质文件">
+            <div style={{ marginBottom: 12 }}>
+              <Tag color="blue">按资质类型上传</Tag>
+              <span style={{ color: '#666', marginLeft: 8 }}>报名时将按项目要求自动检测是否齐全</span>
+            </div>
+            <Row gutter={[20, 20]}>
+              {qualificationTypes.map((q) => (
+                <Col span={12} key={q.key}>
+                  <Card size="small" title={q.label}>
+                    <Upload
+                      fileList={qualificationFiles[q.key] || []}
+                      onChange={({ fileList: next }) => setQualificationFiles((prev) => ({ ...prev, [q.key]: next }))}
+                      beforeUpload={() => false}
+                      multiple={false}
+                    >
+                      <Button type="primary">上传 {q.label}</Button>
+                    </Upload>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
           </Form.Item>
         </Form>
       </Card>
