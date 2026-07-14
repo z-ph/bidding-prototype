@@ -4,6 +4,9 @@ import { canAccess, getBreadcrumbName } from '../config/permissions.js'
 import Portal from '../views/Portal.jsx'
 import Login from '../views/Login.jsx'
 import Register from '../views/Register.jsx'
+import News from '../views/News.jsx'
+import Help from '../views/Help.jsx'
+import Downloads from '../views/Downloads.jsx'
 import Dashboard from '../views/Dashboard.jsx'
 import ProjectList from '../views/ProjectList.jsx'
 import ProjectCreate from '../views/ProjectCreate.jsx'
@@ -43,7 +46,7 @@ import Forbidden from '../components/Forbidden.jsx'
 
 function RequireAuth() {
   const location = useLocation()
-  const publicPaths = ['/', '/login', '/register']
+  const publicPaths = ['/', '/login', '/register', '/news', '/help', '/downloads']
 
   if (publicPaths.includes(location.pathname)) {
     return <Outlet />
@@ -63,6 +66,9 @@ const routes = [
   { path: '/', element: <Portal /> },
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
+  { path: '/news', element: <News /> },
+  { path: '/help', element: <Help /> },
+  { path: '/downloads', element: <Downloads /> },
   {
     path: '/admin',
     element: <RequireAuth />,

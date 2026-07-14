@@ -1,9 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { driver } from 'driver.js'
-import 'driver.js/dist/driver.css'
 import {
-  Layout,
   Button,
   Radio,
   Table,
@@ -13,75 +10,18 @@ import {
   message
 } from 'antd'
 import {
-  BookOutlined,
-  QuestionCircleOutlined,
   UserOutlined,
   DownloadOutlined,
   QuestionOutlined,
   BankOutlined
 } from '@ant-design/icons'
+import PortalHeader from '../components/PortalHeader.jsx'
 
 const { Group: RadioGroup } = Radio
 
 export default function Portal() {
   const navigate = useNavigate()
   const [noticeType, setNoticeType] = useState('all')
-
-  const startTour = () => {
-    const driverObj = driver({
-      showProgress: true,
-      allowClose: true,
-      overlayColor: 'rgba(0, 21, 41, 0.75)',
-      steps: [
-        {
-          element: '.logo',
-          popover: {
-            title: '欢迎来到招投标采购平台',
-            description: '这里是平台门户，您可以浏览公告、注册账号或登录系统。',
-            side: 'bottom',
-            align: 'center'
-          }
-        },
-        {
-          element: '#portal-notice-section',
-          popover: {
-            title: '交易信息',
-            description: '这里展示所有招标公告、变更公告、候选人公示和中标公告，您可以按类型筛选。',
-            side: 'top',
-            align: 'start'
-          }
-        },
-        {
-          element: '#portal-notice-table .ant-btn',
-          popover: {
-            title: '报名参加项目',
-            description: '看到合适的项目后，点击“报名”按钮即可进入投标流程。',
-            side: 'left',
-            align: 'center'
-          }
-        },
-        {
-          element: '#portal-quick-links',
-          popover: {
-            title: '快速入口',
-            description: '供应商注册、下载中心、帮助中心、招标人入口，一键直达。',
-            side: 'top',
-            align: 'start'
-          }
-        },
-        {
-          element: '#portal-login-btn',
-          popover: {
-            title: '开始体验',
-            description: '点击登录，选择您的角色，进入对应的工作台。',
-            side: 'bottom',
-            align: 'center'
-          }
-        }
-      ]
-    })
-    driverObj.drive()
-  }
 
   const notices = useMemo(
     () => [
@@ -115,9 +55,9 @@ export default function Portal() {
   }, [noticeType, notices])
 
   const quickLinks = [
-    { title: '供应商注册', desc: '成为平台认证供应商', icon: UserOutlined, color: '#409EFF', path: '/login' },
-    { title: '下载中心', desc: 'CA驱动、投标工具', icon: DownloadOutlined, color: '#67C23A', path: '/login' },
-    { title: '帮助中心', desc: '操作教程与常见问题', icon: QuestionOutlined, color: '#E6A23C', path: '/login' },
+    { title: '供应商注册', desc: '成为平台认证供应商', icon: UserOutlined, color: '#409EFF', path: '/register' },
+    { title: '下载中心', desc: 'CA驱动、投标工具', icon: DownloadOutlined, color: '#67C23A', path: '/downloads' },
+    { title: '帮助中心', desc: '操作教程与常见问题', icon: QuestionOutlined, color: '#E6A23C', path: '/help' },
     { title: '招标人入口', desc: '发布需求、管理项目', icon: BankOutlined, color: '#F56C6C', path: '/login' }
   ]
 
@@ -162,24 +102,7 @@ export default function Portal() {
 
   return (
     <div className="portal">
-      <Layout.Header className="portal-header">
-        <div className="logo">
-          <BookOutlined style={{ marginRight: 10, fontSize: 28 }} />
-          <span>招投标采购平台</span>
-        </div>
-        <div className="nav">
-          <Button type="link" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>首页</Button>
-          <Button type="link" onClick={() => document.getElementById('portal-notice-section')?.scrollIntoView({ behavior: 'smooth' })}>交易信息</Button>
-          <Button type="link" onClick={() => message.info('新闻公告功能建设中，敬请期待')}>新闻公告</Button>
-          <Button type="link" onClick={() => message.info('帮助中心功能建设中，敬请期待')}>帮助中心</Button>
-          <Button type="link" onClick={() => message.info('下载中心功能建设中，敬请期待')}>下载中心</Button>
-        </div>
-        <div className="actions">
-          <Button type="link" icon={<QuestionCircleOutlined />} onClick={startTour}>新手指引</Button>
-          <Button type="link" onClick={() => navigate('/register')}>注册</Button>
-          <Button id="portal-login-btn" type="primary" onClick={() => navigate('/login')}>登录</Button>
-        </div>
-      </Layout.Header>
+      <PortalHeader activeKey="home" />
 
       <div className="banner">
         <h1>全流程电子化招投标采购平台</h1>
@@ -246,34 +169,6 @@ export default function Portal() {
         .portal {
           min-height: 100vh;
           background-color: #f5f7fa;
-        }
-        .portal-header {
-          background-color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          height: 64px;
-          padding: 0 20px;
-          line-height: 64px;
-        }
-        .logo {
-          display: flex;
-          align-items: center;
-          font-size: 20px;
-          font-weight: bold;
-          color: #001529;
-        }
-        .nav {
-          display: flex;
-          gap: 10px;
-        }
-        .actions {
-          display: flex;
-          align-items: center;
         }
         .banner {
           background: linear-gradient(135deg, #001529 0%, #003366 100%);
