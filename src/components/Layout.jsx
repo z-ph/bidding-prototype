@@ -42,7 +42,7 @@ function buildItem(item) {
 }
 
 function useMenuItems(role) {
-  const common = [{ key: '/admin/dashboard', label: '主页', icon: DashboardOutlined }]
+  const common = [{ key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined }]
 
   const tendereeMenus = [
     {
@@ -57,7 +57,6 @@ function useMenuItems(role) {
     },
     { key: '/admin/tender-doc', label: '招标文件', icon: FileTextOutlined },
     { key: '/admin/notice-publish', label: '发布公告', icon: BellOutlined },
-    { key: '/admin/opening-hall', label: '开标大厅', icon: PlayCircleOutlined },
     { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
     { key: '/admin/objection-manage', label: '异议管理', icon: WarningOutlined },
     { key: '/admin/award-confirm', label: '确认中标人', icon: TrophyOutlined },
@@ -73,14 +72,11 @@ function useMenuItems(role) {
       icon: FolderOutlined,
       children: [
         { key: '/admin/projects', label: '项目列表' },
-        { key: '/admin/projects/create', label: '创建项目' },
         { key: '/admin/projects/track', label: '项目跟踪' }
       ]
     },
     { key: '/admin/tender-doc', label: '招标文件编制', icon: FileTextOutlined },
     { key: '/admin/notice-publish', label: '公告发布', icon: BellOutlined },
-    { key: '/admin/opening-hall', label: '开标大厅', icon: PlayCircleOutlined },
-    { key: '/admin/evaluation-hall', label: '评标大厅', icon: StarOutlined },
     { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
     { key: '/admin/objection-manage', label: '异议处理', icon: WarningOutlined },
     { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
@@ -90,10 +86,7 @@ function useMenuItems(role) {
   const bidderMenus = [
     { key: '/admin/bidder-projects', label: '项目中心', icon: FolderOutlined },
     { key: '/admin/bid-register', label: '项目报名', icon: FileProtectOutlined },
-    { key: '/admin/bid-payment', label: '缴纳费用', icon: MoneyCollectOutlined },
-    { key: '/admin/bid-download', label: '下载文件', icon: FileTextOutlined },
     { key: '/admin/bid-quote', label: '在线报价', icon: WalletOutlined },
-    { key: '/admin/bid-upload', label: '上传投标文件', icon: FileTextOutlined },
     { key: '/admin/supplier-profile', label: '企业档案', icon: BankOutlined },
     { key: '/admin/bidder-invoices', label: '发票申请', icon: BookOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
@@ -101,7 +94,6 @@ function useMenuItems(role) {
 
   const expertMenus = [
     { key: '/admin/expert-project', label: '评标任务', icon: StarOutlined },
-    { key: '/admin/bid-download', label: '查阅资料', icon: FileTextOutlined },
     { key: '/admin/expert-profile', label: '专家信息', icon: UserOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
@@ -114,12 +106,14 @@ function useMenuItems(role) {
   ]
 
   const adminMenus = [
-    { key: '/admin/dashboard', label: '主页', icon: DashboardOutlined },
+    { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
     { key: '/admin/admin-dashboard', label: '管理控制台', icon: DashboardOutlined },
     { key: '/admin/admin-users', label: '用户权限', icon: UserOutlined },
     { key: '/admin/admin-dictionary', label: '参数字典', icon: ToolOutlined },
     { key: '/admin/admin-supplier-audit', label: '准入审核', icon: FileProtectOutlined },
+    { key: '/admin/admin-news', label: '新闻公告维护', icon: FileTextOutlined },
     { key: '/admin/organization', label: '组织机构', icon: BankOutlined },
+    { key: '/admin/sub-accounts', label: '子账号管理', icon: UserOutlined },
     { key: '/admin/admin-logs', label: '日志审计', icon: UnorderedListOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
@@ -188,7 +182,7 @@ export default function Layout() {
           <div>
             <Breadcrumb
               items={[
-                { title: <Link to="/admin/dashboard">首页</Link> },
+                { title: <Link to="/admin/dashboard">工作台</Link> },
                 { title: pageTitle }
               ]}
             />

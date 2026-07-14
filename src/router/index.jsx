@@ -40,15 +40,20 @@ import SupplierProfile from '../views/SupplierProfile.jsx'
 import ExpertProfile from '../views/ExpertProfile.jsx'
 import MessageCenter from '../views/MessageCenter.jsx'
 import SupervisorAbnormal from '../views/SupervisorAbnormal.jsx'
+import AdminNews from '../views/AdminNews.jsx'
+import NoticeDetail from '../views/NoticeDetail.jsx'
+import Contact from '../views/Contact.jsx'
+import ProjectDetail from '../views/ProjectDetail.jsx'
+import SubAccounts from '../views/SubAccounts.jsx'
 
 import Layout from '../components/Layout.jsx'
 import Forbidden from '../components/Forbidden.jsx'
 
 function RequireAuth() {
   const location = useLocation()
-  const publicPaths = ['/', '/login', '/register', '/news', '/help', '/downloads']
+  const publicPaths = ['/', '/login', '/register', '/news', '/help', '/downloads', '/contact']
 
-  if (publicPaths.includes(location.pathname)) {
+  if (publicPaths.includes(location.pathname) || location.pathname.startsWith('/notice/')) {
     return <Outlet />
   }
 
@@ -67,8 +72,10 @@ const routes = [
   { path: '/login', element: <Login /> },
   { path: '/register', element: <Register /> },
   { path: '/news', element: <News /> },
+  { path: '/notice/:id', element: <NoticeDetail /> },
   { path: '/help', element: <Help /> },
   { path: '/downloads', element: <Downloads /> },
+  { path: '/contact', element: <Contact /> },
   {
     path: '/admin',
     element: <RequireAuth />,
@@ -81,6 +88,7 @@ const routes = [
           { path: 'projects', element: <ProjectList />, handle: { title: '项目列表' } },
           { path: 'projects/create', element: <ProjectCreate />, handle: { title: '创建项目' } },
           { path: 'projects/track', element: <ProjectTrack />, handle: { title: '项目跟踪' } },
+          { path: 'projects/detail/:id', element: <ProjectDetail />, handle: { title: '项目详情' } },
           { path: 'tender-doc', element: <TenderDoc />, handle: { title: '招标文件' } },
           { path: 'bid-upload', element: <BidUpload />, handle: { title: '上传投标文件' } },
           { path: 'opening-hall', element: <OpeningHall />, handle: { title: '开标大厅' } },
@@ -100,12 +108,14 @@ const routes = [
           { path: 'admin-dictionary', element: <AdminDictionary />, handle: { title: '参数字典' } },
           { path: 'admin-supplier-audit', element: <AdminSupplierAudit />, handle: { title: '准入审核' } },
           { path: 'admin-logs', element: <AdminLogs />, handle: { title: '日志审计' } },
+          { path: 'admin-news', element: <AdminNews />, handle: { title: '新闻公告维护' } },
           { path: 'award-confirm', element: <AwardConfirm />, handle: { title: '确认中标人' } },
           { path: 'award-notice', element: <AwardNotice />, handle: { title: '中标通知书' } },
           { path: 'contract-archive', element: <ContractArchive />, handle: { title: '合同归档' } },
           { path: 'fee-manage', element: <FeeManage />, handle: { title: '费用管理' } },
           { path: 'objection-manage', element: <ObjectionManage />, handle: { title: '异议管理' } },
           { path: 'organization', element: <Organization />, handle: { title: '组织机构' } },
+          { path: 'sub-accounts', element: <SubAccounts />, handle: { title: '子账号管理' } },
           { path: 'supplier-profile', element: <SupplierProfile />, handle: { title: '企业档案' } },
           { path: 'expert-profile', element: <ExpertProfile />, handle: { title: '专家信息' } },
           { path: 'message-center', element: <MessageCenter />, handle: { title: '消息中心' } },

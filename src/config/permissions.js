@@ -26,8 +26,9 @@ export const PAGE_PERMISSIONS = {
 
   // 招标人/招标代理共用页面
   '/admin/projects': ['tenderee', 'agent'],
-  '/admin/projects/create': ['tenderee', 'agent'],
+  '/admin/projects/create': ['tenderee'],
   '/admin/projects/track': ['tenderee', 'agent'],
+  '/admin/projects/detail/:id': ['tenderee', 'agent'],
   '/admin/tender-doc': ['tenderee', 'agent'],
   '/admin/notice-publish': ['tenderee', 'agent'],
   '/admin/fee-manage': ['tenderee', 'agent'],
@@ -64,7 +65,9 @@ export const PAGE_PERMISSIONS = {
   '/admin/admin-dictionary': ['admin'],
   '/admin/admin-supplier-audit': ['admin'],
   '/admin/admin-logs': ['admin'],
+  '/admin/admin-news': ['admin'],
   '/admin/organization': ['admin'],
+  '/admin/sub-accounts': ['admin'],
 
   // 供应商档案
   '/admin/supplier-profile': ['bidder'],
@@ -128,7 +131,12 @@ export const BREADCRUMB_NAMES = {
   SupplierProfile: '企业档案',
   ExpertProfile: '专家信息',
   MessageCenter: '消息中心',
-  SupervisorAbnormal: '异常登记'
+  SupervisorAbnormal: '异常登记',
+  AdminNews: '新闻公告维护',
+  NoticeDetail: '公告详情',
+  Contact: '联系我们',
+  ProjectDetail: '项目详情',
+  SubAccounts: '子账号管理'
 }
 
 // 统一业务状态颜色
@@ -161,7 +169,18 @@ export const STATUS_COLORS = {
 }
 
 export function getAllowedRoles(path) {
-  return PAGE_PERMISSIONS[path] || []
+  if (PAGE_PERMISSIONS[path]) {
+    return PAGE_PERMISSIONS[path]
+  }
+  for (const [pattern, roles] of Object.entries(PAGE_PERMISSIONS)) {
+    if (pattern.includes('/:')) {
+      const regex = new RegExp('^' + pattern.replace(/:[^/]+/g, '[^/]+') + '$')
+      if (regex.test(path)) {
+        return roles
+      }
+    }
+  }
+  return []
 }
 
 export function canAccess(path, role) {
