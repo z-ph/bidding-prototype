@@ -153,15 +153,20 @@ export default function Layout() {
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
       <Sider width={240} style={{ backgroundColor: '#001529', color: '#fff' }}>
-        <div style={{
-          height: 64,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 18,
-          fontWeight: 'bold',
-          borderBottom: '1px solid rgba(255,255,255,0.1)'
-        }}>
+        <div
+          style={{
+            height: 64,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 18,
+            fontWeight: 'bold',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+            cursor: 'pointer'
+          }}
+          onClick={() => navigate('/')}
+          title="返回门户首页"
+        >
           <BookOutlined style={{ marginRight: 10, fontSize: 24 }} />
           <span>招投标平台</span>
         </div>

@@ -347,6 +347,8 @@ export default function Login() {
           <Tabs id="login-tabs" activeKey={activeTab} onChange={setActiveTab} type="card" items={tabItems} />
           <div className="register-link">
             还没有账号？<Button type="link" onClick={() => navigate('/register')}>立即注册</Button>
+            <span style={{ margin: '0 8px' }}>|</span>
+            <Button type="link" onClick={() => navigate('/')}>返回首页</Button>
           </div>
         </div>
       </div>
