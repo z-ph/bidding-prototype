@@ -1,9 +1,12 @@
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card, Collapse, Button } from 'antd'
-import { HomeOutlined } from '@ant-design/icons'
+import { Card, Collapse, Button, Input, Select, Empty } from 'antd'
+import { HomeOutlined, SearchOutlined } from '@ant-design/icons'
 import PortalHeader from '../components/PortalHeader.jsx'
 
-const items = [
+const { Option } = Select
+
+const helpItems = [
   {
     key: 'beginner',
     label: '新手入门',
@@ -43,6 +46,18 @@ const items = [
     )
   },
   {
+    key: 'ca',
+    label: 'CA证书',
+    children: (
+      <>
+        <p><strong>Q：如何办理CA数字证书？</strong></p>
+        <p>A：可在下载中心下载CA驱动及办理指南，按指引到指定CA机构办理。</p>
+        <p><strong>Q：CA证书插入后无法识别？</strong></p>
+        <p>A：请确认已安装最新版CA驱动，并尝试更换USB接口或浏览器。</p>
+      </>
+    )
+  },
+  {
     key: 'contact',
     label: '联系我们',
     children: (
@@ -56,8 +71,36 @@ const items = [
   }
 ]
 
+const categories = [
+  { value: 'all', label: '全部分类' },
+  { value: 'beginner', label: '新手入门' },
+  { value: 'process', label: '投标流程' },
+  { value: 'faq', label: '常见问题' },
+  { value: 'ca', label: 'CA证书' },
+  { value: 'contact', label: '联系我们' }
+]
+
 export default function Help() {
   const navigate = useNavigate()
+  const [keyword, setKeyword] = useState('')
+  const [category, setCategory] = useState('all')
+
+  const filteredItems = useMemo(() => {
+    const term = keyword.trim().toLowerCase()
+    return helpItems.filter((item) => {
+      const matchCategory = category === 'all' || item.key === category
+      if (!matchCategory) return false
+      if (!term) return true
+      const text = (item.label + ' ' + extractText(item.children)).toLowerCase()
+      return text.includes(term)
+    })
+  }, [keyword, category])
+
+  const collapseItems = filteredItems.map((item) => ({
+    key: item.key,
+    label: item.label,
+    children: item.children
+  }))
 
   return (
     <div className="public-page">
@@ -71,7 +114,30 @@ export default function Help() {
             </Button>
           }
         >
-          <Collapse defaultActiveKey={['beginner']} items={items} />
+          <div className="help-filter">
+            <Input
+              placeholder="请输入关键词搜索"
+              prefix={<SearchOutlined />}
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              allowClear
+              style={{ width: 280 }}
+            />
+            <Select
+              value={category}
+              onChange={setCategory}
+              style={{ width: 160 }}
+            >
+              {categories.map((c) => (
+                <Option key={c.value} value={c.value}>{c.label}</Option>
+              ))}
+            </Select>
+          </div>
+          {filteredItems.length === 0 ? (
+            <Empty description="未找到匹配的帮助内容" style={{ marginTop: 40 }} />
+          ) : (
+            <Collapse defaultActiveKey={filteredItems.map((i) => i.key)} items={collapseItems} />
+          )}
         </Card>
       </div>
       <style>{`
@@ -84,7 +150,21 @@ export default function Help() {
           margin: 40px auto;
           padding: 0 20px;
         }
+        .help-filter {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
       `}</style>
     </div>
   )
+}
+
+function extractText(node) {
+  if (typeof node === 'string') return node
+  if (Array.isArray(node)) return node.map(extractText).join(' ')
+  if (node && typeof node === 'object') {
+    return extractText(node.props?.children || '')
+  }
+  return ''
 }

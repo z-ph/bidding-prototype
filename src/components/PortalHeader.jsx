@@ -104,6 +104,7 @@ export default function PortalHeader({ activeKey }) {
           <Button type="link" className={navItemClass('news')} onClick={() => navigate('/news')}>新闻公告</Button>
           <Button type="link" className={navItemClass('help')} onClick={() => navigate('/help')}>帮助中心</Button>
           <Button type="link" className={navItemClass('downloads')} onClick={() => navigate('/downloads')}>下载中心</Button>
+          <Button type="link" className={navItemClass('contact')} onClick={() => navigate('/contact')}>联系我们</Button>
         </div>
         <div className="actions">
           <Button type="link" icon={<QuestionCircleOutlined />} onClick={startTour}>新手指引</Button>

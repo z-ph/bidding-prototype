@@ -7,6 +7,7 @@ import {
   Tag,
   Pagination,
   Card,
+  Carousel,
   message
 } from 'antd'
 import {
@@ -16,6 +17,7 @@ import {
   BankOutlined
 } from '@ant-design/icons'
 import PortalHeader from '../components/PortalHeader.jsx'
+import { portalStore } from '../data/portalStore.js'
 
 const { Group: RadioGroup } = Radio
 
@@ -23,16 +25,8 @@ export default function Portal() {
   const navigate = useNavigate()
   const [noticeType, setNoticeType] = useState('all')
 
-  const notices = useMemo(
-    () => [
-      { id: 1, title: 'XX市轨道交通设备采购项目招标公告', typeName: '招标公告', tagType: 'primary', purchaseMode: '公开招标', publishTime: '2026-07-01', deadline: '2026-07-20', canRegister: true },
-      { id: 2, title: '办公桌椅采购项目变更公告', typeName: '变更公告', tagType: 'warning', purchaseMode: '公开招标', publishTime: '2026-07-02', deadline: '2026-07-18', canRegister: false },
-      { id: 3, title: '软件开发服务项目中标候选人公示', typeName: '候选人公示', tagType: 'success', purchaseMode: '邀请招标', publishTime: '2026-07-03', deadline: '-', canRegister: false },
-      { id: 4, title: '物业服务采购项目中标公告', typeName: '中标公告', tagType: 'info', purchaseMode: '公开询比价', publishTime: '2026-07-04', deadline: '-', canRegister: false },
-      { id: 5, title: '实验室设备采购项目招标公告', typeName: '招标公告', tagType: 'primary', purchaseMode: '公开招标', publishTime: '2026-07-05', deadline: '2026-07-25', canRegister: true }
-    ],
-    []
-  )
+  const notices = useMemo(() => portalStore.getNotices(), [])
+  const stats = useMemo(() => portalStore.getStats(), [])
 
   const typeMap = {
     all: null,
@@ -62,11 +56,11 @@ export default function Portal() {
   ]
 
   const handleRowClick = (row) => {
-    message.success(`查看公告详情：${row.title}`)
+    navigate(`/notice/${row.id}`)
   }
 
   const register = (row) => {
-    message.success(`报名参加：${row.title}\n请先登录系统`)
+    navigate(`/notice/${row.id}`)
   }
 
   const columns = [
@@ -77,7 +71,7 @@ export default function Portal() {
       minWidth: 300,
       render: (_, row) => (
         <>
-          <a>{row.title}</a>
+          <a onClick={(e) => { e.stopPropagation(); navigate(`/notice/${row.id}`) }}>{row.title}</a>
           <Tag color={tagColorMap[row.tagType]} style={{ marginLeft: 8 }}>
             {row.typeName}
           </Tag>
@@ -100,24 +94,56 @@ export default function Portal() {
     }
   ]
 
+  const carouselSlides = [
+    {
+      key: 1,
+      title: '全流程电子化招投标采购平台',
+      subtitle: '公开、公平、公正、高效、安全',
+      color: 'linear-gradient(135deg, #001529 0%, #003366 100%)'
+    },
+    {
+      key: 2,
+      title: '多角色协同工作',
+      subtitle: '招标人、投标人、评标专家、监督人员一体化协同',
+      color: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)'
+    },
+    {
+      key: 3,
+      title: '安全合规的CA认证',
+      subtitle: '支持数字证书签章，保障投标文件安全与法律效力',
+      color: 'linear-gradient(135deg, #001529 0%, #004080 100%)'
+    }
+  ]
+
   return (
     <div className="portal">
       <PortalHeader activeKey="home" />
 
       <div className="banner">
-        <h1>全流程电子化招投标采购平台</h1>
-        <p>公开、公平、公正、高效、安全</p>
+        <Carousel autoplay autoplaySpeed={5000} dotPosition="bottom" effect="fade">
+          {carouselSlides.map((slide) => (
+            <div key={slide.key}>
+              <div
+                className="carousel-slide"
+                style={{ background: slide.color }}
+              >
+                <h1>{slide.title}</h1>
+                <p>{slide.subtitle}</p>
+              </div>
+            </div>
+          ))}
+        </Carousel>
         <div className="stats">
           <div className="stat-item">
-            <div className="stat-num">1,256</div>
+            <div className="stat-num">{stats.totalProjects.toLocaleString()}</div>
             <div className="stat-label">累计项目</div>
           </div>
           <div className="stat-item">
-            <div className="stat-num">3,890</div>
+            <div className="stat-num">{stats.totalSuppliers.toLocaleString()}</div>
             <div className="stat-label">注册供应商</div>
           </div>
           <div className="stat-item">
-            <div className="stat-num">528</div>
+            <div className="stat-num">{stats.monthlyOpenings.toLocaleString()}</div>
             <div className="stat-label">本月开标</div>
           </div>
         </div>
@@ -173,23 +199,33 @@ export default function Portal() {
         .banner {
           background: linear-gradient(135deg, #001529 0%, #003366 100%);
           color: #fff;
+          text-align: center;
+        }
+        .carousel-slide {
           padding: 60px 20px;
           text-align: center;
         }
-        .banner h1 {
+        .carousel-slide h1 {
           font-size: 36px;
           margin-bottom: 16px;
           color: #fff;
         }
-        .banner p {
+        .carousel-slide p {
           font-size: 18px;
           opacity: 0.9;
-          margin-bottom: 40px;
+          margin-bottom: 0;
+        }
+        .banner .ant-carousel .slick-dots li button {
+          background: rgba(255,255,255,0.5);
+        }
+        .banner .ant-carousel .slick-dots li.slick-active button {
+          background: #409EFF;
         }
         .stats {
           display: flex;
           justify-content: center;
           gap: 80px;
+          padding: 40px 20px;
         }
         .stat-item {
           text-align: center;
