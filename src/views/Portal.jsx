@@ -168,11 +168,11 @@ export default function Portal() {
           <span>招投标采购平台</span>
         </div>
         <div className="nav">
-          <Button type="link">首页</Button>
-          <Button type="link">交易信息</Button>
-          <Button type="link">新闻公告</Button>
-          <Button type="link">帮助中心</Button>
-          <Button type="link">下载中心</Button>
+          <Button type="link" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>首页</Button>
+          <Button type="link" onClick={() => document.getElementById('portal-notice-section')?.scrollIntoView({ behavior: 'smooth' })}>交易信息</Button>
+          <Button type="link" onClick={() => message.info('新闻公告功能建设中，敬请期待')}>新闻公告</Button>
+          <Button type="link" onClick={() => message.info('帮助中心功能建设中，敬请期待')}>帮助中心</Button>
+          <Button type="link" onClick={() => message.info('下载中心功能建设中，敬请期待')}>下载中心</Button>
         </div>
         <div className="actions">
           <Button type="link" icon={<QuestionCircleOutlined />} onClick={startTour}>新手指引</Button>
@@ -180,16 +180,6 @@ export default function Portal() {
           <Button id="portal-login-btn" type="primary" onClick={() => navigate('/login')}>登录</Button>
         </div>
       </Layout.Header>
-
-      <div className="filter-nav">
-        <RadioGroup value={noticeType} onChange={(e) => setNoticeType(e.target.value)} size="large">
-          <Radio.Button value="all">全部</Radio.Button>
-          <Radio.Button value="tender">招标公告</Radio.Button>
-          <Radio.Button value="change">变更公告</Radio.Button>
-          <Radio.Button value="candidate">候选人公示</Radio.Button>
-          <Radio.Button value="result">中标公告</Radio.Button>
-        </RadioGroup>
-      </div>
 
       <div className="banner">
         <h1>全流程电子化招投标采购平台</h1>
@@ -213,6 +203,13 @@ export default function Portal() {
       <div id="portal-notice-section" className="section">
         <div className="section-title">
           <h2>交易信息</h2>
+          <RadioGroup value={noticeType} onChange={(e) => setNoticeType(e.target.value)}>
+            <Radio.Button value="all">全部</Radio.Button>
+            <Radio.Button value="tender">招标公告</Radio.Button>
+            <Radio.Button value="change">变更公告</Radio.Button>
+            <Radio.Button value="candidate">候选人公示</Radio.Button>
+            <Radio.Button value="result">中标公告</Radio.Button>
+          </RadioGroup>
         </div>
         <Table
           id="portal-notice-table"
@@ -278,16 +275,6 @@ export default function Portal() {
           display: flex;
           align-items: center;
         }
-        .filter-nav {
-          background-color: #fff;
-          border-bottom: 1px solid #e4e7ed;
-          display: flex;
-          justify-content: center;
-          padding: 16px 20px;
-          position: sticky;
-          top: 64px;
-          z-index: 99;
-        }
         .banner {
           background: linear-gradient(135deg, #001529 0%, #003366 100%);
           color: #fff;
@@ -325,6 +312,7 @@ export default function Portal() {
           max-width: 1200px;
           margin: 40px auto;
           padding: 0 20px;
+          scroll-margin-top: 80px;
         }
         .section-title {
           display: flex;
