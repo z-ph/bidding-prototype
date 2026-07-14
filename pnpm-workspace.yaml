@@ -2,3 +2,5 @@
 minimumReleaseAgeExclude:
   - react-page-review
   - vue-page-review
+  - antd@6.5.1
+  - driver.js@1.7.0

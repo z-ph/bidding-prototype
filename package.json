@@ -10,17 +10,18 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.6.1",
-    "antd": "^5.24.3",
-    "driver.js": "^1.6.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-page-review": "^0.7.2",
-    "react-router-dom": "^6.30.0"
+    "@ant-design/icons": "^6.3.2",
+    "antd": "^6.5.1",
+    "dayjs": "^1.11.21",
+    "driver.js": "^1.7.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-page-review": "^0.7.3",
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.3",
     "gh-pages": "^6.3.0",
-    "vite": "^8.1.1"
+    "vite": "^8.1.4"
   }
 }
