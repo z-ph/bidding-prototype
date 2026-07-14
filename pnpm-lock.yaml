@@ -27,8 +27,8 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
       react-page-review:
-        specifier: ^0.7.5
-        version: 0.7.5(antd@6.5.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^0.7.6
+        version: 0.7.6(antd@6.5.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react-router-dom:
         specifier: ^7.18.1
         version: 7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -831,8 +831,8 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react-page-review@0.7.5:
-    resolution: {integrity: sha512-+XVblvBYlK6K8sPig0Bz2jNUX1c1n2w0buox3zTLR41iO47CG4J/F7nqQysjbQcsUSdWi0r9jW8yy3Oa0DMwnQ==}
+  react-page-review@0.7.6:
+    resolution: {integrity: sha512-UOT76zVpNK4TMfslWLgu9UeECtv0nV/y7WWuyVjRd64dOWLqRem7fgbVlOvjTtqH0Dn1vgCvP8pD5eo0VkkT6A==}
     peerDependencies:
       antd: ^6.0.0
       react: ^18.0.0 || ^19.0.0
@@ -1792,7 +1792,7 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react-page-review@0.7.5(antd@6.5.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-page-review@0.7.6(antd@6.5.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       html-to-image: 1.11.13
       jszip: 3.10.1
