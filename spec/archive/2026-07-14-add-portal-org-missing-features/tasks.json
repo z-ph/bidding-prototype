@@ -1,0 +1,58 @@
+[
+  {
+    "number": 1,
+    "category": "门户 - 新闻公告维护",
+    "task": "新增管理员新闻公告维护页面",
+    "steps": [
+      { "step": "创建 src/views/AdminNews.jsx，包含列表、新增、编辑、下线", "completed": false },
+      { "step": "在 router/index.jsx 注册 /admin/admin-news 路由", "completed": false },
+      { "step": "在 permissions.js 配置 admin 可访问", "completed": false },
+      { "step": "在 Layout 管理员菜单添加入口", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 2,
+    "category": "门户 - 帮助中心",
+    "task": "在 Help 页面增加搜索与分类筛选",
+    "steps": [
+      { "step": "在 src/views/Help.jsx 添加搜索输入和分类下拉", "completed": false },
+      { "step": "根据关键词和分类过滤静态帮助条目", "completed": false },
+      { "step": "空结果时展示 EmptyState", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 3,
+    "category": "组织管理 - 部门树",
+    "task": "实现部门树 CRUD",
+    "steps": [
+      { "step": "在 Organization.jsx 实现新增、编辑、删除部门", "completed": false },
+      { "step": "支持拖拽调整部门层级", "completed": false },
+      { "step": "保存后刷新树并给出 message 反馈", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 4,
+    "category": "组织管理 - 子账号",
+    "task": "新增子账号管理页面",
+    "steps": [
+      { "step": "创建 src/views/SubAccounts.jsx，含列表、创建、停用、联系信息编辑", "completed": false },
+      { "step": "注册 /admin/sub-accounts 路由并配置权限", "completed": false },
+      { "step": "在 Layout 管理员菜单添加入口", "completed": false }
+    ],
+    "passes": false
+  },
+  {
+    "number": 5,
+    "category": "组织管理 - 数据范围",
+    "task": "实现组织与角色数据范围衔接",
+    "steps": [
+      { "step": "在 Organization.jsx 增加数据范围配置面板（本人/本部门/本企业/全部）", "completed": false },
+      { "step": "在 permissions.js 或 hooks/useRole.js 中读取数据范围", "completed": false },
+      { "step": "在项目列表、公告列表等页面按数据范围过滤 mock 数据", "completed": false }
+    ],
+    "passes": false
+  }
+]
