@@ -48,6 +48,19 @@ const reviewData = [
   { id: 'zph-001', source: 'zph', module: '登录/导航', page: 'Login', severity: 'P2', issue: '登录页缺少返回门户首页的入口', status: '已修复', fix: 'Login.jsx 注册链接旁增加「返回首页」', commit: 'fix(portal)' },
   { id: 'zph-002', source: 'zph', module: '导航', page: 'Layout', severity: 'P2', issue: '各角色工作后台没有返回门户首页的方式', status: '已修复', fix: 'Layout.jsx 左侧 Logo/标题点击返回门户首页', commit: 'fix(portal)' },
 
+  // zph 2026-07-14 23:11 评审
+  { id: 'zph-003', source: 'zph', module: '招标文件', page: 'BidDownload / BidderProjects', severity: '中', issue: '缺少质疑招标文件的功能选项', status: '未修复', fix: '需按 fix-tender-document-20260714 提案增加投标人质疑入口', commit: '待修复' },
+  { id: 'zph-004', source: 'zph', module: '招标文件', page: 'TenderDoc', severity: '低', issue: '招标文件复核人字段缺少需求依据', status: '未修复', fix: '需按 fix-tender-document-20260714 提案确认需求后处理复核人字段', commit: '待修复' },
+  { id: 'zph-005', source: 'zph', module: '招标文件', page: 'TenderDoc / ProjectCreate', severity: '中', issue: '招标公告关键信息全部在富文本中，无结构化字段存储', status: '未修复', fix: '需按 fix-tender-document-20260714 提案拆分结构化字段', commit: '待修复' },
+  { id: 'zph-006', source: 'zph', module: '公告管理', page: 'NoticePublish', severity: '中', issue: '发布公告缺少关联的标段', status: '未修复', fix: '需按 fix-notice-management-20260714 提案增加标段多选', commit: '待修复' },
+  { id: 'zph-007', source: 'zph', module: '公告管理', page: 'NoticePublish', severity: '中', issue: '缺少公告列表页，无法查看已发布/草稿公告', status: '未修复', fix: '需按 fix-notice-management-20260714 提案新增 NoticeList', commit: '待修复' },
+  { id: 'zph-008', source: 'zph', module: '公告管理', page: 'NoticePublish', severity: '中', issue: '变更公告缺少变更原因填写项', status: '未修复', fix: '需按 fix-notice-management-20260714 提案增加变更原因字段', commit: '待修复' },
+  { id: 'zph-009', source: 'zph', module: '公告管理', page: 'NoticePublish', severity: '中', issue: '发布公告中的公告类型缺少澄清公告选项', status: '未修复', fix: '需按 fix-notice-management-20260714 提案增加澄清公告类型', commit: '待修复' },
+  { id: 'zph-010', source: 'zph', module: '项目创建', page: 'ProjectCreate', severity: '中', issue: '标段部分信息缺失：采购方式、标书费、保证金、投标起止时间', status: '未修复', fix: '需按 fix-project-creation-20260714 提案补全标段字段', commit: '待修复' },
+  { id: 'zph-011', source: 'zph', module: '项目创建', page: 'ProjectCreate', severity: '中', issue: '没有组织方式选项（自行招标/委托代理）', status: '未修复', fix: '需按 fix-project-creation-20260714 提案增加组织方式与成员规则', commit: '待修复' },
+  { id: 'zph-012', source: 'zph', module: '采购需求', page: '新增页面', severity: '高', issue: '缺少采购需求独立入口及类型管理', status: '未修复', fix: '需按 fix-project-creation-20260714 提案新增采购需求模块', commit: '待修复' },
+  { id: 'zph-013', source: 'zph', module: '项目创建', page: 'ProjectCreate', severity: '中', issue: '采购方式下拉中「单一来源」应为「邀请询比价」', status: '未修复', fix: '需按 fix-project-creation-20260714 提案修正文案', commit: '待修复' },
+
   // yy0 无问题页面
   { id: 'yy0-ok-001', source: 'yy0', module: '登录', page: 'Login', severity: '无问题', issue: '登录入口、方式切换、演示账号说明清楚', status: '无需修复', fix: '-', commit: '-' },
   { id: 'yy0-ok-002', source: 'yy0', module: '项目管理', page: 'ProjectList', severity: '无问题', issue: '列表、状态、筛选、操作入口完整', status: '无需修复', fix: '-', commit: '-' },
