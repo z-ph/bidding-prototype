@@ -31,3 +31,6 @@ review-assets/
 # playwright-cli session artifacts
 .playwright-cli/
 test-downloads/
+
+# Review input files (move processed ones here, keep repo clean)
+review-inputs/

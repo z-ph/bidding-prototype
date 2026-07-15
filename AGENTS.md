@@ -19,6 +19,7 @@
 - `spec/archive/` — 已归档提案
 - `spec/specs/` — living specifications
 - `docs/` — 验证清单和实施规则
+- `review-inputs/` — 用户放入根目录的评审文件（zip/md 等），agent 提案并实施完成后统一归纳到此目录；该目录已在 `.gitignore` 中，不进入版本库
 
 ## 技术栈
 
