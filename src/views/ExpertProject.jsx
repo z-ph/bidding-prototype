@@ -22,6 +22,7 @@ import {
 import { EditOutlined, FileTextOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
 import { tenderDocStore } from '../data/tenderDocStore.js'
+import { expertStore } from '../data/expertStore.js'
 
 const evaluationProjects = [
   { id: '1', name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', stage: '评标中', deadline: '2026-07-10 17:00', isLeader: true },
@@ -91,6 +92,17 @@ function ProjectList({ onEnter }) {
 
 function EvaluationDetail({ projectId, onBack }) {
   const tenderDocVersion = tenderDocStore.getCurrentPublishedVersion(projectId)
+  // 评标办法评分项由招标文件配置驱动，不再固定商务30/技术40/价格30
+  const scoreItems = tenderDocStore.getPublishedScoreItems(projectId)
+  const scoreWeightTotal = scoreItems.reduce((sum, item) => sum + (Number(item.weight) || 0), 0)
+  const scoreColSpan = Math.max(4, Math.floor(24 / scoreItems.length))
+  const initialScores = (base = {}) => {
+    const scores = {}
+    scoreItems.forEach((item) => {
+      scores[item.id] = base[item.id] !== undefined ? base[item.id] : Math.round((Number(item.weight) || 0) * 0.8)
+    })
+    return scores
+  }
 
   const [activeStep, setActiveStep] = useState(0)
   const [declared, setDeclared] = useState(false)
@@ -100,24 +112,34 @@ function EvaluationDetail({ projectId, onBack }) {
   const [submitLocked, setSubmitLocked] = useState(false)
   const [reportGenerated, setReportGenerated] = useState(false)
 
-  const [experts, setExperts] = useState([
-    { name: '专家甲', field: '电子信息', status: '已签到', isLeader: true },
-    { name: '专家乙', field: '机械设备', status: '已签到', isLeader: false },
-    { name: '专家丙', field: '工程造价', status: '已签到', isLeader: false }
-  ])
+  // 专家名单优先取自专家抽取结果，无抽取记录时回退演示名单
+  const [experts, setExperts] = useState(() => {
+    const result = expertStore.getResult(projectId)
+    if (result?.experts?.length) {
+      return result.experts.map((e) => ({
+        name: e.name,
+        field: e.field,
+        status: '已签到',
+        isLeader: e.name === '专家甲'
+      }))
+    }
+    return [
+      { name: '专家甲', field: '电子信息', status: '已签到', isLeader: true },
+      { name: '专家乙', field: '机械设备', status: '已签到', isLeader: false },
+      { name: '专家丙', field: '工程造价', status: '已签到', isLeader: false }
+    ]
+  })
 
   const isLeader = experts.some((e) => e.name === '专家甲' && e.isLeader)
 
   const [bidders, setBidders] = useState([
-    { name: 'A科技有限公司', business: 25, tech: 32, price: 26, comment: '' },
-    { name: 'B实业有限公司', business: 24, tech: 30, price: 25, comment: '' },
-    { name: 'C股份有限公司', business: 27, tech: 35, price: 28, comment: '' }
+    { name: 'A科技有限公司', scores: initialScores({ business: 25, tech: 32, price: 26 }), comment: '' },
+    { name: 'B实业有限公司', scores: initialScores({ business: 24, tech: 30, price: 25 }), comment: '' },
+    { name: 'C股份有限公司', scores: initialScores({ business: 27, tech: 35, price: 28 }), comment: '' }
   ])
 
   const allScored = bidders.every((b) =>
-    b.business !== null && b.business !== undefined &&
-    b.tech !== null && b.tech !== undefined &&
-    b.price !== null && b.price !== undefined &&
+    scoreItems.every((item) => b.scores?.[item.id] !== null && b.scores?.[item.id] !== undefined) &&
     b.comment.trim() !== ''
   )
 
@@ -126,6 +148,12 @@ function EvaluationDetail({ projectId, onBack }) {
   const updateBidder = (index, key, value) => {
     setBidders((prev) =>
       prev.map((b, i) => (i === index ? { ...b, [key]: value } : b))
+    )
+  }
+
+  const updateBidderScore = (index, scoreId, value) => {
+    setBidders((prev) =>
+      prev.map((b, i) => (i === index ? { ...b, scores: { ...b.scores, [scoreId]: value } } : b))
     )
   }
 
@@ -294,39 +322,19 @@ function EvaluationDetail({ projectId, onBack }) {
     children: (
       <Form labelCol={{ flex: '0 0 120px' }} wrapperCol={{ flex: 'auto' }}>
         <Row gutter={20}>
-          <Col span={8}>
-            <Form.Item label="商务标">
-              <InputNumber
-                min={0}
-                max={30}
-                disabled={submitLocked}
-                value={b.business}
-                onChange={(value) => updateBidder(index, 'business', value)}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="技术标">
-              <InputNumber
-                min={0}
-                max={40}
-                disabled={submitLocked}
-                value={b.tech}
-                onChange={(value) => updateBidder(index, 'tech', value)}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="价格标">
-              <InputNumber
-                min={0}
-                max={30}
-                disabled={submitLocked}
-                value={b.price}
-                onChange={(value) => updateBidder(index, 'price', value)}
-              />
-            </Form.Item>
-          </Col>
+          {scoreItems.map((item) => (
+            <Col span={scoreColSpan} key={item.id}>
+              <Form.Item label={item.name}>
+                <InputNumber
+                  min={0}
+                  max={Number(item.weight) || 100}
+                  disabled={submitLocked}
+                  value={b.scores?.[item.id]}
+                  onChange={(value) => updateBidderScore(index, item.id, value)}
+                />
+              </Form.Item>
+            </Col>
+          ))}
         </Row>
         <Form.Item label="评审意见">
           <Input.TextArea
@@ -342,7 +350,10 @@ function EvaluationDetail({ projectId, onBack }) {
   }))
 
   const reportSummary = bidders
-    .map((b) => ({ ...b, total: (b.business || 0) + (b.tech || 0) + (b.price || 0) }))
+    .map((b) => ({
+      ...b,
+      total: scoreItems.reduce((sum, item) => sum + (Number(b.scores?.[item.id]) || 0), 0)
+    }))
     .sort((a, b) => b.total - a.total)
 
   return (
@@ -519,7 +530,9 @@ function EvaluationDetail({ projectId, onBack }) {
           {activeStep === 4 && (
             <div className="step-content">
               <h3>在线评分</h3>
-              <p className="tip">请按评分项独立打分，每个投标人满分 100 分（商务 30 + 技术 40 + 价格 30）。</p>
+              <p className="tip">
+                请按评分项独立打分，每个投标人满分 {scoreWeightTotal} 分（{scoreItems.map((i) => `${i.name} ${i.weight}`).join(' + ')}）。
+              </p>
               <Tabs type="card" items={bidderTabItems} />
               <div className="stage-action">
                 <Button onClick={() => setActiveStep((prev) => prev - 1)}>返回</Button>

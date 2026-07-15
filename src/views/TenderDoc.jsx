@@ -11,6 +11,7 @@ import {
   Descriptions,
   Form,
   Input,
+  InputNumber,
   Upload,
   Divider,
   Timeline,
@@ -21,7 +22,7 @@ import {
 } from 'antd'
 import { InboxOutlined, PlusOutlined, DeleteOutlined, ImportOutlined } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
-import { tenderDocStore } from '../data/tenderDocStore.js'
+import { tenderDocStore, getDefaultScoreItems } from '../data/tenderDocStore.js'
 import { tenderDocTemplates } from '../data/tenderDocCatalog.js'
 
 // 模拟项目结构化招标数据：项目基本信息 + 标段/包件结构化字段
@@ -244,6 +245,24 @@ export default function TenderDoc() {
     const next = tenderDocStore.updateVersion(projectId, selectedVersion.id, patch)
     if (next) refreshVersions()
     return next
+  }
+
+  // 评标办法评分项配置（名称 + 权重），存于招标文件版本，发布后驱动 ExpertProject 评分页
+  const scoreItems = selectedVersion?.scoreItems?.length
+    ? selectedVersion.scoreItems
+    : getDefaultScoreItems()
+  const scoreWeightTotal = scoreItems.reduce((sum, item) => sum + (Number(item.weight) || 0), 0)
+  const updateScoreItem = (index, patch) => {
+    const next = scoreItems.map((item, i) => (i === index ? { ...item, ...patch } : item))
+    updateSelectedVersion({ scoreItems: next })
+  }
+  const addScoreItem = () => {
+    const next = [...scoreItems, { id: `item-${Date.now()}`, name: '新评分项', weight: 0 }]
+    updateSelectedVersion({ scoreItems: next })
+  }
+  const removeScoreItem = (index) => {
+    const next = scoreItems.filter((_, i) => i !== index)
+    updateSelectedVersion({ scoreItems: next })
   }
 
   const pushHistory = (content, type = 'info') => {
@@ -590,6 +609,67 @@ export default function TenderDoc() {
                 size="small"
                 bordered
               />
+
+              <Divider titlePlacement="left">评标办法与评分项配置</Divider>
+              <Table
+                rowKey="id"
+                dataSource={scoreItems}
+                pagination={false}
+                size="small"
+                bordered
+                columns={[
+                  {
+                    title: '评分项名称',
+                    dataIndex: 'name',
+                    render: (value, _, index) => (
+                      <Input
+                        size="small"
+                        value={value}
+                        disabled={!editable}
+                        onChange={(e) => updateScoreItem(index, { name: e.target.value })}
+                      />
+                    )
+                  },
+                  {
+                    title: '权重（满分）',
+                    dataIndex: 'weight',
+                    width: 160,
+                    render: (value, _, index) => (
+                      <InputNumber
+                        size="small"
+                        min={0}
+                        max={100}
+                        value={value}
+                        disabled={!editable}
+                        onChange={(v) => updateScoreItem(index, { weight: Number(v) || 0 })}
+                        style={{ width: '100%' }}
+                      />
+                    )
+                  },
+                  {
+                    title: '操作',
+                    width: 80,
+                    render: (_, __, index) => (
+                      <Button
+                        type="link"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        disabled={!editable || scoreItems.length <= 1}
+                        onClick={() => removeScoreItem(index)}
+                      />
+                    )
+                  }
+                ]}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                <Button size="small" type="dashed" icon={<PlusOutlined />} disabled={!editable} onClick={addScoreItem}>
+                  添加评分项
+                </Button>
+                <Tag color={scoreWeightTotal === 100 ? 'success' : 'warning'}>
+                  权重合计：{scoreWeightTotal}{scoreWeightTotal === 100 ? '' : '（建议合计 100）'}
+                </Tag>
+              </div>
             </Card>
 
             <Descriptions column={3} bordered size="small" style={{ marginBottom: 16 }}>

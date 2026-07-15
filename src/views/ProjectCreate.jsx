@@ -19,9 +19,10 @@ import {
   message,
   Tooltip,
   Transfer,
-  Tag
+  Tag,
+  Table
 } from 'antd'
-import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { PlusOutlined, QuestionCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import EmptyState from '../components/EmptyState.jsx'
 import { requirementStore, REQUIREMENT_STATUS_MAP } from '../data/requirements.js'
 import { projectStore } from '../data/projects.js'
@@ -81,7 +82,13 @@ export default function ProjectCreate() {
     financial: '',
     credit: '',
     allowConsortium: false,
-    invitedBidders: []
+    invitedBidders: [],
+    quoteFields: [
+      { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
+      { key: 'delivery', label: '交货期', unit: '', required: true },
+      { key: 'quality', label: '质保期', unit: '', required: true },
+      { key: 'payment', label: '付款方式', unit: '', required: true }
+    ]
   })
 
   const [inviteCode, setInviteCode] = useState('')
@@ -154,6 +161,25 @@ export default function ProjectCreate() {
 
   const updateField = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const updateQuoteField = (idx, patch) => {
+    setFormData((prev) => ({
+      ...prev,
+      quoteFields: prev.quoteFields.map((f, i) => (i === idx ? { ...f, ...patch } : f))
+    }))
+  }
+  const addQuoteField = () => {
+    setFormData((prev) => ({
+      ...prev,
+      quoteFields: [...prev.quoteFields, { key: `field-${Date.now()}`, label: '新字段', unit: '', required: false }]
+    }))
+  }
+  const removeQuoteField = (idx) => {
+    setFormData((prev) => ({
+      ...prev,
+      quoteFields: prev.quoteFields.filter((_, i) => i !== idx)
+    }))
   }
 
   const updatePackage = (idx, key, value) => {
@@ -746,6 +772,67 @@ export default function ProjectCreate() {
                 </Form.Item>
               </Card>
             ))}
+
+            <Card title="报价字段模板" size="small" style={{ marginTop: 16 }}>
+              <p className="section-tip">配置本项目在线报价页所需的报价字段，投标人填写报价时按此模板渲染。</p>
+              <Table
+                rowKey="key"
+                dataSource={formData.quoteFields}
+                pagination={false}
+                size="small"
+                bordered
+                columns={[
+                  {
+                    title: '字段名称',
+                    dataIndex: 'label',
+                    render: (value, _, idx) => (
+                      <Input size="small" value={value} onChange={(e) => updateQuoteField(idx, { label: e.target.value })} />
+                    )
+                  },
+                  {
+                    title: '字段标识',
+                    dataIndex: 'key',
+                    width: 160,
+                    render: (value, _, idx) => (
+                      <Input size="small" value={value} onChange={(e) => updateQuoteField(idx, { key: e.target.value })} />
+                    )
+                  },
+                  {
+                    title: '单位',
+                    dataIndex: 'unit',
+                    width: 120,
+                    render: (value, _, idx) => (
+                      <Input size="small" value={value} onChange={(e) => updateQuoteField(idx, { unit: e.target.value })} />
+                    )
+                  },
+                  {
+                    title: '必填',
+                    dataIndex: 'required',
+                    width: 80,
+                    render: (value, _, idx) => (
+                      <Checkbox checked={value} onChange={(e) => updateQuoteField(idx, { required: e.target.checked })} />
+                    )
+                  },
+                  {
+                    title: '操作',
+                    width: 80,
+                    render: (_, __, idx) => (
+                      <Button
+                        type="link"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        disabled={formData.quoteFields.length <= 1}
+                        onClick={() => removeQuoteField(idx)}
+                      />
+                    )
+                  }
+                ]}
+              />
+              <Button size="small" type="dashed" icon={<PlusOutlined />} style={{ marginTop: 8 }} onClick={addQuoteField}>
+                添加报价字段
+              </Button>
+            </Card>
 
             {formData.purchaseMode === 'invitation' && (
               <Card title="邀请投标人" size="small" className="invite-card" style={{ marginTop: 16 }}>

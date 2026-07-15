@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useSearch } from '@tanstack/react-router'
 import {
   Alert,
@@ -22,6 +22,8 @@ import {
 } from 'antd'
 import { CheckCircleFilled, FileProtectOutlined, LockOutlined, UploadOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
+import { projectStore } from '../data/projects.js'
+import { clauseStore, defaultClauses } from '../data/clauseStore.js'
 
 export default function BidUpload() {
   const searchParams = useSearch({ strict: false })
@@ -75,17 +77,35 @@ export default function BidUpload() {
     }
   ])
 
-  const [quote, setQuote] = useState({
-    totalPrice: '',
-    delivery: '',
-    quality: '',
-    payment: ''
+  // 报价字段由项目创建时的报价模板驱动，缺失时回退默认字段
+  const quoteFields = useMemo(() => {
+    const project = projectStore.getProjectById(projectId)
+    if (project?.quoteFields?.length) return project.quoteFields
+    return [
+      { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
+      { key: 'delivery', label: '交货期', unit: '', required: true },
+      { key: 'quality', label: '质保期', unit: '', required: true },
+      { key: 'payment', label: '付款方式', unit: '', required: true }
+    ]
+  }, [projectId])
+
+  const [quote, setQuote] = useState(() => {
+    const init = {}
+    quoteFields.forEach((f) => { init[f.key] = '' })
+    return init
   })
 
   const [quoteItems, setQuoteItems] = useState([
     { name: '主设备 A 型', spec: '详见技术参数', quantity: 10, unit: '台', price: '' },
     { name: '辅材 B 型', spec: '详见技术参数', quantity: 50, unit: '套', price: '' }
   ])
+
+  // 评审条款关联：将上传的投标文件逐条挂接到招标文件评审条款
+  const [clauseLinks, setClauseLinks] = useState(() => clauseStore.getLinks(projectId))
+  const setClauseLink = (clauseId, fileName) => {
+    const next = clauseStore.setLink(projectId, clauseId, fileName)
+    setClauseLinks({ ...next })
+  }
 
   const [receiptVisible, setReceiptVisible] = useState(false)
   const [submitTime, setSubmitTime] = useState('')
@@ -97,7 +117,7 @@ export default function BidUpload() {
   const packageNames =
     packages.filter((p) => selectedPackages.includes(p.id)).map((p) => p.name).join('、') || '-'
 
-  const quoteFilled = quote.totalPrice && quote.delivery && quote.quality && quote.payment
+  const quoteFilled = quoteFields.every((f) => !f.required || (quote[f.key] && String(quote[f.key]).trim()))
   const canDraft = selectedProjectId && selectedPackages.length > 0 && fileList.length > 0 && quoteFilled
   const canSubmit = canDraft && allEncrypted
 
@@ -416,44 +436,17 @@ export default function BidUpload() {
           <h3>开标一览表 / 报价</h3>
           <Form labelCol={{ flex: '0 0 140px' }} wrapperCol={{ flex: 'auto' }} className="quote-form">
             <Row gutter={20}>
-              <Col span={12}>
-                <Form.Item label="投标报价（万元）" required>
-                  <Input
-                    value={quote.totalPrice}
-                    onChange={(e) => updateQuote('totalPrice', e.target.value)}
-                    placeholder="请输入总报价"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="交货期" required>
-                  <Input
-                    value={quote.delivery}
-                    onChange={(e) => updateQuote('delivery', e.target.value)}
-                    placeholder="例如：60天"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={20}>
-              <Col span={12}>
-                <Form.Item label="质保期" required>
-                  <Input
-                    value={quote.quality}
-                    onChange={(e) => updateQuote('quality', e.target.value)}
-                    placeholder="例如：3年"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="付款方式" required>
-                  <Input
-                    value={quote.payment}
-                    onChange={(e) => updateQuote('payment', e.target.value)}
-                    placeholder="例如：3-6-1"
-                  />
-                </Form.Item>
-              </Col>
+              {quoteFields.map((field) => (
+                <Col span={12} key={field.key}>
+                  <Form.Item label={field.unit ? `${field.label}（${field.unit}）` : field.label} required={field.required}>
+                    <Input
+                      value={quote[field.key]}
+                      onChange={(e) => updateQuote(field.key, e.target.value)}
+                      placeholder={`请输入${field.label}`}
+                    />
+                  </Form.Item>
+                </Col>
+              ))}
             </Row>
           </Form>
           <h4>分项报价</h4>
@@ -501,6 +494,39 @@ export default function BidUpload() {
               style={{ marginTop: 16 }}
             />
           )}
+
+          <Divider />
+
+          <div className="clause-section" style={{ marginTop: 16 }}>
+            <h4 style={{ marginBottom: 8 }}>评审条款关联</h4>
+            <p style={{ color: '#666', marginBottom: 12 }}>将上传的投标文件逐项挂接到招标文件评审条款，确保响应完整、便于评标查阅。</p>
+            <Table
+              rowKey="id"
+              dataSource={defaultClauses}
+              pagination={false}
+              size="small"
+              columns={[
+                { title: '评审条款', dataIndex: 'name' },
+                { title: '分类', dataIndex: 'category', width: 100, render: (c) => <Tag>{c}</Tag> },
+                {
+                  title: '关联投标文件',
+                  key: 'link',
+                  width: 300,
+                  render: (_, row) => (
+                    <Select
+                      style={{ width: '100%' }}
+                      placeholder="选择已上传的投标文件"
+                      value={clauseLinks[row.id] || undefined}
+                      onChange={(value) => setClauseLink(row.id, value)}
+                      allowClear
+                      options={fileList.map((f) => ({ label: f.name, value: f.name }))}
+                      notFoundContent="请先上传投标文件"
+                    />
+                  )
+                }
+              ]}
+            />
+          </div>
         </div>
 
         <div className="actions">

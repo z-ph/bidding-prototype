@@ -16,7 +16,9 @@ import {
   TrophyOutlined,
   WalletOutlined,
   BankOutlined,
-  MessageOutlined
+  MessageOutlined,
+  TeamOutlined,
+  ScheduleOutlined
 } from '@ant-design/icons'
 import { useMemo } from 'react'
 import { useNavigate, useLocation, useMatches, Link, Outlet } from '@tanstack/react-router'
@@ -85,6 +87,7 @@ function useMenuItems(role) {
     { key: '/admin/notice-publish', label: '公告发布', icon: BellOutlined },
     { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
     { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
+    { key: '/admin/expert-extraction', label: '专家抽取', icon: TeamOutlined },
     { key: '/admin/objection-manage', label: '异议处理', icon: WarningOutlined },
     { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
@@ -100,6 +103,7 @@ function useMenuItems(role) {
   ]
 
   const expertMenus = [
+    { key: '/admin/expert-tasks', label: '我的任务', icon: ScheduleOutlined },
     { key: '/admin/expert-project', label: '评标任务', icon: StarOutlined },
     { key: '/admin/expert-profile', label: '专家信息', icon: UserOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }

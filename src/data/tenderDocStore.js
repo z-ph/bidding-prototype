@@ -10,6 +10,17 @@ const defaultFileList = [
   { uid: '-2', name: '技术参数表.xlsx', size: 256000 }
 ]
 
+// 评标办法默认评分项（名称 + 权重），权重合计 100，驱动 ExpertProject 评分页
+const defaultScoreItems = [
+  { id: 'business', name: '商务标', weight: 30 },
+  { id: 'tech', name: '技术标', weight: 40 },
+  { id: 'price', name: '价格标', weight: 30 }
+]
+
+export function getDefaultScoreItems() {
+  return JSON.parse(JSON.stringify(defaultScoreItems))
+}
+
 const defaultHistory = (versionNo, creator) => [
   { id: 1, content: `${creator} 创建了招标文件 ${versionNo}`, time: '2026-07-08 09:00', type: 'primary' },
   { id: 2, content: `${creator} 编辑了“招标公告”章节`, time: '2026-07-08 10:30', type: 'info' }
@@ -24,6 +35,7 @@ const seedDocs = {
       status: 'published',
       catalog: JSON.parse(JSON.stringify(defaultCatalog)),
       fileList: JSON.parse(JSON.stringify(defaultFileList)),
+      scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
       history: defaultHistory('V1.0', '李四'),
       creator: '李四',
       confirmer: '张三',
@@ -39,6 +51,7 @@ const seedDocs = {
       status: 'published',
       catalog: JSON.parse(JSON.stringify(defaultCatalog)),
       fileList: JSON.parse(JSON.stringify(defaultFileList)),
+      scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
       history: defaultHistory('V1.0', '李四'),
       creator: '李四',
       confirmer: '张三',
@@ -111,6 +124,13 @@ export const tenderDocStore = {
     const published = versions.filter((v) => v.status === 'published')
     return published.length > 0 ? published[published.length - 1] : null
   },
+  // 读取已发布版本的评分项配置，驱动 ExpertProject 评分页；缺失时回退默认配置
+  getPublishedScoreItems(projectId) {
+    const published = this.getCurrentPublishedVersion(projectId)
+    const items = published?.scoreItems
+    if (!items || items.length === 0) return getDefaultScoreItems()
+    return items
+  },
   createInitialVersion(projectId) {
     return {
       id: generateId(projectId),
@@ -119,6 +139,7 @@ export const tenderDocStore = {
       status: 'editing',
       catalog: JSON.parse(JSON.stringify(defaultCatalog)),
       fileList: [],
+      scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
       history: [
         { id: Date.now(), content: '新建招标文件 V1.0', time: nowString(), type: 'primary' }
       ],
@@ -140,6 +161,7 @@ export const tenderDocStore = {
       status: 'editing',
       catalog: JSON.parse(JSON.stringify(baseVersion?.catalog || defaultCatalog)),
       fileList: JSON.parse(JSON.stringify(baseVersion?.fileList || [])),
+      scoreItems: JSON.parse(JSON.stringify(baseVersion?.scoreItems || defaultScoreItems)),
       history: [
         { id: Date.now(), content: `${creator || '用户'} 基于 ${baseVersion?.versionNo || '历史版本'} 创建新版本 ${nextNo}`, time: nowString(), type: 'primary' },
         ...JSON.parse(JSON.stringify(baseVersion?.history || []))

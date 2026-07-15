@@ -35,6 +35,7 @@ export const PAGE_PERMISSIONS = {
   '/admin/procurement-requirements': ['tenderee', 'admin'],
   '/admin/procurement-requirements/edit': ['tenderee', 'admin'],
   '/admin/fee-manage': ['tenderee', 'agent'],
+  '/admin/expert-extraction': ['tenderee', 'agent', 'admin'],
   '/admin/objection-manage': ['tenderee', 'agent'],
   '/admin/award-confirm': ['tenderee', 'agent'],
   '/admin/award-notice': ['tenderee', 'agent'],
@@ -57,6 +58,7 @@ export const PAGE_PERMISSIONS = {
 
   // 专家页面
   '/admin/expert-project': ['expert'],
+  '/admin/expert-tasks': ['expert'],
 
   // 监督页面
   '/admin/supervisor-hall': ['supervisor'],
@@ -124,6 +126,8 @@ export const BREADCRUMB_NAMES = {
   BidQuote: '在线报价',
   BidderInvoices: '发票申请',
   ExpertProject: '评标任务',
+  ExpertExtraction: '专家抽取',
+  ExpertTasks: '我的任务',
   SupervisorHall: '监督大厅',
   SupervisorLogs: '操作日志',
   AdminDashboard: '管理控制台',

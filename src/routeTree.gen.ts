@@ -37,8 +37,10 @@ import { Route as AdminNoticeListRouteImport } from './routes/admin.notice-list'
 import { Route as AdminMessageCenterRouteImport } from './routes/admin.message-center'
 import { Route as AdminForbiddenRouteImport } from './routes/admin.forbidden'
 import { Route as AdminFeeManageRouteImport } from './routes/admin.fee-manage'
+import { Route as AdminExpertTasksRouteImport } from './routes/admin.expert-tasks'
 import { Route as AdminExpertProjectRouteImport } from './routes/admin.expert-project'
 import { Route as AdminExpertProfileRouteImport } from './routes/admin.expert-profile'
+import { Route as AdminExpertExtractionRouteImport } from './routes/admin.expert-extraction'
 import { Route as AdminEvaluationHallRouteImport } from './routes/admin.evaluation-hall'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminContractArchiveRouteImport } from './routes/admin.contract-archive'
@@ -239,6 +241,13 @@ const AdminFeeManageRoute = AdminFeeManageRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.fee-manage.lazy').then((d) => d.Route),
 )
+const AdminExpertTasksRoute = AdminExpertTasksRouteImport.update({
+  id: '/expert-tasks',
+  path: '/expert-tasks',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.expert-tasks.lazy').then((d) => d.Route),
+)
 const AdminExpertProjectRoute = AdminExpertProjectRouteImport.update({
   id: '/expert-project',
   path: '/expert-project',
@@ -252,6 +261,13 @@ const AdminExpertProfileRoute = AdminExpertProfileRouteImport.update({
   getParentRoute: () => AdminRoute,
 } as any).lazy(() =>
   import('./routes/admin.expert-profile.lazy').then((d) => d.Route),
+)
+const AdminExpertExtractionRoute = AdminExpertExtractionRouteImport.update({
+  id: '/expert-extraction',
+  path: '/expert-extraction',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.expert-extraction.lazy').then((d) => d.Route),
 )
 const AdminEvaluationHallRoute = AdminEvaluationHallRouteImport.update({
   id: '/evaluation-hall',
@@ -439,8 +455,10 @@ export interface FileRoutesByFullPath {
   '/admin/contract-archive': typeof AdminContractArchiveRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
+  '/admin/expert-extraction': typeof AdminExpertExtractionRoute
   '/admin/expert-profile': typeof AdminExpertProfileRoute
   '/admin/expert-project': typeof AdminExpertProjectRoute
+  '/admin/expert-tasks': typeof AdminExpertTasksRoute
   '/admin/fee-manage': typeof AdminFeeManageRoute
   '/admin/forbidden': typeof AdminForbiddenRoute
   '/admin/message-center': typeof AdminMessageCenterRoute
@@ -492,8 +510,10 @@ export interface FileRoutesByTo {
   '/admin/contract-archive': typeof AdminContractArchiveRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
+  '/admin/expert-extraction': typeof AdminExpertExtractionRoute
   '/admin/expert-profile': typeof AdminExpertProfileRoute
   '/admin/expert-project': typeof AdminExpertProjectRoute
+  '/admin/expert-tasks': typeof AdminExpertTasksRoute
   '/admin/fee-manage': typeof AdminFeeManageRoute
   '/admin/forbidden': typeof AdminForbiddenRoute
   '/admin/message-center': typeof AdminMessageCenterRoute
@@ -547,8 +567,10 @@ export interface FileRoutesById {
   '/admin/contract-archive': typeof AdminContractArchiveRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
+  '/admin/expert-extraction': typeof AdminExpertExtractionRoute
   '/admin/expert-profile': typeof AdminExpertProfileRoute
   '/admin/expert-project': typeof AdminExpertProjectRoute
+  '/admin/expert-tasks': typeof AdminExpertTasksRoute
   '/admin/fee-manage': typeof AdminFeeManageRoute
   '/admin/forbidden': typeof AdminForbiddenRoute
   '/admin/message-center': typeof AdminMessageCenterRoute
@@ -603,8 +625,10 @@ export interface FileRouteTypes {
     | '/admin/contract-archive'
     | '/admin/dashboard'
     | '/admin/evaluation-hall'
+    | '/admin/expert-extraction'
     | '/admin/expert-profile'
     | '/admin/expert-project'
+    | '/admin/expert-tasks'
     | '/admin/fee-manage'
     | '/admin/forbidden'
     | '/admin/message-center'
@@ -656,8 +680,10 @@ export interface FileRouteTypes {
     | '/admin/contract-archive'
     | '/admin/dashboard'
     | '/admin/evaluation-hall'
+    | '/admin/expert-extraction'
     | '/admin/expert-profile'
     | '/admin/expert-project'
+    | '/admin/expert-tasks'
     | '/admin/fee-manage'
     | '/admin/forbidden'
     | '/admin/message-center'
@@ -710,8 +736,10 @@ export interface FileRouteTypes {
     | '/admin/contract-archive'
     | '/admin/dashboard'
     | '/admin/evaluation-hall'
+    | '/admin/expert-extraction'
     | '/admin/expert-profile'
     | '/admin/expert-project'
+    | '/admin/expert-tasks'
     | '/admin/fee-manage'
     | '/admin/forbidden'
     | '/admin/message-center'
@@ -948,6 +976,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeeManageRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/expert-tasks': {
+      id: '/admin/expert-tasks'
+      path: '/expert-tasks'
+      fullPath: '/admin/expert-tasks'
+      preLoaderRoute: typeof AdminExpertTasksRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/expert-project': {
       id: '/admin/expert-project'
       path: '/expert-project'
@@ -960,6 +995,13 @@ declare module '@tanstack/react-router' {
       path: '/expert-profile'
       fullPath: '/admin/expert-profile'
       preLoaderRoute: typeof AdminExpertProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/expert-extraction': {
+      id: '/admin/expert-extraction'
+      path: '/expert-extraction'
+      fullPath: '/admin/expert-extraction'
+      preLoaderRoute: typeof AdminExpertExtractionRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/evaluation-hall': {
@@ -1169,8 +1211,10 @@ interface AdminRouteChildren {
   AdminContractArchiveRoute: typeof AdminContractArchiveRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminEvaluationHallRoute: typeof AdminEvaluationHallRoute
+  AdminExpertExtractionRoute: typeof AdminExpertExtractionRoute
   AdminExpertProfileRoute: typeof AdminExpertProfileRoute
   AdminExpertProjectRoute: typeof AdminExpertProjectRoute
+  AdminExpertTasksRoute: typeof AdminExpertTasksRoute
   AdminFeeManageRoute: typeof AdminFeeManageRoute
   AdminForbiddenRoute: typeof AdminForbiddenRoute
   AdminMessageCenterRoute: typeof AdminMessageCenterRoute
@@ -1210,8 +1254,10 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminContractArchiveRoute: AdminContractArchiveRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminEvaluationHallRoute: AdminEvaluationHallRoute,
+  AdminExpertExtractionRoute: AdminExpertExtractionRoute,
   AdminExpertProfileRoute: AdminExpertProfileRoute,
   AdminExpertProjectRoute: AdminExpertProjectRoute,
+  AdminExpertTasksRoute: AdminExpertTasksRoute,
   AdminFeeManageRoute: AdminFeeManageRoute,
   AdminForbiddenRoute: AdminForbiddenRoute,
   AdminMessageCenterRoute: AdminMessageCenterRoute,

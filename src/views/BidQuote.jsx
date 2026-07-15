@@ -1,16 +1,30 @@
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useState, useMemo } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Alert, Button, Card, Col, Form, Input, Row, Steps, Table, Tag, message } from 'antd'
 import { InfoCircleFilled } from '@ant-design/icons'
+import { projectStore } from '../data/projects.js'
 
 export default function BidQuote() {
   const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false })
+  const projectId = searchParams.projectId
 
-  const [quote, setQuote] = useState({
-    totalPrice: '',
-    delivery: '',
-    quality: '',
-    payment: ''
+  // 报价字段由项目创建时的报价模板驱动，缺失时回退默认字段
+  const quoteFields = useMemo(() => {
+    const project = projectStore.getProjectById(projectId)
+    if (project?.quoteFields?.length) return project.quoteFields
+    return [
+      { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
+      { key: 'delivery', label: '交货期', unit: '', required: true },
+      { key: 'quality', label: '质保期', unit: '', required: true },
+      { key: 'payment', label: '付款方式', unit: '', required: true }
+    ]
+  }, [projectId])
+
+  const [quote, setQuote] = useState(() => {
+    const init = {}
+    quoteFields.forEach((f) => { init[f.key] = '' })
+    return init
   })
 
   const [items, setItems] = useState([
@@ -82,44 +96,17 @@ export default function BidQuote() {
         <h3>开标一览表</h3>
         <Form labelCol={{ flex: '0 0 140px' }} wrapperCol={{ flex: 'auto' }} className="quote-form">
           <Row gutter={20}>
-            <Col span={12}>
-              <Form.Item label="投标报价（万元）" required>
-                <Input
-                  value={quote.totalPrice}
-                  onChange={(e) => updateQuote('totalPrice', e.target.value)}
-                  placeholder="请输入总报价"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="交货期" required>
-                <Input
-                  value={quote.delivery}
-                  onChange={(e) => updateQuote('delivery', e.target.value)}
-                  placeholder="例如：60天"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={20}>
-            <Col span={12}>
-              <Form.Item label="质保期" required>
-                <Input
-                  value={quote.quality}
-                  onChange={(e) => updateQuote('quality', e.target.value)}
-                  placeholder="例如：3年"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="付款方式" required>
-                <Input
-                  value={quote.payment}
-                  onChange={(e) => updateQuote('payment', e.target.value)}
-                  placeholder="例如：3-6-1"
-                />
-              </Form.Item>
-            </Col>
+            {quoteFields.map((field) => (
+              <Col span={12} key={field.key}>
+                <Form.Item label={field.unit ? `${field.label}（${field.unit}）` : field.label} required={field.required}>
+                  <Input
+                    value={quote[field.key]}
+                    onChange={(e) => updateQuote(field.key, e.target.value)}
+                    placeholder={`请输入${field.label}`}
+                  />
+                </Form.Item>
+              </Col>
+            ))}
           </Row>
         </Form>
 
