@@ -167,7 +167,7 @@ export function useRole() {
 
   const redirectToWorkspace = useCallback(() => {
     const target = WORKSPACE_MAP[role] || '/admin/dashboard'
-    navigate(target, { replace: true })
+    navigate({ to: target, replace: true })
   }, [navigate, role])
 
   return {

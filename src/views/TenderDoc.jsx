@@ -446,7 +446,7 @@ export default function TenderDoc() {
     <div className="tender-doc">
       {selectedVersion?.status === 'published' && (
         <Alert
-          message="当前招标文件已发布，如需修改请先创建新版本。"
+          title="当前招标文件已发布，如需修改请先创建新版本。"
           type="warning"
           showIcon
           closable={false}
@@ -455,7 +455,7 @@ export default function TenderDoc() {
       )}
       {isHistoryVersion && latestVersion && (
         <Alert
-          message={`当前查看的是历史版本 ${selectedVersion.versionNo}，当前有效版本为 ${latestVersion.versionNo}。`}
+          title={`当前查看的是历史版本 ${selectedVersion.versionNo}，当前有效版本为 ${latestVersion.versionNo}。`}
           type="info"
           showIcon
           closable={false}
@@ -556,7 +556,7 @@ export default function TenderDoc() {
                 <Descriptions.Item label="评标方法">{projectMeta.evaluationMethod}</Descriptions.Item>
               </Descriptions>
 
-              <Divider orientation="left" style={{ marginTop: 16 }}>标段/包件信息</Divider>
+              <Divider titlePlacement="left" style={{ marginTop: 16 }}>标段/包件信息</Divider>
               <Table
                 rowKey="code"
                 dataSource={projectMeta.packages}
@@ -567,7 +567,7 @@ export default function TenderDoc() {
                 scroll={{ x: 'max-content' }}
               />
 
-              <Divider orientation="left">报价字段配置</Divider>
+              <Divider titlePlacement="left">报价字段配置</Divider>
               <div className="quote-fields">
                 {projectMeta.quoteFields.map((field) => (
                   <Tag key={field.key} color={field.required ? 'blue' : 'default'}>
@@ -577,7 +577,7 @@ export default function TenderDoc() {
                 {projectMeta.quoteFields.length === 0 && <span>-</span>}
               </div>
 
-              <Divider orientation="left">开标一览表模板</Divider>
+              <Divider titlePlacement="left">开标一览表模板</Divider>
               <Table
                 rowKey="title"
                 dataSource={projectMeta.bidSummaryColumns}
@@ -648,7 +648,7 @@ export default function TenderDoc() {
                 items={(selectedVersion?.history || []).map((item) => ({
                   key: item.id,
                   color: timelineColorMap[item.type],
-                  children: (
+                  content: (
                     <>
                       <div>{item.content}</div>
                       <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>{item.time}</div>

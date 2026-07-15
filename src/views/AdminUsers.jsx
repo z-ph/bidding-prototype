@@ -81,7 +81,7 @@ export default function AdminUsers() {
         }
       >
         <Alert
-          message="配置系统用户、角色和菜单权限，不同角色进入系统后看到不同的工作台和菜单。"
+          title="配置系统用户、角色和菜单权限，不同角色进入系统后看到不同的工作台和菜单。"
           type="info"
           showIcon
           closable={false}

@@ -357,7 +357,7 @@ export default function BidUpload() {
         }
       >
         <Alert
-          message="正式提交必须使用 CA 证书加密投标文件。上传后请依次完成签章、加密，再进行正式提交；密码加密仅作为草稿/演示，不能生成正式回执。"
+          title="正式提交必须使用 CA 证书加密投标文件。上传后请依次完成签章、加密，再进行正式提交；密码加密仅作为草稿/演示，不能生成正式回执。"
           type="info"
           showIcon
           closable={false}
@@ -494,7 +494,7 @@ export default function BidUpload() {
 
           {encryptMode === 'ca' && fileList.length > 0 && !allEncrypted && (
             <Alert
-              message="存在未使用 CA 证书加密的文件，请先完成签章、加密后再正式提交"
+              title="存在未使用 CA 证书加密的文件，请先完成签章、加密后再正式提交"
               type="error"
               showIcon
               closable={false}
@@ -549,7 +549,7 @@ export default function BidUpload() {
 
       {projectId && (
         <Alert
-          message={`当前为项目 ID: ${projectId} 上传投标文件`}
+          title={`当前为项目 ID: ${projectId} 上传投标文件`}
           type="info"
           showIcon
           closable={false}

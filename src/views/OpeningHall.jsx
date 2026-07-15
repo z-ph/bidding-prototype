@@ -171,7 +171,7 @@ export default function OpeningHall() {
   }
 
   const goEvaluate = () => {
-    navigate('/admin/evaluation-hall')
+    navigate({ to: '/admin/evaluation-hall' })
   }
 
   const attendeeColumns = [
@@ -300,7 +300,7 @@ export default function OpeningHall() {
           </Descriptions>
           {currentStage < 4 && !allCheckedIn && currentStage === 0 && (
             <Alert
-              message={`阻断原因：尚有 ${missingAttendees.length} 人未签到，所有人签到后方可进入开标启动阶段。`}
+              title={`阻断原因：尚有 ${missingAttendees.length} 人未签到，所有人签到后方可进入开标启动阶段。`}
               type="warning"
               showIcon
               closable={false}
@@ -309,7 +309,7 @@ export default function OpeningHall() {
           )}
           {currentStage === 2 && !allDecrypted && (
             <Alert
-              message="阻断原因：尚有投标文件未解密，所有文件解密后方可进入唱标公示阶段。"
+              title="阻断原因：尚有投标文件未解密，所有文件解密后方可进入唱标公示阶段。"
               type="warning"
               showIcon
               closable={false}
@@ -329,7 +329,7 @@ export default function OpeningHall() {
                   type="info"
                   showIcon
                   closable={false}
-                  message={`您当前以 ${roleName} 身份进入，仅可签到自己并查看开标过程。`}
+                  title={`您当前以 ${roleName} 身份进入，仅可签到自己并查看开标过程。`}
                   style={{ marginBottom: 16 }}
                 />
               )}
@@ -338,7 +338,7 @@ export default function OpeningHall() {
                   type="warning"
                   showIcon
                   closable={false}
-                  message={`尚有 ${missingAttendees.length} 人未签到：${missingAttendees.join('、')}`}
+                  title={`尚有 ${missingAttendees.length} 人未签到：${missingAttendees.join('、')}`}
                   style={{ marginBottom: 16 }}
                 />
               )}
@@ -462,7 +462,7 @@ export default function OpeningHall() {
               items={operationRecords.map((record) => ({
                 key: record.id,
                 color: 'blue',
-                children: (
+                content: (
                   <div>
                     <strong>{record.action}</strong>
                     <span style={{ color: '#999', marginLeft: 12, fontSize: 12 }}>{record.time}</span>

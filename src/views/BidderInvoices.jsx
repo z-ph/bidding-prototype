@@ -68,7 +68,7 @@ export default function BidderInvoices() {
         }
       >
         <Alert
-          message="仅对已缴纳且审核通过的费用申请发票，开票后可在列表下载电子发票。"
+          title="仅对已缴纳且审核通过的费用申请发票，开票后可在列表下载电子发票。"
           type="info"
           showIcon
           closable={false}

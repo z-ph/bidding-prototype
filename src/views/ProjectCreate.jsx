@@ -256,7 +256,7 @@ export default function ProjectCreate() {
       submitTime: new Date().toISOString()
     })
     message.success(`项目 ${saved.name} 已提交审核，即将跳转项目列表`)
-    navigate('/admin/projects')
+    navigate({ to: '/admin/projects' })
   }
 
   const basicRules = {
@@ -312,7 +312,7 @@ export default function ProjectCreate() {
   return (
     <div className="project-create">
       <Alert
-        message="当前办理阶段：项目立项"
+        title="当前办理阶段：项目立项"
         description="请完善项目来源、基本信息、标段和审批信息，所有必填项完成后方可提交审核。"
         type="info"
         showIcon

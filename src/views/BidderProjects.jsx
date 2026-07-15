@@ -81,42 +81,42 @@ export default function BidderProjects() {
   }
 
   const register = (row) => {
-    navigate(`/admin/bid-register?projectId=${row.id}`)
+    navigate({ to: '/admin/bid-register', search: { projectId: row.id } })
   }
 
   const renderActionButtons = (project) => {
     const buttons = []
     if (project.status === '报名待缴费' || !project.paid) {
       buttons.push(
-        <Button key="pay" type="primary" size="small" onClick={() => navigate(`/admin/bid-payment?projectId=${project.id}`)}>
+        <Button key="pay" type="primary" size="small" onClick={() => navigate({ to: '/admin/bid-payment', search: { projectId: project.id } })}>
           去缴费
         </Button>
       )
     }
     if (project.status === '待下载文件' || project.paid) {
       buttons.push(
-        <Button key="download" size="small" onClick={() => navigate(`/admin/bid-download?projectId=${project.id}`)}>
+        <Button key="download" size="small" onClick={() => navigate({ to: '/admin/bid-download', search: { projectId: project.id } })}>
           下载文件
         </Button>
       )
     }
     if (project.status === '待上传标书') {
       buttons.push(
-        <Button key="upload" type="primary" size="small" onClick={() => navigate(`/admin/bid-upload?projectId=${project.id}`)}>
+        <Button key="upload" type="primary" size="small" onClick={() => navigate({ to: '/admin/bid-upload', search: { projectId: project.id } })}>
           上传投标文件
         </Button>
       )
     }
     if (project.status === '待报价') {
       buttons.push(
-        <Button key="quote" type="primary" size="small" onClick={() => navigate(`/admin/bid-quote?projectId=${project.id}`)}>
+        <Button key="quote" type="primary" size="small" onClick={() => navigate({ to: '/admin/bid-quote', search: { projectId: project.id } })}>
           在线报价
         </Button>
       )
     }
     if (buttons.length === 0) {
       buttons.push(
-        <Button key="track" size="small" onClick={() => navigate(`/admin/projects/track?projectId=${project.id}`)}>
+        <Button key="track" size="small" onClick={() => navigate({ to: '/admin/projects/track', search: { projectId: project.id } })}>
           跟踪
         </Button>
       )
@@ -237,7 +237,7 @@ export default function BidderProjects() {
                     />
                     {project.blockReason && (
                       <Alert
-                        message={project.blockReason}
+                        title={project.blockReason}
                         type="warning"
                         showIcon
                         closable={false}

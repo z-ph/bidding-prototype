@@ -77,7 +77,7 @@ export default function ProjectTrack() {
     { title: '合同归档', desc: '上传合同，项目结束', time: '待进行', color: 'gray', icon: 'CheckSquareOutlined' }
   ]
 
-  const go = (path) => navigate(path)
+  const go = (path) => navigate({ to: path })
 
   const addOperationRecord = (action, detail) => {
     setOperationRecords((prev) => [
@@ -127,7 +127,7 @@ export default function ProjectTrack() {
         }
       >
         <Alert
-          message="按角色查看项目当前节点和下一步操作，掌握项目进度。绿色节点为已完成，蓝色节点为进行中，灰色节点为待进行。"
+          title="按角色查看项目当前节点和下一步操作，掌握项目进度。绿色节点为已完成，蓝色节点为进行中，灰色节点为待进行。"
           type="info"
           showIcon
           closable={false}
@@ -156,7 +156,7 @@ export default function ProjectTrack() {
           </Descriptions>
           {isDeadlinePassed && (
             <Alert
-              message="阻断原因：报名截止时间已过，当前项目不再接受新的报名或缴费。"
+              title="阻断原因：报名截止时间已过，当前项目不再接受新的报名或缴费。"
               type="error"
               showIcon
               closable={false}
@@ -166,7 +166,7 @@ export default function ProjectTrack() {
         </Card>
 
         <Alert
-          message="演示：点击“去缴纳”模拟完成文件费缴纳，缴纳后流程节点动态更新。"
+          title="演示：点击“去缴纳”模拟完成文件费缴纳，缴纳后流程节点动态更新。"
           type="warning"
           showIcon
           closable={false}
@@ -199,7 +199,7 @@ export default function ProjectTrack() {
               key: idx,
               color: node.color,
               dot: Icon ? <Icon /> : null,
-              children: (
+              content: (
                 <>
                   <h4>{node.title}</h4>
                   <p>{node.desc}</p>
@@ -222,7 +222,7 @@ export default function ProjectTrack() {
               items={operationRecords.map((record) => ({
                 key: record.id,
                 color: 'blue',
-                children: (
+                content: (
                   <div>
                     <strong>{record.action}</strong>
                     <span style={{ color: '#999', marginLeft: 12, fontSize: 12 }}>{record.time}</span>

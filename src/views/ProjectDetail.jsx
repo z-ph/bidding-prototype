@@ -116,11 +116,11 @@ export default function ProjectDetail() {
   }
 
   const goTenderDoc = () => {
-    navigate(`/admin/tender-doc?projectId=${project.id}`)
+    navigate({ to: '/admin/tender-doc', search: { projectId: project.id } })
   }
 
   const goOpeningHall = () => {
-    navigate(`/admin/opening-hall?projectId=${project.id}`)
+    navigate({ to: '/admin/opening-hall', search: { projectId: project.id } })
   }
 
   const packageColumns = [
@@ -159,13 +159,13 @@ export default function ProjectDetail() {
               {project.status === 'pending_open' && (
                 <Button type="primary" onClick={goOpeningHall}>进入开标大厅</Button>
               )}
-              <Button onClick={() => navigate('/admin/projects')}>返回列表</Button>
+              <Button onClick={() => navigate({ to: '/admin/projects' })}>返回列表</Button>
             </div>
           </div>
         }
       >
         <Alert
-          message="项目详情页集中展示项目基本信息、标段、招标文件、流程跟踪和当前可执行操作。"
+          title="项目详情页集中展示项目基本信息、标段、招标文件、流程跟踪和当前可执行操作。"
           type="info"
           showIcon
           closable={false}
@@ -215,7 +215,7 @@ export default function ProjectDetail() {
                 key: idx,
                 color: node.color,
                 dot: Icon ? <Icon /> : null,
-                children: (
+                content: (
                   <>
                     <h4>{node.title}</h4>
                     <p>{node.desc}</p>

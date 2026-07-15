@@ -22,7 +22,7 @@ export default function ContractArchive() {
 
   const archive = () => {
     message.success('合同归档完成，项目已结束')
-    navigate('/admin/projects')
+    navigate({ to: '/admin/projects' })
   }
 
   return (
@@ -47,7 +47,7 @@ export default function ContractArchive() {
           ]}
         />
         <Alert
-          message="上传签订后的中标合同，填写合同信息，完成项目全流程归档。归档后项目状态变更为“已完成”。"
+          title="上传签订后的中标合同，填写合同信息，完成项目全流程归档。归档后项目状态变更为“已完成”。"
           type="success"
           showIcon
           closable={false}
@@ -124,7 +124,7 @@ export default function ContractArchive() {
           <Button type="primary" size="large" onClick={archive}>
             完成归档
           </Button>
-          <Button size="large" onClick={() => navigate('/admin/projects')}>
+          <Button size="large" onClick={() => navigate({ to: '/admin/projects' })}>
             返回项目列表
           </Button>
         </div>

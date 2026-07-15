@@ -146,7 +146,7 @@ export default function ReviewChangeList() {
         title={<Title level={4} style={{ margin: 0 }}>评审变更列表</Title>}
       >
         <Alert
-          message="本页面汇总 2026-07-14 两次页面评审意见的当前处理状态，供团队追踪哪些问题已修复、哪些仍待修复。"
+          title="本页面汇总 2026-07-14 两次页面评审意见的当前处理状态，供团队追踪哪些问题已修复、哪些仍待修复。"
           type="info"
           showIcon
           style={{ marginBottom: 16 }}

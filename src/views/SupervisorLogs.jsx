@@ -40,7 +40,7 @@ export default function SupervisorLogs() {
         }
       >
         <Alert
-          message="本页记录开标、评标过程中的关键操作，包括签到、解密、唱标、评分、签名等行为。"
+          title="本页记录开标、评标过程中的关键操作，包括签到、解密、唱标、评分、签名等行为。"
           type="info"
           showIcon
           closable={false}

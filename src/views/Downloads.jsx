@@ -64,7 +64,7 @@ export default function Downloads() {
         <Card
           title={<span style={{ fontSize: 18, fontWeight: 'bold' }}>下载中心</span>}
           extra={
-            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate('/')}>
+            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate({ to: '/' })}>
               返回首页
             </Button>
           }

@@ -70,7 +70,7 @@ export default function BidRegister() {
       cancelText: '取消',
       onOk: () => {
         message.success('报名申请已提交，状态：待审核')
-        navigate('/admin/bidder-projects')
+        navigate({ to: '/admin/bidder-projects' })
       }
     })
   }
@@ -93,7 +93,7 @@ export default function BidRegister() {
         />
 
         <Alert
-          message="请确认贵司符合招标公告中的资格要求，提交后将进入招标方审核。系统会根据项目要求校验资质文件是否齐全。"
+          title="请确认贵司符合招标公告中的资格要求，提交后将进入招标方审核。系统会根据项目要求校验资质文件是否齐全。"
           type="info"
           showIcon
           closable={false}
@@ -125,7 +125,7 @@ export default function BidRegister() {
 
           <Form.Item label="资质文件" required style={{ marginBottom: 0 }}>
             <Alert
-              message={`本项目要求上传：${requiredQualifications.map((q) => q.label).join('、')}`}
+              title={`本项目要求上传：${requiredQualifications.map((q) => q.label).join('、')}`}
               type="warning"
               showIcon
               closable={false}
@@ -154,7 +154,7 @@ export default function BidRegister() {
           </Form.Item>
           <Form.Item>
             <Button type="primary" onClick={submit}>提交报名</Button>
-            <Button style={{ marginLeft: 8 }} onClick={() => navigate('/admin/bidder-projects')}>
+            <Button style={{ marginLeft: 8 }} onClick={() => navigate({ to: '/admin/bidder-projects' })}>
               返回项目中心
             </Button>
           </Form.Item>

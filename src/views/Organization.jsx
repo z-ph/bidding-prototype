@@ -264,7 +264,7 @@ export default function Organization() {
               <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>新增部门</Button>
               <Button icon={<EditOutlined />} onClick={openEdit}>编辑</Button>
               <Button icon={<DeleteOutlined />} danger onClick={handleDelete}>删除</Button>
-              <Button icon={<TeamOutlined />} onClick={() => navigate('/admin/sub-accounts')}>子账号管理</Button>
+              <Button icon={<TeamOutlined />} onClick={() => navigate({ to: '/admin/sub-accounts' })}>子账号管理</Button>
             </Space>
           </div>
         }

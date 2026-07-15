@@ -56,11 +56,11 @@ export default function Portal() {
   ]
 
   const handleRowClick = (row) => {
-    navigate(`/notice/${row.id}`)
+    navigate({ to: `/notice/${row.id}` })
   }
 
   const register = (row) => {
-    navigate(`/notice/${row.id}`)
+    navigate({ to: `/notice/${row.id}` })
   }
 
   const columns = [
@@ -71,7 +71,7 @@ export default function Portal() {
       minWidth: 300,
       render: (_, row) => (
         <>
-          <a onClick={(e) => { e.stopPropagation(); navigate(`/notice/${row.id}`) }}>{row.title}</a>
+          <a onClick={(e) => { e.stopPropagation(); navigate({ to: `/notice/${row.id}` }) }}>{row.title}</a>
           <Tag color={tagColorMap[row.tagType]} style={{ marginLeft: 8 }}>
             {row.typeName}
           </Tag>
@@ -181,7 +181,7 @@ export default function Portal() {
               key={link.title}
               className="quick-card"
               hoverable
-              onClick={() => navigate(link.path)}
+              onClick={() => navigate({ to: link.path })}
             >
               <Icon style={{ fontSize: 40, color: link.color }} />
               <h3>{link.title}</h3>

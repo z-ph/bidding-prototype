@@ -29,7 +29,7 @@ export default function AwardNotice() {
 
   const send = () => {
     message.success('中标通知书已发送给中标人')
-    navigate('/admin/contract-archive')
+    navigate({ to: '/admin/contract-archive' })
   }
 
   return (
@@ -54,7 +54,7 @@ export default function AwardNotice() {
           ]}
         />
         <Alert
-          message="根据模板生成中标通知书，支持在线编辑、签章后发送给中标人。发送后中标人可在工作台查看。"
+          title="根据模板生成中标通知书，支持在线编辑、签章后发送给中标人。发送后中标人可在工作台查看。"
           type="info"
           showIcon
           closable={false}
@@ -101,7 +101,7 @@ export default function AwardNotice() {
           <Button size="large" onClick={preview}>
             预览
           </Button>
-          <Button size="large" onClick={() => navigate('/admin/contract-archive')}>
+          <Button size="large" onClick={() => navigate({ to: '/admin/contract-archive' })}>
             下一步：合同归档
           </Button>
         </div>

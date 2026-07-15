@@ -35,10 +35,10 @@ export default function ExpertProject() {
   const projectId = searchParams.projectId
 
   if (!projectId) {
-    return <ProjectList onEnter={(id) => navigate(`/admin/expert-project?projectId=${id}`)} />
+    return <ProjectList onEnter={(id) => navigate({ to: '/admin/expert-project', search: { projectId: id } })} />
   }
 
-  return <EvaluationDetail projectId={projectId} onBack={() => navigate('/admin/expert-project')} />
+  return <EvaluationDetail projectId={projectId} onBack={() => navigate({ to: '/admin/expert-project' })} />
 }
 
 function ProjectList({ onEnter }) {

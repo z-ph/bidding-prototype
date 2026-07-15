@@ -59,7 +59,7 @@ export default function NoticeList() {
   }
 
   const editDraft = (row) => {
-    navigate(`/admin/notice-publish?id=${row.id}`)
+    navigate({ to: '/admin/notice-publish', search: { id: row.id } })
   }
 
   const withdraw = (row) => {
@@ -77,7 +77,7 @@ export default function NoticeList() {
   }
 
   const viewDetail = (row) => {
-    navigate(`/notice/${row.id}`)
+    navigate({ to: `/notice/${row.id}` })
   }
 
   const columns = [
@@ -179,7 +179,7 @@ export default function NoticeList() {
               <Button type="primary" onClick={refresh}>查询</Button>
               <Button onClick={reset}>重置</Button>
             </Space>
-            <Button type="primary" onClick={() => navigate('/admin/notice-publish')}>
+            <Button type="primary" onClick={() => navigate({ to: '/admin/notice-publish' })}>
               发布公告
             </Button>
           </div>

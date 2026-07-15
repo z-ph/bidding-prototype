@@ -32,7 +32,7 @@ export default function Register() {
   const submit = () => {
     form.validateFields().then(() => {
       message.success('注册信息已提交，等待平台审核')
-      navigate('/login')
+      navigate({ to: '/login' })
     })
   }
 
@@ -177,7 +177,7 @@ export default function Register() {
         <div className="actions">
           <Button type="primary" size="large" style={{ width: '100%' }} onClick={submit}>提交注册</Button>
           <div className="login-link">
-            已有账号？<Button type="link" onClick={() => navigate('/login')}>立即登录</Button>
+            已有账号？<Button type="link" onClick={() => navigate({ to: '/login' })}>立即登录</Button>
           </div>
         </div>
       </div>

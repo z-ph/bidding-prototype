@@ -12,7 +12,7 @@ export default function BidPayment() {
 
   const submit = () => {
     message.success('缴纳申请已提交，等待代理机构审核')
-    navigate('/admin/bidder-projects')
+    navigate({ to: '/admin/bidder-projects' })
   }
 
   return (
@@ -62,7 +62,7 @@ export default function BidPayment() {
               )}
               <Form.Item>
                 <Button type="primary" onClick={submit}>提交缴纳</Button>
-                <Button style={{ marginLeft: 8 }} onClick={() => navigate('/admin/bidder-invoices')}>
+                <Button style={{ marginLeft: 8 }} onClick={() => navigate({ to: '/admin/bidder-invoices' })}>
                   申请发票
                 </Button>
               </Form.Item>

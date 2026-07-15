@@ -119,7 +119,7 @@ export default function Dashboard() {
     { id: 4, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', stage: '招标中', deadline: '2026-07-25 17:00' }
   ]
 
-  const handleTodo = (todo) => navigate(todo.path)
+  const handleTodo = (todo) => navigate({ to: todo.path })
   const viewProject = (row) => message.success(`查看项目详情：${row.name}`)
   const continueProject = (row) => {
     const map = {
@@ -128,7 +128,7 @@ export default function Dashboard() {
       '待开标': '/admin/opening-hall',
       '评标中': '/admin/evaluation-hall'
     }
-    navigate(map[row.stage] || '/admin/projects')
+    navigate({ to: map[row.stage] || '/admin/projects' })
   }
 
   const timelineTypeMap = {
@@ -172,7 +172,7 @@ export default function Dashboard() {
       key: 'action',
       width: 150,
       render: () => (
-        <Button type="primary" size="small" onClick={() => navigate('/admin/expert-project')}>
+        <Button type="primary" size="small" onClick={() => navigate({ to: '/admin/expert-project' })}>
           开始评标
         </Button>
       )
@@ -366,7 +366,7 @@ export default function Dashboard() {
                   items={todos.map((todo) => ({
                     key: todo.id,
                     color: timelineTypeMap[todo.type],
-                    children: (
+                    content: (
                       <>
                         <div className="todo-item">
                           <span>{todo.content}</span>
@@ -392,7 +392,7 @@ export default function Dashboard() {
                   {quickEntries.map((item) => {
                     const Icon = item.icon
                     return (
-                      <div key={item.title} className="quick-entry" onClick={() => navigate(item.path)}>
+                      <div key={item.title} className="quick-entry" onClick={() => navigate({ to: item.path })}>
                         <Icon style={{ fontSize: 24, color: item.color }} />
                         <span>{item.title}</span>
                       </div>
@@ -406,7 +406,7 @@ export default function Dashboard() {
             title={
               <div className="card-header">
                 <span>最近项目</span>
-                <Button type="link" onClick={() => navigate('/admin/projects')}>查看全部</Button>
+                <Button type="link" onClick={() => navigate({ to: '/admin/projects' })}>查看全部</Button>
               </div>
             }
             className="project-card"
@@ -429,7 +429,7 @@ export default function Dashboard() {
             title={
               <div className="card-header">
                 <span>我的投标待办</span>
-                <Button type="link" onClick={() => navigate('/admin/bidder-projects')}>查看全部项目</Button>
+                <Button type="link" onClick={() => navigate({ to: '/admin/bidder-projects' })}>查看全部项目</Button>
               </div>
             }
           >
@@ -437,11 +437,11 @@ export default function Dashboard() {
               items={bidderTodos.map((todo) => ({
                 key: todo.id,
                 color: timelineTypeMap[todo.type],
-                children: (
+                content: (
                   <>
                     <div className="todo-item">
                       <span>{todo.content}</span>
-                      <Button type="primary" size="small" onClick={() => navigate(todo.path)}>去处理</Button>
+                      <Button type="primary" size="small" onClick={() => navigate({ to: todo.path })}>去处理</Button>
                     </div>
                     <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>{todo.time}</div>
                   </>
@@ -457,7 +457,7 @@ export default function Dashboard() {
           title={
             <div className="card-header">
               <span>我的评标任务</span>
-              <Button type="link" onClick={() => navigate('/admin/expert-project')}>进入评标大厅</Button>
+              <Button type="link" onClick={() => navigate({ to: '/admin/expert-project' })}>进入评标大厅</Button>
             </div>
           }
         >
@@ -470,7 +470,7 @@ export default function Dashboard() {
           title={
             <div className="card-header">
               <span>监督概览</span>
-              <Button type="link" onClick={() => navigate('/admin/supervisor-hall')}>进入监督大厅</Button>
+              <Button type="link" onClick={() => navigate({ to: '/admin/supervisor-hall' })}>进入监督大厅</Button>
             </div>
           }
         >
@@ -488,7 +488,7 @@ export default function Dashboard() {
           title="管理员工作台"
           subTitle="管理员请使用左侧“管理控制台”菜单进入后台功能"
           extra={
-            <Button type="primary" onClick={() => navigate('/admin/admin-dashboard')}>
+            <Button type="primary" onClick={() => navigate({ to: '/admin/admin-dashboard' })}>
               进入管理控制台
             </Button>
           }

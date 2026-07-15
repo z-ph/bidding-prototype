@@ -84,7 +84,7 @@ export default function NoticeDetail() {
   const handleRegister = () => {
     if (!isLoggedIn) {
       message.warning('请先登录')
-      navigate('/login')
+      navigate({ to: '/login' })
       return
     }
     if (!isSupplier) {
@@ -95,7 +95,7 @@ export default function NoticeDetail() {
       message.warning('当前不在报名时间内')
       return
     }
-    navigate('/admin/bid-register')
+    navigate({ to: '/admin/bid-register' })
   }
 
   const handleDownload = (attachment) => {
@@ -119,7 +119,7 @@ export default function NoticeDetail() {
           <Card>
             <Empty description="公告不存在或已下线" />
             <div style={{ textAlign: 'center', marginTop: 16 }}>
-              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/')}>返回首页</Button>
+              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate({ to: '/' })}>返回首页</Button>
             </div>
           </Card>
         </div>
@@ -147,7 +147,7 @@ export default function NoticeDetail() {
             <span style={{ fontSize: 18, fontWeight: 'bold' }}>公告详情</span>
           }
           extra={
-            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate('/')}>
+            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate({ to: '/' })}>
               返回首页
             </Button>
           }
@@ -161,7 +161,7 @@ export default function NoticeDetail() {
             <Alert
               type="warning"
               showIcon
-              message={`变更原因：${notice.changeReason}`}
+              title={`变更原因：${notice.changeReason}`}
               style={{ marginBottom: 24 }}
             />
           )}

@@ -40,7 +40,7 @@ export default function AdminLogs() {
         }
       >
         <Alert
-          message="记录系统操作、短信/邮件发送、关键业务操作日志，满足合规审计要求。"
+          title="记录系统操作、短信/邮件发送、关键业务操作日志，满足合规审计要求。"
           type="info"
           showIcon
           closable={false}

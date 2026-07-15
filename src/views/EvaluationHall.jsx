@@ -154,7 +154,7 @@ export default function EvaluationHall() {
           rejected.map((item, idx) => (
             <Alert
               key={idx}
-              message={`${item.name}：${item.reason}`}
+              title={`${item.name}：${item.reason}`}
               type="error"
               closable={false}
               style={{ marginBottom: 12 }}
@@ -240,7 +240,7 @@ export default function EvaluationHall() {
           </Descriptions>
           {!allSubmitted && (
             <Alert
-              message="阻断原因：尚有专家评分未提交，需所有专家提交后方可发布评标结果。"
+              title="阻断原因：尚有专家评分未提交，需所有专家提交后方可发布评标结果。"
               type="warning"
               showIcon
               closable={false}
@@ -262,7 +262,7 @@ export default function EvaluationHall() {
               items={operationRecords.map((record) => ({
                 key: record.id,
                 color: 'blue',
-                children: (
+                content: (
                   <div>
                     <strong>{record.action}</strong>
                     <span style={{ color: '#999', marginLeft: 12, fontSize: 12 }}>{record.time}</span>

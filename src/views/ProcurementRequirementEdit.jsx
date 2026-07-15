@@ -39,7 +39,7 @@ export default function ProcurementRequirementEdit() {
     const record = requirementStore.getRequirementById(queryId)
     if (!record) {
       message.error('采购需求不存在')
-      navigate('/admin/procurement-requirements')
+      navigate({ to: '/admin/procurement-requirements' })
       return
     }
     form.setFieldsValue({
@@ -66,7 +66,7 @@ export default function ProcurementRequirementEdit() {
         requirementStore.updateStatus(saved.id, nextStatus)
       }
       message.success(isCreate ? '需求已创建' : '需求已更新')
-      navigate('/admin/procurement-requirements')
+      navigate({ to: '/admin/procurement-requirements' })
     } catch {
       // validation failed
     } finally {
@@ -86,7 +86,7 @@ export default function ProcurementRequirementEdit() {
       <Card
         title={
           <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/procurement-requirements')}>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate({ to: '/admin/procurement-requirements' })}>
               返回
             </Button>
             <span>{isCreate ? '新建采购需求' : '编辑采购需求'}</span>

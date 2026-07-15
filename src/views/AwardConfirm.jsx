@@ -28,7 +28,7 @@ export default function AwardConfirm() {
       cancelText: '取消',
       onOk: () => {
         message.success(`已确认中标人：${selected}`)
-        navigate('/admin/award-notice')
+        navigate({ to: '/admin/award-notice' })
       }
     })
   }
@@ -75,7 +75,7 @@ export default function AwardConfirm() {
           ]}
         />
         <Alert
-          message="公示期结束后，招标人在此处确认最终中标人。确认后将进入中标结果公示和中标通知书发送环节。"
+          title="公示期结束后，招标人在此处确认最终中标人。确认后将进入中标结果公示和中标通知书发送环节。"
           type="info"
           showIcon
           closable={false}
@@ -104,7 +104,7 @@ export default function AwardConfirm() {
           <Button type="primary" size="large" onClick={confirm}>
             确认中标人
           </Button>
-          <Button size="large" onClick={() => navigate('/admin/award-notice')}>
+          <Button size="large" onClick={() => navigate({ to: '/admin/award-notice' })}>
             下一步：发送中标通知书
           </Button>
         </div>

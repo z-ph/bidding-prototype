@@ -233,7 +233,7 @@ export default function AdminSupplierAudit() {
         }
       >
         <Alert
-          message="审核通过后的供应商/专家方可参与平台业务；驳回或退回修改时需填写原因，申请人可查看原因并重新提交。"
+          title="审核通过后的供应商/专家方可参与平台业务；驳回或退回修改时需填写原因，申请人可查看原因并重新提交。"
           type="info"
           showIcon
           closable={false}

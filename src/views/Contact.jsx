@@ -20,7 +20,7 @@ export default function Contact() {
         <Card
           title={<span style={{ fontSize: 18, fontWeight: 'bold' }}>联系我们</span>}
           extra={
-            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate('/')}>
+            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate({ to: '/' })}>
               返回首页
             </Button>
           }

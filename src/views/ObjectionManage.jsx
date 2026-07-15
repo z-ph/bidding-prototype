@@ -141,7 +141,7 @@ export default function ObjectionManage() {
         }
       >
         <Alert
-          message="供应商可对招标文件、开标、评标、定标结果提出异议，招标方/代理应在规定时间内答复。答复可触发澄清或异常处理。"
+          title="供应商可对招标文件、开标、评标、定标结果提出异议，招标方/代理应在规定时间内答复。答复可触发澄清或异常处理。"
           type="info"
           showIcon
           closable={false}
@@ -252,7 +252,7 @@ export default function ObjectionManage() {
         {currentRow && (
           <>
             <Alert
-              message={`${currentRow.bidder} 对「${currentRow.project}」提出的${currentRow.type}异议`}
+              title={`${currentRow.bidder} 对「${currentRow.project}」提出的${currentRow.type}异议`}
               description={currentRow.content}
               type="info"
               showIcon

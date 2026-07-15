@@ -77,7 +77,7 @@ export default function Login() {
     const scope = DEFAULT_SCOPE_BY_ROLE[roleValue] || 'all'
     login(roleValue, accountValue, {}, scope)
     message.success(`以 ${ROLE_NAMES[roleValue]} 身份登录成功（${loginType}）`)
-    navigate(dashboardMap[roleValue])
+    navigate({ to: dashboardMap[roleValue] })
   }
 
   const accountLogin = () => {
@@ -346,9 +346,9 @@ export default function Login() {
           </div>
           <Tabs id="login-tabs" activeKey={activeTab} onChange={setActiveTab} type="card" items={tabItems} />
           <div className="register-link">
-            还没有账号？<Button type="link" onClick={() => navigate('/register')}>立即注册</Button>
+            还没有账号？<Button type="link" onClick={() => navigate({ to: '/register' })}>立即注册</Button>
             <span style={{ margin: '0 8px' }}>|</span>
-            <Button type="link" onClick={() => navigate('/')}>返回首页</Button>
+            <Button type="link" onClick={() => navigate({ to: '/' })}>返回首页</Button>
           </div>
         </div>
       </div>

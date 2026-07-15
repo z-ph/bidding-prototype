@@ -82,11 +82,11 @@ export default function ProjectList() {
   const beforeOpenStatuses = ['draft', 'tendering', 'registering']
 
   const viewDetail = (row) => {
-    navigate(`/admin/projects/detail/${row.id}`)
+    navigate({ to: `/admin/projects/detail/${row.id}` })
   }
 
   const edit = (row) => {
-    navigate(`/admin/projects/edit/${row.id}`)
+    navigate({ to: `/admin/projects/edit/${row.id}` })
   }
 
   const publish = (row) => {
@@ -125,7 +125,7 @@ export default function ProjectList() {
       pending_open: '/admin/opening-hall',
       evaluating: '/admin/evaluation-hall'
     }
-    navigate(`${map[row.status] || '/admin/projects'}?projectId=${row.id}`)
+    navigate({ to: map[row.status] || '/admin/projects', search: { projectId: row.id } })
   }
 
   const columns = [
@@ -226,7 +226,7 @@ export default function ProjectList() {
               <Button onClick={reset}>重置</Button>
             </div>
             {role === 'tenderee' && (
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/admin/projects/create')}>
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate({ to: '/admin/projects/create' })}>
                 创建项目
               </Button>
             )}
@@ -259,7 +259,7 @@ export default function ProjectList() {
           <Timeline
             items={operationRecords.map((record) => ({
               key: record.id,
-              children: (
+              content: (
                 <div>
                   <strong>{record.action}</strong>
                   <span style={{ color: '#999', marginLeft: 12, fontSize: 12 }}>{record.time}</span>

@@ -36,7 +36,7 @@ export default function News() {
             <span style={{ fontSize: 18, fontWeight: 'bold' }}>新闻公告</span>
           }
           extra={
-            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate('/')}>
+            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate({ to: '/' })}>
               返回首页
             </Button>
           }

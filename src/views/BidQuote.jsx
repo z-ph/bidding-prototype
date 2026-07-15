@@ -72,7 +72,7 @@ export default function BidQuote() {
           items={['报名通过', '下载文件', '编制标书', '填写报价', '上传并加密'].map((title) => ({ title }))}
         />
         <Alert
-          message="请按招标文件要求填写开标一览表和分项报价，提交后投标截止前可修改。"
+          title="请按招标文件要求填写开标一览表和分项报价，提交后投标截止前可修改。"
           type="warning"
           showIcon
           closable={false}
@@ -138,7 +138,7 @@ export default function BidQuote() {
 
         <div className="actions">
           <Button type="primary" size="large" onClick={saveQuote}>保存报价</Button>
-          <Button size="large" onClick={() => navigate('/admin/bid-upload')}>下一步：上传投标文件</Button>
+          <Button size="large" onClick={() => navigate({ to: '/admin/bid-upload' })}>下一步：上传投标文件</Button>
         </div>
       </Card>
 

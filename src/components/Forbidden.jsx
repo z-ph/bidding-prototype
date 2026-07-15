@@ -25,7 +25,7 @@ export default function Forbidden() {
   const { role, roleName } = useRole()
 
   function goHome() {
-    navigate(HOME_MAP[role] || '/admin/dashboard')
+    navigate({ to: HOME_MAP[role] || '/admin/dashboard' })
   }
 
   function applyPermission() {

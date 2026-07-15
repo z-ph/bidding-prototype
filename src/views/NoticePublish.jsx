@@ -73,7 +73,7 @@ export default function NoticePublish() {
     const notice = noticeStore.getNoticeById(noticeId)
     if (!notice) {
       message.error('公告不存在')
-      navigate('/admin/notice-list')
+      navigate({ to: '/admin/notice-list' })
       return
     }
 
@@ -232,7 +232,7 @@ export default function NoticePublish() {
       noticeStore.addNotice(payload)
     }
     message.success('公告草稿已保存')
-    navigate('/admin/notice-list')
+    navigate({ to: '/admin/notice-list' })
   }
 
   const publish = () => {
@@ -249,7 +249,7 @@ export default function NoticePublish() {
       noticeStore.addNotice(payload)
     }
     message.success('公告已发布')
-    navigate('/admin/notice-list')
+    navigate({ to: '/admin/notice-list' })
   }
 
   return (
@@ -515,7 +515,7 @@ export default function NoticePublish() {
                 <Alert
                   type="warning"
                   showIcon
-                  message={`变更原因：${form.changeReason}`}
+                  title={`变更原因：${form.changeReason}`}
                   style={{ margin: '16px 0' }}
                 />
               )}

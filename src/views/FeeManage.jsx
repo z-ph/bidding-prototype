@@ -110,7 +110,7 @@ export default function FeeManage() {
         }
       >
         <Alert
-          message="管理招标文件费、保证金、平台使用费的缴纳、审核、退还记录。线上支付自动到账，线下转账需人工审核。"
+          title="管理招标文件费、保证金、平台使用费的缴纳、审核、退还记录。线上支付自动到账，线下转账需人工审核。"
           type="info"
           showIcon
           closable={false}

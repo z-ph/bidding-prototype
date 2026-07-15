@@ -139,7 +139,7 @@ export default function BidDownload() {
         />
         {versionChanged && (
           <Alert
-            message={`招标文件已更新，当前有效版本为 ${tenderDocVersion.versionNo}，请重新下载。`}
+            title={`招标文件已更新，当前有效版本为 ${tenderDocVersion.versionNo}，请重新下载。`}
             type="warning"
             showIcon
             closable={false}
@@ -147,7 +147,7 @@ export default function BidDownload() {
           />
         )}
         <Alert
-          message={tenderDocVersion
+          title={tenderDocVersion
             ? `当前有效招标文件版本：${tenderDocVersion.versionNo}，发布时间：${tenderDocVersion.publishedAt || tenderDocVersion.updatedAt}。下载后请使用投标文件制作工具离线编制，开标前务必完成签章和加密。`
             : '暂无已发布的招标文件，请稍后刷新。'}
           type="info"
@@ -164,8 +164,8 @@ export default function BidDownload() {
         />
         <div className="next-step">
           <span>文件已获取？</span>
-          <Button type="primary" onClick={() => navigate('/admin/bid-quote')}>去填写报价</Button>
-          <Button onClick={() => navigate('/admin/bid-upload')}>去上传投标文件</Button>
+          <Button type="primary" onClick={() => navigate({ to: '/admin/bid-quote' })}>去填写报价</Button>
+          <Button onClick={() => navigate({ to: '/admin/bid-upload' })}>去上传投标文件</Button>
           <Button onClick={() => setObjectionVisible(true)}>质疑招标文件</Button>
         </div>
       </Card>

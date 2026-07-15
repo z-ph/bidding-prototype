@@ -50,7 +50,7 @@ function useMenuItems(role) {
 
   const tendereeMenus = [
     {
-      key: '/admin/projects',
+      key: '/admin/projects-group',
       label: '项目管理',
       icon: FolderOutlined,
       children: [
@@ -73,7 +73,7 @@ function useMenuItems(role) {
 
   const agentMenus = [
     {
-      key: '/admin/projects',
+      key: '/admin/projects-group',
       label: '委托项目',
       icon: FolderOutlined,
       children: [
@@ -154,7 +154,7 @@ export default function Layout() {
 
   const logout = () => {
     clearRole()
-    navigate('/login')
+    navigate({ to: '/login' })
   }
 
   return (
@@ -171,7 +171,7 @@ export default function Layout() {
             borderBottom: '1px solid rgba(255,255,255,0.1)',
             cursor: 'pointer'
           }}
-          onClick={() => navigate('/')}
+          onClick={() => navigate({ to: '/' })}
           title="返回门户首页"
         >
           <BookOutlined style={{ marginRight: 10, fontSize: 24 }} />

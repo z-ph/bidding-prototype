@@ -178,7 +178,7 @@ export default function SupervisorHall() {
         }
       >
         <Alert
-          message="您当前以监督人员身份进入，可查看开标、评标全过程及操作日志，但不可修改任何业务数据。"
+          title="您当前以监督人员身份进入，可查看开标、评标全过程及操作日志，但不可修改任何业务数据。"
           type="info"
           showIcon
           closable={false}
@@ -217,7 +217,7 @@ export default function SupervisorHall() {
                 记录异常
               </Button>
               <Button type="primary" onClick={submitComment}>提交监督意见</Button>
-              <Button onClick={() => navigate('/admin/supervisor-logs')}>查看完整操作日志</Button>
+              <Button onClick={() => navigate({ to: '/admin/supervisor-logs' })}>查看完整操作日志</Button>
             </div>
           </Card>
         </div>

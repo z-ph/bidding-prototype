@@ -30,7 +30,7 @@ export default function MessageCenter() {
       items={list.map((msg) => ({
         key: msg.id,
         color: timelineTypeMap[msg.type],
-        children: (
+        content: (
           <>
             <div className={msg.read ? undefined : 'unread'}>
               <strong>{msg.title}</strong>

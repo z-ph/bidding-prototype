@@ -109,7 +109,7 @@ export default function Help() {
         <Card
           title={<span style={{ fontSize: 18, fontWeight: 'bold' }}>帮助中心</span>}
           extra={
-            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate('/')}>
+            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate({ to: '/' })}>
               返回首页
             </Button>
           }

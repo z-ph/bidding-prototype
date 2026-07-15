@@ -66,7 +66,7 @@ export default function PortalHeader({ activeKey }) {
     }
 
     if (location.pathname !== '/') {
-      navigate('/')
+      navigate({ to: '/' })
       setTimeout(run, 400)
     } else {
       run()
@@ -74,7 +74,7 @@ export default function PortalHeader({ activeKey }) {
   }
 
   const goHome = () => {
-    navigate('/')
+    navigate({ to: '/' })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -89,16 +89,16 @@ export default function PortalHeader({ activeKey }) {
         </div>
         <div className="nav">
           <Button type="link" className={navItemClass('home')} onClick={goHome}>首页</Button>
-          <Button type="link" className={navItemClass('review')} onClick={() => navigate('/review-change-list')}>评审变更</Button>
-          <Button type="link" className={navItemClass('news')} onClick={() => navigate('/news')}>新闻公告</Button>
-          <Button type="link" className={navItemClass('help')} onClick={() => navigate('/help')}>帮助中心</Button>
-          <Button type="link" className={navItemClass('downloads')} onClick={() => navigate('/downloads')}>下载中心</Button>
-          <Button type="link" className={navItemClass('contact')} onClick={() => navigate('/contact')}>联系我们</Button>
+          <Button type="link" className={navItemClass('review')} onClick={() => navigate({ to: '/review-change-list' })}>评审变更</Button>
+          <Button type="link" className={navItemClass('news')} onClick={() => navigate({ to: '/news' })}>新闻公告</Button>
+          <Button type="link" className={navItemClass('help')} onClick={() => navigate({ to: '/help' })}>帮助中心</Button>
+          <Button type="link" className={navItemClass('downloads')} onClick={() => navigate({ to: '/downloads' })}>下载中心</Button>
+          <Button type="link" className={navItemClass('contact')} onClick={() => navigate({ to: '/contact' })}>联系我们</Button>
         </div>
         <div className="actions">
           <Button type="link" icon={<QuestionCircleOutlined />} onClick={startTour}>新手指引</Button>
-          <Button type="link" onClick={() => navigate('/register')}>注册</Button>
-          <Button id="portal-login-btn" type="primary" onClick={() => navigate('/login')}>登录</Button>
+          <Button type="link" onClick={() => navigate({ to: '/register' })}>注册</Button>
+          <Button id="portal-login-btn" type="primary" onClick={() => navigate({ to: '/login' })}>登录</Button>
         </div>
       </Layout.Header>
       <style>{`

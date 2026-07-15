@@ -74,7 +74,7 @@ export default function AdminDictionary() {
         }
       >
         <Alert
-          message="维护项目类型、采购方式、资质类别、标段分类等系统选项，供业务表单统一引用。"
+          title="维护项目类型、采购方式、资质类别、标段分类等系统选项，供业务表单统一引用。"
           type="info"
           showIcon
           closable={false}

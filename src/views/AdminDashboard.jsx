@@ -40,7 +40,7 @@ export default function AdminDashboard() {
     success: 'green'
   }
 
-  const handleTodo = (todo) => navigate(todo.path)
+  const handleTodo = (todo) => navigate({ to: todo.path })
 
   return (
     <div className="admin-dashboard">
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
               {quickEntries.map((item) => {
                 const Icon = item.icon
                 return (
-                  <div key={item.title} className="quick-entry" onClick={() => navigate(item.path)}>
+                  <div key={item.title} className="quick-entry" onClick={() => navigate({ to: item.path })}>
                     <Icon style={{ fontSize: 24, color: item.color }} />
                     <span>{item.title}</span>
                   </div>
