@@ -1,0 +1,1 @@
+import{n as e}from"./fileRoute-Bxjf8qzb.js";import{t}from"./ReviewChangeList-2eXOCJda.js";var n=e(`/review-change-list`)({component:t});export{n as Route};

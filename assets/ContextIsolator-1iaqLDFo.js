@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-BpP4ry7R.js";import{F as t,l as n,lr as r}from"./button-Cco463MC.js";import{m as i}from"./EllipsisOutlined-B_DdNqVS.js";var a=e(r()),ContextIsolator=e=>{let{space:r,form:o,children:s}=e;if(!t(s))return null;let c=s;return o&&(c=a.createElement(i,{override:!0,status:!0},c)),r&&(c=a.createElement(n,null,c)),c};export{ContextIsolator as t};
