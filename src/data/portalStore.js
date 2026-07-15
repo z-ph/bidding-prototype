@@ -1,8 +1,9 @@
 // 门户级 mock 数据存储
 // 使用 localStorage 持久化，刷新后数据保持一致
 
+import { noticeStore } from './notices.js'
+
 const NEWS_KEY = 'portal-news'
-const NOTICES_KEY = 'portal-notices'
 const STATS_KEY = 'portal-stats'
 const DOWNLOADS_KEY = 'portal-downloads'
 
@@ -17,81 +18,6 @@ const defaultNews = [
   { id: 8, title: '投标人常见问题汇总（2026年7月版）', category: '常见问题', content: '汇总了近期投标人咨询频率较高的问题及解答，供参考。', publishTime: '2026-07-03', status: 'published', attachments: [] },
   { id: 9, title: '监督投诉渠道及处理流程公示', category: '政策法规', content: '公示平台监督投诉渠道及处理流程，接受社会各界监督。', publishTime: '2026-07-02', status: 'published', attachments: [] },
   { id: 10, title: '平台用户隐私政策更新公告', category: '平台公告', content: '用户隐私政策已更新，请广大用户及时查阅并确认。', publishTime: '2026-07-01', status: 'published', attachments: [] }
-]
-
-const defaultNotices = [
-  {
-    id: 1,
-    title: 'XX市轨道交通设备采购项目招标公告',
-    typeName: '招标公告',
-    tagType: 'primary',
-    purchaseMode: '公开招标',
-    publishTime: '2026-07-01',
-    deadline: '2026-07-20',
-    registerStart: '2026-07-01',
-    registerEnd: '2026-07-20',
-    content: '本项目为XX市轨道交通设备采购，采购内容包括主设备、辅材及配套服务。欢迎具备相应资质的供应商报名参加。',
-    attachments: [
-      { name: '招标文件.pdf', size: '2.5MB' },
-      { name: '技术规格书.docx', size: '1.1MB' }
-    ],
-    canRegister: true
-  },
-  {
-    id: 2,
-    title: '办公桌椅采购项目变更公告',
-    typeName: '变更公告',
-    tagType: 'warning',
-    purchaseMode: '公开招标',
-    publishTime: '2026-07-02',
-    deadline: '2026-07-18',
-    registerStart: '2026-07-02',
-    registerEnd: '2026-07-18',
-    content: '因采购需求调整，办公桌椅采购项目报名时间延长至2026年7月18日，技术参数详见附件。',
-    attachments: [{ name: '变更说明.pdf', size: '300KB' }],
-    canRegister: false
-  },
-  {
-    id: 3,
-    title: '软件开发服务项目中标候选人公示',
-    typeName: '候选人公示',
-    tagType: 'success',
-    purchaseMode: '邀请招标',
-    publishTime: '2026-07-03',
-    deadline: '-',
-    content: '根据评标委员会评审结果，现将软件开发服务项目中标候选人公示如下...',
-    attachments: [{ name: '候选人公示.pdf', size: '500KB' }],
-    canRegister: false
-  },
-  {
-    id: 4,
-    title: '物业服务采购项目中标公告',
-    typeName: '中标公告',
-    tagType: 'info',
-    purchaseMode: '公开询比价',
-    publishTime: '2026-07-04',
-    deadline: '-',
-    content: '物业服务采购项目已完成评标，现将中标结果公告如下...',
-    attachments: [{ name: '中标公告.pdf', size: '400KB' }],
-    canRegister: false
-  },
-  {
-    id: 5,
-    title: '实验室设备采购项目招标公告',
-    typeName: '招标公告',
-    tagType: 'primary',
-    purchaseMode: '公开招标',
-    publishTime: '2026-07-05',
-    deadline: '2026-07-25',
-    registerStart: '2026-07-05',
-    registerEnd: '2026-07-25',
-    content: '实验室设备采购项目现公开招标，欢迎具备相关资质的供应商参与投标。',
-    attachments: [
-      { name: '招标公告.pdf', size: '1.8MB' },
-      { name: '设备清单.xlsx', size: '600KB' }
-    ],
-    canRegister: true
-  }
 ]
 
 const defaultStats = {
@@ -137,10 +63,11 @@ export const portalStore = {
     return this.getNews().filter((n) => n.status === 'published')
   },
   getNotices() {
-    return load(NOTICES_KEY, defaultNotices)
+    // 门户仅展示已发布公告
+    return noticeStore.getNotices().filter((n) => n.status === 'published')
   },
   saveNotices(notices) {
-    save(NOTICES_KEY, notices)
+    noticeStore.saveNotices(notices)
   },
   getNoticeById(id) {
     return this.getNotices().find((n) => String(n.id) === String(id))

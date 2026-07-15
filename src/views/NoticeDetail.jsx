@@ -7,7 +7,8 @@ import {
   Descriptions,
   List,
   Empty,
-  message
+  message,
+  Alert
 } from 'antd'
 import {
   HomeOutlined,
@@ -117,11 +118,24 @@ export default function NoticeDetail() {
             <Tag color={tagColorMap[notice.tagType]}>{notice.typeName}</Tag>
           </div>
 
+          {notice.type === 'change' && notice.changeReason && (
+            <Alert
+              type="warning"
+              showIcon
+              message={`变更原因：${notice.changeReason}`}
+              style={{ marginBottom: 24 }}
+            />
+          )}
+
           <Descriptions bordered column={2} style={{ marginBottom: 24 }}>
-            <Descriptions.Item label="采购方式">{notice.purchaseMode}</Descriptions.Item>
-            <Descriptions.Item label="发布时间">{notice.publishTime}</Descriptions.Item>
+            <Descriptions.Item label="采购方式">{notice.purchaseMode || '-'}</Descriptions.Item>
+            <Descriptions.Item label="发布时间">{notice.publishTime || '-'}</Descriptions.Item>
+            <Descriptions.Item label="关联项目">{notice.projectName || '-'}</Descriptions.Item>
+            <Descriptions.Item label="关联标段">
+              {notice.packages?.map((p) => p.name).join('、') || '-'}
+            </Descriptions.Item>
             <Descriptions.Item label="报名开始">{notice.registerStart || '-'}</Descriptions.Item>
-            <Descriptions.Item label="报名截止">{notice.deadline}</Descriptions.Item>
+            <Descriptions.Item label="报名截止">{notice.deadline || '-'}</Descriptions.Item>
           </Descriptions>
 
           <Card type="inner" title="公告正文" style={{ marginBottom: 24 }}>
