@@ -1,0 +1,47 @@
+{
+  "proposal": "fix-notice-management-20260714",
+  "tasks": [
+    {
+      "id": "notice-list-page",
+      "title": "新增公告列表页",
+      "description": "创建 NoticeList.jsx，展示所有公告，支持按类型/项目/时间筛选，可编辑草稿和撤回已发布公告。",
+      "files": ["src/views/NoticeList.jsx", "src/router/index.jsx", "src/components/Layout.jsx"],
+      "acceptance": [
+        "左侧菜单有「公告列表」入口",
+        "列表展示公告标题、类型、关联项目、发布时间、状态",
+        "支持编辑草稿和撤回已发布公告"
+      ]
+    },
+    {
+      "id": "notice-package-link",
+      "title": "发布公告关联标段",
+      "description": "NoticePublish 表单在关联项目后，显示该项目下的标段多选框。",
+      "files": ["src/views/NoticePublish.jsx"],
+      "acceptance": [
+        "选择项目后自动加载标段列表",
+        "可勾选多个标段",
+        "公告详情展示关联标段"
+      ]
+    },
+    {
+      "id": "notice-change-reason",
+      "title": "变更公告增加变更原因",
+      "description": "当公告类型选择「变更公告」时，显示必填的「变更原因」字段，并在详情页高亮。",
+      "files": ["src/views/NoticePublish.jsx", "src/views/NoticeDetail.jsx"],
+      "acceptance": [
+        "变更公告类型下出现「变更原因」必填项",
+        "未填写变更原因不能发布",
+        "公告详情顶部展示变更原因"
+      ]
+    },
+    {
+      "id": "notice-clarification-type",
+      "title": "公告类型增加澄清公告",
+      "description": "NoticePublish 的公告类型下拉增加「澄清公告」选项。",
+      "files": ["src/views/NoticePublish.jsx"],
+      "acceptance": [
+        "公告类型下拉包含：招标公告、变更公告、澄清公告、候选人公示、中标公告"
+      ]
+    }
+  ]
+}

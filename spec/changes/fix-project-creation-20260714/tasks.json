@@ -1,0 +1,48 @@
+{
+  "proposal": "fix-project-creation-20260714",
+  "tasks": [
+    {
+      "id": "proj-requirement-entry",
+      "title": "新增采购需求独立入口",
+      "description": "按需求文档增加采购需求模块：列表、草稿、已发布/已审核状态，字段包括需求类型、需求标题、预算金额、具体需求内容。",
+      "files": ["src/views/", "src/router/index.jsx", "src/components/Layout.jsx"],
+      "acceptance": [
+        "左侧菜单可见「采购需求」入口",
+        "可创建、编辑、发布、审核采购需求",
+        "创建项目时可选择已发布的采购需求"
+      ]
+    },
+    {
+      "id": "proj-package-fields",
+      "title": "标段字段补全",
+      "description": "ProjectCreate 每个标段支持独立设置采购方式、标书费、保证金、投标开始时间、投标截止时间。",
+      "files": ["src/views/ProjectCreate.jsx"],
+      "acceptance": [
+        "不同标段可设置不同采购方式",
+        "标段表单包含标书费、保证金、投标起止时间",
+        "开标大厅/投标报名可读取标段级时间与费用"
+      ]
+    },
+    {
+      "id": "proj-org-mode",
+      "title": "增加组织方式选择",
+      "description": "项目创建增加「自行招标 / 委托代理」选择，委托代理需代理机构确认合同后才能加入项目成员。",
+      "files": ["src/views/ProjectCreate.jsx", "src/config/permissions.js"],
+      "acceptance": [
+        "项目创建页可见组织方式选择",
+        "自行招标时项目成员仅招标方",
+        "委托代理时成员包含代理机构人员，且需确认合同"
+      ]
+    },
+    {
+      "id": "proj-purchase-mode-text",
+      "title": "修正采购方式文案",
+      "description": "将采购方式下拉中的「单一来源」修正为「邀请询比价」。",
+      "files": ["src/views/ProjectCreate.jsx"],
+      "acceptance": [
+        "采购方式选项中不再出现「单一来源」",
+        "出现「邀请询比价」选项"
+      ]
+    }
+  ]
+}
