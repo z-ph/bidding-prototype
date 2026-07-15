@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   Alert,
@@ -16,7 +16,8 @@ import {
   Timeline,
   message,
   Modal,
-  Select
+  Select,
+  Table
 } from 'antd'
 import { InboxOutlined, PlusOutlined, DeleteOutlined, ImportOutlined } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
@@ -97,11 +98,126 @@ const templates = [
   }
 ]
 
+// 模拟项目结构化招标数据：项目基本信息 + 标段/包件结构化字段
+const projectMetaMap = {
+  '1': {
+    id: '1',
+    name: 'XX市轨道交通设备采购项目',
+    code: 'ZB20260701001',
+    purchaseMode: '公开招标',
+    bidOpenTime: '2026-07-21 09:30',
+    bidCloseTime: '2026-07-20 17:00',
+    registerStart: '2026-07-01 09:00',
+    registerEnd: '2026-07-20 17:00',
+    evalLocation: '线上评标大厅',
+    budget: 850,
+    evaluationMethod: '综合评分法',
+    quoteFields: [
+      { key: 'totalPrice', label: '投标总价', unit: '万元', required: true },
+      { key: 'unitPrice', label: '单价', unit: '元', required: true },
+      { key: 'deliveryDays', label: '交货期', unit: '天', required: true },
+      { key: 'warrantyYears', label: '质保期', unit: '年', required: false }
+    ],
+    bidSummaryColumns: [
+      { title: '序号', dataIndex: 'seq', width: 80 },
+      { title: '标段', dataIndex: 'packageName', width: 200 },
+      { title: '投标单位', dataIndex: 'bidder', minWidth: 200 },
+      { title: '投标总价（万元）', dataIndex: 'totalPrice', width: 160 },
+      { title: '交货期（天）', dataIndex: 'deliveryDays', width: 120 },
+      { title: '备注', dataIndex: 'remark', minWidth: 160 }
+    ],
+    packages: [
+      {
+        code: 'B1',
+        name: '第一标段：主设备',
+        budget: 600,
+        bidFee: 500,
+        deposit: 120000,
+        depositReturn: '中标公示结束后 5 个工作日内原路退还',
+        content: '主设备采购',
+        delivery: '合同签订后 90 天内'
+      },
+      {
+        code: 'B2',
+        name: '第二标段：辅材',
+        budget: 250,
+        bidFee: 300,
+        deposit: 50000,
+        depositReturn: '中标公示结束后 5 个工作日内原路退还',
+        content: '辅助材料',
+        delivery: '合同签订后 60 天内'
+      }
+    ]
+  },
+  '3': {
+    id: '3',
+    name: '软件开发服务项目',
+    code: 'ZB20260703003',
+    purchaseMode: '邀请招标',
+    bidOpenTime: '2026-07-15 09:00',
+    bidCloseTime: '2026-07-14 17:00',
+    registerStart: '2026-07-03 09:00',
+    registerEnd: '2026-07-14 17:00',
+    evalLocation: '线上评标大厅',
+    budget: 120,
+    evaluationMethod: '综合评分法',
+    quoteFields: [
+      { key: 'totalPrice', label: '投标总价', unit: '万元', required: true },
+      { key: 'devCycle', label: '开发周期', unit: '月', required: true },
+      { key: 'maintainYears', label: '运维期', unit: '年', required: true }
+    ],
+    bidSummaryColumns: [
+      { title: '序号', dataIndex: 'seq', width: 80 },
+      { title: '标段', dataIndex: 'packageName', width: 200 },
+      { title: '投标单位', dataIndex: 'bidder', minWidth: 200 },
+      { title: '投标总价（万元）', dataIndex: 'totalPrice', width: 160 },
+      { title: '开发周期（月）', dataIndex: 'devCycle', width: 140 },
+      { title: '备注', dataIndex: 'remark', minWidth: 160 }
+    ],
+    packages: [
+      {
+        code: 'B1',
+        name: '软件开发服务',
+        budget: 120,
+        bidFee: 0,
+        deposit: 20000,
+        depositReturn: '合同签订后 10 个工作日内退还',
+        content: '定制化软件开发及一年运维',
+        delivery: '合同签订后 6 个月内上线'
+      }
+    ]
+  }
+}
+
+const defaultProjectMeta = {
+  id: '',
+  name: '未关联项目',
+  code: '-',
+  purchaseMode: '-',
+  bidOpenTime: '-',
+  bidCloseTime: '-',
+  registerStart: '-',
+  registerEnd: '-',
+  evalLocation: '-',
+  budget: 0,
+  evaluationMethod: '-',
+  quoteFields: [],
+  bidSummaryColumns: [],
+  packages: []
+}
+
+function getProjectMeta(projectId) {
+  if (!projectId) return defaultProjectMeta
+  return projectMetaMap[projectId] || defaultProjectMeta
+}
+
 export default function TenderDoc() {
   const [searchParams] = useSearchParams()
   const projectId = searchParams.get('projectId')
   const { role } = useRole()
   const canEdit = role === 'tenderee' || role === 'agent'
+
+  const projectMeta = useMemo(() => getProjectMeta(projectId), [projectId])
 
   const [docStatus, setDocStatus] = useState('editing') // editing, reviewed, published
   const version = 'V1.0'
@@ -332,6 +448,17 @@ export default function TenderDoc() {
     setSelectedTemplate(null)
   }
 
+  const packageColumns = [
+    { title: '标段编号', dataIndex: 'code', width: 100 },
+    { title: '标段名称', dataIndex: 'name', minWidth: 200 },
+    { title: '采购内容', dataIndex: 'content', minWidth: 160 },
+    { title: '预算（万元）', dataIndex: 'budget', width: 120, render: (v) => `${v} 万元` },
+    { title: '文件费（元）', dataIndex: 'bidFee', width: 120, render: (v) => (v ? `¥${v}` : '免费') },
+    { title: '保证金（元）', dataIndex: 'deposit', width: 130, render: (v) => `¥${v.toLocaleString()}` },
+    { title: '保证金退还', dataIndex: 'depositReturn', minWidth: 220 },
+    { title: '交货/服务期', dataIndex: 'delivery', minWidth: 180 }
+  ]
+
   return (
     <div className="tender-doc">
       {docStatus === 'published' && (
@@ -401,9 +528,57 @@ export default function TenderDoc() {
               </div>
             }
           >
+            <Card size="small" title="项目结构化信息" style={{ marginBottom: 16 }}>
+              <Descriptions column={3} bordered size="small">
+                <Descriptions.Item label="项目名称">{projectMeta.name}</Descriptions.Item>
+                <Descriptions.Item label="项目编号">{projectMeta.code}</Descriptions.Item>
+                <Descriptions.Item label="采购方式">{projectMeta.purchaseMode}</Descriptions.Item>
+                <Descriptions.Item label="报名开始">{projectMeta.registerStart}</Descriptions.Item>
+                <Descriptions.Item label="报名截止">{projectMeta.registerEnd}</Descriptions.Item>
+                <Descriptions.Item label="开标时间">{projectMeta.bidOpenTime}</Descriptions.Item>
+                <Descriptions.Item label="投标截止">{projectMeta.bidCloseTime}</Descriptions.Item>
+                <Descriptions.Item label="评标地点">{projectMeta.evalLocation}</Descriptions.Item>
+                <Descriptions.Item label="评标方法">{projectMeta.evaluationMethod}</Descriptions.Item>
+              </Descriptions>
+
+              <Divider orientation="left" style={{ marginTop: 16 }}>标段/包件信息</Divider>
+              <Table
+                rowKey="code"
+                dataSource={projectMeta.packages}
+                columns={packageColumns}
+                pagination={false}
+                size="small"
+                bordered
+                scroll={{ x: 'max-content' }}
+              />
+
+              <Divider orientation="left">报价字段配置</Divider>
+              <div className="quote-fields">
+                {projectMeta.quoteFields.map((field) => (
+                  <Tag key={field.key} color={field.required ? 'blue' : 'default'}>
+                    {field.label} ({field.unit}) {field.required ? '*' : ''}
+                  </Tag>
+                ))}
+                {projectMeta.quoteFields.length === 0 && <span>-</span>}
+              </div>
+
+              <Divider orientation="left">开标一览表模板</Divider>
+              <Table
+                rowKey="title"
+                dataSource={projectMeta.bidSummaryColumns}
+                columns={[
+                  { title: '列名', dataIndex: 'title' },
+                  { title: '字段键', dataIndex: 'dataIndex' },
+                  { title: '宽度', dataIndex: 'width', render: (v) => v || '自适应' }
+                ]}
+                pagination={false}
+                size="small"
+                bordered
+              />
+            </Card>
+
             <Descriptions column={3} bordered size="small" style={{ marginBottom: 16 }}>
               <Descriptions.Item label="编制人">{role === 'tenderee' ? '张三' : '李四'}</Descriptions.Item>
-              <Descriptions.Item label="复核人">{docStatus === 'published' ? '张三' : '待复核'}</Descriptions.Item>
               <Descriptions.Item label="最近更新">{lastUpdate}</Descriptions.Item>
             </Descriptions>
 
@@ -539,6 +714,11 @@ export default function TenderDoc() {
         }
         .history-section h4 {
           margin-bottom: 12px;
+        }
+        .quote-fields {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
         }
       `}</style>
     </div>
