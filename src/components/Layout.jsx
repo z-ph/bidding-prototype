@@ -58,8 +58,10 @@ function useMenuItems(role) {
         { key: '/admin/projects/track', label: '项目跟踪' }
       ]
     },
+    { key: '/admin/procurement-requirements', label: '采购需求', icon: FileTextOutlined },
     { key: '/admin/tender-doc', label: '招标文件', icon: FileTextOutlined },
     { key: '/admin/notice-publish', label: '发布公告', icon: BellOutlined },
+    { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
     { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
     { key: '/admin/objection-manage', label: '异议管理', icon: WarningOutlined },
     { key: '/admin/award-confirm', label: '确认中标人', icon: TrophyOutlined },
@@ -80,6 +82,7 @@ function useMenuItems(role) {
     },
     { key: '/admin/tender-doc', label: '招标文件编制', icon: FileTextOutlined },
     { key: '/admin/notice-publish', label: '公告发布', icon: BellOutlined },
+    { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
     { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
     { key: '/admin/objection-manage', label: '异议处理', icon: WarningOutlined },
     { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
@@ -111,6 +114,7 @@ function useMenuItems(role) {
   const adminMenus = [
     { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
     { key: '/admin/admin-dashboard', label: '管理控制台', icon: DashboardOutlined },
+    { key: '/admin/procurement-requirements', label: '采购需求', icon: FileTextOutlined },
     { key: '/admin/admin-users', label: '用户权限', icon: UserOutlined },
     { key: '/admin/admin-dictionary', label: '参数字典', icon: ToolOutlined },
     { key: '/admin/admin-supplier-audit', label: '准入审核', icon: FileProtectOutlined },

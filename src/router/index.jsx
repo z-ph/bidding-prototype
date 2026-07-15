@@ -42,10 +42,12 @@ import MessageCenter from '../views/MessageCenter.jsx'
 import SupervisorAbnormal from '../views/SupervisorAbnormal.jsx'
 import AdminNews from '../views/AdminNews.jsx'
 import NoticeDetail from '../views/NoticeDetail.jsx'
+import NoticeList from '../views/NoticeList.jsx'
 import Contact from '../views/Contact.jsx'
 import ProjectDetail from '../views/ProjectDetail.jsx'
 import SubAccounts from '../views/SubAccounts.jsx'
 import ReviewChangeList from '../views/ReviewChangeList.jsx'
+import ProcurementRequirementList from '../views/ProcurementRequirementList.jsx'
 
 import Layout from '../components/Layout.jsx'
 import Forbidden from '../components/Forbidden.jsx'
@@ -96,7 +98,9 @@ const routes = [
           { path: 'opening-hall', element: <OpeningHall />, handle: { title: '开标大厅' } },
           { path: 'evaluation-hall', element: <EvaluationHall />, handle: { title: '评标大厅' } },
           { path: 'notice-publish', element: <NoticePublish />, handle: { title: '发布公告' } },
+          { path: 'notice-list', element: <NoticeList />, handle: { title: '公告列表' } },
           { path: 'bidder-projects', element: <BidderProjects />, handle: { title: '我参与的项目' } },
+          { path: 'procurement-requirements', element: <ProcurementRequirementList />, handle: { title: '采购需求' } },
           { path: 'bid-register', element: <BidRegister />, handle: { title: '项目报名' } },
           { path: 'bid-payment', element: <BidPayment />, handle: { title: '缴纳费用' } },
           { path: 'bid-download', element: <BidDownload />, handle: { title: '下载文件' } },
