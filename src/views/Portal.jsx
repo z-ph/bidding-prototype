@@ -120,7 +120,7 @@ export default function Portal() {
       <PortalHeader activeKey="home" />
 
       <div className="banner">
-        <Carousel autoplay autoplaySpeed={5000} dotPosition="bottom" effect="fade">
+        <Carousel autoplay autoplaySpeed={5000} dotPlacement="bottom" effect="fade">
           {carouselSlides.map((slide) => (
             <div key={slide.key}>
               <div
