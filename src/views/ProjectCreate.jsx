@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Alert,
@@ -22,6 +22,31 @@ import {
 } from 'antd'
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import EmptyState from '../components/EmptyState.jsx'
+import { requirementStore, REQUIREMENT_STATUS_MAP } from '../data/requirements.js'
+import { projectStore } from '../data/projects.js'
+
+const PURCHASE_MODE_OPTIONS = [
+  { label: '公开招标', value: 'open' },
+  { label: '邀请招标', value: 'invitation' },
+  { label: '公开询比价', value: 'inquiry' },
+  { label: '邀请询比价', value: 'invitation_inquiry' }
+]
+
+const TENDEREE_MEMBERS = [
+  { label: '张三（招标人）', value: 'zhangsan' },
+  { label: '王五（法务）', value: 'wangwu' },
+  { label: '赵六（财务）', value: 'zhaoliu' }
+]
+
+const AGENT_MEMBERS = [
+  { label: '李四（招标代理）', value: 'lisi' }
+]
+
+const AGENT_OPTIONS = [
+  { label: '诚信招标代理有限公司', value: 'agent_01' },
+  { label: '国信招标代理股份有限公司', value: 'agent_02' },
+  { label: '中机国际招标有限公司', value: 'agent_03' }
+]
 
 export default function ProjectCreate() {
   const navigate = useNavigate()
@@ -41,6 +66,10 @@ export default function ProjectCreate() {
     intro: '',
     demandSource: '',
     demandCode: '',
+    linkedRequirementId: '',
+    orgMode: 'self',
+    agentId: '',
+    agentContractConfirmed: false,
     members: [],
     approvalInfo: '',
     attachments: [],
@@ -55,11 +84,31 @@ export default function ProjectCreate() {
 
   const [inviteCode, setInviteCode] = useState('')
 
-  const packageBudgetTotal = formData.packages.reduce((sum, p) => sum + (Number(p.budget) || 0), 0)
-  const budgetExceeded = Number(formData.budget) > 0 && packageBudgetTotal > Number(formData.budget)
+  const publishedRequirements = useMemo(
+    () => requirementStore.getPublishedRequirements(),
+    []
+  )
+
+  const linkedRequirement = useMemo(
+    () => publishedRequirements.find((r) => r.id === formData.linkedRequirementId),
+    [publishedRequirements, formData.linkedRequirementId]
+  )
+
+  const packageBudgetTotal = formData.packages.reduce(
+    (sum, p) => sum + (Number(p.budget) || 0),
+    0
+  )
+  const budgetExceeded =
+    Number(formData.budget) > 0 && packageBudgetTotal > Number(formData.budget)
 
   const canNext = () => {
     if (activeStep === 0) return true
+    if (activeStep === 1) {
+      if (formData.orgMode === 'agent') {
+        return !!formData.agentId && formData.agentContractConfirmed
+      }
+      return true
+    }
     if (activeStep === 2) return formData.packages.length > 0 && !budgetExceeded
     return true
   }
@@ -79,7 +128,20 @@ export default function ProjectCreate() {
   const addPackage = () => {
     setFormData((prev) => ({
       ...prev,
-      packages: [...prev.packages, { name: '', code: `B${prev.packages.length + 1}`, budget: '', content: '' }]
+      packages: [
+        ...prev.packages,
+        {
+          name: '',
+          code: `B${prev.packages.length + 1}`,
+          budget: '',
+          content: '',
+          purchaseMode: prev.purchaseMode || 'open',
+          bidFee: '',
+          deposit: '',
+          bidStart: null,
+          bidEnd: null
+        }
+      ]
     }))
   }
 
@@ -103,6 +165,18 @@ export default function ProjectCreate() {
         return
       }
     }
+    if (activeStep === 1) {
+      if (formData.orgMode === 'agent') {
+        if (!formData.agentId) {
+          message.warning('请选择代理机构')
+          return
+        }
+        if (!formData.agentContractConfirmed) {
+          message.warning('请等待代理机构确认委托合同')
+          return
+        }
+      }
+    }
     if (activeStep === 2) {
       if (formData.packages.length === 0) {
         message.warning('请至少添加一个标段')
@@ -111,6 +185,13 @@ export default function ProjectCreate() {
       if (budgetExceeded) {
         message.error('标段预算合计超过项目预算，请调整后再继续')
         return
+      }
+      for (let i = 0; i < formData.packages.length; i++) {
+        const pkg = formData.packages[i]
+        if (pkg.bidStart && pkg.bidEnd && new Date(pkg.bidEnd) <= new Date(pkg.bidStart)) {
+          message.error(`标段 ${i + 1} 的投标截止时间必须晚于投标开始时间`)
+          return
+        }
       }
     }
     setActiveStep((s) => s + 1)
@@ -121,7 +202,12 @@ export default function ProjectCreate() {
   }
 
   const submit = () => {
-    message.success('项目已提交审核，即将跳转项目列表')
+    const saved = projectStore.saveProject({
+      ...formData,
+      status: 'pending',
+      submitTime: new Date().toISOString()
+    })
+    message.success(`项目 ${saved.name} 已提交审核，即将跳转项目列表`)
     navigate('/admin/projects')
   }
 
@@ -165,6 +251,16 @@ export default function ProjectCreate() {
 
   const steps = ['基本信息', '需求与成员', '标段设置', '供应商要求', '提交审核']
 
+  const memberOptions = useMemo(() => {
+    if (formData.orgMode === 'self') return TENDEREE_MEMBERS
+    return [...TENDEREE_MEMBERS, ...AGENT_MEMBERS]
+  }, [formData.orgMode])
+
+  const orgModeLabel = {
+    self: '自行招标',
+    agent: '委托代理'
+  }
+
   return (
     <div className="project-create">
       <Alert
@@ -181,7 +277,7 @@ export default function ProjectCreate() {
         {activeStep === 0 && (
           <>
             <h3>项目基本信息</h3>
-            <Form form={form} initialValues={{ purchaseMode: 'open' }} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
+            <Form form={form} initialValues={{ purchaseMode: 'open', orgMode: 'self' }} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
               <Row gutter={20}>
                 <Col span={12}>
                   <Form.Item label="项目名称" name="name" rules={basicRules.name}>
@@ -207,12 +303,7 @@ export default function ProjectCreate() {
                       placeholder="请选择"
                       value={formData.purchaseMode}
                       onChange={(value) => updateField('purchaseMode', value)}
-                      options={[
-                        { label: '公开招标', value: 'open' },
-                        { label: '邀请招标', value: 'invitation' },
-                        { label: '公开询比价', value: 'inquiry' },
-                        { label: '单一来源', value: 'single' }
-                      ]}
+                      options={PURCHASE_MODE_OPTIONS}
                     />
                   </Form.Item>
                 </Col>
@@ -270,6 +361,72 @@ export default function ProjectCreate() {
                   </Form.Item>
                 </Col>
               </Row>
+              <Form.Item label="组织方式" name="orgMode">
+                <Radio.Group
+                  value={formData.orgMode}
+                  onChange={(e) => {
+                    const orgMode = e.target.value
+                    setFormData((prev) => ({
+                      ...prev,
+                      orgMode,
+                      agentId: '',
+                      agentContractConfirmed: false,
+                      members: orgMode === 'self'
+                        ? prev.members.filter((m) => !AGENT_MEMBERS.some((a) => a.value === m))
+                        : prev.members
+                    }))
+                  }}
+                >
+                  <Radio value="self">自行招标</Radio>
+                  <Radio value="agent">委托代理</Radio>
+                </Radio.Group>
+              </Form.Item>
+              {formData.orgMode === 'agent' && (
+                <Row gutter={20}>
+                  <Col span={12}>
+                    <Form.Item label="代理机构">
+                      <Select
+                        placeholder="请选择代理机构"
+                        value={formData.agentId || undefined}
+                        onChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            agentId: value,
+                            agentContractConfirmed: false,
+                            members: prev.members.filter(
+                              (m) => !AGENT_MEMBERS.some((a) => a.value === m)
+                            )
+                          }))
+                        }
+                        options={AGENT_OPTIONS}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item label="委托合同">
+                      <Button
+                        type={formData.agentContractConfirmed ? 'default' : 'primary'}
+                        disabled={!formData.agentId || formData.agentContractConfirmed}
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            agentContractConfirmed: true,
+                            members: Array.from(new Set([...prev.members, 'lisi']))
+                          }))
+                          message.success('代理机构已确认委托合同')
+                        }}
+                      >
+                        {formData.agentContractConfirmed ? '已确认委托合同' : '发送合同确认'}
+                      </Button>
+                      {!formData.agentId && (
+                        <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
+                          请先选择代理机构
+                        </div>
+                      )}
+                    </Form.Item>
+                  </Col>
+                </Row>
+              )}
               <Form.Item label="项目简介" name="intro" rules={basicRules.intro}>
                 <Input.TextArea
                   rows={4}
@@ -290,6 +447,20 @@ export default function ProjectCreate() {
             <Form layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
               <Row gutter={20}>
                 <Col span={12}>
+                  <Form.Item label="关联采购需求">
+                    <Select
+                      placeholder="选择已发布/已审核的采购需求"
+                      value={formData.linkedRequirementId || undefined}
+                      onChange={(value) => updateField('linkedRequirementId', value)}
+                      allowClear
+                      options={publishedRequirements.map((r) => ({
+                        label: `${r.id} - ${r.title}`,
+                        value: r.id
+                      }))}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
                   <Form.Item label="需求来源">
                     <Select
                       placeholder="请选择需求来源"
@@ -298,21 +469,51 @@ export default function ProjectCreate() {
                       options={[
                         { label: '年度采购计划', value: 'plan' },
                         { label: '临时采购申请', value: 'temp' },
+                        { label: '采购需求库', value: 'requirement' },
                         { label: '项目变更', value: 'change' },
                         { label: '其他', value: 'other' }
                       ]}
                     />
                   </Form.Item>
                 </Col>
+              </Row>
+              {linkedRequirement && (
+                <Row gutter={20}>
+                  <Col span={24}>
+                    <Form.Item label="需求概要">
+                      <Card size="small" className="linked-requirement-card">
+                        <Descriptions size="small" column={3}>
+                          <Descriptions.Item label="需求编号">{linkedRequirement.id}</Descriptions.Item>
+                          <Descriptions.Item label="需求类型">
+                            {requirementStore.getTypes().find((t) => t.value === linkedRequirement.type)?.label || linkedRequirement.type}
+                          </Descriptions.Item>
+                          <Descriptions.Item label="预算金额">{linkedRequirement.budget} 万元</Descriptions.Item>
+                          <Descriptions.Item label="状态">
+                            <Tag color={REQUIREMENT_STATUS_MAP[linkedRequirement.status]?.color}>
+                              {REQUIREMENT_STATUS_MAP[linkedRequirement.status]?.label}
+                            </Tag>
+                          </Descriptions.Item>
+                          <Descriptions.Item label="需求标题" span={2}>
+                            {linkedRequirement.title}
+                          </Descriptions.Item>
+                        </Descriptions>
+                      </Card>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              )}
+              <Row gutter={20}>
                 <Col span={12}>
-                  <Form.Item label={
-                    <span>
-                      需求编号
-                      <Tooltip title="关联年度采购计划或临时采购申请单号，非必填">
-                        <QuestionCircleOutlined style={{ marginLeft: 6, color: '#999' }} />
-                      </Tooltip>
-                    </span>
-                  }>
+                  <Form.Item
+                    label={
+                      <span>
+                        需求编号
+                        <Tooltip title="关联年度采购计划或临时采购申请单号，非必填">
+                          <QuestionCircleOutlined style={{ marginLeft: 6, color: '#999' }} />
+                        </Tooltip>
+                      </span>
+                    }
+                  >
                     <Input
                       placeholder="关联年度采购计划或临时采购申请单号，非必填"
                       value={formData.demandCode}
@@ -320,21 +521,28 @@ export default function ProjectCreate() {
                     />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item label="项目成员">
+                    <Select
+                      mode="multiple"
+                      placeholder={
+                        formData.orgMode === 'agent' && !formData.agentContractConfirmed
+                          ? '请先确认委托合同'
+                          : '选择项目成员'
+                      }
+                      value={formData.members}
+                      onChange={(value) => updateField('members', value)}
+                      options={memberOptions}
+                      disabled={formData.orgMode === 'agent' && !formData.agentContractConfirmed}
+                    />
+                    {formData.orgMode === 'agent' && formData.agentContractConfirmed && (
+                      <div style={{ color: '#666', fontSize: 12, marginTop: 4 }}>
+                        代理机构人员（李四）已自动加入项目成员
+                      </div>
+                    )}
+                  </Form.Item>
+                </Col>
               </Row>
-              <Form.Item label="项目成员">
-                <Select
-                  mode="multiple"
-                  placeholder="选择项目成员"
-                  value={formData.members}
-                  onChange={(value) => updateField('members', value)}
-                  options={[
-                    { label: '张三（招标人）', value: 'zhangsan' },
-                    { label: '李四（招标代理）', value: 'lisi' },
-                    { label: '王五（法务）', value: 'wangwu' },
-                    { label: '赵六（财务）', value: 'zhaoliu' }
-                  ]}
-                />
-              </Form.Item>
               <Form.Item label="审批信息">
                 <Input.TextArea
                   rows={3}
@@ -410,6 +618,60 @@ export default function ProjectCreate() {
                         placeholder="万元"
                         value={pkg.budget}
                         onChange={(e) => updatePackage(idx, 'budget', e.target.value)}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={20}>
+                  <Col span={8}>
+                    <Form.Item label="采购方式">
+                      <Select
+                        placeholder="请选择"
+                        value={pkg.purchaseMode}
+                        onChange={(value) => updatePackage(idx, 'purchaseMode', value)}
+                        options={PURCHASE_MODE_OPTIONS}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="标书费">
+                      <Input
+                        placeholder="元"
+                        value={pkg.bidFee}
+                        onChange={(e) => updatePackage(idx, 'bidFee', e.target.value)}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="保证金">
+                      <Input
+                        placeholder="元"
+                        value={pkg.deposit}
+                        onChange={(e) => updatePackage(idx, 'deposit', e.target.value)}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={20}>
+                  <Col span={12}>
+                    <Form.Item label="投标开始时间">
+                      <DatePicker
+                        showTime
+                        style={{ width: '100%' }}
+                        placeholder="投标开始时间"
+                        value={pkg.bidStart}
+                        onChange={(value) => updatePackage(idx, 'bidStart', value)}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item label="投标截止时间">
+                      <DatePicker
+                        showTime
+                        style={{ width: '100%' }}
+                        placeholder="投标截止时间"
+                        value={pkg.bidEnd}
+                        onChange={(value) => updatePackage(idx, 'bidEnd', value)}
                       />
                     </Form.Item>
                   </Col>
@@ -521,15 +783,34 @@ export default function ProjectCreate() {
               <>
                 <Descriptions column={2} bordered>
                   <Descriptions.Item label="项目名称">{formData.name || '-'}</Descriptions.Item>
-                  <Descriptions.Item label="采购方式">{formData.purchaseMode || '-'}</Descriptions.Item>
+                  <Descriptions.Item label="组织方式">{orgModeLabel[formData.orgMode] || '-'}</Descriptions.Item>
+                  <Descriptions.Item label="采购方式">{PURCHASE_MODE_OPTIONS.find((o) => o.value === formData.purchaseMode)?.label || '-'}</Descriptions.Item>
                   <Descriptions.Item label="项目预算">{formData.budget || '-'} 万元</Descriptions.Item>
                   <Descriptions.Item label="标段预算合计">{packageBudgetTotal} 万元</Descriptions.Item>
                   <Descriptions.Item label="开标时间">{formatTime(formData.openTime)}</Descriptions.Item>
                   <Descriptions.Item label="标段数量">{formData.packages.length} 个</Descriptions.Item>
+                  <Descriptions.Item label="关联采购需求">
+                    {linkedRequirement ? `${linkedRequirement.id} ${linkedRequirement.title}` : '-'}
+                  </Descriptions.Item>
                   <Descriptions.Item label="需求来源">{formData.demandSource || '-'}</Descriptions.Item>
                   <Descriptions.Item label="项目成员">{formData.members.join('、') || '-'}</Descriptions.Item>
+                  <Descriptions.Item label="代理机构">{formData.orgMode === 'agent' ? (AGENT_OPTIONS.find((a) => a.value === formData.agentId)?.label || '-') : '-'}</Descriptions.Item>
                   <Descriptions.Item label="资质要求">{formData.qualifications.join('、') || '-'}</Descriptions.Item>
                 </Descriptions>
+                {formData.packages.length > 0 && (
+                  <Card size="small" title="标段费用与时间" style={{ marginTop: 16, textAlign: 'left' }}>
+                    {formData.packages.map((pkg, idx) => (
+                      <div key={idx} className="package-review-row">
+                        <strong>标段 {idx + 1} {pkg.name || pkg.code}</strong>
+                        <span>采购方式：{PURCHASE_MODE_OPTIONS.find((o) => o.value === pkg.purchaseMode)?.label || '-'}</span>
+                        <span>标书费：{pkg.bidFee || '-'} 元</span>
+                        <span>保证金：{pkg.deposit || '-'} 元</span>
+                        <span>投标开始：{formatTime(pkg.bidStart)}</span>
+                        <span>投标截止：{formatTime(pkg.bidEnd)}</span>
+                      </div>
+                    ))}
+                  </Card>
+                )}
                 <div style={{ marginTop: 20 }}>
                   <Button type="primary" onClick={submit}>提交审核</Button>
                   <Button onClick={() => setActiveStep(0)}>返回修改</Button>
@@ -586,6 +867,21 @@ export default function ProjectCreate() {
           justify-content: center;
           gap: 16px;
           margin-top: 30px;
+        }
+        .linked-requirement-card {
+          background: #f6ffed;
+          border-color: #b7eb8f;
+        }
+        .package-review-row {
+          display: grid;
+          grid-template-columns: 1.5fr repeat(5, 1fr);
+          gap: 12px;
+          padding: 8px 0;
+          border-bottom: 1px solid #f0f0f0;
+          align-items: center;
+        }
+        .package-review-row:last-child {
+          border-bottom: none;
         }
       `}</style>
     </div>

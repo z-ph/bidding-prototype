@@ -1,0 +1,435 @@
+import { useState, useMemo } from 'react'
+import {
+  Card,
+  Table,
+  Button,
+  Tag,
+  Input,
+  Tabs,
+  Drawer,
+  Form,
+  Select,
+  InputNumber,
+  Space,
+  Popconfirm,
+  Modal,
+  message
+} from 'antd'
+import {
+  PlusOutlined,
+  EditOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  DeleteOutlined,
+  SettingOutlined,
+  SendOutlined
+} from '@ant-design/icons'
+import {
+  requirementStore,
+  REQUIREMENT_STATUS_MAP
+} from '../data/requirements.js'
+
+const TAB_ITEMS = [
+  { key: 'all', label: '全部' },
+  { key: 'draft', label: '草稿' },
+  { key: 'published', label: '已发布' },
+  { key: 'approved', label: '已审核' },
+  { key: 'rejected', label: '已驳回' }
+]
+
+export default function ProcurementRequirementList() {
+  const [activeTab, setActiveTab] = useState('all')
+  const [keyword, setKeyword] = useState('')
+  const [refresh, setRefresh] = useState(0)
+  const [editing, setEditing] = useState(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [typesOpen, setTypesOpen] = useState(false)
+  const [form] = Form.useForm()
+
+  const requirementTypes = requirementStore.getTypes()
+
+  const dataSource = useMemo(() => {
+    let list = requirementStore.getRequirements()
+    if (activeTab !== 'all') {
+      list = list.filter((item) => item.status === activeTab)
+    }
+    if (keyword.trim()) {
+      const lower = keyword.trim().toLowerCase()
+      list = list.filter(
+        (item) =>
+          item.title.toLowerCase().includes(lower) ||
+          item.id.toLowerCase().includes(lower) ||
+          (item.content && item.content.toLowerCase().includes(lower))
+      )
+    }
+    return list.sort((a, b) => String(b.createTime).localeCompare(String(a.createTime)))
+  }, [activeTab, keyword, refresh])
+
+  const openCreate = () => {
+    form.resetFields()
+    setEditing(null)
+    setDrawerOpen(true)
+  }
+
+  const openEdit = (record) => {
+    form.setFieldsValue({
+      id: record.id,
+      title: record.title,
+      type: record.type,
+      budget: record.budget,
+      content: record.content,
+      status: record.status
+    })
+    setEditing(record)
+    setDrawerOpen(true)
+  }
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields()
+      requirementStore.saveRequirement({
+        ...(editing || {}),
+        ...values,
+        id: editing?.id || undefined
+      })
+      message.success(editing ? '需求已更新' : '需求已创建')
+      setDrawerOpen(false)
+      setRefresh((n) => n + 1)
+    } catch {
+      // validation failed
+    }
+  }
+
+  const changeStatus = (record, status) => {
+    requirementStore.updateStatus(record.id, status)
+    message.success(`需求已${REQUIREMENT_STATUS_MAP[status].label}`)
+    setRefresh((n) => n + 1)
+  }
+
+  const handleDelete = (record) => {
+    const list = requirementStore.getRequirements().filter((r) => r.id !== record.id)
+    requirementStore.saveRequirements(list)
+    message.success('需求已删除')
+    setRefresh((n) => n + 1)
+  }
+
+  const typeLabel = (value) => requirementTypes.find((t) => t.value === value)?.label || value
+
+  const columns = [
+    {
+      title: '需求编号',
+      dataIndex: 'id',
+      width: 160
+    },
+    {
+      title: '需求标题',
+      dataIndex: 'title',
+      ellipsis: true
+    },
+    {
+      title: '需求类型',
+      dataIndex: 'type',
+      width: 120,
+      render: (value) => typeLabel(value)
+    },
+    {
+      title: '预算金额（万元）',
+      dataIndex: 'budget',
+      width: 150,
+      align: 'right'
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      width: 100,
+      render: (value) => {
+        const cfg = REQUIREMENT_STATUS_MAP[value]
+        return <Tag color={cfg.color}>{cfg.label}</Tag>
+      }
+    },
+    {
+      title: '发布人',
+      dataIndex: 'publisher',
+      width: 100
+    },
+    {
+      title: '发布时间',
+      dataIndex: 'publishTime',
+      width: 120,
+      render: (value) => value || '-'
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 260,
+      render: (_, record) => (
+        <Space size="small">
+          <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openEdit(record)}>
+            编辑
+          </Button>
+          {record.status === 'draft' && (
+            <Button
+              type="link"
+              size="small"
+              icon={<SendOutlined />}
+              onClick={() => changeStatus(record, 'published')}
+            >
+              发布
+            </Button>
+          )}
+          {record.status === 'published' && (
+            <>
+              <Button
+                type="link"
+                size="small"
+                icon={<CheckCircleOutlined />}
+                onClick={() => changeStatus(record, 'approved')}
+              >
+                审核
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                danger
+                icon={<CloseCircleOutlined />}
+                onClick={() => changeStatus(record, 'rejected')}
+              >
+                驳回
+              </Button>
+            </>
+          )}
+          <Popconfirm
+            title="确认删除？"
+            description="删除后不可恢复"
+            onConfirm={() => handleDelete(record)}
+          >
+            <Button type="link" size="small" danger icon={<DeleteOutlined />}>
+              删除
+            </Button>
+          </Popconfirm>
+        </Space>
+      )
+    }
+  ]
+
+  return (
+    <div className="procurement-requirement-list">
+      <Card>
+        <div className="header-actions">
+          <div>
+            <h3>采购需求管理</h3>
+            <p className="tip">采购需求经发布、审核后可被项目创建时关联。</p>
+          </div>
+          <Space>
+            <Button icon={<SettingOutlined />} onClick={() => setTypesOpen(true)}>
+              类型管理
+            </Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+              新建需求
+            </Button>
+          </Space>
+        </div>
+
+        <Tabs activeKey={activeTab} items={TAB_ITEMS} onChange={setActiveTab} />
+
+        <Input.Search
+          placeholder="搜索需求编号、标题或内容"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onSearch={setKeyword}
+          style={{ maxWidth: 360, marginBottom: 16 }}
+          allowClear
+        />
+
+        <Table
+          rowKey="id"
+          columns={columns}
+          dataSource={dataSource}
+          pagination={{ pageSize: 10 }}
+          size="small"
+        />
+      </Card>
+
+      <Drawer
+        title={editing ? '编辑采购需求' : '新建采购需求'}
+        width={560}
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        footer={
+          <Space style={{ justifyContent: 'flex-end' }}>
+            <Button onClick={() => setDrawerOpen(false)}>取消</Button>
+            <Button type="primary" onClick={handleSave}>
+              保存
+            </Button>
+          </Space>
+        }
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ status: 'draft' }}
+        >
+          {editing && (
+            <Form.Item label="需求编号" name="id">
+              <Input disabled />
+            </Form.Item>
+          )}
+          <Form.Item
+            label="需求标题"
+            name="title"
+            rules={[{ required: true, message: '请输入需求标题' }]}
+          >
+            <Input placeholder="请输入需求标题" maxLength={100} showCount />
+          </Form.Item>
+          <Form.Item
+            label="需求类型"
+            name="type"
+            rules={[{ required: true, message: '请选择需求类型' }]}
+          >
+            <Select
+              placeholder="请选择需求类型"
+              options={requirementTypes}
+            />
+          </Form.Item>
+          <Form.Item
+            label="预算金额（万元）"
+            name="budget"
+            rules={[{ required: true, message: '请输入预算金额' }]}
+          >
+            <InputNumber
+              style={{ width: '100%' }}
+              min={0}
+              precision={2}
+              placeholder="请输入预算金额"
+            />
+          </Form.Item>
+          <Form.Item
+            label="具体需求内容"
+            name="content"
+            rules={[{ required: true, message: '请输入具体需求内容' }]}
+          >
+            <Input.TextArea
+              rows={6}
+              placeholder="描述采购范围、技术要求、服务要求等"
+              maxLength={2000}
+              showCount
+            />
+          </Form.Item>
+          <Form.Item
+            label="当前状态"
+            name="status"
+            rules={[{ required: true, message: '请选择状态' }]}
+          >
+            <Select
+              placeholder="请选择状态"
+              options={[
+                { label: '草稿', value: 'draft' },
+                { label: '已发布', value: 'published' },
+                { label: '已审核', value: 'approved' },
+                { label: '已驳回', value: 'rejected' }
+              ]}
+            />
+          </Form.Item>
+          <Form.Item label="发布人" name="publisher">
+            <Input placeholder="例如：张三" />
+          </Form.Item>
+        </Form>
+      </Drawer>
+
+      <RequirementTypeModal open={typesOpen} onClose={() => setTypesOpen(false)} />
+
+      <style>{`
+        .procurement-requirement-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .header-actions {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 16px;
+        }
+        .tip {
+          color: #666;
+          font-size: 13px;
+          margin: 4px 0 0;
+        }
+      `}</style>
+    </div>
+  )
+}
+
+function RequirementTypeModal({ open, onClose }) {
+  const [types, setTypes] = useState(requirementStore.getTypes())
+  const [keyword, setKeyword] = useState('')
+
+  const handleAdd = () => {
+    const value = keyword.trim()
+    if (!value) return
+    if (types.some((t) => t.value === value || t.label === value)) {
+      message.warning('该类型已存在')
+      return
+    }
+    const next = [...types, { value, label: value }]
+    setTypes(next)
+    requirementStore.saveTypes(next)
+    setKeyword('')
+  }
+
+  const handleDelete = (value) => {
+    const next = types.filter((t) => t.value !== value)
+    setTypes(next)
+    requirementStore.saveTypes(next)
+  }
+
+  return (
+    <Modal
+      title="需求类型管理"
+      open={open}
+      onCancel={onClose}
+      footer={
+        <Button type="primary" onClick={onClose}>
+          完成
+        </Button>
+      }
+    >
+      <Space.Compact style={{ width: '100%', marginBottom: 16 }}>
+        <Input
+          placeholder="输入新类型名称"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onPressEnter={handleAdd}
+        />
+        <Button type="primary" onClick={handleAdd}>
+          添加
+        </Button>
+      </Space.Compact>
+      <div className="type-list">
+        {types.map((t) => (
+          <div key={t.value} className="type-item">
+            <span>{t.label}</span>
+            <Button type="link" danger size="small" onClick={() => handleDelete(t.value)}>
+              删除
+            </Button>
+          </div>
+        ))}
+      </div>
+      <style>{`
+        .type-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .type-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 12px;
+          background: #f5f5f5;
+          border-radius: 4px;
+        }
+      `}</style>
+    </Modal>
+  )
+}
