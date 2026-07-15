@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import {
   Alert,
   Steps,
@@ -18,12 +18,14 @@ import {
   Col,
   message,
   Tooltip,
-  Transfer
+  Transfer,
+  Tag
 } from 'antd'
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import EmptyState from '../components/EmptyState.jsx'
 import { requirementStore, REQUIREMENT_STATUS_MAP } from '../data/requirements.js'
 import { projectStore } from '../data/projects.js'
+import { validateAndScrollToError, scrollToElement } from '../utils/formValidation.js'
 
 const PURCHASE_MODE_OPTIONS = [
   { label: '公开招标', value: 'open' },
@@ -101,6 +103,40 @@ export default function ProjectCreate() {
   const budgetExceeded =
     Number(formData.budget) > 0 && packageBudgetTotal > Number(formData.budget)
 
+  const PACKAGE_REQUIRED_FIELDS = [
+    { key: 'name', label: '标段名称' },
+    { key: 'code', label: '标段编号' },
+    { key: 'budget', label: '预算金额' },
+    { key: 'content', label: '标段内容' },
+    { key: 'purchaseMode', label: '采购方式' },
+    { key: 'bidFee', label: '标书费' },
+    { key: 'deposit', label: '保证金' },
+    { key: 'bidStart', label: '投标开始时间' },
+    { key: 'bidEnd', label: '投标截止时间' }
+  ]
+
+  const validatePackages = () => {
+    if (formData.packages.length === 0) {
+      return '请至少添加一个标段'
+    }
+    for (let i = 0; i < formData.packages.length; i++) {
+      const pkg = formData.packages[i]
+      for (const field of PACKAGE_REQUIRED_FIELDS) {
+        const value = pkg[field.key]
+        if (value === '' || value === null || value === undefined) {
+          return `标段 ${i + 1} 缺少${field.label}`
+        }
+      }
+      if (pkg.bidStart && pkg.bidEnd && new Date(pkg.bidEnd) <= new Date(pkg.bidStart)) {
+        return `标段 ${i + 1} 的投标截止时间必须晚于投标开始时间`
+      }
+    }
+    if (budgetExceeded) {
+      return '标段预算合计超过项目预算，请调整后再继续'
+    }
+    return null
+  }
+
   const canNext = () => {
     if (activeStep === 0) return true
     if (activeStep === 1) {
@@ -109,7 +145,10 @@ export default function ProjectCreate() {
       }
       return true
     }
-    if (activeStep === 2) return formData.packages.length > 0 && !budgetExceeded
+    if (activeStep === 2) {
+      if (formData.packages.length === 0 || budgetExceeded) return false
+      return !validatePackages()
+    }
     return true
   }
 
@@ -161,7 +200,8 @@ export default function ProjectCreate() {
     if (activeStep === 0) {
       try {
         await form.validateFields()
-      } catch {
+      } catch (err) {
+        validateAndScrollToError(err)
         return
       }
     }
@@ -178,20 +218,10 @@ export default function ProjectCreate() {
       }
     }
     if (activeStep === 2) {
-      if (formData.packages.length === 0) {
-        message.warning('请至少添加一个标段')
+      const pkgError = validatePackages()
+      if (pkgError) {
+        message.error(pkgError)
         return
-      }
-      if (budgetExceeded) {
-        message.error('标段预算合计超过项目预算，请调整后再继续')
-        return
-      }
-      for (let i = 0; i < formData.packages.length; i++) {
-        const pkg = formData.packages[i]
-        if (pkg.bidStart && pkg.bidEnd && new Date(pkg.bidEnd) <= new Date(pkg.bidStart)) {
-          message.error(`标段 ${i + 1} 的投标截止时间必须晚于投标开始时间`)
-          return
-        }
       }
     }
     setActiveStep((s) => s + 1)
@@ -201,7 +231,25 @@ export default function ProjectCreate() {
     message.success('项目草稿已保存')
   }
 
-  const submit = () => {
+  const submit = async () => {
+    // 校验基本信息
+    try {
+      await form.validateFields()
+    } catch (err) {
+      setActiveStep(0)
+      validateAndScrollToError(err)
+      return
+    }
+
+    // 校验标段设置
+    const pkgError = validatePackages()
+    if (pkgError) {
+      message.error(pkgError)
+      setActiveStep(2)
+      scrollToElement('.section-header')
+      return
+    }
+
     const saved = projectStore.saveProject({
       ...formData,
       status: 'pending',
@@ -451,7 +499,19 @@ export default function ProjectCreate() {
                     <Select
                       placeholder="选择已发布/已审核的采购需求"
                       value={formData.linkedRequirementId || undefined}
-                      onChange={(value) => updateField('linkedRequirementId', value)}
+                      onChange={(value) => {
+                        const req = publishedRequirements.find((r) => r.id === value)
+                        setFormData((prev) => ({
+                          ...prev,
+                          linkedRequirementId: value || '',
+                          demandSource: value ? 'requirement' : prev.demandSource,
+                          demandCode: value ? (req?.id || prev.demandCode) : prev.demandCode,
+                          budget: value && !prev.budget ? String(req?.budget || '') : prev.budget,
+                          intro: value && !prev.intro
+                            ? (req?.content ? req.content.slice(0, 120) : '')
+                            : prev.intro
+                        }))
+                      }}
                       allowClear
                       options={publishedRequirements.map((r) => ({
                         label: `${r.id} - ${r.title}`,

@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from '@tanstack/react-router'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import { Layout, Button, message } from 'antd'

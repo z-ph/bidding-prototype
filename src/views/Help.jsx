@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Card, Collapse, Button, Input, Select, Empty } from 'antd'
 import { HomeOutlined, SearchOutlined } from '@ant-design/icons'
 import PortalHeader from '../components/PortalHeader.jsx'

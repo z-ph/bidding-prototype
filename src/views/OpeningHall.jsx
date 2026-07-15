@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Alert, Button, Card, Descriptions, Result, Steps, Table, Tag, message, Modal } from 'antd'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { Alert, Button, Card, Descriptions, Result, Steps, Table, Tag, Timeline, message, Modal } from 'antd'
 import { useRole } from '../hooks/useRole.js'
 import StatusTag from '../components/StatusTag.jsx'
 
 export default function OpeningHall() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const projectId = searchParams.get('projectId') || '1'
+  const searchParams = useSearch({ strict: false })
+  const projectId = searchParams.projectId || '1'
   const { role, roleName, userName } = useRole()
 
   const [currentStage, setCurrentStage] = useState(0)
+  const [operationRecords, setOperationRecords] = useState([])
+  const [deadline] = useState('2026-07-08 15:00')
 
   // 主持人：招标人/招标代理可操作开标流程；监督人员只读；投标人只能签到/解密自己
   const isHost = ['tenderee', 'agent'].includes(role)
@@ -42,6 +44,35 @@ export default function OpeningHall() {
   const missingAttendees = attendees.filter((a) => a.status !== '已签到').map((a) => `${a.role}：${a.name}`)
   const allDecrypted = bidders.every((b) => b.status === '已解密')
 
+  const stageLabels = [
+    '身份核验',
+    '开标启动',
+    '文件解密',
+    '唱标公示',
+    '开标结束'
+  ]
+
+  const stageActions = [
+    '完成在线签到',
+    '宣布开标纪律并启动开标',
+    '投标人解密投标文件',
+    '公开唱标并公示报价',
+    '生成开标记录，进入评标'
+  ]
+
+  const addOperationRecord = (action, detail) => {
+    setOperationRecords((prev) => [
+      {
+        id: Date.now(),
+        action,
+        detail,
+        operator: userName || '-',
+        time: new Date().toLocaleString()
+      },
+      ...prev
+    ])
+  }
+
   function canDecrypt(row) {
     // 投标人只能解密自己的投标文件；主持人/代理仅查看状态
     if (isBidder) {
@@ -60,6 +91,7 @@ export default function OpeningHall() {
     setAttendees((prev) =>
       prev.map((a) => (a.name === row.name ? { ...a, status: '已签到', time } : a))
     )
+    addOperationRecord('签到', `${row.role} ${row.name} 已完成签到`)
     message.success(`${row.name} 签到成功`)
   }
 
@@ -74,13 +106,20 @@ export default function OpeningHall() {
         setBidders((prev) =>
           prev.map((b) => (b.name === row.name ? { ...b, status: '已解密', time } : b))
         )
+        addOperationRecord('文件解密', `${row.name} 的投标文件已完成 CA 解密`)
         message.success(`${row.name} 投标文件解密成功`)
       }
     })
   }
 
   const nextStage = () => {
-    setCurrentStage((prev) => Math.min(prev + 1, 4))
+    setCurrentStage((prev) => {
+      const next = Math.min(prev + 1, 4)
+      if (next !== prev) {
+        addOperationRecord('阶段推进', `开标流程进入：${stageLabels[next]}`)
+      }
+      return next
+    })
   }
 
   const prevStage = () => {
@@ -123,7 +162,8 @@ export default function OpeningHall() {
 
   const finishOpening = () => {
     nextStage()
-    message.success('唱标结束，开标记录已生成')
+    addOperationRecord('开标结束', '唱标结束，开标记录已生成，可进入评标大厅')
+    message.success('唱标结束，开标记录已生成，请进入评标大厅')
   }
 
   const refresh = () => {
@@ -237,6 +277,46 @@ export default function OpeningHall() {
             { title: '开标结束', description: '生成开标记录' }
           ]}
         />
+
+        <Card size="small" title="当前状态与下一步" style={{ marginTop: 24, marginBottom: 24, background: '#f6ffed' }}>
+          <Descriptions column={2}>
+            <Descriptions.Item label="当前阶段">{stageLabels[currentStage]}</Descriptions.Item>
+            <Descriptions.Item label="截止时间">{deadline}</Descriptions.Item>
+            <Descriptions.Item label="当前状态">
+              <Tag color={currentStage === 4 ? 'success' : 'processing'}>
+                {currentStage === 4 ? '开标结束' : '进行中'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="下一步">
+              {currentStage === 4 ? (
+                <>
+                  <span style={{ marginRight: 12 }}>进入评标大厅</span>
+                  <Button type="primary" size="small" onClick={goEvaluate}>去评标</Button>
+                </>
+              ) : (
+                <span>{stageActions[currentStage]}</span>
+              )}
+            </Descriptions.Item>
+          </Descriptions>
+          {currentStage < 4 && !allCheckedIn && currentStage === 0 && (
+            <Alert
+              message={`阻断原因：尚有 ${missingAttendees.length} 人未签到，所有人签到后方可进入开标启动阶段。`}
+              type="warning"
+              showIcon
+              closable={false}
+              style={{ marginTop: 12 }}
+            />
+          )}
+          {currentStage === 2 && !allDecrypted && (
+            <Alert
+              message="阻断原因：尚有投标文件未解密，所有文件解密后方可进入唱标公示阶段。"
+              type="warning"
+              showIcon
+              closable={false}
+              style={{ marginTop: 12 }}
+            />
+          )}
+        </Card>
 
         <div className="stage-panel">
           {/* 阶段1：身份核验 */}
@@ -375,6 +455,25 @@ export default function OpeningHall() {
             </div>
           )}
         </div>
+
+        {operationRecords.length > 0 && (
+          <Card size="small" title="操作记录" style={{ marginTop: 24 }}>
+            <Timeline
+              items={operationRecords.map((record) => ({
+                key: record.id,
+                color: 'blue',
+                children: (
+                  <div>
+                    <strong>{record.action}</strong>
+                    <span style={{ color: '#999', marginLeft: 12, fontSize: 12 }}>{record.time}</span>
+                    <p style={{ margin: '4px 0 0', color: '#666' }}>{record.detail}</p>
+                    <p style={{ margin: 0, color: '#999', fontSize: 12 }}>操作人：{record.operator}</p>
+                  </div>
+                )
+              }))}
+            />
+          </Card>
+        )}
       </Card>
 
       <style>{`

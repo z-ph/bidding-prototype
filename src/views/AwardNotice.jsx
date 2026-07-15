@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Alert, Button, Card, Form, Input, Steps, Tag, message } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
 

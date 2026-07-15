@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Alert, Button, Card, Form, Input, Radio, Steps, Table, Tag, message, Modal } from 'antd'
 
 export default function AwardConfirm() {

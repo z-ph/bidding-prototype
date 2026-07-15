@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Alert, Button, Card, Col, Form, Input, Row, Steps, Table, Tag, message } from 'antd'
 import { InfoCircleFilled } from '@ant-design/icons'
 

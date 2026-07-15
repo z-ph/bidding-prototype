@@ -1,8 +1,12 @@
 import { useState } from 'react'
-import { Alert, Button, Card, Empty, Form, Input, Radio, Table, Tabs, Tag, message } from 'antd'
+import { Alert, Button, Card, Descriptions, Empty, Form, Input, Radio, Table, Tabs, Tag, Timeline, message } from 'antd'
 
 export default function EvaluationHall() {
   const [activeTab, setActiveTab] = useState('summary')
+  const [operationRecords, setOperationRecords] = useState([])
+  const [currentStage] = useState('评标中')
+  const [deadline] = useState('2026-07-15 18:00')
+  const [allSubmitted] = useState(false)
 
   const scoreSummary = [
     { rank: 1, name: 'C股份有限公司', business: 28, tech: 36, price: 29, total: 93, recommend: '推荐中标' },
@@ -20,20 +24,39 @@ export default function EvaluationHall() {
     { name: 'D有限公司', reason: '未按要求加盖电子签章，投标文件无效。' }
   ]
 
+  const addOperationRecord = (action, detail) => {
+    setOperationRecords((prev) => [
+      {
+        id: Date.now(),
+        action,
+        detail,
+        time: new Date().toLocaleString()
+      },
+      ...prev
+    ])
+  }
+
   const [reportForm, setReportForm] = useState({
     opinion: '经评标委员会评审，C股份有限公司综合得分最高，技术方案满足招标文件要求，报价合理，推荐为中标候选人。',
     recommend: 'C股份有限公司'
   })
 
   const saveReport = () => {
+    addOperationRecord('保存报告', '评标委员会意见及推荐中标候选人已保存')
     message.success('评标报告已保存')
   }
 
   const exportReport = () => {
+    addOperationRecord('导出报告', '评标报告 PDF 导出中')
     message.success('评标报告 PDF 导出中...')
   }
 
   const submitResult = () => {
+    if (!allSubmitted) {
+      message.warning('尚有专家评分未提交，请确认所有专家已完成评分后再提交')
+      return
+    }
+    addOperationRecord('提交评标结果', '评标结果已提交，进入中标公示流程')
     message.success('评标结果已提交，进入中标公示流程')
   }
 
@@ -197,12 +220,59 @@ export default function EvaluationHall() {
           </div>
         }
       >
+        <Card size="small" title="当前状态与下一步" style={{ marginBottom: 20, background: '#f6ffed' }}>
+          <Descriptions column={2}>
+            <Descriptions.Item label="当前阶段">{currentStage}</Descriptions.Item>
+            <Descriptions.Item label="截止时间">{deadline}</Descriptions.Item>
+            <Descriptions.Item label="当前状态">
+              <Tag color="success">{currentStage}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="下一步">
+              {allSubmitted ? (
+                <>
+                  <span style={{ marginRight: 12 }}>提交评标结果</span>
+                  <Button type="primary" size="small" onClick={submitResult}>提交结果</Button>
+                </>
+              ) : (
+                <span>等待所有专家完成评分并提交</span>
+              )}
+            </Descriptions.Item>
+          </Descriptions>
+          {!allSubmitted && (
+            <Alert
+              message="阻断原因：尚有专家评分未提交，需所有专家提交后方可发布评标结果。"
+              type="warning"
+              showIcon
+              closable={false}
+              style={{ marginTop: 12 }}
+            />
+          )}
+        </Card>
+
         <Tabs
           type="card"
           activeKey={activeTab}
           onChange={setActiveTab}
           items={tabItems}
         />
+
+        {operationRecords.length > 0 && (
+          <Card size="small" title="操作记录" style={{ marginTop: 20 }}>
+            <Timeline
+              items={operationRecords.map((record) => ({
+                key: record.id,
+                color: 'blue',
+                children: (
+                  <div>
+                    <strong>{record.action}</strong>
+                    <span style={{ color: '#999', marginLeft: 12, fontSize: 12 }}>{record.time}</span>
+                    <p style={{ margin: '4px 0 0', color: '#666' }}>{record.detail}</p>
+                  </div>
+                )
+              }))}
+            />
+          </Card>
+        )}
       </Card>
 
       <style>{`

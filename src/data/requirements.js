@@ -92,16 +92,20 @@ export const requirementStore = {
   saveRequirement(requirement) {
     const requirements = this.getRequirements()
     const idx = requirements.findIndex((r) => String(r.id) === String(requirement.id))
+    const saved = idx >= 0
+      ? { ...requirements[idx], ...requirement }
+      : {
+          ...requirement,
+          id: requirement.id || generateId(),
+          createTime: requirement.createTime || new Date().toISOString().slice(0, 10)
+        }
     if (idx >= 0) {
-      requirements[idx] = { ...requirements[idx], ...requirement }
+      requirements[idx] = saved
     } else {
-      requirements.unshift({
-        ...requirement,
-        id: requirement.id || generateId(),
-        createTime: requirement.createTime || new Date().toISOString().slice(0, 10)
-      })
+      requirements.unshift(saved)
     }
     this.saveRequirements(requirements)
+    return saved
   },
   updateStatus(id, status) {
     const requirement = this.getRequirementById(id)

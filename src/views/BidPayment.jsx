@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Button, Card, Col, Descriptions, Form, Input, Radio, Row, Tag, Upload, message } from 'antd'
 
 export default function BidPayment() {

@@ -1,10 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/bidding-prototype/',
-  plugins: [react()],
+  plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+      generatedRouteTree: './src/routeTree.gen.ts',
+    }),
+    react(),
+  ],
   build: {
     rolldownOptions: {
       output: {

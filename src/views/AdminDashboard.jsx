@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Button, Card, Col, Row, Timeline } from 'antd'
 import {
   UserOutlined,

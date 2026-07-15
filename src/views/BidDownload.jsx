@@ -1,21 +1,56 @@
-import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Alert, Button, Card, Form, Input, Modal, Radio, Steps, Table, Tag, Upload, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
 import { objectionStore } from '../data/objectionStore.js'
+import { tenderDocStore } from '../data/tenderDocStore.js'
 
 export default function BidDownload() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const projectId = searchParams.get('projectId') || '1'
+  const searchParams = useSearch({ strict: false })
+  const projectId = searchParams.projectId || '1'
   const { userInfo } = useRole()
 
-  const [files] = useState([
-    { name: 'XX市轨道交通设备采购项目-招标文件.pdf', version: 'V1.0', updateTime: '2026-07-01 10:00', size: '5.2 MB' },
-    { name: 'XX市轨道交通设备采购项目-澄清说明（一）.pdf', version: 'V1.1', updateTime: '2026-07-05 16:30', size: '0.8 MB' },
-    { name: '图纸及技术参数.zip', version: '-', updateTime: '2026-07-01 10:00', size: '120 MB' }
-  ])
+  const tenderDocVersion = useMemo(
+    () => tenderDocStore.getCurrentPublishedVersion(projectId),
+    [projectId]
+  )
+
+  const files = useMemo(() => {
+    if (!tenderDocVersion) return []
+    const docFile = {
+      name: `${tenderDocVersion.projectId}-招标文件-${tenderDocVersion.versionNo}.pdf`,
+      version: tenderDocVersion.versionNo,
+      updateTime: tenderDocVersion.publishedAt || tenderDocVersion.updatedAt,
+      size: '5.2 MB',
+      isDoc: true
+    }
+    const attachments = (tenderDocVersion.fileList || []).map((f) => ({
+      name: f.name,
+      version: tenderDocVersion.versionNo,
+      updateTime: tenderDocVersion.updatedAt,
+      size: typeof f.size === 'number' ? `${(f.size / 1024 / 1024).toFixed(1)} MB` : f.size || '-'
+    }))
+    return [docFile, ...attachments]
+  }, [tenderDocVersion])
+
+  const viewedKey = `bid-download-viewed-${projectId}`
+  const [viewedVersion, setViewedVersion] = useState(() => localStorage.getItem(viewedKey) || '')
+  const versionChanged = viewedVersion && tenderDocVersion && viewedVersion !== tenderDocVersion.versionNo
+
+  const markViewed = () => {
+    if (tenderDocVersion) {
+      localStorage.setItem(viewedKey, tenderDocVersion.versionNo)
+      setViewedVersion(tenderDocVersion.versionNo)
+    }
+  }
+
+  useEffect(() => {
+    if (tenderDocVersion && !viewedVersion) {
+      markViewed()
+    }
+  }, [tenderDocVersion, viewedVersion])
 
   const [objectionVisible, setObjectionVisible] = useState(false)
   const [objectionForm, setObjectionForm] = useState({
@@ -29,6 +64,7 @@ export default function BidDownload() {
   }
 
   const download = (row) => {
+    markViewed()
     message.success(`开始下载：${row.name}`)
   }
 
@@ -101,8 +137,19 @@ export default function BidDownload() {
           style={{ marginBottom: 24 }}
           items={['报名通过', '缴纳文件费', '下载招标文件', '编制投标文件', '上传投标文件'].map((title) => ({ title }))}
         />
+        {versionChanged && (
+          <Alert
+            message={`招标文件已更新，当前有效版本为 ${tenderDocVersion.versionNo}，请重新下载。`}
+            type="warning"
+            showIcon
+            closable={false}
+            style={{ marginBottom: 20 }}
+          />
+        )}
         <Alert
-          message="下载后请使用投标文件制作工具离线编制，开标前务必完成签章和加密。如对招标文件有疑问，可点击右上角“质疑招标文件”提出。"
+          message={tenderDocVersion
+            ? `当前有效招标文件版本：${tenderDocVersion.versionNo}，发布时间：${tenderDocVersion.publishedAt || tenderDocVersion.updatedAt}。下载后请使用投标文件制作工具离线编制，开标前务必完成签章和加密。`
+            : '暂无已发布的招标文件，请稍后刷新。'}
           type="info"
           showIcon
           closable={false}

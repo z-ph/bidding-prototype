@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import dayjs from 'dayjs'
 import {
   Card,
@@ -14,7 +14,9 @@ import {
   Button,
   Divider,
   message,
-  Alert
+  Alert,
+  Descriptions,
+  Tag
 } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import {
@@ -31,15 +33,23 @@ const EMPTY_NOTICE = {
   changeReason: '',
   publishTime: dayjs(),
   deadline: null,
+  projectCode: '',
+  purchaseMode: '公开招标',
+  bidOpenTime: null,
+  bidOpenLocation: '',
+  evaluationMethod: '',
+  bidSummaryFields: [],
+  contactName: '',
+  contactPhone: '',
   content: '',
   channels: ['平台门户', '电子招投标系统']
 }
 
 export default function NoticePublish() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const noticeId = searchParams.get('id')
-  const projectIdFromQuery = searchParams.get('projectId')
+  const searchParams = useSearch({ strict: false })
+  const noticeId = searchParams.id
+  const projectIdFromQuery = searchParams.projectId
 
   const projects = useMemo(() => projectStore.getProjects(), [])
 
@@ -75,6 +85,14 @@ export default function NoticePublish() {
       changeReason: notice.changeReason || '',
       publishTime: notice.publishTime ? dayjs(notice.publishTime) : dayjs(),
       deadline: notice.deadline && notice.deadline !== '-' ? dayjs(notice.deadline) : null,
+      projectCode: notice.projectCode || '',
+      purchaseMode: notice.purchaseMode || '公开招标',
+      bidOpenTime: notice.bidOpenTime && notice.bidOpenTime !== '-' ? dayjs(notice.bidOpenTime) : null,
+      bidOpenLocation: notice.bidOpenLocation || '',
+      evaluationMethod: notice.evaluationMethod || '',
+      bidSummaryFields: notice.bidSummaryFields || [],
+      contactName: notice.contactName || '',
+      contactPhone: notice.contactPhone || '',
       content: notice.content || '',
       channels: notice.channels || ['平台门户', '电子招投标系统']
     })
@@ -159,6 +177,16 @@ export default function NoticePublish() {
       registerEnd: form.deadline
         ? dayjs(form.deadline).format('YYYY-MM-DD HH:mm:ss')
         : '',
+      projectCode: form.projectCode.trim(),
+      purchaseMode: form.purchaseMode,
+      bidOpenTime: form.bidOpenTime
+        ? dayjs(form.bidOpenTime).format('YYYY-MM-DD HH:mm:ss')
+        : '',
+      bidOpenLocation: form.bidOpenLocation.trim(),
+      evaluationMethod: form.evaluationMethod,
+      bidSummaryFields: form.bidSummaryFields || [],
+      contactName: form.contactName.trim(),
+      contactPhone: form.contactPhone.trim(),
       content: form.content,
       attachments: noticeStore.buildAttachments(fileList),
       channels: form.channels,
@@ -179,6 +207,14 @@ export default function NoticePublish() {
     }
     if (isPublish && !form.content.trim()) errors.push('公告正文')
     if (isPublish && !form.publishTime) errors.push('发布时间')
+    if (isPublish && !form.projectCode.trim()) errors.push('项目编号')
+    if (isPublish && !form.purchaseMode) errors.push('采购方式')
+    if (isPublish && !form.bidOpenTime) errors.push('开标时间')
+    if (isPublish && !form.bidOpenLocation.trim()) errors.push('开标地点')
+    if (isPublish && !form.evaluationMethod) errors.push('评标方法')
+    if (isPublish && form.bidSummaryFields.length === 0) errors.push('开标一览表字段')
+    if (isPublish && !form.contactName.trim()) errors.push('联系人')
+    if (isPublish && !form.contactPhone.trim()) errors.push('联系电话')
     return errors
   }
 
@@ -308,6 +344,108 @@ export default function NoticePublish() {
             </Col>
           </Row>
 
+          <Row gutter={20}>
+            <Col span={12}>
+              <Form.Item label="项目编号" required>
+                <Input
+                  placeholder="请输入项目编号"
+                  value={form.projectCode}
+                  onChange={(e) => updateField('projectCode', e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="采购方式" required>
+                <Select
+                  placeholder="请选择采购方式"
+                  style={{ width: '100%' }}
+                  value={form.purchaseMode || undefined}
+                  onChange={(value) => updateField('purchaseMode', value)}
+                  options={[
+                    { label: '公开招标', value: '公开招标' },
+                    { label: '邀请招标', value: '邀请招标' },
+                    { label: '公开询比价', value: '公开询比价' },
+                    { label: '竞争性谈判', value: '竞争性谈判' },
+                    { label: '单一来源', value: '单一来源' }
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={20}>
+            <Col span={12}>
+              <Form.Item label="开标时间" required>
+                <DatePicker
+                  showTime
+                  style={{ width: '100%' }}
+                  value={form.bidOpenTime}
+                  onChange={(value) => updateField('bidOpenTime', value)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="开标地点" required>
+                <Input
+                  placeholder="请输入开标地点"
+                  value={form.bidOpenLocation}
+                  onChange={(e) => updateField('bidOpenLocation', e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={20}>
+            <Col span={12}>
+              <Form.Item label="评标方法" required>
+                <Select
+                  placeholder="请选择评标方法"
+                  style={{ width: '100%' }}
+                  value={form.evaluationMethod || undefined}
+                  onChange={(value) => updateField('evaluationMethod', value)}
+                  options={[
+                    { label: '综合评分法', value: '综合评分法' },
+                    { label: '最低价法', value: '最低价法' },
+                    { label: '性价比法', value: '性价比法' },
+                    { label: '经评审的最低投标价法', value: '经评审的最低投标价法' }
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="开标一览表字段" required>
+                <Select
+                  mode="tags"
+                  placeholder="请输入开标一览表字段，按回车确认"
+                  style={{ width: '100%' }}
+                  value={form.bidSummaryFields}
+                  onChange={(value) => updateField('bidSummaryFields', value)}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={20}>
+            <Col span={12}>
+              <Form.Item label="联系人" required>
+                <Input
+                  placeholder="请输入联系人"
+                  value={form.contactName}
+                  onChange={(e) => updateField('contactName', e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="联系电话" required>
+                <Input
+                  placeholder="请输入联系电话"
+                  value={form.contactPhone}
+                  onChange={(e) => updateField('contactPhone', e.target.value)}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
           <Form.Item label="公告正文" required>
             <div className="editor-mock">
               <div className="editor-toolbar">
@@ -359,6 +497,20 @@ export default function NoticePublish() {
                 <span>发布时间：{formatTime(form.publishTime)}</span>
                 <span>截止时间：{formatTime(form.deadline)}</span>
               </div>
+              <Descriptions column={2} bordered size="small" style={{ marginTop: 16 }}>
+                <Descriptions.Item label="项目编号">{form.projectCode || '-'}</Descriptions.Item>
+                <Descriptions.Item label="采购方式">{form.purchaseMode || '-'}</Descriptions.Item>
+                <Descriptions.Item label="开标时间">{formatTime(form.bidOpenTime)}</Descriptions.Item>
+                <Descriptions.Item label="开标地点">{form.bidOpenLocation || '-'}</Descriptions.Item>
+                <Descriptions.Item label="评标方法">{form.evaluationMethod || '-'}</Descriptions.Item>
+                <Descriptions.Item label="开标一览表字段">
+                  {form.bidSummaryFields.length > 0
+                    ? form.bidSummaryFields.map((f) => <Tag key={f} size="small">{f}</Tag>)
+                    : '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="联系人">{form.contactName || '-'}</Descriptions.Item>
+                <Descriptions.Item label="联系电话">{form.contactPhone || '-'}</Descriptions.Item>
+              </Descriptions>
               {form.type === 'change' && form.changeReason && (
                 <Alert
                   type="warning"

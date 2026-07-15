@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {

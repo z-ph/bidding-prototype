@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Alert, Button, Card, Checkbox, Form, Input, Steps, Tag, Upload, message, Modal } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 
@@ -10,8 +10,8 @@ const requiredQualifications = [
 
 export default function BidRegister() {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const projectId = searchParams.get('projectId')
+  const searchParams = useSearch({ strict: false })
+  const projectId = searchParams.projectId
   const [form] = Form.useForm()
   const [qualificationFiles, setQualificationFiles] = useState({})
 

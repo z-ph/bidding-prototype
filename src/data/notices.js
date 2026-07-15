@@ -47,7 +47,14 @@ const defaultNotices = [
       { id: 'B2', name: '第二标段：辅材' }
     ],
     changeReason: '',
+    projectCode: 'ZB20260701001',
     purchaseMode: '公开招标',
+    bidOpenTime: '2026-07-21 09:30:00',
+    bidOpenLocation: '线上评标大厅',
+    evaluationMethod: '综合评分法',
+    bidSummaryFields: ['投标总价（万元）', '单价（元）', '交货期（天）', '质保期（年）'],
+    contactName: '张工',
+    contactPhone: '13800138001',
     publishTime: '2026-07-01 09:00:00',
     deadline: '2026-07-20 17:00:00',
     registerStart: '2026-07-01 09:00:00',
@@ -73,7 +80,14 @@ const defaultNotices = [
       { id: 'B1', name: '标段一：办公桌椅' }
     ],
     changeReason: '因采购需求调整，办公桌椅采购项目报名时间延长至2026年7月18日，技术参数详见附件。',
+    projectCode: 'ZB20260702002',
     purchaseMode: '公开询比价',
+    bidOpenTime: '2026-07-19 09:30:00',
+    bidOpenLocation: '线上评标大厅',
+    evaluationMethod: '最低价法',
+    bidSummaryFields: ['投标总价（万元）', '交货期（天）'],
+    contactName: '李工',
+    contactPhone: '13800138002',
     publishTime: '2026-07-02 09:00:00',
     deadline: '2026-07-18 17:00:00',
     registerStart: '2026-07-02 09:00:00',
@@ -96,7 +110,14 @@ const defaultNotices = [
       { id: 'B1', name: '标段一：定制开发' }
     ],
     changeReason: '',
+    projectCode: 'ZB20260703003',
     purchaseMode: '邀请招标',
+    bidOpenTime: '2026-07-15 09:00:00',
+    bidOpenLocation: '线上评标大厅',
+    evaluationMethod: '综合评分法',
+    bidSummaryFields: ['投标总价（万元）', '开发周期（月）', '运维期（年）'],
+    contactName: '王工',
+    contactPhone: '13800138003',
     publishTime: '2026-07-03 09:00:00',
     deadline: '-',
     registerStart: '',
@@ -120,7 +141,14 @@ const defaultNotices = [
       { id: 'B2', name: '标段二：安保服务' }
     ],
     changeReason: '',
+    projectCode: 'ZB20260704004',
     purchaseMode: '公开招标',
+    bidOpenTime: '2026-07-25 09:30:00',
+    bidOpenLocation: '线上评标大厅',
+    evaluationMethod: '综合评分法',
+    bidSummaryFields: ['投标总价（万元）', '服务期（月）'],
+    contactName: '赵工',
+    contactPhone: '13800138004',
     publishTime: '2026-07-04 09:00:00',
     deadline: '-',
     registerStart: '',
@@ -144,7 +172,14 @@ const defaultNotices = [
       { id: 'B2', name: '标段二：实验家具' }
     ],
     changeReason: '',
+    projectCode: 'ZB20260705005',
     purchaseMode: '公开招标',
+    bidOpenTime: '2026-07-30 09:30:00',
+    bidOpenLocation: '线上评标大厅',
+    evaluationMethod: '综合评分法',
+    bidSummaryFields: ['投标总价（万元）', '交货期（天）', '质保期（年）'],
+    contactName: '陈工',
+    contactPhone: '13800138005',
     publishTime: '2026-07-05 09:00:00',
     deadline: '2026-07-25 17:00:00',
     registerStart: '2026-07-05 09:00:00',
@@ -170,7 +205,14 @@ const defaultNotices = [
       { id: 'B1', name: '第一标段：主设备' }
     ],
     changeReason: '',
+    projectCode: 'ZB20260701001',
     purchaseMode: '公开招标',
+    bidOpenTime: '',
+    bidOpenLocation: '线上评标大厅',
+    evaluationMethod: '综合评分法',
+    bidSummaryFields: ['投标总价（万元）', '单价（元）', '交货期（天）', '质保期（年）'],
+    contactName: '张工',
+    contactPhone: '13800138001',
     publishTime: '',
     deadline: '2026-07-22 17:00:00',
     registerStart: '',
@@ -193,7 +235,14 @@ const defaultNotices = [
       { id: 'B1', name: '标段一：办公桌椅' }
     ],
     changeReason: '',
+    projectCode: 'ZB20260702002',
     purchaseMode: '公开询比价',
+    bidOpenTime: '2026-07-19 09:30:00',
+    bidOpenLocation: '线上评标大厅',
+    evaluationMethod: '最低价法',
+    bidSummaryFields: ['投标总价（万元）', '交货期（天）'],
+    contactName: '李工',
+    contactPhone: '13800138002',
     publishTime: '2026-07-06 09:00:00',
     deadline: '-',
     registerStart: '',
@@ -205,10 +254,28 @@ const defaultNotices = [
   }
 ]
 
+const defaultNoticeMap = new Map(defaultNotices.map((n) => [n.id, n]))
+
 function load() {
   try {
     const raw = localStorage.getItem(NOTICES_KEY)
-    return raw ? JSON.parse(raw) : defaultNotices
+    const notices = raw ? JSON.parse(raw) : defaultNotices
+    // 对本地已持久化的旧公告补齐本次提案新增的结构化字段
+    return notices.map((n) => {
+      const def = defaultNoticeMap.get(n.id)
+      if (!def) return n
+      return {
+        ...def,
+        ...n,
+        projectCode: n.projectCode || def.projectCode,
+        bidOpenTime: n.bidOpenTime !== undefined ? n.bidOpenTime : def.bidOpenTime,
+        bidOpenLocation: n.bidOpenLocation || def.bidOpenLocation,
+        evaluationMethod: n.evaluationMethod || def.evaluationMethod,
+        bidSummaryFields: n.bidSummaryFields || def.bidSummaryFields,
+        contactName: n.contactName || def.contactName,
+        contactPhone: n.contactPhone || def.contactPhone
+      }
+    })
   } catch {
     return defaultNotices
   }

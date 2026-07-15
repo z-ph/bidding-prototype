@@ -18,7 +18,8 @@ import {
   BankOutlined,
   MessageOutlined
 } from '@ant-design/icons'
-import { useNavigate, useLocation, useMatches, Link, Outlet } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useNavigate, useLocation, useMatches, Link, Outlet } from '@tanstack/react-router'
 import { useRole } from '../hooks/useRole.js'
 import { ROLE_COLORS } from '../config/permissions.js'
 
@@ -145,9 +146,11 @@ export default function Layout() {
 
   const menuItems = useMenuItems(role)
 
-  const pageTitle = matches.reduce((title, match) => {
-    return match.handle?.title || title
-  }, '')
+  const pageTitle = useMemo(() => {
+    const leaf = matches[matches.length - 1]
+    if (!leaf) return ''
+    return leaf.staticData?.title || ''
+  }, [matches])
 
   const logout = () => {
     clearRole()

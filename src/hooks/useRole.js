@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { getRoleName, canAccess } from '../config/permissions.js'
 
 const ROLE_STORAGE_KEY = 'bidding-role'

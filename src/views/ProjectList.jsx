@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Card, Input, Select, Button, Table, Tag, Pagination, message, Modal } from 'antd'
+import { useNavigate } from '@tanstack/react-router'
+import { Card, Input, Select, Button, Table, Tag, Pagination, message, Modal, Timeline } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
 
@@ -18,7 +18,7 @@ function applyDataScope(items, scope, userInfo) {
 
 export default function ProjectList() {
   const navigate = useNavigate()
-  const { role, userInfo, dataScope } = useRole()
+  const { role, userInfo, dataScope, userName } = useRole()
   const [loading, setLoading] = useState(false)
   const [total] = useState(50)
   const [search, setSearch] = useState({
@@ -29,15 +29,19 @@ export default function ProjectList() {
     pageSize: 10
   })
 
-  const [projects] = useState([
-    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', budget: 850, status: 'registering', publishTime: '2026-07-01', deadline: '2026-07-20', owner: '张三', deptCode: 'CG' },
-    { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', budget: 45, status: 'pending_open', publishTime: '2026-07-02', deadline: '2026-07-18', owner: '李四', deptCode: 'ZB' },
-    { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', budget: 120, status: 'evaluating', publishTime: '2026-07-03', deadline: '2026-07-15', owner: '张三', deptCode: 'CG' },
-    { id: 4, name: '物业服务采购项目', code: 'ZB20260704004', type: '公开招标', budget: 60, status: 'done', publishTime: '2026-06-20', deadline: '2026-07-05', owner: '王五', deptCode: 'FW' },
-    { id: 5, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', budget: 230, status: 'tendering', publishTime: '2026-07-05', deadline: '2026-07-25', owner: '张三', deptCode: 'CG' }
+  const [projects, setProjects] = useState([
+    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', orgMode: 'self', budget: 850, status: 'registering', publishTime: '2026-07-01', deadline: '2026-07-20', owner: '张三', deptCode: 'CG' },
+    { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', orgMode: 'self', budget: 45, status: 'pending_open', publishTime: '2026-07-02', deadline: '2026-07-18', owner: '李四', deptCode: 'ZB' },
+    { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', orgMode: 'agent', budget: 120, status: 'evaluating', publishTime: '2026-07-03', deadline: '2026-07-15', owner: '张三', deptCode: 'CG' },
+    { id: 4, name: '物业服务采购项目', code: 'ZB20260704004', type: '公开招标', orgMode: 'self', budget: 60, status: 'done', publishTime: '2026-06-20', deadline: '2026-07-05', owner: '王五', deptCode: 'FW' },
+    { id: 5, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', orgMode: 'agent', budget: 230, status: 'tendering', publishTime: '2026-07-05', deadline: '2026-07-25', owner: '张三', deptCode: 'CG' }
   ])
 
+  const orgModeText = (mode) => ({ self: '自行招标', agent: '委托代理' }[mode] || mode)
+
   const scopedProjects = useMemo(() => applyDataScope(projects, dataScope, userInfo), [projects, dataScope, userInfo])
+
+  const [operationRecords, setOperationRecords] = useState([])
 
   const statusMap = {
     draft: { text: '草稿', color: 'default' },
@@ -92,9 +96,26 @@ export default function ProjectList() {
       okText: '确认发标',
       cancelText: '取消',
       onOk: () => {
-        message.success(`项目“${row.name}”已发标`)
+        setProjects((prev) =>
+          prev.map((p) => (p.id === row.id ? { ...p, status: 'tendering' } : p))
+        )
+        addOperationRecord('发标', `项目“${row.name}”已发标，进入招标中状态`)
+        message.success('发标成功，供应商现在可以报名')
       }
     })
+  }
+
+  const addOperationRecord = (action, detail) => {
+    setOperationRecords((prev) => [
+      {
+        id: Date.now(),
+        action,
+        detail,
+        operator: userInfo?.nickname || userName || '-',
+        time: new Date().toLocaleString()
+      },
+      ...prev
+    ])
   }
 
   const nextStep = (row) => {
@@ -122,6 +143,7 @@ export default function ProjectList() {
     },
     { title: '项目编号', dataIndex: 'code', key: 'code', width: 150 },
     { title: '采购方式', dataIndex: 'type', key: 'type', width: 110 },
+    { title: '组织方式', dataIndex: 'orgMode', key: 'orgMode', width: 110, render: (mode) => orgModeText(mode) },
     {
       title: '预算金额',
       dataIndex: 'budget',
@@ -197,7 +219,7 @@ export default function ProjectList() {
                   { label: '公开招标', value: 'open' },
                   { label: '邀请招标', value: 'invitation' },
                   { label: '公开询比价', value: 'inquiry' },
-                  { label: '单一来源', value: 'single' }
+                  { label: '邀请询比价', value: 'invitation_inquiry' }
                 ]}
               />
               <Button type="primary" onClick={loadProjects}>查询</Button>
@@ -231,6 +253,24 @@ export default function ProjectList() {
           />
         </div>
       </Card>
+
+      {operationRecords.length > 0 && (
+        <Card title="操作记录" size="small">
+          <Timeline
+            items={operationRecords.map((record) => ({
+              key: record.id,
+              children: (
+                <div>
+                  <strong>{record.action}</strong>
+                  <span style={{ color: '#999', marginLeft: 12, fontSize: 12 }}>{record.time}</span>
+                  <p style={{ margin: '4px 0 0', color: '#666' }}>{record.detail}</p>
+                  <p style={{ margin: 0, color: '#999', fontSize: 12 }}>操作人：{record.operator}</p>
+                </div>
+              )
+            }))}
+          />
+        </Card>
+      )}
 
       <style>{`
         .header-actions {

@@ -1,9 +1,18 @@
 import { useState } from 'react'
-import { RouterProvider } from 'react-router-dom'
+import { RouterProvider, createRouter, createHashHistory } from '@tanstack/react-router'
 import { Button } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { ReviewTool } from 'react-page-review'
-import router from './router/index.jsx'
+import { routeTree } from './routeTree.gen.ts'
+
+const hashHistory = createHashHistory()
+
+const router = createRouter({
+  routeTree,
+  history: hashHistory,
+  defaultPreload: 'intent',
+  defaultPreloadDelay: 50,
+})
 
 function App() {
   const [reviewActive, setReviewActive] = useState(false)

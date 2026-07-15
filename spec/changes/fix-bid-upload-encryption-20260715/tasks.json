@@ -1,0 +1,40 @@
+{
+  "proposal": "fix-bid-upload-encryption-20260715",
+  "tasks": [
+    {
+      "id": "bid-action-chain",
+      "title": "投标文件完整动作链",
+      "description": "BidUpload 提供上传 → 签章 → 加密 → 提交的连续操作，每个动作状态可见，支持重新签章/重新加密。",
+      "files": ["src/views/BidUpload.jsx"],
+      "acceptance": [
+        "上传文件后显示签章按钮",
+        "签章后显示加密按钮",
+        "加密后状态变为已加密",
+        "支持重新签章和重新加密",
+        "提交成功后展示完整回执"
+      ]
+    },
+    {
+      "id": "encrypt-rule-consistency",
+      "title": "加密规则一致性",
+      "description": "正式提交仅接受 CA 证书加密；密码加密标记为草稿/演示，不生成正式回执；未加密文件禁止提交。",
+      "files": ["src/views/BidUpload.jsx"],
+      "acceptance": [
+        "选择密码加密时提交按钮变为"保存草稿"",
+        "选择 CA 加密时提交按钮为"正式提交"",
+        "密码加密文件正式提交被阻断并提示",
+        "未加密文件正式提交被阻断并提示"
+      ]
+    },
+    {
+      "id": "build-verify",
+      "title": "构建与回归验证",
+      "description": "运行 pnpm run build，并按 checklist 逐项验证投标文件上传相关验收项。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 通过",
+        "checklist 中 yy0 #2/#3、xyy #5 验证通过"
+      ]
+    }
+  ]
+}

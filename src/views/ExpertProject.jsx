@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {
@@ -21,6 +21,7 @@ import {
 } from 'antd'
 import { EditOutlined, FileTextOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
+import { tenderDocStore } from '../data/tenderDocStore.js'
 
 const evaluationProjects = [
   { id: '1', name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', stage: '评标中', deadline: '2026-07-10 17:00', isLeader: true },
@@ -30,8 +31,8 @@ const evaluationProjects = [
 
 export default function ExpertProject() {
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const projectId = searchParams.get('projectId')
+  const searchParams = useSearch({ strict: false })
+  const projectId = searchParams.projectId
 
   if (!projectId) {
     return <ProjectList onEnter={(id) => navigate(`/admin/expert-project?projectId=${id}`)} />
@@ -89,6 +90,8 @@ function ProjectList({ onEnter }) {
 }
 
 function EvaluationDetail({ projectId, onBack }) {
+  const tenderDocVersion = tenderDocStore.getCurrentPublishedVersion(projectId)
+
   const [activeStep, setActiveStep] = useState(0)
   const [declared, setDeclared] = useState(false)
   const [docsRead, setDocsRead] = useState(false)
@@ -139,6 +142,10 @@ function EvaluationDetail({ projectId, onBack }) {
   }
 
   const viewDoc = (name) => {
+    if (name.includes('招标文件') && tenderDocVersion) {
+      message.success(`在线查阅招标文件：${tenderDocVersion.versionNo}，发布时间：${tenderDocVersion.publishedAt || tenderDocVersion.updatedAt}`)
+      return
+    }
     message.success(`在线查阅：${name}`)
   }
 
@@ -270,7 +277,13 @@ function EvaluationDetail({ projectId, onBack }) {
   ]
 
   const docs = [
-    { name: '招标文件', color: '#409EFF' },
+    {
+      name: tenderDocVersion
+        ? `招标文件（${tenderDocVersion.versionNo}）`
+        : '招标文件',
+      color: '#409EFF',
+      version: tenderDocVersion?.versionNo
+    },
     { name: '投标文件', color: '#67C23A' },
     { name: '开标记录', color: '#E6A23C' }
   ]

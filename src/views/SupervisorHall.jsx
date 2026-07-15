@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Alert, Button, Card, Divider, Form, Input, Steps, Table, Tabs, Tag, message } from 'antd'
 import StatusTag from '../components/StatusTag.jsx'
 

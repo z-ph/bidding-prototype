@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { Alert, Button, Card, Col, DatePicker, Form, Input, Row, Steps, Tag, Upload, message } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 

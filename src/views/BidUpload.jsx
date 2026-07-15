@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearch } from '@tanstack/react-router'
 import {
   Alert,
   Button,
@@ -14,17 +14,18 @@ import {
   Radio,
   Row,
   Select,
+  Space,
   Table,
   Tag,
   Upload,
   message
 } from 'antd'
-import { CheckCircleFilled, UploadOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, FileProtectOutlined, LockOutlined, UploadOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
 
 export default function BidUpload() {
-  const [searchParams] = useSearchParams()
-  const projectId = searchParams.get('projectId')
+  const searchParams = useSearch({ strict: false })
+  const projectId = searchParams.projectId
   const [form] = Form.useForm()
   const encryptMode = Form.useWatch('encryptMode', form)
   const selectedProjectId = Form.useWatch('projectId', form)
@@ -42,9 +43,36 @@ export default function BidUpload() {
 
   const [uploadFiles, setUploadFiles] = useState([])
   const [fileList, setFileList] = useState([
-    { name: '投标函.pdf', type: '商务标', size: '1.2 MB', encrypted: true },
-    { name: '技术方案.docx', type: '技术标', size: '3.5 MB', encrypted: true },
-    { name: '报价单.xlsx', type: '报价标', size: '0.8 MB', encrypted: false }
+    {
+      name: '投标函.pdf',
+      type: '商务标',
+      size: '1.2 MB',
+      signed: true,
+      signTime: '2026-07-15 09:00:00',
+      encrypted: true,
+      encryptMethod: 'ca',
+      encryptTime: '2026-07-15 09:05:00'
+    },
+    {
+      name: '技术方案.docx',
+      type: '技术标',
+      size: '3.5 MB',
+      signed: true,
+      signTime: '2026-07-15 09:00:00',
+      encrypted: true,
+      encryptMethod: 'ca',
+      encryptTime: '2026-07-15 09:05:00'
+    },
+    {
+      name: '报价单.xlsx',
+      type: '报价标',
+      size: '0.8 MB',
+      signed: false,
+      signTime: null,
+      encrypted: false,
+      encryptMethod: null,
+      encryptTime: null
+    }
   ])
 
   const [quote, setQuote] = useState({
@@ -62,16 +90,24 @@ export default function BidUpload() {
   const [receiptVisible, setReceiptVisible] = useState(false)
   const [submitTime, setSubmitTime] = useState('')
   const [receiptNo, setReceiptNo] = useState('')
+  const [submitted, setSubmitted] = useState(false)
 
-  const allEncrypted = fileList.length > 0 && fileList.every((f) => f.encrypted)
+  const allEncrypted = fileList.length > 0 && fileList.every((f) => f.encrypted && f.encryptMethod === 'ca')
   const projectName = (projects.find((item) => item.id === selectedProjectId) || {}).name || '-'
   const packageNames =
     packages.filter((p) => selectedPackages.includes(p.id)).map((p) => p.name).join('、') || '-'
 
   const quoteFilled = quote.totalPrice && quote.delivery && quote.quality && quote.payment
-  const canSubmit = selectedProjectId && selectedPackages.length > 0 && fileList.length > 0 && allEncrypted && quoteFilled
+  const canDraft = selectedProjectId && selectedPackages.length > 0 && fileList.length > 0 && quoteFilled
+  const canSubmit = canDraft && allEncrypted
 
   const submitBtnText = (() => {
+    if (encryptMode === 'password') {
+      if (!quoteFilled) return '请填写开标一览表'
+      if (fileList.length === 0) return '请先上传文件'
+      if (!selectedProjectId || selectedPackages.length === 0) return '请完善投标信息'
+      return '保存草稿'
+    }
     if (!quoteFilled) return '请填写开标一览表'
     if (fileList.length === 0) return '请先上传文件'
     if (!allEncrypted) return '存在未加密文件'
@@ -88,7 +124,11 @@ export default function BidUpload() {
           name: f.name,
           type: '附件',
           size: `${((f.size || 0) / 1024 / 1024).toFixed(2)} MB`,
-          encrypted: false
+          signed: false,
+          signTime: null,
+          encrypted: false,
+          encryptMethod: null,
+          encryptTime: null
         }))
       return additions.length ? [...prev, ...additions] : prev
     })
@@ -97,6 +137,56 @@ export default function BidUpload() {
   const removeFile = (row) => {
     setFileList((prev) => prev.filter((item) => item !== row))
     setUploadFiles((prev) => prev.filter((item) => item.name !== row.name))
+  }
+
+  const signFile = (row) => {
+    setFileList((prev) =>
+      prev.map((item) =>
+        item === row
+          ? { ...item, signed: true, signTime: new Date().toLocaleString() }
+          : item
+      )
+    )
+    message.success(`${row.name} 已签章`)
+  }
+
+  const encryptFile = (row) => {
+    setFileList((prev) =>
+      prev.map((item) =>
+        item === row
+          ? {
+              ...item,
+              encrypted: true,
+              encryptMethod: encryptMode,
+              encryptTime: new Date().toLocaleString()
+            }
+          : item
+      )
+    )
+    const methodText = encryptMode === 'password' ? '密码加密（草稿）' : 'CA 证书加密'
+    message.success(`${row.name} 已完成${methodText}`)
+  }
+
+  const reSignFile = (row) => {
+    setFileList((prev) =>
+      prev.map((item) =>
+        item === row
+          ? { ...item, signed: false, signTime: null, encrypted: false, encryptMethod: null, encryptTime: null }
+          : item
+      )
+    )
+    message.info(`${row.name} 已重置签章状态，请重新签章并加密`)
+  }
+
+  const reEncryptFile = (row) => {
+    setFileList((prev) =>
+      prev.map((item) =>
+        item === row
+          ? { ...item, encrypted: false, encryptMethod: null, encryptTime: null }
+          : item
+      )
+    )
+    message.info(`${row.name} 已重置加密状态，请重新加密`)
   }
 
   const updateQuote = (key, value) => {
@@ -118,8 +208,16 @@ export default function BidUpload() {
       message.warning('请上传投标文件')
       return
     }
-    if (!allEncrypted) {
-      message.warning('请完成所有文件加密')
+
+    const unencryptedFiles = fileList.filter((f) => !f.encrypted)
+    if (unencryptedFiles.length > 0) {
+      message.error(`${unencryptedFiles.map((f) => f.name).join('、')} 未加密，请先完成加密`)
+      return
+    }
+
+    const nonCaFiles = fileList.filter((f) => f.encryptMethod !== 'ca')
+    if (nonCaFiles.length > 0) {
+      message.error('正式提交必须使用 CA 证书加密，当前为密码加密（仅草稿），请重新加密后提交')
       return
     }
 
@@ -129,6 +227,7 @@ export default function BidUpload() {
       okText: '确认提交',
       cancelText: '取消',
       onOk: () => {
+        setSubmitted(true)
         setReceiptNo('ZB' + Date.now())
         setSubmitTime(new Date().toLocaleString())
         setReceiptVisible(true)
@@ -142,24 +241,82 @@ export default function BidUpload() {
     message.success('投标文件草稿已保存')
   }
 
+  const encryptStatusLabel = (row) => {
+    if (!row.encrypted) return '未加密'
+    if (row.encryptMethod === 'password') return '密码加密（草稿）'
+    return '已 CA 加密'
+  }
+
+  const encryptStatusColor = (row) => {
+    if (!row.encrypted) return 'pending'
+    if (row.encryptMethod === 'password') return 'pending'
+    return 'completed'
+  }
+
   const columns = [
     { title: '文件名', dataIndex: 'name', key: 'name' },
     { title: '文件类型', dataIndex: 'type', key: 'type', width: 130 },
     { title: '大小', dataIndex: 'size', key: 'size', width: 120 },
     {
+      title: '签章状态',
+      key: 'signed',
+      width: 140,
+      render: (_, row) => (
+        <StatusTag
+          label={row.signed ? '已签章' : '待签章'}
+          status={row.signed ? 'completed' : 'pending'}
+        />
+      )
+    },
+    {
       title: '加密状态',
       key: 'encrypted',
-      width: 120,
+      width: 160,
       render: (_, row) => (
-        <StatusTag label={row.encrypted ? '已加密' : '未加密'} status={row.encrypted ? 'completed' : 'pending'} />
+        <StatusTag label={encryptStatusLabel(row)} status={encryptStatusColor(row)} />
+      )
+    },
+    {
+      title: '提交状态',
+      key: 'submitStatus',
+      width: 140,
+      render: () => (
+        <StatusTag
+          label={submitted ? '已正式提交' : '未提交'}
+          status={submitted ? 'completed' : 'pending'}
+        />
       )
     },
     {
       title: '操作',
       key: 'action',
-      width: 120,
+      width: 260,
       render: (_, row) => (
-        <Button type="link" danger onClick={() => removeFile(row)}>删除</Button>
+        <Space size="small">
+          {!row.signed && (
+            <Button type="primary" size="small" icon={<FileProtectOutlined />} onClick={() => signFile(row)}>
+              签章
+            </Button>
+          )}
+          {row.signed && !row.encrypted && (
+            <Button type="primary" size="small" icon={<LockOutlined />} onClick={() => encryptFile(row)}>
+              加密
+            </Button>
+          )}
+          {row.signed && (
+            <Button size="small" onClick={() => reSignFile(row)}>
+              重新签章
+            </Button>
+          )}
+          {row.encrypted && (
+            <Button size="small" onClick={() => reEncryptFile(row)}>
+              重新加密
+            </Button>
+          )}
+          <Button type="link" danger size="small" onClick={() => removeFile(row)}>
+            删除
+          </Button>
+        </Space>
       )
     }
   ]
@@ -200,7 +357,7 @@ export default function BidUpload() {
         }
       >
         <Alert
-          message="正式提交必须使用 CA 证书加密投标文件，开标前文件内容不可被提前查看。报价将合并到投标文件中一并加密提交。"
+          message="正式提交必须使用 CA 证书加密投标文件。上传后请依次完成签章、加密，再进行正式提交；密码加密仅作为草稿/演示，不能生成正式回执。"
           type="info"
           showIcon
           closable={false}
@@ -239,7 +396,7 @@ export default function BidUpload() {
           <Form.Item label="加密方式" name="encryptMode">
             <Radio.Group>
               <Radio value="ca">CA 证书加密（正式提交）</Radio>
-              <Radio value="password">密码加密</Radio>
+              <Radio value="password">密码加密（仅草稿/演示）</Radio>
             </Radio.Group>
           </Form.Item>
           {encryptMode === 'ca' && (
@@ -335,9 +492,9 @@ export default function BidUpload() {
             style={{ width: '100%', marginTop: 16 }}
           />
 
-          {fileList.length > 0 && !allEncrypted && (
+          {encryptMode === 'ca' && fileList.length > 0 && !allEncrypted && (
             <Alert
-              message="存在未加密文件，请先完成加密或删除后再正式提交"
+              message="存在未使用 CA 证书加密的文件，请先完成签章、加密后再正式提交"
               type="error"
               showIcon
               closable={false}
@@ -347,17 +504,25 @@ export default function BidUpload() {
         </div>
 
         <div className="actions">
-          <Button type="primary" size="large" disabled={!canSubmit} onClick={submitBid}>
-            {submitBtnText}
-          </Button>
-          <Button size="large" onClick={saveDraft}>保存草稿</Button>
+          {encryptMode === 'password' ? (
+            <Button type="primary" size="large" disabled={!canDraft} onClick={saveDraft}>
+              {submitBtnText}
+            </Button>
+          ) : (
+            <>
+              <Button type="primary" size="large" disabled={!canSubmit} onClick={submitBid}>
+                {submitBtnText}
+              </Button>
+              <Button size="large" onClick={saveDraft}>保存草稿</Button>
+            </>
+          )}
         </div>
       </Card>
 
       <Modal
         title="投标回执"
         open={receiptVisible}
-        width={500}
+        width={520}
         closable={false}
         maskClosable={false}
         onCancel={() => setReceiptVisible(false)}
@@ -369,9 +534,16 @@ export default function BidUpload() {
           <Descriptions.Item label="项目名称">{projectName}</Descriptions.Item>
           <Descriptions.Item label="投标标段">{packageNames}</Descriptions.Item>
           <Descriptions.Item label="文件数量">{fileList.length} 份</Descriptions.Item>
+          <Descriptions.Item label="文件清单">
+            <ul style={{ margin: 0, paddingLeft: 16 }}>
+              {fileList.map((f) => (
+                <li key={f.name}>{f.name}</li>
+              ))}
+            </ul>
+          </Descriptions.Item>
           <Descriptions.Item label="提交时间">{submitTime}</Descriptions.Item>
           <Descriptions.Item label="回执编号">{receiptNo}</Descriptions.Item>
-          <Descriptions.Item label="加密方式">{encryptMode === 'ca' ? 'CA 证书加密' : '密码加密'}</Descriptions.Item>
+          <Descriptions.Item label="加密方式">CA 证书加密</Descriptions.Item>
         </Descriptions>
       </Modal>
 

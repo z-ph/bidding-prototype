@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from '@tanstack/react-router'
 import {
   Alert,
   Button,
@@ -22,31 +22,53 @@ import {
   CheckSquareOutlined
 } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
+import { projectStore } from '../data/projects.js'
+import { requirementStore } from '../data/requirements.js'
 
 export default function ProjectDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { role } = useRole()
 
-  const [project] = useState({
-    id: Number(id) || 1,
-    name: 'XX市轨道交通设备采购项目',
-    code: 'ZB20260701001',
-    type: '公开招标',
-    budget: 850,
-    status: 'registering',
-    publishTime: '2026-07-01',
-    deadline: '2026-07-20',
-    openTime: '2026-07-21 09:30',
-    demandSource: '年度采购计划',
-    demandCode: 'XQ-2026-001',
-    packages: [
-      { name: '第一标段：主设备', code: 'B1', budget: 600, content: '主设备采购' },
-      { name: '第二标段：辅材', code: 'B2', budget: 250, content: '辅助材料' }
-    ],
-    qualifications: ['营业执照', 'ISO9001认证'],
-    intro: '本项目为轨道交通设备采购，包含主设备及辅材两个标段。'
+  const [project] = useState(() => {
+    const stored = projectStore.getProjectById(id)
+    return stored || {
+      id: Number(id) || 1,
+      name: 'XX市轨道交通设备采购项目',
+      code: 'ZB20260701001',
+      type: '公开招标',
+      orgMode: 'self',
+      budget: 850,
+      status: 'registering',
+      publishTime: '2026-07-01',
+      deadline: '2026-07-20',
+      openTime: '2026-07-21 09:30',
+      demandSource: '年度采购计划',
+      demandCode: 'XQ-2026-001',
+      linkedRequirementId: '',
+      agentId: '',
+      packages: [
+        { name: '第一标段：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidFee: 500, deposit: 50000, bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
+        { name: '第二标段：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidFee: 300, deposit: 20000, bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
+      ],
+      qualifications: ['营业执照', 'ISO9001认证'],
+      intro: '本项目为轨道交通设备采购，包含主设备及辅材两个标段。'
+    }
   })
+
+  const linkedRequirement = project.linkedRequirementId
+    ? requirementStore.getRequirementById(project.linkedRequirementId)
+    : null
+
+  const orgModeText = { self: '自行招标', agent: '委托代理' }[project.orgMode] || project.orgMode || '-'
+  const agentOption = project.agentId
+    ? [{ label: '诚信招标代理有限公司', value: 'agent_01' }, { label: '国信招标代理股份有限公司', value: 'agent_02' }, { label: '中机国际招标有限公司', value: 'agent_03' }].find((a) => a.value === project.agentId)
+    : null
+
+  const formatTime = (t) => {
+    if (!t) return '-'
+    return new Date(t).toLocaleString()
+  }
 
   const beforeOpen = ['draft', 'tendering', 'registering'].includes(project.status)
 
@@ -102,10 +124,15 @@ export default function ProjectDetail() {
   }
 
   const packageColumns = [
-    { title: '标段名称', dataIndex: 'name' },
-    { title: '标段编号', dataIndex: 'code', width: 120 },
-    { title: '预算金额', dataIndex: 'budget', width: 130, render: (v) => `${v} 万元` },
-    { title: '采购内容', dataIndex: 'content' }
+    { title: '标段名称', dataIndex: 'name', width: 200 },
+    { title: '标段编号', dataIndex: 'code', width: 100 },
+    { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '公开招标', invitation: '邀请招标', inquiry: '公开询比价', invitation_inquiry: '邀请询比价' }[v] || v || '-') },
+    { title: '预算金额', dataIndex: 'budget', width: 120, render: (v) => `${v} 万元` },
+    { title: '标书费', dataIndex: 'bidFee', width: 100, render: (v) => (v ? `${v} 元` : '-') },
+    { title: '保证金', dataIndex: 'deposit', width: 120, render: (v) => (v ? `${v} 元` : '-') },
+    { title: '投标开始', dataIndex: 'bidStart', width: 160, render: (v) => formatTime(v) },
+    { title: '投标截止', dataIndex: 'bidEnd', width: 160, render: (v) => formatTime(v) },
+    { title: '采购内容', dataIndex: 'content', ellipsis: true }
   ]
 
   return (
@@ -148,13 +175,18 @@ export default function ProjectDetail() {
         <Descriptions column={3} bordered style={{ marginBottom: 20 }}>
           <Descriptions.Item label="项目编号">{project.code}</Descriptions.Item>
           <Descriptions.Item label="采购方式">{project.type}</Descriptions.Item>
+          <Descriptions.Item label="组织方式">{orgModeText}</Descriptions.Item>
           <Descriptions.Item label="项目预算">{project.budget} 万元</Descriptions.Item>
           <Descriptions.Item label="发布时间">{project.publishTime}</Descriptions.Item>
           <Descriptions.Item label="报名截止">{project.deadline}</Descriptions.Item>
           <Descriptions.Item label="开标时间">{project.openTime}</Descriptions.Item>
+          <Descriptions.Item label="代理机构">{agentOption ? agentOption.label : '-'}</Descriptions.Item>
+          <Descriptions.Item label="资质要求">{project.qualifications.join('、')}</Descriptions.Item>
           <Descriptions.Item label="需求来源">{project.demandSource || '-'}</Descriptions.Item>
           <Descriptions.Item label="需求编号">{project.demandCode || '-'}</Descriptions.Item>
-          <Descriptions.Item label="资质要求">{project.qualifications.join('、')}</Descriptions.Item>
+          <Descriptions.Item label="关联采购需求">
+            {linkedRequirement ? `${linkedRequirement.id} ${linkedRequirement.title}` : '-'}
+          </Descriptions.Item>
         </Descriptions>
 
         <Card title="标段信息" size="small" style={{ marginBottom: 20 }}>

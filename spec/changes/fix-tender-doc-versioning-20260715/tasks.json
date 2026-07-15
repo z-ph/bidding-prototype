@@ -1,0 +1,70 @@
+{
+  "proposal": "fix-tender-doc-versioning-20260715",
+  "tasks": [
+    {
+      "id": "notice-structured-fields",
+      "title": "招标公告结构化字段",
+      "description": "NoticePublish 增加项目名称、编号、采购方式、开标时间/地点、评标方法、开标一览表字段、联系人等结构化字段，富文本仅用于正文补充。",
+      "files": ["src/views/NoticePublish.jsx", "src/views/NoticeDetail.jsx", "src/data/notices.js"],
+      "acceptance": [
+        "公告表单包含所有结构化字段",
+        "门户公告详情展示结构化信息",
+        "富文本不再承载关键信息"
+      ]
+    },
+    {
+      "id": "tender-doc-version-chain",
+      "title": "招标文件版本链",
+      "description": "TenderDoc 支持版本创建、历史版本查看、当前有效版本提示；Downloads 与 ExpertProject 引用同一文件对象。",
+      "files": ["src/views/TenderDoc.jsx", "src/views/BidDownload.jsx", "src/views/ExpertProject.jsx", "src/data/projects.js"],
+      "acceptance": [
+        "招标文件页显示当前版本号与状态",
+        "已发布版本不可直接编辑",
+        "下载页与专家查阅页版本一致",
+        "变更后提示当前有效版本"
+      ]
+    },
+    {
+      "id": "tender-doc-status-flow",
+      "title": "招标文件状态与确认流程",
+      "description": "TenderDoc 增加编辑中/预览中/待确认/已确认/已发布状态，显示编制人、确认人、最近更新时间。",
+      "files": ["src/views/TenderDoc.jsx"],
+      "acceptance": [
+        "状态流转正确",
+        "已发布版本不可覆盖",
+        "确认前提供发布前检查"
+      ]
+    },
+    {
+      "id": "tender-objection-entry",
+      "title": "投标人质疑入口",
+      "description": "BidDownload 和 NoticeDetail 增加质疑招标文件入口，ObjectionManage 展示并回复质疑。",
+      "files": ["src/views/BidDownload.jsx", "src/views/NoticeDetail.jsx", "src/views/ObjectionManage.jsx", "src/data/objectionStore.js"],
+      "acceptance": [
+        "投标人可见"质疑"按钮",
+        "质疑表单含内容、附件、时间",
+        "招标人/代理可在异议管理页查看并回复"
+      ]
+    },
+    {
+      "id": "remove-reviewer-field",
+      "title": "删除无依据的复核人字段",
+      "description": "从 TenderDoc 中移除需求文档未明确的"复核人"字段，用状态流转中的"确认人"替代。",
+      "files": ["src/views/TenderDoc.jsx"],
+      "acceptance": [
+        "页面不再出现"复核人"字段",
+        "确认人/编制人信息展示完整"
+      ]
+    },
+    {
+      "id": "build-verify",
+      "title": "构建与回归验证",
+      "description": "运行 pnpm run build，并按 checklist 逐项验证招标文件相关验收项。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 通过",
+        "checklist 中 cxy #1-3、xyy #10、yy0 #7/#10 验证通过"
+      ]
+    }
+  ]
+}
