@@ -38,9 +38,29 @@ export default function BidUpload() {
     { id: 2, name: '办公桌椅采购项目' }
   ]
 
-  const packages = [
-    { id: 'B1', name: '第一标段：主设备' },
-    { id: 'B2', name: '第二标段：辅材' }
+  // 标段按所选项目动态拉取：优先读取项目保存的标段，无则回退默认标段
+  const packages = useMemo(() => {
+    const project = projectStore.getProjectById(selectedProjectId)
+    if (project?.packages?.length) {
+      return project.packages.map((p) => ({ id: p.code || p.name, name: p.name, code: p.code }))
+    }
+    if (projectId) {
+      const urlProject = projectStore.getProjectById(projectId)
+      if (urlProject?.packages?.length) {
+        return urlProject.packages.map((p) => ({ id: p.code || p.name, name: p.name, code: p.code }))
+      }
+    }
+    return [
+      { id: 'B1', name: '第一标段：主设备', code: 'B1' },
+      { id: 'B2', name: '第二标段：辅材', code: 'B2' }
+    ]
+  }, [selectedProjectId, projectId])
+
+  // 必传文件类型清单（按招标文件模板要求），用于齐全性校验与制作向导
+  const requiredFileTypes = [
+    { type: '商务标', desc: '投标函、授权委托书、营业执照等' },
+    { type: '技术标', desc: '技术方案、项目实施方案、参数响应表等' },
+    { type: '报价标', desc: '报价一览表、分项报价表等' }
   ]
 
   const [uploadFiles, setUploadFiles] = useState([])
@@ -118,8 +138,14 @@ export default function BidUpload() {
     packages.filter((p) => selectedPackages.includes(p.id)).map((p) => p.name).join('、') || '-'
 
   const quoteFilled = quoteFields.every((f) => !f.required || (quote[f.key] && String(quote[f.key]).trim()))
+  // 文件类型齐全性校验：每个必传类型至少有一份已上传文件
+  const uploadedTypes = Array.from(new Set(fileList.map((f) => f.type)))
+  const missingTypes = requiredFileTypes
+    .filter((r) => !uploadedTypes.includes(r.type))
+    .map((r) => r.type)
+  const allTypesComplete = missingTypes.length === 0
   const canDraft = selectedProjectId && selectedPackages.length > 0 && fileList.length > 0 && quoteFilled
-  const canSubmit = canDraft && allEncrypted
+  const canSubmit = canDraft && allEncrypted && allTypesComplete
 
   const submitBtnText = (() => {
     if (encryptMode === 'password') {
@@ -226,6 +252,12 @@ export default function BidUpload() {
     }
     if (fileList.length === 0) {
       message.warning('请上传投标文件')
+      return
+    }
+
+    // 文件类型齐全性校验：缺少商务标/技术标/报价标时阻断提交
+    if (missingTypes.length > 0) {
+      message.error(`投标文件不完整，缺少：${missingTypes.join('、')}，请补齐后再提交`)
       return
     }
 
@@ -463,6 +495,22 @@ export default function BidUpload() {
 
         <div className="file-section">
           <h4>投标文件组成</h4>
+          <Card size="small" className="wizard-card" style={{ marginBottom: 16, background: '#f6f8fa' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+              <strong style={{ marginRight: 8 }}>投标文件制作向导</strong>
+              <span style={{ color: '#666', fontSize: 12 }}>按招标文件模板，商务标/技术标/报价标三类缺一不可，避免废标</span>
+            </div>
+            <Space wrap>
+              {requiredFileTypes.map((r) => {
+                const uploaded = uploadedTypes.includes(r.type)
+                return (
+                  <Tag key={r.type} color={uploaded ? 'success' : 'warning'} icon={uploaded ? <CheckCircleFilled /> : null}>
+                    {r.type}：{uploaded ? '已上传' : '未上传'}（{r.desc}）
+                  </Tag>
+                )
+              })}
+            </Space>
+          </Card>
           <Upload.Dragger
             fileList={uploadFiles}
             onChange={handleUploadChange}
@@ -489,6 +537,16 @@ export default function BidUpload() {
             <Alert
               title="存在未使用 CA 证书加密的文件，请先完成签章、加密后再正式提交"
               type="error"
+              showIcon
+              closable={false}
+              style={{ marginTop: 16 }}
+            />
+          )}
+
+          {!allTypesComplete && (
+            <Alert
+              title={`投标文件不完整，缺少：${missingTypes.join('、')}。请按制作向导补齐各类文件，否则无法正式提交。`}
+              type="warning"
               showIcon
               closable={false}
               style={{ marginTop: 16 }}
