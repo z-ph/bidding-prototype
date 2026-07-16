@@ -4,129 +4,129 @@
     "category": "开标大厅 - P0",
     "task": "修复解密权限隔离",
     "steps": [
-      { "step": "OpeningHall.jsx 移除招标人/代理/监督的解密按钮", "completed": false },
-      { "step": "投标人侧解密按钮绑定当前登录企业，不能解密其他企业", "completed": false },
-      { "step": "主持人视角仅展示解密状态和推进流程按钮", "completed": false },
-      { "step": "按 checklist P0 #1 验证", "completed": false }
+      { "step": "OpeningHall.jsx 移除招标人/代理/监督的解密按钮", "completed": true },
+      { "step": "投标人侧解密按钮绑定当前登录企业，不能解密其他企业", "completed": true },
+      { "step": "主持人视角仅展示解密状态和推进流程按钮", "completed": true },
+      { "step": "按 checklist P0 #1 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 2,
     "category": "投标文件上传 - P0",
     "task": "补齐签章加密提交闭环",
     "steps": [
-      { "step": "BidUpload.jsx 增加签章动作（模拟/入口）", "completed": false },
-      { "step": "增加加密动作和重新加密入口", "completed": false },
-      { "step": "增加提交动作和提交回执", "completed": false },
-      { "step": "文件列表显示上传/签章/加密状态", "completed": false },
-      { "step": "按 checklist P0 #2 验证", "completed": false }
+      { "step": "BidUpload.jsx 增加签章动作（模拟/入口）", "completed": true },
+      { "step": "增加加密动作和重新加密入口", "completed": true },
+      { "step": "增加提交动作和提交回执", "completed": true },
+      { "step": "文件列表显示上传/签章/加密状态", "completed": true },
+      { "step": "按 checklist P0 #2 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 3,
     "category": "投标文件上传 - P0",
     "task": "统一加密规则",
     "steps": [
-      { "step": "正式提交仅允许 CA 证书加密", "completed": false },
-      { "step": "密码加密明确标记为草稿/演示", "completed": false },
-      { "step": "提交回执区分 CA 加密和密码加密", "completed": false },
-      { "step": "按 checklist P0 #3 验证", "completed": false }
+      { "step": "正式提交仅允许 CA 证书加密", "completed": true },
+      { "step": "密码加密明确标记为草稿/演示", "completed": true },
+      { "step": "提交回执区分 CA 加密和密码加密", "completed": true },
+      { "step": "按 checklist P0 #3 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 4,
     "category": "投标文件上传 - P1",
     "task": "实现投标文件与评审条款关联",
     "steps": [
-      { "step": "BidUpload.jsx 增加评审条款列表面板", "completed": false },
-      { "step": "支持把上传文件段落/文件挂接到条款", "completed": false },
-      { "step": "持久化条款关联关系到 mock store", "completed": false },
-      { "step": "按 checklist P1 #4 验证", "completed": false }
+      { "step": "BidUpload.jsx 增加评审条款列表面板", "completed": true },
+      { "step": "支持把上传文件段落/文件挂接到条款", "completed": true },
+      { "step": "持久化条款关联关系到 mock store", "completed": true },
+      { "step": "按 checklist P1 #4 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 5,
     "category": "项目创建 / 报价 - P1",
     "task": "报价字段继承项目配置",
     "steps": [
-      { "step": "ProjectCreate.jsx 标段/报价模板配置入口", "completed": false },
-      { "step": "在线报价页按模板渲染字段", "completed": false },
-      { "step": "默认保留总报价、交货期、质保期等字段", "completed": false },
-      { "step": "按 checklist P1 #5 验证", "completed": false }
+      { "step": "ProjectCreate.jsx 标段/报价模板配置入口", "completed": true },
+      { "step": "在线报价页按模板渲染字段", "completed": true },
+      { "step": "默认保留总报价、交货期、质保期等字段", "completed": true },
+      { "step": "按 checklist P1 #5 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 6,
     "category": "招标文件 / 评标 - P1",
     "task": "评标办法驱动评分项和权重",
     "steps": [
-      { "step": "TenderDoc.jsx 评标办法支持配置评分项、权重、否决规则", "completed": false },
-      { "step": "ExpertProject.jsx 评分页按配置渲染", "completed": false },
-      { "step": "组长统计结果和报告按配置汇总", "completed": false },
-      { "step": "按 checklist P1 #6 验证", "completed": false }
+      { "step": "TenderDoc.jsx 评标办法支持配置评分项、权重、否决规则", "completed": true },
+      { "step": "ExpertProject.jsx 评分页按配置渲染", "completed": true },
+      { "step": "组长统计结果和报告按配置汇总", "completed": true },
+      { "step": "按 checklist P1 #6 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 7,
     "category": "文件版本 - P1",
     "task": "统一文件版本链",
     "steps": [
-      { "step": "新增/复用文件版本 store，统一 TenderDoc 附件、Downloads、专家查阅", "completed": false },
-      { "step": "变更后在所有引用位置提示当前有效版本", "completed": false },
-      { "step": "按 checklist P1 #7 验证", "completed": false }
+      { "step": "新增/复用文件版本 store，统一 TenderDoc 附件、Downloads、专家查阅", "completed": true },
+      { "step": "变更后在所有引用位置提示当前有效版本", "completed": true },
+      { "step": "按 checklist P1 #7 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 8,
     "category": "项目跟踪 - P1",
     "task": "按钮按角色过滤",
     "steps": [
-      { "step": "ProjectTrack.jsx 根据当前角色过滤下一步操作按钮", "completed": false },
-      { "step": "招标人视角不显示投标人动作", "completed": false },
-      { "step": "按 checklist P1 #8 验证", "completed": false }
+      { "step": "ProjectTrack.jsx 根据当前角色过滤下一步操作按钮", "completed": true },
+      { "step": "招标人视角不显示投标人动作", "completed": true },
+      { "step": "按 checklist P1 #8 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 9,
     "category": "项目创建 - P1",
     "task": "空白标段禁止提交",
     "steps": [
-      { "step": "ProjectCreate.jsx 标段步骤增加必填校验", "completed": false },
-      { "step": "空白标段不能进入下一步", "completed": false },
-      { "step": "提交审核前再次校验所有标段完整", "completed": false },
-      { "step": "按 checklist P1 #9 验证", "completed": false }
+      { "step": "ProjectCreate.jsx 标段步骤增加必填校验", "completed": true },
+      { "step": "空白标段不能进入下一步", "completed": true },
+      { "step": "提交审核前再次校验所有标段完整", "completed": true },
+      { "step": "按 checklist P1 #9 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 10,
     "category": "开标大厅 - P1",
     "task": "文案与签到表一致性",
     "steps": [
-      { "step": "OpeningHall.jsx 签到表移除专家或增加专家列", "completed": false },
-      { "step": "步骤描述与签到表对象保持一致", "completed": false },
-      { "step": "按 checklist P1 #10 验证", "completed": false }
+      { "step": "OpeningHall.jsx 签到表移除专家或增加专家列", "completed": true },
+      { "step": "步骤描述与签到表对象保持一致", "completed": true },
+      { "step": "按 checklist P1 #10 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   },
   {
     "number": 11,
     "category": "专家任务 - P1",
     "task": "专家抽取/授权/通知/接收链路",
     "steps": [
-      { "step": "新增 ExpertTasks.jsx 专家任务中心", "completed": false },
-      { "step": "展示抽取结果、项目、时间、任务状态、进入评标入口", "completed": false },
-      { "step": "在 Layout 专家菜单增加入口", "completed": false },
-      { "step": "按 checklist P1 #11 验证", "completed": false }
+      { "step": "新增 ExpertTasks.jsx 专家任务中心", "completed": true },
+      { "step": "展示抽取结果、项目、时间、任务状态、进入评标入口", "completed": true },
+      { "step": "在 Layout 专家菜单增加入口", "completed": true },
+      { "step": "按 checklist P1 #11 验证", "completed": true }
     ],
-    "passes": false
+    "passes": true
   }
 ]
