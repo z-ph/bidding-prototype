@@ -1,0 +1,35 @@
+import{r as e}from"./rolldown-runtime-BpP4ry7R.js";import{gn as t,lr as n,t as r,wn as i}from"./button-Cco463MC.js";import{n as a}from"./fileRoute-Bxjf8qzb.js";import{t as o}from"./alert-Bh3JXUuv.js";import{t as s}from"./table-95e_rQ2_.js";import{t as c}from"./message-C2B-DZFE.js";import{t as l}from"./card-N8hGFRYq.js";import{t as u}from"./tabs-_2KloJ3D.js";import{n as d,t as f}from"./row-ClXn77SA.js";import{t as p}from"./QuestionCircleOutlined-Drymf_3l.js";import{t as m}from"./steps-l21t-5uX.js";import{t as h}from"./useRole-C0vY5_xc.js";import{t as g}from"./StatusTag-Zm0TVm3q.js";import{t as _}from"./driver-DyuIdVyB.js";import{t as v}from"./EmptyState-7ccoLryP.js";var y=e(n(),1),b=i();function applyDataScope(e,t,n){return!t||t===`all`||!n||t===`enterprise`?e:t===`department`?e.filter(e=>!e.deptCode||e.deptCode===n.deptCode):t===`self`?e.filter(e=>!e.owner||e.owner===n.nickname||e.owner===n.account):e}function BidderProjects(){let e=t(),{userInfo:n,dataScope:i}=h(),[a,x]=(0,y.useState)(`available`),[S]=(0,y.useState)([{id:1,name:`XX市轨道交通设备采购项目`,code:`ZB20260701001`,type:`公开招标`,deadline:`2026-07-20 17:00`,status:`可报名`,blockReason:``,owner:`张三`,deptCode:`CG`},{id:2,name:`实验室设备采购项目`,code:`ZB20260705005`,type:`公开招标`,deadline:`2026-07-25 17:00`,status:`未准入`,blockReason:`资质待审核`,owner:`张三`,deptCode:`CG`},{id:3,name:`办公桌椅采购项目`,code:`ZB20260702002`,type:`公开询比价`,deadline:`已截止`,status:`已截止`,blockReason:`报名已截止`,owner:`李四`,deptCode:`ZB`}]),[C]=(0,y.useState)([{id:1,name:`XX市轨道交通设备采购项目`,code:`ZB20260701001`,status:`报名待缴费`,deadline:`2026-07-20 17:00`,leftDays:8,stepIndex:1,paid:!1,blockReason:``,owner:`张三`,deptCode:`CG`},{id:4,name:`实验室设备采购项目`,code:`ZB20260705005`,status:`待下载文件`,deadline:`2026-07-25 17:00`,leftDays:12,stepIndex:2,paid:!0,blockReason:``,owner:`张三`,deptCode:`CG`},{id:3,name:`软件开发服务项目`,code:`ZB20260703003`,status:`待上传标书`,deadline:`2026-07-15 09:00`,leftDays:3,stepIndex:4,paid:!0,blockReason:`请确保所有文件已加密后再上传`,owner:`张三`,deptCode:`CG`}]),w=(0,y.useMemo)(()=>applyDataScope(S,i,n),[S,i,n]),T=(0,y.useMemo)(()=>applyDataScope(C,i,n),[C,i,n]),viewDetail=e=>{c.success(`查看项目详情：${e.name}`)},register=t=>{e({to:`/admin/bid-register`,search:{projectId:t.id}})},renderActionButtons=t=>{let n=[];return(t.status===`报名待缴费`||!t.paid)&&n.push((0,b.jsx)(r,{type:`primary`,size:`small`,onClick:()=>e({to:`/admin/bid-payment`,search:{projectId:t.id}}),children:`去缴费`},`pay`)),(t.status===`待下载文件`||t.paid)&&n.push((0,b.jsx)(r,{size:`small`,onClick:()=>e({to:`/admin/bid-download`,search:{projectId:t.id}}),children:`下载文件`},`download`)),t.status===`待上传标书`&&n.push((0,b.jsx)(r,{type:`primary`,size:`small`,onClick:()=>e({to:`/admin/bid-upload`,search:{projectId:t.id}}),children:`上传投标文件`},`upload`)),t.status===`待报价`&&n.push((0,b.jsx)(r,{type:`primary`,size:`small`,onClick:()=>e({to:`/admin/bid-quote`,search:{projectId:t.id}}),children:`在线报价`},`quote`)),n.length===0&&n.push((0,b.jsx)(r,{size:`small`,onClick:()=>e({to:`/admin/projects/track`,search:{projectId:t.id}}),children:`跟踪`},`track`)),n},startTour=()=>{_({showProgress:!0,allowClose:!0,overlayColor:`rgba(0, 21, 41, 0.75)`,steps:[{element:`#bidder-tabs`,popover:{title:`项目中心`,description:`左侧是您可以参与的项目，右侧是您已报名项目的进度跟踪。`,side:`bottom`,align:`center`}},{element:`.bidder-projects .ant-table-tbody .ant-table-row:first-child .ant-btn-sm`,popover:{title:`报名参加`,description:`找到合适项目后，点击“报名”填写信息并上传资质。不可报名时按钮会说明具体原因。`,side:`left`,align:`center`}},{element:`#tab-joined`,popover:{title:`跟踪进度`,description:`在“我参与的项目”中以卡片形式查看每个项目的完整进度、剩余时间和下一步操作。`,side:`top`,align:`center`}}]}).drive()},E=[{key:`available`,label:`可参与项目`,children:(0,b.jsx)(s,{columns:[{title:`项目名称`,dataIndex:`name`,key:`name`,minWidth:240},{title:`项目编号`,dataIndex:`code`,key:`code`,width:150},{title:`采购方式`,dataIndex:`type`,key:`type`,width:120},{title:`报名截止`,dataIndex:`deadline`,key:`deadline`,width:150},{title:`报名状态`,dataIndex:`status`,key:`status`,width:120,render:e=>(0,b.jsx)(g,{label:e,status:e===`可报名`?`pending`:`info`})},{title:`操作`,key:`action`,width:220,fixed:`right`,render:(e,t)=>(0,b.jsxs)(b.Fragment,{children:[(0,b.jsx)(r,{type:`link`,onClick:()=>viewDetail(t),children:`详情`}),t.status===`可报名`?(0,b.jsx)(r,{type:`primary`,size:`small`,onClick:()=>register(t),children:`报名`}):(0,b.jsx)(r,{disabled:!0,size:`small`,children:t.blockReason})]})}],dataSource:w,rowKey:`id`,bordered:!0,pagination:!1,style:{width:`100%`}})},{key:`joined`,label:(0,b.jsx)(`span`,{id:`tab-joined`,children:`我参与的项目`}),children:(0,b.jsxs)(b.Fragment,{children:[(0,b.jsx)(f,{gutter:20,children:T.map(e=>(0,b.jsx)(d,{span:12,style:{marginBottom:20},children:(0,b.jsxs)(l,{hoverable:!0,className:`project-progress-card`,title:(0,b.jsxs)(`div`,{className:`progress-header`,children:[(0,b.jsx)(`span`,{children:e.name}),(0,b.jsx)(g,{label:e.status,status:e.status})]}),children:[(0,b.jsxs)(`div`,{className:`progress-body`,children:[(0,b.jsxs)(`p`,{className:`project-code`,children:[`项目编号：`,e.code]}),(0,b.jsxs)(`p`,{className:`deadline`,children:[`截止时间：`,e.deadline,` · 剩余 `,e.leftDays,` 天`]}),(0,b.jsx)(m,{size:`small`,current:e.stepIndex,items:[`报名`,`缴费`,`下载`,`报价`,`上传`,`开标`].map(e=>({title:e}))}),e.blockReason&&(0,b.jsx)(o,{title:e.blockReason,type:`warning`,showIcon:!0,closable:!1,style:{marginTop:12}})]}),(0,b.jsxs)(`div`,{className:`progress-footer`,children:[(0,b.jsx)(`div`,{style:{display:`flex`,gap:8},children:renderActionButtons(e)}),(0,b.jsx)(r,{type:`link`,onClick:()=>viewDetail(e),children:`查看详情`})]})]})},e.id))}),T.length===0&&(0,b.jsx)(v,{description:`您还没有参与任何项目`,icon:`Folder`})]})}];return(0,b.jsxs)(`div`,{className:`bidder-projects`,children:[(0,b.jsx)(l,{title:(0,b.jsxs)(`div`,{className:`card-header`,children:[(0,b.jsx)(`span`,{children:`项目中心`}),(0,b.jsx)(r,{type:`primary`,ghost:!0,icon:(0,b.jsx)(p,{}),onClick:startTour,children:`投标引导`})]}),children:(0,b.jsx)(`div`,{id:`bidder-tabs`,children:(0,b.jsx)(u,{type:`card`,activeKey:a,onChange:x,items:E})})}),(0,b.jsx)(`style`,{children:`
+        .bidder-projects {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        .bidder-projects .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-weight: bold;
+        }
+        .bidder-projects .project-progress-card {
+          height: 100%;
+        }
+        .bidder-projects .progress-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-weight: bold;
+        }
+        .bidder-projects .progress-body {
+          margin-bottom: 16px;
+        }
+        .bidder-projects .project-code,
+        .bidder-projects .deadline {
+          color: #666;
+          font-size: 13px;
+          margin: 4px 0;
+        }
+        .bidder-projects .progress-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+      `})]})}var x=a(`/admin/bidder-projects`)({component:BidderProjects});export{x as Route};
