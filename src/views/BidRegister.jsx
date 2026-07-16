@@ -1,12 +1,22 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Alert, Button, Card, Checkbox, Form, Input, Steps, Tag, Upload, message, Modal } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+import { projectStore } from '../data/projects.js'
 
-const requiredQualifications = [
+// 默认资质要求，项目未配置时回退使用
+const defaultQualifications = [
   { key: '营业执照', label: '营业执照' },
   { key: 'ISO9001认证', label: 'ISO9001认证' }
 ]
+
+// 资质显示名映射，项目可能仅存 key
+const QUAL_LABELS = {
+  营业执照: '营业执照',
+  ISO9001认证: 'ISO9001认证',
+  安全生产许可证: '安全生产许可证',
+  特定行业资质: '特定行业资质'
+}
 
 export default function BidRegister() {
   const navigate = useNavigate()
@@ -14,6 +24,16 @@ export default function BidRegister() {
   const projectId = searchParams.projectId
   const [form] = Form.useForm()
   const [qualificationFiles, setQualificationFiles] = useState({})
+
+  // 资质要求按项目配置读取，缺失时回退默认
+  const requiredQualifications = useMemo(() => {
+    const project = projectStore.getProjectById(projectId)
+    const list = project?.qualifications
+    if (Array.isArray(list) && list.length > 0) {
+      return list.map((key) => ({ key, label: QUAL_LABELS[key] || key }))
+    }
+    return defaultQualifications
+  }, [projectId])
 
   const validatePhone = (_, value) => {
     if (!value) {

@@ -31,6 +31,21 @@ export default function Register() {
 
   const submit = () => {
     form.validateFields().then(() => {
+      // 投标企业注册：营业执照为必传，缺失时阻断并提示
+      if (role === 'bidder') {
+        const missing = bidderQualifications.filter(
+          (q) => !qualificationFiles[q.key] || qualificationFiles[q.key].length === 0
+        )
+        if (missing.length > 0) {
+          message.error(`请先上传：${missing.map((q) => q.label).join('、')}`)
+          return
+        }
+      }
+      // 招标人注册：营业执照等资质为必传
+      if (role === 'tenderee' && fileList.length === 0) {
+        message.error('请先上传营业执照等资质')
+        return
+      }
       message.success('注册信息已提交，等待平台审核')
       navigate({ to: '/login' })
     })
