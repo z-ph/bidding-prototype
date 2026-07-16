@@ -72,24 +72,24 @@ export default function Dashboard() {
   ]
 
   const tendereeTodos = [
-    { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请确认开标安排', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall' },
-    { id: 2, content: '办公桌椅采购项目有 2 家供应商报名，请审核资质', type: 'primary', time: '2026-07-08 09:30', path: '/admin/projects' },
-    { id: 3, content: '软件开发服务项目评标报告待审批', type: 'danger', time: '2026-07-07 16:00', path: '/admin/award-confirm' },
-    { id: 4, content: '物业服务采购项目中标公告待发布', type: 'success', time: '2026-07-07 11:20', path: '/admin/notice-publish' }
+    { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请确认开标安排', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall', projectId: '1' },
+    { id: 2, content: '办公桌椅采购项目有 2 家供应商报名，请审核资质', type: 'primary', time: '2026-07-08 09:30', path: '/admin/projects', projectId: '2' },
+    { id: 3, content: '软件开发服务项目评标报告待审批', type: 'danger', time: '2026-07-07 16:00', path: '/admin/award-confirm', projectId: '3' },
+    { id: 4, content: '物业服务采购项目中标公告待发布', type: 'success', time: '2026-07-07 11:20', path: '/admin/notice-publish', projectId: '4' }
   ]
 
   const agentTodos = [
-    { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请完成开标前准备', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall' },
-    { id: 2, content: '办公桌椅采购项目招标文件需复核后发布', type: 'primary', time: '2026-07-08 09:30', path: '/admin/tender-doc' },
-    { id: 3, content: '软件开发服务项目评标报告待汇总提交', type: 'danger', time: '2026-07-07 16:00', path: '/admin/evaluation-hall' },
-    { id: 4, content: '物业服务采购项目中标通知书待发送', type: 'success', time: '2026-07-07 11:20', path: '/admin/award-notice' }
+    { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请完成开标前准备', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall', projectId: '1' },
+    { id: 2, content: '办公桌椅采购项目招标文件需复核后发布', type: 'primary', time: '2026-07-08 09:30', path: '/admin/tender-doc', projectId: '2' },
+    { id: 3, content: '软件开发服务项目评标报告待汇总提交', type: 'danger', time: '2026-07-07 16:00', path: '/admin/evaluation-hall', projectId: '3' },
+    { id: 4, content: '物业服务采购项目中标通知书待发送', type: 'success', time: '2026-07-07 11:20', path: '/admin/award-notice', projectId: '4' }
   ]
 
   const todos = role === 'agent' ? agentTodos : tendereeTodos
 
   const bidderTodos = [
-    { id: 1, content: 'XX市轨道交通设备采购项目已报名通过，请缴纳招标文件费', type: 'warning', time: '2026-07-08', path: '/admin/bid-payment' },
-    { id: 2, content: '软件开发服务项目待上传投标文件并报价', type: 'danger', time: '2026-07-07', path: '/admin/bid-upload' }
+    { id: 1, content: 'XX市轨道交通设备采购项目已报名通过，请缴纳招标文件费', type: 'warning', time: '2026-07-08', path: '/admin/bid-payment', projectId: '1' },
+    { id: 2, content: '软件开发服务项目待上传投标文件并报价', type: 'danger', time: '2026-07-07', path: '/admin/bid-upload', projectId: '3' }
   ]
 
   const expertTasks = [
@@ -119,7 +119,13 @@ export default function Dashboard() {
     { id: 4, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', stage: '招标中', deadline: '2026-07-25 17:00' }
   ]
 
-  const handleTodo = (todo) => navigate({ to: todo.path })
+  const handleTodo = (todo) => {
+    if (todo.projectId) {
+      navigate({ to: todo.path, search: { projectId: todo.projectId } })
+    } else {
+      navigate({ to: todo.path })
+    }
+  }
   const viewProject = (row) => message.success(`查看项目详情：${row.name}`)
   const continueProject = (row) => {
     const map = {
@@ -128,7 +134,12 @@ export default function Dashboard() {
       '待开标': '/admin/opening-hall',
       '评标中': '/admin/evaluation-hall'
     }
-    navigate({ to: map[row.stage] || '/admin/projects' })
+    const path = map[row.stage] || '/admin/projects'
+    if (row.id && ['/admin/opening-hall', '/admin/tender-doc'].includes(path)) {
+      navigate({ to: path, search: { projectId: String(row.id) } })
+    } else {
+      navigate({ to: path })
+    }
   }
 
   const timelineTypeMap = {
@@ -441,7 +452,7 @@ export default function Dashboard() {
                   <>
                     <div className="todo-item">
                       <span>{todo.content}</span>
-                      <Button type="primary" size="small" onClick={() => navigate({ to: todo.path })}>去处理</Button>
+                      <Button type="primary" size="small" onClick={() => handleTodo(todo)}>去处理</Button>
                     </div>
                     <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>{todo.time}</div>
                   </>

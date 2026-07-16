@@ -6,6 +6,8 @@ import { noticeStore } from './notices.js'
 const NEWS_KEY = 'portal-news'
 const STATS_KEY = 'portal-stats'
 const DOWNLOADS_KEY = 'portal-downloads'
+const PROJECTS_KEY = 'bidding-projects'
+const SUPPLIER_KEY = 'bidding-supplier-profile'
 
 const defaultNews = [
   { id: 1, title: '关于平台上线试运行的通知', category: '平台公告', content: '平台已正式上线试运行，欢迎各供应商、招标人注册使用。试运行期间如有问题，请联系技术支持。', publishTime: '2026-07-10', status: 'published', attachments: [] },
@@ -73,7 +75,29 @@ export const portalStore = {
     return this.getNotices().find((n) => String(n.id) === String(id))
   },
   getStats() {
-    return load(STATS_KEY, defaultStats)
+    // 在默认基线之上叠加真实业务数据：已建项目数 + 已建档供应商，使统计随业务增长
+    const base = load(STATS_KEY, defaultStats)
+    let extraProjects = 0
+    let extraSuppliers = 0
+    try {
+      const projectsRaw = localStorage.getItem(PROJECTS_KEY)
+      if (projectsRaw) {
+        const projects = JSON.parse(projectsRaw)
+        if (Array.isArray(projects)) extraProjects = projects.length
+      }
+    } catch {
+      // ignore
+    }
+    try {
+      if (localStorage.getItem(SUPPLIER_KEY)) extraSuppliers = 1
+    } catch {
+      // ignore
+    }
+    return {
+      ...base,
+      totalProjects: base.totalProjects + extraProjects,
+      totalSuppliers: base.totalSuppliers + extraSuppliers
+    }
   },
   saveStats(stats) {
     save(STATS_KEY, stats)

@@ -32,16 +32,30 @@ export default function BidQuote() {
     { name: '辅材 B 型', spec: '详见技术参数', quantity: 50, unit: '套', price: '' }
   ])
 
+  // 询比价项目报价在开标后启动：判断采购方式与项目报价阶段
+  const isTenderMode = (mode) => ['open', 'invitation'].includes(mode)
+  const project = projectStore.getProjectById(projectId)
+  // 询比价项目需处于"已开标/待报价"阶段才能报价；招标项目报价在上传阶段即可
+  const isInquiryMode = project && !isTenderMode(project.purchaseMode)
+  const inquiryQuoteReady = project?.status === '待报价' || project?.status === '已开标'
+  const quoteLocked = isInquiryMode && !inquiryQuoteReady
+
   const updateQuote = (key, value) => {
+    if (quoteLocked) return
     setQuote((prev) => ({ ...prev, [key]: value }))
   }
 
   const updatePrice = (index, value) => {
+    if (quoteLocked) return
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, price: value } : item)))
   }
 
   const saveQuote = () => {
-    message.success('报价已保存，请继续上传投标文件')
+    if (quoteLocked) {
+      message.warning('询比价项目报价将在开标后启动，当前不可报价')
+      return
+    }
+    message.success(isInquiryMode ? '报价已保存' : '报价已保存，请继续上传投标文件')
   }
 
   const columns = [
@@ -81,17 +95,32 @@ export default function BidQuote() {
       >
         <Steps
           size="small"
-          current={3}
+          current={isInquiryMode ? 4 : 3}
           style={{ marginBottom: 24 }}
-          items={['报名通过', '下载文件', '编制标书', '填写报价', '上传并加密'].map((title) => ({ title }))}
+          items={(isInquiryMode
+            ? ['报名通过', '下载文件', '编制标书', '上传并加密', '开标', '填写报价']
+            : ['报名通过', '下载文件', '编制标书', '填写报价', '上传并加密']
+          ).map((title) => ({ title }))}
         />
-        <Alert
-          title="请按招标文件要求填写开标一览表和分项报价，提交后投标截止前可修改。"
-          type="warning"
-          showIcon
-          closable={false}
-          style={{ marginBottom: 20 }}
-        />
+        {quoteLocked ? (
+          <Alert
+            title="询比价项目的报价将在开标后启动，当前项目尚未开标，暂不可报价。请在项目中心等待开标完成后进入。"
+            type="info"
+            showIcon
+            closable={false}
+            style={{ marginBottom: 20 }}
+          />
+        ) : (
+          <Alert
+            title={isInquiryMode
+              ? '当前为询比价项目，已开标，请填写最终报价，提交后进入唱标。'
+              : '请按招标文件要求填写开标一览表和分项报价，提交后投标截止前可修改。'}
+            type="warning"
+            showIcon
+            closable={false}
+            style={{ marginBottom: 20 }}
+          />
+        )}
 
         <h3>开标一览表</h3>
         <Form labelCol={{ flex: '0 0 140px' }} wrapperCol={{ flex: 'auto' }} className="quote-form">
@@ -101,6 +130,7 @@ export default function BidQuote() {
                 <Form.Item label={field.unit ? `${field.label}（${field.unit}）` : field.label} required={field.required}>
                   <Input
                     value={quote[field.key]}
+                    disabled={quoteLocked}
                     onChange={(e) => updateQuote(field.key, e.target.value)}
                     placeholder={`请输入${field.label}`}
                   />
@@ -124,8 +154,12 @@ export default function BidQuote() {
         </div>
 
         <div className="actions">
-          <Button type="primary" size="large" onClick={saveQuote}>保存报价</Button>
-          <Button size="large" onClick={() => navigate({ to: '/admin/bid-upload' })}>下一步：上传投标文件</Button>
+          <Button type="primary" size="large" disabled={quoteLocked} onClick={saveQuote}>保存报价</Button>
+          {isInquiryMode ? (
+            <Button size="large" onClick={() => navigate({ to: '/admin/bidder-projects' })}>返回项目中心</Button>
+          ) : (
+            <Button size="large" onClick={() => navigate({ to: '/admin/bid-upload' })}>下一步：上传投标文件</Button>
+          )}
         </div>
       </Card>
 
