@@ -1,5 +1,6 @@
-import { useState, useRef, useMemo } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useState, useRef, useMemo, useEffect } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import dayjs from 'dayjs'
 import {
   Alert,
   Steps,
@@ -26,7 +27,8 @@ import { PlusOutlined, QuestionCircleOutlined, DeleteOutlined } from '@ant-desig
 import EmptyState from '../components/EmptyState.jsx'
 import { requirementStore, REQUIREMENT_STATUS_MAP } from '../data/requirements.js'
 import { projectStore } from '../data/projects.js'
-import { validateAndScrollToError, scrollToElement } from '../utils/formValidation.js'
+import { BASELINE_PROJECTS } from './ProjectList.jsx'
+import { validateAndScrollToError, scrollToElement, formRules, validateRequiredFields } from '../utils/formValidation.js'
 
 const PURCHASE_MODE_OPTIONS = [
   { label: '公开招标', value: 'open' },
@@ -53,6 +55,8 @@ const AGENT_OPTIONS = [
 
 export default function ProjectCreate() {
   const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false })
+  const editId = searchParams.editId ? String(searchParams.editId) : ''
   const [activeStep, setActiveStep] = useState(0)
   const [form] = Form.useForm()
   const uploadRef = useRef(null)
@@ -60,7 +64,6 @@ export default function ProjectCreate() {
   const [formData, setFormData] = useState({
     name: '',
     code: 'ZB20260708001',
-    purchaseMode: 'open',
     budget: '',
     registerStart: null,
     registerEnd: null,
@@ -90,6 +93,40 @@ export default function ProjectCreate() {
       { key: 'payment', label: '付款方式', unit: '', required: true }
     ]
   })
+
+  // 编辑模式：优先从 projectStore 载入既有项目，mock 基线项目兜底，时间字段还原为 dayjs 对象
+  useEffect(() => {
+    if (!editId) return
+    const stored =
+      projectStore.getProjectById(editId) ||
+      BASELINE_PROJECTS.find((p) => String(p.id) === editId)
+    if (!stored) {
+      message.warning('未找到要编辑的项目，将按新建处理')
+      return
+    }
+    const toDayjs = (v) => (v ? dayjs(v) : null)
+    const restored = {
+      ...stored,
+      registerStart: toDayjs(stored.registerStart),
+      registerEnd: toDayjs(stored.registerEnd),
+      openTime: toDayjs(stored.openTime),
+      packages: (stored.packages || []).map((pkg) => ({
+        ...pkg,
+        bidStart: toDayjs(pkg.bidStart),
+        bidEnd: toDayjs(pkg.bidEnd)
+      }))
+    }
+    setFormData((prev) => ({ ...prev, ...restored }))
+    form.setFieldsValue({
+      name: restored.name,
+      budget: restored.budget,
+      registerStart: restored.registerStart,
+      registerEnd: restored.registerEnd,
+      openTime: restored.openTime,
+      intro: restored.intro,
+      orgMode: restored.orgMode || 'self'
+    })
+  }, [editId, form])
 
   const [inviteCode, setInviteCode] = useState('')
 
@@ -200,7 +237,8 @@ export default function ProjectCreate() {
           code: `B${prev.packages.length + 1}`,
           budget: '',
           content: '',
-          purchaseMode: prev.purchaseMode || 'open',
+          // 标段级采购方式默认「公开招标」（cxy-016：项目级采购方式已移除）
+          purchaseMode: 'open',
           bidFee: '',
           deposit: '',
           bidStart: null,
@@ -254,10 +292,43 @@ export default function ProjectCreate() {
   }
 
   const saveDraft = () => {
-    message.success('项目草稿已保存')
+    try {
+      const saved = projectStore.saveProject({
+        ...formData,
+        id: editId || formData.id,
+        name: formData.name?.trim() || '未命名项目',
+        // 编辑既有项目时保持原状态，仅新建/草稿保存为「草稿」
+        status: formData.status && formData.status !== 'draft' ? formData.status : 'draft',
+        updateTime: new Date().toISOString()
+      })
+      message.success(`已保存（${saved.name}），可在项目列表查看`)
+      navigate({ to: '/admin/projects' })
+    } catch (err) {
+      message.error('草稿保存失败，请重试')
+    }
   }
 
   const submit = async () => {
+    // 手动兜底校验基本信息（提交审核页基本信息表单已卸载，Form 校验可能失效）
+    const basicCheck = validateRequiredFields([
+      { key: 'name', value: formData.name, label: '项目名称' },
+      { key: 'budget', value: formData.budget, label: '项目预算' },
+      { key: 'registerStart', value: formData.registerStart, label: '报名开始时间' },
+      { key: 'registerEnd', value: formData.registerEnd, label: '报名截止时间' },
+      { key: 'openTime', value: formData.openTime, label: '开标时间' },
+      { key: 'intro', value: formData.intro, label: '项目简介' }
+    ])
+    if (!basicCheck.valid) {
+      message.error(`请完善基本信息：${basicCheck.firstInvalid.label} 未填写`)
+      setActiveStep(0)
+      return
+    }
+    if (isNaN(Number(formData.budget)) || Number(formData.budget) <= 0) {
+      message.error('项目预算需为大于 0 的有效数字')
+      setActiveStep(0)
+      return
+    }
+
     // 校验基本信息
     try {
       await form.validateFields()
@@ -276,44 +347,42 @@ export default function ProjectCreate() {
       return
     }
 
-    const saved = projectStore.saveProject({
-      ...formData,
-      status: 'pending',
-      submitTime: new Date().toISOString()
-    })
-    message.success(`项目 ${saved.name} 已提交审核，即将跳转项目列表`)
-    navigate({ to: '/admin/projects' })
+    try {
+      // 编辑非草稿项目时保持原状态，避免「提交审核」把招标中项目退回待审核
+      const nextStatus = formData.status && formData.status !== 'draft' ? formData.status : 'pending'
+      const saved = projectStore.saveProject({
+        ...formData,
+        id: editId || formData.id,
+        status: nextStatus,
+        submitTime: formData.submitTime || new Date().toISOString()
+      })
+      message.success(
+        nextStatus === 'pending'
+          ? `项目「${saved.name}」已提交审核（待审核），可在项目列表查看进度`
+          : `项目「${saved.name}」修改已保存`
+      )
+      navigate({ to: '/admin/projects' })
+    } catch (err) {
+      message.error('提交失败，请重试')
+    }
   }
 
   const basicRules = {
-    name: [{ required: true, message: '请输入项目名称' }],
-    purchaseMode: [{ required: true, message: '请选择采购方式' }],
-    budget: [
-      { required: true, message: '请输入预算金额' },
-      {
-        validator: (_, value) => {
-          if (!value || isNaN(value) || Number(value) <= 0) {
-            return Promise.reject(new Error('请输入有效的预算金额'))
-          }
-          return Promise.resolve()
-        }
-      }
-    ],
-    registerStart: [{ required: true, message: '请选择报名开始时间' }],
+    name: [formRules.required('请输入项目名称'), formRules.maxLength(100)],
+    budget: [formRules.required('请输入预算金额'), formRules.positiveNumber('请输入有效的预算金额')],
+    registerStart: [formRules.required('请选择报名开始时间')],
     registerEnd: [
-      { required: true, message: '请选择报名截止时间' },
-      {
-        validator: (_, value) => {
-          if (!formData.registerStart || !value) return Promise.resolve()
-          if (new Date(value) <= new Date(formData.registerStart)) {
-            return Promise.reject(new Error('报名截止时间必须晚于开始时间'))
-          }
-          return Promise.resolve()
+      formRules.required('请选择报名截止时间'),
+      formRules.custom((_, value) => {
+        if (!formData.registerStart || !value) return Promise.resolve()
+        if (new Date(value) <= new Date(formData.registerStart)) {
+          return Promise.reject(new Error('报名截止时间必须晚于开始时间'))
         }
-      }
+        return Promise.resolve()
+      })
     ],
-    openTime: [{ required: true, message: '请选择开标时间' }],
-    intro: [{ required: true, message: '请输入项目简介' }]
+    openTime: [formRules.required('请选择开标时间')],
+    intro: [formRules.required('请输入项目简介'), formRules.maxLength(500)]
   }
 
   const registeredBidders = [
@@ -351,7 +420,7 @@ export default function ProjectCreate() {
         {activeStep === 0 && (
           <>
             <h3>项目基本信息</h3>
-            <Form form={form} initialValues={{ purchaseMode: 'open', orgMode: 'self' }} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
+            <Form form={form} initialValues={{ orgMode: 'self' }} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
               <Row gutter={20}>
                 <Col span={12}>
                   <Form.Item label="项目名称" name="name" rules={basicRules.name}>
@@ -371,16 +440,6 @@ export default function ProjectCreate() {
                 </Col>
               </Row>
               <Row gutter={20}>
-                <Col span={12}>
-                  <Form.Item label="采购方式" name="purchaseMode" rules={basicRules.purchaseMode}>
-                    <Select
-                      placeholder="请选择"
-                      value={formData.purchaseMode}
-                      onChange={(value) => updateField('purchaseMode', value)}
-                      options={PURCHASE_MODE_OPTIONS}
-                    />
-                  </Form.Item>
-                </Col>
                 <Col span={12}>
                   <Form.Item label="项目预算" name="budget" rules={basicRules.budget}>
                     <Input
@@ -834,9 +893,9 @@ export default function ProjectCreate() {
               </Button>
             </Card>
 
-            {formData.purchaseMode === 'invitation' && (
+            {formData.packages.some((pkg) => pkg.purchaseMode === 'invitation') && (
               <Card title="邀请投标人" size="small" className="invite-card" style={{ marginTop: 16 }}>
-                <p className="section-tip">请从平台已注册企业中选择被邀请人，或输入邀请码邀请外部企业。</p>
+                <p className="section-tip">存在「邀请招标」标段，请从平台已注册企业中选择被邀请人，或输入邀请码邀请外部企业。</p>
                 <Transfer
                   dataSource={registeredBidders}
                   titles={['平台注册企业', '已邀请企业']}
@@ -931,7 +990,6 @@ export default function ProjectCreate() {
                 <Descriptions column={2} bordered>
                   <Descriptions.Item label="项目名称">{formData.name || '-'}</Descriptions.Item>
                   <Descriptions.Item label="组织方式">{orgModeLabel[formData.orgMode] || '-'}</Descriptions.Item>
-                  <Descriptions.Item label="采购方式">{PURCHASE_MODE_OPTIONS.find((o) => o.value === formData.purchaseMode)?.label || '-'}</Descriptions.Item>
                   <Descriptions.Item label="项目预算">{formData.budget || '-'} 万元</Descriptions.Item>
                   <Descriptions.Item label="标段预算合计">{packageBudgetTotal} 万元</Descriptions.Item>
                   <Descriptions.Item label="开标时间">{formatTime(formData.openTime)}</Descriptions.Item>

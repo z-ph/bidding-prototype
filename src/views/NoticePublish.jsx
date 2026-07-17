@@ -16,7 +16,8 @@ import {
   message,
   Alert,
   Descriptions,
-  Tag
+  Tag,
+  Empty
 } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import {
@@ -24,6 +25,7 @@ import {
   NOTICE_TYPES
 } from '../data/notices.js'
 import { projectStore } from '../data/projects.js'
+import { mergeWithBaseline } from './ProjectList.jsx'
 
 const EMPTY_NOTICE = {
   type: 'tender',
@@ -51,16 +53,18 @@ export default function NoticePublish() {
   const noticeId = searchParams.id
   const projectIdFromQuery = searchParams.projectId
 
-  const projects = useMemo(() => projectStore.getProjects(), [])
+  // 与项目列表同一口径：projectStore（新建/草稿）+ mock 基线合并
+  const projects = useMemo(() => mergeWithBaseline(projectStore.getProjects()), [])
 
   const [form, setForm] = useState(EMPTY_NOTICE)
   const [fileList, setFileList] = useState([])
 
   useEffect(() => {
     if (!noticeId) {
-      const initialProjectId = projectIdFromQuery
-        ? Number(projectIdFromQuery)
-        : projects[0]?.id || null
+      const initialProjectId =
+        projectIdFromQuery !== undefined && projectIdFromQuery !== null
+          ? String(projectIdFromQuery)
+          : (projects[0]?.id != null ? String(projects[0].id) : null)
       setForm((prev) => ({
         ...EMPTY_NOTICE,
         projectId: initialProjectId,
@@ -79,8 +83,8 @@ export default function NoticePublish() {
 
     setForm({
       type: notice.type || 'tender',
-      projectId: notice.projectId || null,
-      packages: (notice.packages || []).map((p) => p.id),
+      projectId: notice.projectId != null ? String(notice.projectId) : null,
+      packages: (notice.packages || []).map((p) => p.id ?? p.code ?? p.name),
       title: notice.title || '',
       changeReason: notice.changeReason || '',
       publishTime: notice.publishTime ? dayjs(notice.publishTime) : dayjs(),
@@ -112,11 +116,14 @@ export default function NoticePublish() {
     [projects, form.projectId]
   )
 
+  // 标段可能没有 id（新建项目的标段仅有 code/name），统一取可辨识键
+  const pkgKey = (pkg) => pkg.id ?? pkg.code ?? pkg.name
+
   const packageOptions = useMemo(
     () =>
       (selectedProject?.packages || []).map((pkg) => ({
         label: pkg.name,
-        value: pkg.id
+        value: pkgKey(pkg)
       })),
     [selectedProject]
   )
@@ -151,7 +158,7 @@ export default function NoticePublish() {
   const buildNoticePayload = (status) => {
     const typeMeta = NOTICE_TYPES.find((t) => t.value === form.type) || NOTICE_TYPES[0]
     const selectedPackages = (selectedProject?.packages || []).filter((p) =>
-      form.packages.includes(p.id)
+      form.packages.includes(pkgKey(p))
     )
 
     return {
@@ -164,7 +171,6 @@ export default function NoticePublish() {
       projectName: selectedProject?.name || '',
       packages: selectedPackages,
       changeReason: form.type === 'change' ? form.changeReason.trim() : '',
-      purchaseMode: selectedProject?.purchaseMode || '公开招标',
       publishTime: status === 'published' && form.publishTime
         ? dayjs(form.publishTime).format('YYYY-MM-DD HH:mm:ss')
         : '',
@@ -283,8 +289,22 @@ export default function NoticePublish() {
                   style={{ width: '100%' }}
                   value={form.projectId}
                   onChange={handleProjectChange}
-                  options={projects.map((p) => ({ label: p.name, value: p.id }))}
+                  options={projects.map((p) => ({ label: p.name, value: String(p.id) }))}
+                  notFoundContent={
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description="暂无可关联项目，请先在项目列表创建项目"
+                    />
+                  }
                 />
+                {projects.length === 0 && (
+                  <Alert
+                    type="warning"
+                    showIcon
+                    style={{ marginTop: 8 }}
+                    title="当前没有可关联的项目，请先在「项目管理」中创建项目后再发布公告。"
+                  />
+                )}
               </Form.Item>
             </Col>
           </Row>
@@ -366,7 +386,7 @@ export default function NoticePublish() {
                     { label: '邀请招标', value: '邀请招标' },
                     { label: '公开询比价', value: '公开询比价' },
                     { label: '竞争性谈判', value: '竞争性谈判' },
-                    { label: '单一来源', value: '单一来源' }
+                    { label: '邀请询比价', value: '邀请询比价' }
                   ]}
                 />
               </Form.Item>
@@ -523,7 +543,7 @@ export default function NoticePublish() {
                 <div className="preview-packages">
                   关联标段：
                   {selectedProject.packages
-                    .filter((p) => form.packages.includes(p.id))
+                    .filter((p) => form.packages.includes(pkgKey(p)))
                     .map((p) => p.name)
                     .join('、')}
                 </div>

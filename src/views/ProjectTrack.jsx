@@ -4,6 +4,12 @@ import { Card, Select, Alert, Timeline, Button, Descriptions, Tag, Table } from 
 import { projectStore } from '../data/projects.js'
 import { useRole } from '../hooks/useRole.js'
 import {
+  BASELINE_PROJECTS,
+  OPENING_EVALUATION_NODE_KEYS,
+  getPurchaseModeText,
+  isInvitedRfqProject
+} from './ProjectList.jsx'
+import {
   CheckCircleOutlined,
   EditOutlined,
   UploadOutlined,
@@ -28,12 +34,9 @@ export default function ProjectTrack() {
 
   const projectOptions = useMemo(() => {
     const stored = projectStore.getProjects().slice(0, 20)
-    const defaults = [
-      { id: '1', name: 'XX市轨道交通设备采购项目' },
-      { id: '2', name: '办公桌椅采购项目' }
-    ]
+    // 基线 mock 项目（含邀请询比价样例）+ projectStore 新建/变更项目，同 id 以 store 为准
     const map = new Map()
-    defaults.forEach((p) => map.set(String(p.id), p.name))
+    BASELINE_PROJECTS.forEach((p) => map.set(String(p.id), p.name))
     stored.forEach((p) => map.set(String(p.id), p.name))
     return Array.from(map.entries()).map(([value, label]) => ({ value, label }))
   }, [projectId])
@@ -41,6 +44,8 @@ export default function ProjectTrack() {
   const currentProject = useMemo(() => {
     const stored = projectStore.getProjectById(projectId)
     if (stored) return stored
+    const baseline = BASELINE_PROJECTS.find((p) => String(p.id) === String(projectId))
+    if (baseline) return baseline
     return {
       id: projectId,
       name: projectOptions.find((p) => p.value === projectId)?.label || '-',
@@ -51,6 +56,9 @@ export default function ProjectTrack() {
       ]
     }
   }, [projectId, projectOptions])
+
+  // 采购方式分流（add-purchase-method-flow-20260717）：纯邀请询比价项目无开标/评标节点
+  const invitedRfq = isInvitedRfqProject(currentProject)
 
   const deadline = currentProject.deadline || (currentProject.packages?.[0]?.bidEnd)
   const isDeadlinePassed = deadline ? new Date() > new Date(deadline) : false
@@ -70,11 +78,13 @@ export default function ProjectTrack() {
     WalletOutlined
   }
 
-  const nodes = [
-    { title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
-    { title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
-    { title: '发布招标公告', desc: '招标公告已发布至门户，供应商可报名', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
+  // 节点 key 与 ProjectList 的 PURCHASE_METHOD_FLOW_MAP 口径一致
+  const allNodes = [
+    { key: 'requirement', title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
+    { key: 'doc', title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
+    { key: 'notice', title: '发布招标公告', desc: '招标公告已发布至门户，供应商可报名', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
     {
+      key: 'register',
       title: '投标报名与缴费',
       desc: isBidder
         ? (paid ? '供应商报名并通过审核、已缴纳费用' : '供应商报名并通过审核、等待缴纳费用')
@@ -86,6 +96,7 @@ export default function ProjectTrack() {
       path: `/admin/bid-payment?projectId=${projectId}`
     },
     {
+      key: 'bid',
       title: '上传投标文件',
       desc: isBidder ? '供应商上传加密投标文件并报价' : '等待供应商上传加密投标文件并报价',
       time: paid ? '进行中' : '待进行',
@@ -94,11 +105,27 @@ export default function ProjectTrack() {
       action: isBidder && paid ? '去上传' : undefined,
       path: `/admin/bid-upload?projectId=${projectId}`
     },
-    { title: '线上开标', desc: '开标大厅完成签到、解密、唱标', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' },
-    { title: '线上评标', desc: '专家评分、生成评标报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
-    { title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' },
-    { title: '合同归档', desc: '上传合同，项目结束', time: '待进行', color: 'gray', icon: 'CheckSquareOutlined' }
+    { key: 'opening', title: '线上开标', desc: '开标大厅完成签到、解密、唱标', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' },
+    { key: 'evaluation', title: '线上评标', desc: '专家评分、生成评标报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
+    { key: 'award', title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' },
+    { key: 'contract', title: '合同归档', desc: '上传合同，项目结束', time: '待进行', color: 'gray', icon: 'CheckSquareOutlined' }
   ]
+
+  // 邀请询比价（清单 20）：时间线剔除开标/评标节点，报价后直接进入定标/采购结果；
+  // 定标节点对招标方给出「前往定标」入口（项目中心按钮联动）
+  const nodes = (invitedRfq
+    ? allNodes.filter((node) => !OPENING_EVALUATION_NODE_KEYS.includes(node.key))
+    : allNodes
+  ).map((node) =>
+    node.key === 'award' && invitedRfq && isTenderSide
+      ? {
+          ...node,
+          desc: '邀请询比价无开标/评标环节，报价截止后直接确认成交供应商并发布结果公示',
+          action: '前往定标',
+          path: `/admin/award-confirm?projectId=${projectId}`
+        }
+      : node
+  )
 
   const go = (path) => navigate({ to: path })
 
@@ -146,13 +173,18 @@ export default function ProjectTrack() {
         title={
           <div className="card-header">
             <span>项目跟踪</span>
-            <Select
-              placeholder="选择项目"
-              style={{ width: 260 }}
-              value={projectId}
-              onChange={(value) => setProjectId(value)}
-              options={projectOptions}
-            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Tag color={invitedRfq ? 'purple' : 'default'} style={{ marginInlineEnd: 0 }}>
+                采购方式：{getPurchaseModeText(currentProject)}
+              </Tag>
+              <Select
+                placeholder="选择项目"
+                style={{ width: 260 }}
+                value={projectId}
+                onChange={(value) => setProjectId(value)}
+                options={projectOptions}
+              />
+            </div>
           </div>
         }
       >
@@ -217,6 +249,16 @@ export default function ProjectTrack() {
               : isTenderSide
                 ? '当前为招标方视角，缴纳费用、上传投标文件等投标人动作由供应商在其工作台完成。'
                 : '当前角色仅可查看项目进度，不可执行投标人动作。'}
+            type="info"
+            showIcon
+            closable={false}
+            style={{ marginBottom: 20 }}
+          />
+        )}
+
+        {invitedRfq && (
+          <Alert
+            title="邀请询比价项目：无开标、评标环节，报价截止后直接进入采购结果，时间线已隐藏开标/评标节点。"
             type="info"
             showIcon
             closable={false}

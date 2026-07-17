@@ -64,6 +64,53 @@ export function validateRequiredFields(fields) {
 }
 
 /**
+ * 常用 Ant Design Form 校验规则构造器。
+ * 覆盖必填、长度、数字、自定义规则四类场景，配合 validateFields + validateAndScrollToError 使用。
+ *
+ * @example
+ * const rules = {
+ *   name: [formRules.required('请输入名称'), formRules.maxLength(100)],
+ *   budget: [formRules.required('请输入预算'), formRules.positiveNumber('预算必须大于 0')]
+ * }
+ */
+export const formRules = {
+  /** 必填 */
+  required(message = '该字段为必填项') {
+    return { required: true, message }
+  },
+  /** 最大长度 */
+  maxLength(max, message) {
+    return { max, message: message || `长度不能超过 ${max} 个字符` }
+  },
+  /** 数字（允许为空，非空时必须是数字） */
+  number(message = '请输入有效数字') {
+    return {
+      validator: (_, value) => {
+        if (value === undefined || value === null || value === '') return Promise.resolve()
+        return isNaN(Number(value))
+          ? Promise.reject(new Error(message))
+          : Promise.resolve()
+      }
+    }
+  },
+  /** 大于 0 的数字 */
+  positiveNumber(message = '请输入大于 0 的有效数字') {
+    return {
+      validator: (_, value) => {
+        if (value === undefined || value === null || value === '') return Promise.resolve()
+        return isNaN(Number(value)) || Number(value) <= 0
+          ? Promise.reject(new Error(message))
+          : Promise.resolve()
+      }
+    }
+  },
+  /** 自定义规则：validator(rule, value) => Promise */
+  custom(validator) {
+    return { validator }
+  }
+}
+
+/**
  * 滚动到自定义选择器对应的元素并聚焦。
  *
  * @param {string} selector - CSS 选择器

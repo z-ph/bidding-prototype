@@ -9,7 +9,7 @@ export default function AdminDictionary() {
         { id: 11, name: '公开招标', code: 'open', type: '选项', status: '启用' },
         { id: 12, name: '邀请招标', code: 'invitation', type: '选项', status: '启用' },
         { id: 13, name: '公开询比价', code: 'inquiry', type: '选项', status: '启用' },
-        { id: 14, name: '单一来源', code: 'single', type: '选项', status: '启用' }
+        { id: 14, name: '邀请询比价', code: 'invitation_inquiry', type: '选项', status: '启用' }
       ]
     },
     {
@@ -35,8 +35,13 @@ export default function AdminDictionary() {
     setDialogVisible(true)
   }
   const save = () => {
+    if (!form.name.trim() || !form.code.trim()) {
+      message.warning('请填写字典名称和字典编码后再保存')
+      return
+    }
     message.success('字典项已保存')
     setDialogVisible(false)
+    setForm({ name: '', code: '', parent: '' })
   }
 
   const columns = [
