@@ -120,8 +120,8 @@ const reviewData = [
   { id: 'test-005', source: '招投标测试', module: '评标大厅', page: 'ExpertProject', severity: 'P1', issue: '页面提示「签名后不可修改」，但完成电子签名后「返回修改」仍可用，分数和意见仍可编辑', status: '未修复', fix: '锁定仅由「提交」触发；签名后返回修改仍可用，与提示矛盾', commit: '-' },
 
   // 7.16招投标测试2（文件名来源）
-  { id: 'test2-001', source: '7.16招投标测试2', module: '用户管理', page: 'AdminUsers', severity: 'P0', issue: '管理员可以停用自己的账号：无本人防护、无二次确认、会话不失效、可再启用自己', status: '未修复', fix: 'AdminUsers toggleStatus 对含 admin 在内任意账号直接切换，无防护且列表仅存 useState、不影响登录', commit: '-' },
-  { id: 'test2-002', source: '7.16招投标测试2', module: '用户管理', page: 'AdminUsers', severity: 'P1', issue: '新增用户空表也提示保存成功，列表没有新增用户', status: '未修复', fix: '新增用户无必填校验，空表保存仅 message 且不入列表、不持久化', commit: '-' },
+  { id: 'test2-001', source: '7.16招投标测试2', module: '用户管理', page: 'AdminUsers', severity: 'P0', issue: '管理员可以停用自己的账号：无本人防护、无二次确认、会话不失效、可再启用自己', status: '已修复', fix: '当前登录账号停用按钮禁用并 Tooltip 提示；停用/启用任意账号均需 Modal 二次确认；用户列表持久化 userStore；Login 读取 userStore 拦截被停用账号登录', commit: 'fix(admin-users)' },
+  { id: 'test2-002', source: '7.16招投标测试2', module: '用户管理', page: 'AdminUsers', severity: 'P1', issue: '新增用户空表也提示保存成功，列表没有新增用户', status: '已修复', fix: '新增用户校验账号必填且唯一、姓名/角色/所属组织必填，失败给字段级提示并阻断；成功立即入列表并持久化', commit: 'fix(admin-users)' },
   { id: 'test2-003', source: '7.16招投标测试2', module: '评标大厅', page: 'ExpertTasks', severity: 'P1', issue: '过期任务仍可进入评标，任务时间结束后仍可打开并继续操作', status: '未修复', fix: 'ExpertTasks 任务状态硬编码「待评标」，无截止时间与过期阻断', commit: '-' },
 
   // yy0 无问题页面

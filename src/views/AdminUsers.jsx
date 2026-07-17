@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Alert, Button, Card, Col, Form, Input, Modal, Row, Select, Table, Tag, message } from 'antd'
+import { Alert, Button, Card, Col, Form, Input, Modal, Row, Select, Table, Tag, Tooltip, message } from 'antd'
 import { loadUsers, saveUsers } from '../data/userStore'
 
 const roleOptions = [
@@ -40,12 +40,32 @@ export default function AdminUsers() {
   const load = () => message.success('查询用户')
   const edit = (row) => message.success(`编辑：${row.name}`)
   const setPermission = (row) => message.success(`配置 ${row.name} 的菜单权限`)
-  const toggleStatus = (row) => {
-    updateUsers(
-      users.map((user) =>
-        user === row ? { ...user, status: user.status === '启用' ? '禁用' : '启用' } : user
-      )
-    )
+
+  // 当前登录账号（用于禁止停用本人）
+  const currentAccount = localStorage.getItem('bidding-account') || ''
+
+  const requestToggleStatus = (row) => {
+    // 禁止停用当前登录账号（test2-001 P0 核心防护）
+    if (row.status === '启用' && row.account === currentAccount) {
+      message.warning('不能停用当前登录账号')
+      return
+    }
+    const action = row.status === '启用' ? '停用' : '启用'
+    Modal.confirm({
+      title: `确认${action}用户`,
+      content: `确定要${action}「${row.name}（${row.account}）」吗？${row.status === '启用' ? '停用后该账号将无法登录。' : ''}`,
+      okText: action,
+      okButtonProps: { danger: row.status === '启用' },
+      cancelText: '取消',
+      onOk: () => {
+        updateUsers(
+          users.map((user) =>
+            user === row ? { ...user, status: user.status === '启用' ? '禁用' : '启用' } : user
+          )
+        )
+        message.success(`已${action}「${row.name}」`)
+      }
+    })
   }
   const save = () => {
     // 新增用户校验：账号必填且唯一、姓名必填、角色必选、所属组织必填
@@ -87,15 +107,30 @@ export default function AdminUsers() {
     {
       title: '操作',
       width: 200,
-      render: (_, row) => (
-        <>
-          <Button type="link" onClick={() => edit(row)}>编辑</Button>
-          <Button type="link" onClick={() => setPermission(row)}>权限</Button>
-          <Button type="link" danger onClick={() => toggleStatus(row)}>
+      render: (_, row) => {
+        const isSelfDisable = row.status === '启用' && row.account === currentAccount
+        const toggleBtn = (
+          <Button
+            type="link"
+            danger={row.status === '启用'}
+            disabled={isSelfDisable}
+            onClick={() => requestToggleStatus(row)}
+          >
             {row.status === '启用' ? '禁用' : '启用'}
           </Button>
-        </>
-      )
+        )
+        return (
+          <>
+            <Button type="link" onClick={() => edit(row)}>编辑</Button>
+            <Button type="link" onClick={() => setPermission(row)}>权限</Button>
+            {isSelfDisable ? (
+              <Tooltip title="不能停用当前登录账号">{toggleBtn}</Tooltip>
+            ) : (
+              toggleBtn
+            )}
+          </>
+        )
+      }
     }
   ]
 

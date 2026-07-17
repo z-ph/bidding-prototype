@@ -18,6 +18,7 @@ import {
 } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
 import { resolveRoleFromAccount, ROLE_NAMES } from '../config/permissions.js'
+import { isAccountDisabled } from '../data/userStore'
 
 const DEMO_ACCOUNTS = {
   tenderee: '123456',
@@ -82,9 +83,15 @@ export default function Login() {
 
   const accountLogin = () => {
     accountForm.validateFields().then((values) => {
-      const key = String(values.account).toLowerCase().trim()
+      const rawAccount = String(values.account).trim()
+      const key = rawAccount.toLowerCase().trim()
       if (!DEMO_ACCOUNTS[key] || DEMO_ACCOUNTS[key] !== values.password) {
         message.error('账号或密码错误')
+        return
+      }
+      // 登录拦截：账号在用户管理中被停用则禁止登录（test2-001）
+      if (isAccountDisabled(rawAccount) || isAccountDisabled(key)) {
+        message.error('该账号已被停用，请联系管理员')
         return
       }
       const resolvedRole = resolveRoleFromAccount(values.account)
