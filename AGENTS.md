@@ -28,6 +28,10 @@
 - JavaScript（不引入 TypeScript）
 - Mock 数据优先，外部服务（短信、CA）只做沙箱/预留接口
 
+## 版本信息维护
+
+页面评审导出报告会通过 `src/App.jsx` 的 `reportInfo` 自动注入 `package.json` 的 `name`/`version`，用于把评审反馈对应到具体版本。每次完成一轮实质变更（评审整改、功能交付、对外演示前）都必须递增 `package.json` 的 `version`——不能让版本号停留在旧值，否则导出的评审报告无法区分是哪一版代码。
+
 ## 路由约定
 
 本项目使用 TanStack Router 文件路由。官方文档见：

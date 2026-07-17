@@ -4,6 +4,7 @@ import { Button } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import { ReviewTool } from 'react-page-review'
 import { routeTree } from './routeTree.gen.ts'
+import appInfo from '../package.json'
 
 const hashHistory = createHashHistory()
 
@@ -29,7 +30,11 @@ function App() {
         title="页面评审"
         onClick={() => setReviewActive(true)}
       />
-      <ReviewTool active={reviewActive} onActiveChange={setReviewActive} />
+      <ReviewTool
+        active={reviewActive}
+        onActiveChange={setReviewActive}
+        reportInfo={{ version: appInfo.version, app: appInfo.name }}
+      />
       <style>{`
         * {
           margin: 0;
