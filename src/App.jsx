@@ -5,6 +5,7 @@ import { EditOutlined } from '@ant-design/icons'
 import { ReviewTool } from 'react-page-review'
 import { routeTree } from './routeTree.gen.ts'
 import appInfo from '../package.json'
+import VersionWatermark from './components/VersionWatermark.jsx'
 
 const hashHistory = createHashHistory()
 
@@ -20,7 +21,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <VersionWatermark>
+        <RouterProvider router={router} />
+      </VersionWatermark>
       <Button
         className="review-fab"
         type="primary"
