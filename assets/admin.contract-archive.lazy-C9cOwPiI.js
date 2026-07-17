@@ -1,0 +1,18 @@
+import{Q as e,Y as t,c as n}from"./useStore-DliLxn3V.js";import{gn as r,t as i}from"./button-B1Wwau7K.js";import{n as a}from"./fileRoute-Y-ryzvVx.js";import{t as o}from"./alert-DNojNYNq.js";import{t as s}from"./message-JNHFxrNa.js";import{t as c}from"./card-BrdtLDdw.js";import{t as l}from"./date-picker-Da5G3KY5.js";import{n as u,t as d}from"./row-D6x3dI6b.js";import{t as f}from"./form-czL32uA-.js";import{t as p}from"./input-CoPgOTIQ.js";import{t as m}from"./upload-S2H3Ifwn.js";import{t as h}from"./steps-8VL_JDwR.js";import{t as g}from"./tag-zBq3O40n.js";import{t as _}from"./UploadOutlined-DI-vVzQB.js";var v=e(t(),1),y=n();function ContractArchive(){let e=r(),[t,n]=(0,v.useState)({code:``,amount:``,signDate:null,endDate:null,remark:``}),[a,b]=(0,v.useState)([]),updateField=(e,t)=>{n(n=>({...n,[e]:t}))};return(0,y.jsxs)(`div`,{className:`contract-archive`,children:[(0,y.jsxs)(c,{title:(0,y.jsxs)(`div`,{className:`card-header`,children:[(0,y.jsx)(`span`,{children:`合同归档`}),(0,y.jsx)(g,{color:`blue`,children:`项目：XX市轨道交通设备采购项目`})]}),children:[(0,y.jsx)(h,{current:5,style:{marginBottom:24},items:[{title:`评标结束`},{title:`候选人公示`},{title:`确认中标人`},{title:`发送通知书`},{title:`合同归档`}]}),(0,y.jsx)(o,{title:`上传签订后的中标合同，填写合同信息，完成项目全流程归档。归档后项目状态变更为“已完成”。`,type:`success`,showIcon:!0,closable:!1,style:{marginBottom:20}}),(0,y.jsxs)(f,{layout:`horizontal`,labelCol:{flex:`120px`},children:[(0,y.jsxs)(d,{gutter:20,children:[(0,y.jsx)(u,{span:12,children:(0,y.jsx)(f.Item,{label:`合同编号`,required:!0,children:(0,y.jsx)(p,{placeholder:`请输入合同编号`,value:t.code,onChange:e=>updateField(`code`,e.target.value)})})}),(0,y.jsx)(u,{span:12,children:(0,y.jsx)(f.Item,{label:`合同金额`,required:!0,children:(0,y.jsx)(p,{placeholder:`请输入合同金额`,addonAfter:`万元`,value:t.amount,onChange:e=>updateField(`amount`,e.target.value)})})})]}),(0,y.jsxs)(d,{gutter:20,children:[(0,y.jsx)(u,{span:12,children:(0,y.jsx)(f.Item,{label:`签订日期`,required:!0,children:(0,y.jsx)(l,{style:{width:`100%`},value:t.signDate,onChange:e=>updateField(`signDate`,e)})})}),(0,y.jsx)(u,{span:12,children:(0,y.jsx)(f.Item,{label:`履约截止日期`,required:!0,children:(0,y.jsx)(l,{style:{width:`100%`},value:t.endDate,onChange:e=>updateField(`endDate`,e)})})})]}),(0,y.jsx)(f.Item,{label:`合同文件`,required:!0,children:(0,y.jsxs)(m.Dragger,{fileList:a,onChange:({fileList:e})=>b(e),beforeUpload:()=>!1,multiple:!0,style:{width:`100%`},children:[(0,y.jsx)(`p`,{className:`ant-upload-drag-icon`,children:(0,y.jsx)(_,{style:{fontSize:40}})}),(0,y.jsxs)(`p`,{className:`ant-upload-text`,children:[`拖拽合同文件到此处或 `,(0,y.jsx)(`em`,{children:`点击上传`})]})]})}),(0,y.jsx)(f.Item,{label:`备注`,children:(0,y.jsx)(p.TextArea,{rows:3,placeholder:`其他需要归档说明的内容`,value:t.remark,onChange:e=>updateField(`remark`,e.target.value)})})]}),(0,y.jsxs)(`div`,{className:`actions`,children:[(0,y.jsx)(i,{type:`primary`,size:`large`,onClick:()=>{s.success(`合同归档完成，项目已结束`),e({to:`/admin/projects`})},children:`完成归档`}),(0,y.jsx)(i,{size:`large`,onClick:()=>e({to:`/admin/projects`}),children:`返回项目列表`})]})]}),(0,y.jsx)(`style`,{children:`
+        .contract-archive {
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+        .contract-archive .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-weight: bold;
+        }
+        .contract-archive .actions {
+          display: flex;
+          justify-content: center;
+          gap: 16px;
+          margin-top: 24px;
+        }
+      `})]})}var b=a(`/admin/contract-archive`)({component:ContractArchive});export{b as Route};
