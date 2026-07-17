@@ -1,5 +1,12 @@
 // 招标文件版本链 mock 数据存储
 // 支持按项目保存多版本招标文件，供 TenderDoc、BidDownload、ExpertProject 共享同一文件对象
+//
+// 版本业务状态口径（2026-07-17 需求确认：招标文件需审批后发布）：
+// - editing / previewing：编制中
+// - pendingConfirm：待确认（招标人确认，委托代理模式下招标人只读确认）
+// - confirmed / pendingApproval：待审批（预留，正式审批流由审批中心提案实施）
+// - published：已发布（当前生效版本，同一项目同一时间仅一个）
+// - archived：已归档（新版本发布时旧的已发布版本自动归档为历史版本）
 
 import { defaultCatalog } from './tenderDocCatalog.js'
 
@@ -189,10 +196,38 @@ export const tenderDocStore = {
     return next
   },
   publishVersion(projectId, versionId, patch) {
-    return this.updateVersion(projectId, versionId, {
-      ...patch,
-      status: 'published',
-      publishedAt: nowString()
+    const docs = loadAll()
+    const key = String(projectId)
+    const versions = docs[key] || []
+    const idx = versions.findIndex((v) => v.id === versionId)
+    if (idx === -1) return null
+    const now = nowString()
+    // 版本链衔接：发布新版本时，旧的已发布版本自动归档为历史版本（archived），
+    // 保证同一项目同一时间仅一个生效的 published 版本
+    const nextVersions = versions.map((v, i) => {
+      if (v.id === versionId || v.status !== 'published') return v
+      return {
+        ...v,
+        status: 'archived',
+        archivedAt: now,
+        history: [
+          { id: Date.now() + i + 1, content: `新版本发布，${v.versionNo} 自动归档为历史版本`, time: now, type: 'info' },
+          ...(v.history || [])
+        ]
+      }
     })
+    const target = nextVersions[idx]
+    const published = {
+      ...target,
+      ...patch,
+      id: target.id,
+      status: 'published',
+      publishedAt: now,
+      updatedAt: patch?.updatedAt || now
+    }
+    nextVersions.splice(idx, 1, published)
+    docs[key] = nextVersions
+    saveAll(docs)
+    return published
   }
 }
