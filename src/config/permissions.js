@@ -70,6 +70,7 @@ export const PAGE_PERMISSIONS = {
 
   // 开发效率页面：所有角色可见
   '/admin/review-change-list': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+  '/admin/changelog': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
 
   // 管理员页面
   '/admin/admin-dashboard': ['admin'],

@@ -20,7 +20,8 @@ import {
   TeamOutlined,
   ScheduleOutlined,
   BarChartOutlined,
-  AuditOutlined
+  AuditOutlined,
+  HistoryOutlined
 } from '@ant-design/icons'
 import { useMemo } from 'react'
 import { useNavigate, useLocation, useMatches, Link, Outlet } from '@tanstack/react-router'
@@ -50,7 +51,8 @@ function useMenuItems(role) {
   const common = [
     { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
     { key: '/admin/todo-center', label: '待办中心', icon: ScheduleOutlined },
-    { key: '/admin/review-change-list', label: '评审变更列表', icon: UnorderedListOutlined }
+    { key: '/admin/review-change-list', label: '评审变更列表', icon: UnorderedListOutlined },
+    { key: '/admin/changelog', label: '变更时间线', icon: HistoryOutlined }
   ]
 
   const tendereeMenus = [

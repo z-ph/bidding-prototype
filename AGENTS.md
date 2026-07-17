@@ -32,6 +32,8 @@
 
 页面评审导出报告会通过 `src/App.jsx` 的 `reportInfo` 自动注入 `package.json` 的 `name`/`version`，同时 `src/components/VersionWatermark.jsx` 会把 `version` 以水印形式平铺显示在所有页面上，两者都用于把评审反馈/截图对应到具体版本。每次完成一轮实质变更（评审整改、功能交付、对外演示前）都必须递增 `package.json` 的 `version`——不能让版本号停留在旧值，否则导出的评审报告和页面水印都无法区分是哪一版代码。
 
+递增 `version` 时必须同步在 `src/data/changelog.js` 顶部新增对应条目（版本号、日期、变更明细），变更时间线页面（`/admin/changelog`，全角色菜单可见）按该数据自动渲染。
+
 ## 路由约定
 
 本项目使用 TanStack Router 文件路由。官方文档见：
