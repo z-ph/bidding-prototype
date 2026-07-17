@@ -1,0 +1,81 @@
+{
+  "proposal": "add-bidder-review-flows-20260717",
+  "tasks": [
+    {
+      "id": "registration-store",
+      "title": "报名落库 registrationStore（cxy-014 上游）",
+      "description": "新建 src/data/registrationStore.js（localStorage）；BidRegister 提交写入报名记录（项目/标段/企业/资质校验结果/状态）；标段 needRegisterAudit=false 时直接「已通过」，否则「待审核」。邀请制项目校验 invitedBidders，非受邀阻断报名。",
+      "files": ["src/data/registrationStore.js", "src/views/BidRegister.jsx"],
+      "acceptance": [
+        "提交报名后 registrationStore 出现记录",
+        "needRegisterAudit=false 的标段报名直接通过",
+        "邀请制项目非受邀企业报名被阻断并提示"
+      ]
+    },
+    {
+      "id": "registration-audit-page",
+      "title": "报名审核页 RegistrationAudit（cxy-014）",
+      "description": "新增 src/views/RegistrationAudit.jsx：报名列表（项目/标段/企业/资质/状态）、查看详情、通过/驳回并填审核意见，状态回写 registrationStore。路由/菜单/权限由基础设施接线。",
+      "files": ["src/views/RegistrationAudit.jsx", "src/data/registrationStore.js"],
+      "acceptance": [
+        "列表展示待审核报名",
+        "通过/驳回后状态更新并持久化",
+        "驳回需填写审核意见"
+      ]
+    },
+    {
+      "id": "payment-gating",
+      "title": "缴费落库与下载前置（cxy-013、1415-009）",
+      "description": "BidPayment 提交写入 registrationStore/缴费记录（金额按报名标段标书费合计，页面明示「标书费按标段收取、招标文件按项目发放」）；BidDownload 校验报名审核+缴费审核均通过才允许下载，否则阻断并指引。",
+      "files": ["src/views/BidPayment.jsx", "src/views/BidDownload.jsx", "src/data/registrationStore.js"],
+      "acceptance": [
+        "缴费提交落库且状态为待审核",
+        "未缴费/未审核通过时下载被阻断并提示",
+        "缴费页金额按报名标段合计"
+      ]
+    },
+    {
+      "id": "invitation-loop",
+      "title": "投标邀请闭环（cal-002、1415-006）",
+      "description": "新建 invitationStore 记录邀请（项目/企业/时间/状态）；新增 BidderInvitations 页：供应商查看受邀项目并接受/拒绝；BidderProjects/项目中心展示邀请入口与状态跟踪（已发送/已接受/已拒绝）。",
+      "files": ["src/data/invitationStore.js", "src/views/BidderInvitations.jsx", "src/views/BidderProjects.jsx"],
+      "acceptance": [
+        "供应商可见受邀项目列表",
+        "接受/拒绝后状态持久化",
+        "发出端可见邀请状态"
+      ]
+    },
+    {
+      "id": "bidder-projects-entries",
+      "title": "项目中心详情与入口聚合（2052-005、2052-006）",
+      "description": "BidderProjects 详情按钮跳 /admin/projects/detail/:id；按项目状态聚合「进入开标大厅」「查看中标通知」按钮（跳转 opening-hall/award-notice）。",
+      "files": ["src/views/BidderProjects.jsx"],
+      "acceptance": [
+        "详情按钮跳真实详情页",
+        "到达开标阶段的项目显示开标大厅入口",
+        "已定标项目显示中标通知入口"
+      ]
+    },
+    {
+      "id": "supplier-objections",
+      "title": "供应商异议中心（cal-007、cxy-019）",
+      "description": "新增 SupplierObjections.jsx：当前供应商的质疑/异议列表（objectionStore）、答复状态与答复内容查看。objectionStore 仅追加按提交人查询的辅助函数，不改既有 API。",
+      "files": ["src/views/SupplierObjections.jsx", "src/data/objectionStore.js"],
+      "acceptance": [
+        "供应商可看到自己提交的质疑/异议列表",
+        "可查看答复状态与答复内容",
+        "BidDownload 提交的质疑出现在列表中"
+      ]
+    },
+    {
+      "id": "quote-project-gate",
+      "title": "在线报价项目选择门槛（1415-005）",
+      "description": "BidQuote 无 projectId 时先展示项目选择，选择后按项目/标段渲染报价字段；有 projectId 时保持现有行为。",
+      "files": ["src/views/BidQuote.jsx"],
+      "acceptance": [
+        "菜单直接进入时先选项目",
+        "选择项目后报价字段按该项目标段渲染"
+      ]
+    }
+  ]
+}
