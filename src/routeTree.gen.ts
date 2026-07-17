@@ -20,8 +20,12 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as NoticeIdRouteImport } from './routes/notice.$id'
+import { Route as AdminTodoCenterRouteImport } from './routes/admin.todo-center'
 import { Route as AdminTenderDocRouteImport } from './routes/admin.tender-doc'
+import { Route as AdminTemplateManageRouteImport } from './routes/admin.template-manage'
+import { Route as AdminSystemSettingsRouteImport } from './routes/admin.system-settings'
 import { Route as AdminSupplierProfileRouteImport } from './routes/admin.supplier-profile'
+import { Route as AdminSupplierAuthorizationRouteImport } from './routes/admin.supplier-authorization'
 import { Route as AdminSupervisorLogsRouteImport } from './routes/admin.supervisor-logs'
 import { Route as AdminSupervisorHallRouteImport } from './routes/admin.supervisor-hall'
 import { Route as AdminSupervisorAbnormalRouteImport } from './routes/admin.supervisor-abnormal'
@@ -32,6 +36,7 @@ import { Route as AdminProcurementRequirementsRouteImport } from './routes/admin
 import { Route as AdminOrganizationRouteImport } from './routes/admin.organization'
 import { Route as AdminOpeningHallRouteImport } from './routes/admin.opening-hall'
 import { Route as AdminObjectionManageRouteImport } from './routes/admin.objection-manage'
+import { Route as AdminNotificationManageRouteImport } from './routes/admin.notification-manage'
 import { Route as AdminNoticePublishRouteImport } from './routes/admin.notice-publish'
 import { Route as AdminNoticeListRouteImport } from './routes/admin.notice-list'
 import { Route as AdminMessageCenterRouteImport } from './routes/admin.message-center'
@@ -53,12 +58,17 @@ import { Route as AdminBidPaymentRouteImport } from './routes/admin.bid-payment'
 import { Route as AdminBidDownloadRouteImport } from './routes/admin.bid-download'
 import { Route as AdminAwardNoticeRouteImport } from './routes/admin.award-notice'
 import { Route as AdminAwardConfirmRouteImport } from './routes/admin.award-confirm'
+import { Route as AdminApprovalFlowConfigRouteImport } from './routes/admin.approval-flow-config'
+import { Route as AdminApprovalCenterRouteImport } from './routes/admin.approval-center'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminAdminUsersRouteImport } from './routes/admin.admin-users'
 import { Route as AdminAdminSupplierAuditRouteImport } from './routes/admin.admin-supplier-audit'
 import { Route as AdminAdminNewsRouteImport } from './routes/admin.admin-news'
 import { Route as AdminAdminLogsRouteImport } from './routes/admin.admin-logs'
 import { Route as AdminAdminDictionaryRouteImport } from './routes/admin.admin-dictionary'
 import { Route as AdminAdminDashboardRouteImport } from './routes/admin.admin-dashboard'
+import { Route as AdminProjectsIndexRouteImport } from './routes/admin.projects.index'
+import { Route as AdminProcurementRequirementsIndexRouteImport } from './routes/admin.procurement-requirements.index'
 import { Route as AdminProjectsTrackRouteImport } from './routes/admin.projects.track'
 import { Route as AdminProjectsCreateRouteImport } from './routes/admin.projects.create'
 import { Route as AdminProcurementRequirementsEditRouteImport } from './routes/admin.procurement-requirements.edit'
@@ -121,12 +131,33 @@ const NoticeIdRoute = NoticeIdRouteImport.update({
   path: '/notice/$id',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/notice.$id.lazy').then((d) => d.Route))
+const AdminTodoCenterRoute = AdminTodoCenterRouteImport.update({
+  id: '/todo-center',
+  path: '/todo-center',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.todo-center.lazy').then((d) => d.Route),
+)
 const AdminTenderDocRoute = AdminTenderDocRouteImport.update({
   id: '/tender-doc',
   path: '/tender-doc',
   getParentRoute: () => AdminRoute,
 } as any).lazy(() =>
   import('./routes/admin.tender-doc.lazy').then((d) => d.Route),
+)
+const AdminTemplateManageRoute = AdminTemplateManageRouteImport.update({
+  id: '/template-manage',
+  path: '/template-manage',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.template-manage.lazy').then((d) => d.Route),
+)
+const AdminSystemSettingsRoute = AdminSystemSettingsRouteImport.update({
+  id: '/system-settings',
+  path: '/system-settings',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.system-settings.lazy').then((d) => d.Route),
 )
 const AdminSupplierProfileRoute = AdminSupplierProfileRouteImport.update({
   id: '/supplier-profile',
@@ -135,6 +166,14 @@ const AdminSupplierProfileRoute = AdminSupplierProfileRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.supplier-profile.lazy').then((d) => d.Route),
 )
+const AdminSupplierAuthorizationRoute =
+  AdminSupplierAuthorizationRouteImport.update({
+    id: '/supplier-authorization',
+    path: '/supplier-authorization',
+    getParentRoute: () => AdminRoute,
+  } as any).lazy(() =>
+    import('./routes/admin.supplier-authorization.lazy').then((d) => d.Route),
+  )
 const AdminSupervisorLogsRoute = AdminSupervisorLogsRouteImport.update({
   id: '/supervisor-logs',
   path: '/supervisor-logs',
@@ -174,17 +213,13 @@ const AdminProjectsRoute = AdminProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
   getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.projects.lazy').then((d) => d.Route),
-)
+} as any)
 const AdminProcurementRequirementsRoute =
   AdminProcurementRequirementsRouteImport.update({
     id: '/procurement-requirements',
     path: '/procurement-requirements',
     getParentRoute: () => AdminRoute,
-  } as any).lazy(() =>
-    import('./routes/admin.procurement-requirements.lazy').then((d) => d.Route),
-  )
+  } as any)
 const AdminOrganizationRoute = AdminOrganizationRouteImport.update({
   id: '/organization',
   path: '/organization',
@@ -205,6 +240,13 @@ const AdminObjectionManageRoute = AdminObjectionManageRouteImport.update({
   getParentRoute: () => AdminRoute,
 } as any).lazy(() =>
   import('./routes/admin.objection-manage.lazy').then((d) => d.Route),
+)
+const AdminNotificationManageRoute = AdminNotificationManageRouteImport.update({
+  id: '/notification-manage',
+  path: '/notification-manage',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.notification-manage.lazy').then((d) => d.Route),
 )
 const AdminNoticePublishRoute = AdminNoticePublishRouteImport.update({
   id: '/notice-publish',
@@ -353,6 +395,27 @@ const AdminAwardConfirmRoute = AdminAwardConfirmRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.award-confirm.lazy').then((d) => d.Route),
 )
+const AdminApprovalFlowConfigRoute = AdminApprovalFlowConfigRouteImport.update({
+  id: '/approval-flow-config',
+  path: '/approval-flow-config',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.approval-flow-config.lazy').then((d) => d.Route),
+)
+const AdminApprovalCenterRoute = AdminApprovalCenterRouteImport.update({
+  id: '/approval-center',
+  path: '/approval-center',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.approval-center.lazy').then((d) => d.Route),
+)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.analytics.lazy').then((d) => d.Route),
+)
 const AdminAdminUsersRoute = AdminAdminUsersRouteImport.update({
   id: '/admin-users',
   path: '/admin-users',
@@ -395,6 +458,23 @@ const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.admin-dashboard.lazy').then((d) => d.Route),
 )
+const AdminProjectsIndexRoute = AdminProjectsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminProjectsRoute,
+} as any).lazy(() =>
+  import('./routes/admin.projects.index.lazy').then((d) => d.Route),
+)
+const AdminProcurementRequirementsIndexRoute =
+  AdminProcurementRequirementsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AdminProcurementRequirementsRoute,
+  } as any).lazy(() =>
+    import('./routes/admin.procurement-requirements.index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
 const AdminProjectsTrackRoute = AdminProjectsTrackRouteImport.update({
   id: '/track',
   path: '/track',
@@ -443,6 +523,9 @@ export interface FileRoutesByFullPath {
   '/admin/admin-news': typeof AdminAdminNewsRoute
   '/admin/admin-supplier-audit': typeof AdminAdminSupplierAuditRoute
   '/admin/admin-users': typeof AdminAdminUsersRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/approval-center': typeof AdminApprovalCenterRoute
+  '/admin/approval-flow-config': typeof AdminApprovalFlowConfigRoute
   '/admin/award-confirm': typeof AdminAwardConfirmRoute
   '/admin/award-notice': typeof AdminAwardNoticeRoute
   '/admin/bid-download': typeof AdminBidDownloadRoute
@@ -464,6 +547,7 @@ export interface FileRoutesByFullPath {
   '/admin/message-center': typeof AdminMessageCenterRoute
   '/admin/notice-list': typeof AdminNoticeListRoute
   '/admin/notice-publish': typeof AdminNoticePublishRoute
+  '/admin/notification-manage': typeof AdminNotificationManageRoute
   '/admin/objection-manage': typeof AdminObjectionManageRoute
   '/admin/opening-hall': typeof AdminOpeningHallRoute
   '/admin/organization': typeof AdminOrganizationRoute
@@ -474,13 +558,19 @@ export interface FileRoutesByFullPath {
   '/admin/supervisor-abnormal': typeof AdminSupervisorAbnormalRoute
   '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
   '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
+  '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
+  '/admin/system-settings': typeof AdminSystemSettingsRoute
+  '/admin/template-manage': typeof AdminTemplateManageRoute
   '/admin/tender-doc': typeof AdminTenderDocRoute
+  '/admin/todo-center': typeof AdminTodoCenterRoute
   '/notice/$id': typeof NoticeIdRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/procurement-requirements/edit': typeof AdminProcurementRequirementsEditRoute
   '/admin/projects/create': typeof AdminProjectsCreateRoute
   '/admin/projects/track': typeof AdminProjectsTrackRoute
+  '/admin/procurement-requirements/': typeof AdminProcurementRequirementsIndexRoute
+  '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/projects/detail/$id': typeof AdminProjectsDetailIdRoute
 }
 export interface FileRoutesByTo {
@@ -498,6 +588,9 @@ export interface FileRoutesByTo {
   '/admin/admin-news': typeof AdminAdminNewsRoute
   '/admin/admin-supplier-audit': typeof AdminAdminSupplierAuditRoute
   '/admin/admin-users': typeof AdminAdminUsersRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/approval-center': typeof AdminApprovalCenterRoute
+  '/admin/approval-flow-config': typeof AdminApprovalFlowConfigRoute
   '/admin/award-confirm': typeof AdminAwardConfirmRoute
   '/admin/award-notice': typeof AdminAwardNoticeRoute
   '/admin/bid-download': typeof AdminBidDownloadRoute
@@ -519,23 +612,28 @@ export interface FileRoutesByTo {
   '/admin/message-center': typeof AdminMessageCenterRoute
   '/admin/notice-list': typeof AdminNoticeListRoute
   '/admin/notice-publish': typeof AdminNoticePublishRoute
+  '/admin/notification-manage': typeof AdminNotificationManageRoute
   '/admin/objection-manage': typeof AdminObjectionManageRoute
   '/admin/opening-hall': typeof AdminOpeningHallRoute
   '/admin/organization': typeof AdminOrganizationRoute
-  '/admin/procurement-requirements': typeof AdminProcurementRequirementsRouteWithChildren
-  '/admin/projects': typeof AdminProjectsRouteWithChildren
   '/admin/review-change-list': typeof AdminReviewChangeListRoute
   '/admin/sub-accounts': typeof AdminSubAccountsRoute
   '/admin/supervisor-abnormal': typeof AdminSupervisorAbnormalRoute
   '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
   '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
+  '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
+  '/admin/system-settings': typeof AdminSystemSettingsRoute
+  '/admin/template-manage': typeof AdminTemplateManageRoute
   '/admin/tender-doc': typeof AdminTenderDocRoute
+  '/admin/todo-center': typeof AdminTodoCenterRoute
   '/notice/$id': typeof NoticeIdRoute
   '/admin': typeof AdminIndexRoute
   '/admin/procurement-requirements/edit': typeof AdminProcurementRequirementsEditRoute
   '/admin/projects/create': typeof AdminProjectsCreateRoute
   '/admin/projects/track': typeof AdminProjectsTrackRoute
+  '/admin/procurement-requirements': typeof AdminProcurementRequirementsIndexRoute
+  '/admin/projects': typeof AdminProjectsIndexRoute
   '/admin/projects/detail/$id': typeof AdminProjectsDetailIdRoute
 }
 export interface FileRoutesById {
@@ -555,6 +653,9 @@ export interface FileRoutesById {
   '/admin/admin-news': typeof AdminAdminNewsRoute
   '/admin/admin-supplier-audit': typeof AdminAdminSupplierAuditRoute
   '/admin/admin-users': typeof AdminAdminUsersRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/approval-center': typeof AdminApprovalCenterRoute
+  '/admin/approval-flow-config': typeof AdminApprovalFlowConfigRoute
   '/admin/award-confirm': typeof AdminAwardConfirmRoute
   '/admin/award-notice': typeof AdminAwardNoticeRoute
   '/admin/bid-download': typeof AdminBidDownloadRoute
@@ -576,6 +677,7 @@ export interface FileRoutesById {
   '/admin/message-center': typeof AdminMessageCenterRoute
   '/admin/notice-list': typeof AdminNoticeListRoute
   '/admin/notice-publish': typeof AdminNoticePublishRoute
+  '/admin/notification-manage': typeof AdminNotificationManageRoute
   '/admin/objection-manage': typeof AdminObjectionManageRoute
   '/admin/opening-hall': typeof AdminOpeningHallRoute
   '/admin/organization': typeof AdminOrganizationRoute
@@ -586,13 +688,19 @@ export interface FileRoutesById {
   '/admin/supervisor-abnormal': typeof AdminSupervisorAbnormalRoute
   '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
   '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
+  '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
+  '/admin/system-settings': typeof AdminSystemSettingsRoute
+  '/admin/template-manage': typeof AdminTemplateManageRoute
   '/admin/tender-doc': typeof AdminTenderDocRoute
+  '/admin/todo-center': typeof AdminTodoCenterRoute
   '/notice/$id': typeof NoticeIdRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/procurement-requirements/edit': typeof AdminProcurementRequirementsEditRoute
   '/admin/projects/create': typeof AdminProjectsCreateRoute
   '/admin/projects/track': typeof AdminProjectsTrackRoute
+  '/admin/procurement-requirements/': typeof AdminProcurementRequirementsIndexRoute
+  '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/projects/detail/$id': typeof AdminProjectsDetailIdRoute
 }
 export interface FileRouteTypes {
@@ -613,6 +721,9 @@ export interface FileRouteTypes {
     | '/admin/admin-news'
     | '/admin/admin-supplier-audit'
     | '/admin/admin-users'
+    | '/admin/analytics'
+    | '/admin/approval-center'
+    | '/admin/approval-flow-config'
     | '/admin/award-confirm'
     | '/admin/award-notice'
     | '/admin/bid-download'
@@ -634,6 +745,7 @@ export interface FileRouteTypes {
     | '/admin/message-center'
     | '/admin/notice-list'
     | '/admin/notice-publish'
+    | '/admin/notification-manage'
     | '/admin/objection-manage'
     | '/admin/opening-hall'
     | '/admin/organization'
@@ -644,13 +756,19 @@ export interface FileRouteTypes {
     | '/admin/supervisor-abnormal'
     | '/admin/supervisor-hall'
     | '/admin/supervisor-logs'
+    | '/admin/supplier-authorization'
     | '/admin/supplier-profile'
+    | '/admin/system-settings'
+    | '/admin/template-manage'
     | '/admin/tender-doc'
+    | '/admin/todo-center'
     | '/notice/$id'
     | '/admin/'
     | '/admin/procurement-requirements/edit'
     | '/admin/projects/create'
     | '/admin/projects/track'
+    | '/admin/procurement-requirements/'
+    | '/admin/projects/'
     | '/admin/projects/detail/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -668,6 +786,9 @@ export interface FileRouteTypes {
     | '/admin/admin-news'
     | '/admin/admin-supplier-audit'
     | '/admin/admin-users'
+    | '/admin/analytics'
+    | '/admin/approval-center'
+    | '/admin/approval-flow-config'
     | '/admin/award-confirm'
     | '/admin/award-notice'
     | '/admin/bid-download'
@@ -689,23 +810,28 @@ export interface FileRouteTypes {
     | '/admin/message-center'
     | '/admin/notice-list'
     | '/admin/notice-publish'
+    | '/admin/notification-manage'
     | '/admin/objection-manage'
     | '/admin/opening-hall'
     | '/admin/organization'
-    | '/admin/procurement-requirements'
-    | '/admin/projects'
     | '/admin/review-change-list'
     | '/admin/sub-accounts'
     | '/admin/supervisor-abnormal'
     | '/admin/supervisor-hall'
     | '/admin/supervisor-logs'
+    | '/admin/supplier-authorization'
     | '/admin/supplier-profile'
+    | '/admin/system-settings'
+    | '/admin/template-manage'
     | '/admin/tender-doc'
+    | '/admin/todo-center'
     | '/notice/$id'
     | '/admin'
     | '/admin/procurement-requirements/edit'
     | '/admin/projects/create'
     | '/admin/projects/track'
+    | '/admin/procurement-requirements'
+    | '/admin/projects'
     | '/admin/projects/detail/$id'
   id:
     | '__root__'
@@ -724,6 +850,9 @@ export interface FileRouteTypes {
     | '/admin/admin-news'
     | '/admin/admin-supplier-audit'
     | '/admin/admin-users'
+    | '/admin/analytics'
+    | '/admin/approval-center'
+    | '/admin/approval-flow-config'
     | '/admin/award-confirm'
     | '/admin/award-notice'
     | '/admin/bid-download'
@@ -745,6 +874,7 @@ export interface FileRouteTypes {
     | '/admin/message-center'
     | '/admin/notice-list'
     | '/admin/notice-publish'
+    | '/admin/notification-manage'
     | '/admin/objection-manage'
     | '/admin/opening-hall'
     | '/admin/organization'
@@ -755,13 +885,19 @@ export interface FileRouteTypes {
     | '/admin/supervisor-abnormal'
     | '/admin/supervisor-hall'
     | '/admin/supervisor-logs'
+    | '/admin/supplier-authorization'
     | '/admin/supplier-profile'
+    | '/admin/system-settings'
+    | '/admin/template-manage'
     | '/admin/tender-doc'
+    | '/admin/todo-center'
     | '/notice/$id'
     | '/admin/'
     | '/admin/procurement-requirements/edit'
     | '/admin/projects/create'
     | '/admin/projects/track'
+    | '/admin/procurement-requirements/'
+    | '/admin/projects/'
     | '/admin/projects/detail/$id'
   fileRoutesById: FileRoutesById
 }
@@ -857,6 +993,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NoticeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/todo-center': {
+      id: '/admin/todo-center'
+      path: '/todo-center'
+      fullPath: '/admin/todo-center'
+      preLoaderRoute: typeof AdminTodoCenterRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/tender-doc': {
       id: '/admin/tender-doc'
       path: '/tender-doc'
@@ -864,11 +1007,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTenderDocRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/template-manage': {
+      id: '/admin/template-manage'
+      path: '/template-manage'
+      fullPath: '/admin/template-manage'
+      preLoaderRoute: typeof AdminTemplateManageRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/system-settings': {
+      id: '/admin/system-settings'
+      path: '/system-settings'
+      fullPath: '/admin/system-settings'
+      preLoaderRoute: typeof AdminSystemSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/supplier-profile': {
       id: '/admin/supplier-profile'
       path: '/supplier-profile'
       fullPath: '/admin/supplier-profile'
       preLoaderRoute: typeof AdminSupplierProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/supplier-authorization': {
+      id: '/admin/supplier-authorization'
+      path: '/supplier-authorization'
+      fullPath: '/admin/supplier-authorization'
+      preLoaderRoute: typeof AdminSupplierAuthorizationRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/supervisor-logs': {
@@ -939,6 +1103,13 @@ declare module '@tanstack/react-router' {
       path: '/objection-manage'
       fullPath: '/admin/objection-manage'
       preLoaderRoute: typeof AdminObjectionManageRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/notification-manage': {
+      id: '/admin/notification-manage'
+      path: '/notification-manage'
+      fullPath: '/admin/notification-manage'
+      preLoaderRoute: typeof AdminNotificationManageRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/notice-publish': {
@@ -1088,6 +1259,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAwardConfirmRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/approval-flow-config': {
+      id: '/admin/approval-flow-config'
+      path: '/approval-flow-config'
+      fullPath: '/admin/approval-flow-config'
+      preLoaderRoute: typeof AdminApprovalFlowConfigRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/approval-center': {
+      id: '/admin/approval-center'
+      path: '/approval-center'
+      fullPath: '/admin/approval-center'
+      preLoaderRoute: typeof AdminApprovalCenterRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/admin-users': {
       id: '/admin/admin-users'
       path: '/admin-users'
@@ -1130,6 +1322,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/projects/': {
+      id: '/admin/projects/'
+      path: '/'
+      fullPath: '/admin/projects/'
+      preLoaderRoute: typeof AdminProjectsIndexRouteImport
+      parentRoute: typeof AdminProjectsRoute
+    }
+    '/admin/procurement-requirements/': {
+      id: '/admin/procurement-requirements/'
+      path: '/'
+      fullPath: '/admin/procurement-requirements/'
+      preLoaderRoute: typeof AdminProcurementRequirementsIndexRouteImport
+      parentRoute: typeof AdminProcurementRequirementsRoute
+    }
     '/admin/projects/track': {
       id: '/admin/projects/track'
       path: '/track'
@@ -1163,12 +1369,15 @@ declare module '@tanstack/react-router' {
 
 interface AdminProcurementRequirementsRouteChildren {
   AdminProcurementRequirementsEditRoute: typeof AdminProcurementRequirementsEditRoute
+  AdminProcurementRequirementsIndexRoute: typeof AdminProcurementRequirementsIndexRoute
 }
 
 const AdminProcurementRequirementsRouteChildren: AdminProcurementRequirementsRouteChildren =
   {
     AdminProcurementRequirementsEditRoute:
       AdminProcurementRequirementsEditRoute,
+    AdminProcurementRequirementsIndexRoute:
+      AdminProcurementRequirementsIndexRoute,
   }
 
 const AdminProcurementRequirementsRouteWithChildren =
@@ -1179,12 +1388,14 @@ const AdminProcurementRequirementsRouteWithChildren =
 interface AdminProjectsRouteChildren {
   AdminProjectsCreateRoute: typeof AdminProjectsCreateRoute
   AdminProjectsTrackRoute: typeof AdminProjectsTrackRoute
+  AdminProjectsIndexRoute: typeof AdminProjectsIndexRoute
   AdminProjectsDetailIdRoute: typeof AdminProjectsDetailIdRoute
 }
 
 const AdminProjectsRouteChildren: AdminProjectsRouteChildren = {
   AdminProjectsCreateRoute: AdminProjectsCreateRoute,
   AdminProjectsTrackRoute: AdminProjectsTrackRoute,
+  AdminProjectsIndexRoute: AdminProjectsIndexRoute,
   AdminProjectsDetailIdRoute: AdminProjectsDetailIdRoute,
 }
 
@@ -1199,6 +1410,9 @@ interface AdminRouteChildren {
   AdminAdminNewsRoute: typeof AdminAdminNewsRoute
   AdminAdminSupplierAuditRoute: typeof AdminAdminSupplierAuditRoute
   AdminAdminUsersRoute: typeof AdminAdminUsersRoute
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminApprovalCenterRoute: typeof AdminApprovalCenterRoute
+  AdminApprovalFlowConfigRoute: typeof AdminApprovalFlowConfigRoute
   AdminAwardConfirmRoute: typeof AdminAwardConfirmRoute
   AdminAwardNoticeRoute: typeof AdminAwardNoticeRoute
   AdminBidDownloadRoute: typeof AdminBidDownloadRoute
@@ -1220,6 +1434,7 @@ interface AdminRouteChildren {
   AdminMessageCenterRoute: typeof AdminMessageCenterRoute
   AdminNoticeListRoute: typeof AdminNoticeListRoute
   AdminNoticePublishRoute: typeof AdminNoticePublishRoute
+  AdminNotificationManageRoute: typeof AdminNotificationManageRoute
   AdminObjectionManageRoute: typeof AdminObjectionManageRoute
   AdminOpeningHallRoute: typeof AdminOpeningHallRoute
   AdminOrganizationRoute: typeof AdminOrganizationRoute
@@ -1230,8 +1445,12 @@ interface AdminRouteChildren {
   AdminSupervisorAbnormalRoute: typeof AdminSupervisorAbnormalRoute
   AdminSupervisorHallRoute: typeof AdminSupervisorHallRoute
   AdminSupervisorLogsRoute: typeof AdminSupervisorLogsRoute
+  AdminSupplierAuthorizationRoute: typeof AdminSupplierAuthorizationRoute
   AdminSupplierProfileRoute: typeof AdminSupplierProfileRoute
+  AdminSystemSettingsRoute: typeof AdminSystemSettingsRoute
+  AdminTemplateManageRoute: typeof AdminTemplateManageRoute
   AdminTenderDocRoute: typeof AdminTenderDocRoute
+  AdminTodoCenterRoute: typeof AdminTodoCenterRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -1242,6 +1461,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminNewsRoute: AdminAdminNewsRoute,
   AdminAdminSupplierAuditRoute: AdminAdminSupplierAuditRoute,
   AdminAdminUsersRoute: AdminAdminUsersRoute,
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminApprovalCenterRoute: AdminApprovalCenterRoute,
+  AdminApprovalFlowConfigRoute: AdminApprovalFlowConfigRoute,
   AdminAwardConfirmRoute: AdminAwardConfirmRoute,
   AdminAwardNoticeRoute: AdminAwardNoticeRoute,
   AdminBidDownloadRoute: AdminBidDownloadRoute,
@@ -1263,6 +1485,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMessageCenterRoute: AdminMessageCenterRoute,
   AdminNoticeListRoute: AdminNoticeListRoute,
   AdminNoticePublishRoute: AdminNoticePublishRoute,
+  AdminNotificationManageRoute: AdminNotificationManageRoute,
   AdminObjectionManageRoute: AdminObjectionManageRoute,
   AdminOpeningHallRoute: AdminOpeningHallRoute,
   AdminOrganizationRoute: AdminOrganizationRoute,
@@ -1274,8 +1497,12 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSupervisorAbnormalRoute: AdminSupervisorAbnormalRoute,
   AdminSupervisorHallRoute: AdminSupervisorHallRoute,
   AdminSupervisorLogsRoute: AdminSupervisorLogsRoute,
+  AdminSupplierAuthorizationRoute: AdminSupplierAuthorizationRoute,
   AdminSupplierProfileRoute: AdminSupplierProfileRoute,
+  AdminSystemSettingsRoute: AdminSystemSettingsRoute,
+  AdminTemplateManageRoute: AdminTemplateManageRoute,
   AdminTenderDocRoute: AdminTenderDocRoute,
+  AdminTodoCenterRoute: AdminTodoCenterRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

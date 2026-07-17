@@ -36,7 +36,7 @@ const tagColorMap = {
 }
 
 export default function NoticeDetail() {
-  const { id } = useParams()
+  const { id } = useParams({ strict: false })
   const navigate = useNavigate()
   const notice = useMemo(() => portalStore.getNoticeById(id), [id])
 

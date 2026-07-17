@@ -23,7 +23,7 @@
 
 ## 技术栈
 
-- React 18 + TanStack Router（文件路由） + Ant Design 5
+- React 19 + TanStack Router（文件路由） + Ant Design 6
 - Vite 构建
 - JavaScript（不引入 TypeScript）
 - Mock 数据优先，外部服务（短信、CA）只做沙箱/预留接口

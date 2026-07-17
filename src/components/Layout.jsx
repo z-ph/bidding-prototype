@@ -18,7 +18,9 @@ import {
   BankOutlined,
   MessageOutlined,
   TeamOutlined,
-  ScheduleOutlined
+  ScheduleOutlined,
+  BarChartOutlined,
+  AuditOutlined
 } from '@ant-design/icons'
 import { useMemo } from 'react'
 import { useNavigate, useLocation, useMatches, Link, Outlet } from '@tanstack/react-router'
@@ -47,6 +49,7 @@ function buildItem(item) {
 function useMenuItems(role) {
   const common = [
     { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
+    { key: '/admin/todo-center', label: '待办中心', icon: ScheduleOutlined },
     { key: '/admin/review-change-list', label: '评审变更列表', icon: UnorderedListOutlined }
   ]
 
@@ -65,11 +68,15 @@ function useMenuItems(role) {
     { key: '/admin/tender-doc', label: '招标文件', icon: FileTextOutlined },
     { key: '/admin/notice-publish', label: '发布公告', icon: BellOutlined },
     { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
+    { key: '/admin/supplier-authorization', label: '供应商授权', icon: TeamOutlined },
     { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
     { key: '/admin/objection-manage', label: '异议管理', icon: WarningOutlined },
     { key: '/admin/award-confirm', label: '确认中标人', icon: TrophyOutlined },
     { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
     { key: '/admin/contract-archive', label: '合同归档', icon: FileProtectOutlined },
+    { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
+    { key: '/admin/approval-flow-config', label: '审批流配置', icon: ToolOutlined },
+    { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 
@@ -86,10 +93,13 @@ function useMenuItems(role) {
     { key: '/admin/tender-doc', label: '招标文件编制', icon: FileTextOutlined },
     { key: '/admin/notice-publish', label: '公告发布', icon: BellOutlined },
     { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
+    { key: '/admin/supplier-authorization', label: '供应商授权', icon: TeamOutlined },
     { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
     { key: '/admin/expert-extraction', label: '专家抽取', icon: TeamOutlined },
     { key: '/admin/objection-manage', label: '异议处理', icon: WarningOutlined },
     { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
+    { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
+    { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 
@@ -97,6 +107,8 @@ function useMenuItems(role) {
     { key: '/admin/bidder-projects', label: '项目中心', icon: FolderOutlined },
     { key: '/admin/bid-register', label: '项目报名', icon: FileProtectOutlined },
     { key: '/admin/bid-quote', label: '在线报价', icon: WalletOutlined },
+    { key: '/admin/opening-hall', label: '开标大厅', icon: PlayCircleOutlined },
+    { key: '/admin/award-notice', label: '中标通知', icon: TrophyOutlined },
     { key: '/admin/supplier-profile', label: '企业档案', icon: BankOutlined },
     { key: '/admin/bidder-invoices', label: '发票申请', icon: BookOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
@@ -118,15 +130,20 @@ function useMenuItems(role) {
 
   const adminMenus = [
     { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
+    { key: '/admin/todo-center', label: '待办中心', icon: ScheduleOutlined },
     { key: '/admin/admin-dashboard', label: '管理控制台', icon: DashboardOutlined },
     { key: '/admin/procurement-requirements', label: '采购需求', icon: FileTextOutlined },
     { key: '/admin/admin-users', label: '用户权限', icon: UserOutlined },
+    { key: '/admin/notification-manage', label: '通知管理', icon: BellOutlined },
+    { key: '/admin/template-manage', label: '模板管理', icon: FileTextOutlined },
+    { key: '/admin/system-settings', label: '系统设置', icon: ToolOutlined },
     { key: '/admin/admin-dictionary', label: '参数字典', icon: ToolOutlined },
     { key: '/admin/admin-supplier-audit', label: '准入审核', icon: FileProtectOutlined },
     { key: '/admin/admin-news', label: '新闻公告维护', icon: FileTextOutlined },
     { key: '/admin/organization', label: '组织机构', icon: BankOutlined },
     { key: '/admin/sub-accounts', label: '子账号管理', icon: UserOutlined },
     { key: '/admin/admin-logs', label: '日志审计', icon: UnorderedListOutlined },
+    { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 

@@ -24,28 +24,37 @@ export const PAGE_PERMISSIONS = {
   // 通用首页
   '/admin/dashboard': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
 
+  // 待办中心：全部角色
+  '/admin/todo-center': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+
+  // 采购数据分析（角色暂定，待甲方确认）
+  '/admin/analytics': ['tenderee', 'agent', 'admin'],
+
   // 招标人/招标代理共用页面
   '/admin/projects': ['tenderee', 'agent'],
   '/admin/projects/create': ['tenderee'],
   '/admin/projects/track': ['tenderee', 'agent'],
-  '/admin/projects/detail/:id': ['tenderee', 'agent'],
+  '/admin/projects/detail/:id': ['tenderee', 'agent', 'bidder'],
   '/admin/tender-doc': ['tenderee', 'agent'],
   '/admin/notice-publish': ['tenderee', 'agent'],
   '/admin/notice-list': ['tenderee', 'agent'],
+  '/admin/supplier-authorization': ['tenderee', 'agent'],
+  '/admin/approval-center': ['tenderee', 'agent'],
+  '/admin/approval-flow-config': ['tenderee'],
   '/admin/procurement-requirements': ['tenderee', 'admin'],
   '/admin/procurement-requirements/edit': ['tenderee', 'admin'],
   '/admin/fee-manage': ['tenderee', 'agent'],
   '/admin/expert-extraction': ['tenderee', 'agent', 'admin'],
   '/admin/objection-manage': ['tenderee', 'agent'],
   '/admin/award-confirm': ['tenderee', 'agent'],
-  '/admin/award-notice': ['tenderee', 'agent'],
+  '/admin/award-notice': ['tenderee', 'agent', 'bidder'],
   '/admin/contract-archive': ['tenderee', 'agent'],
 
   // 开标大厅：仅招标人/招标代理/投标人可进入，但操作权限不同
   '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
 
-  // 评标大厅：仅招标代理/评标专家/监督人员
-  '/admin/evaluation-hall': ['agent', 'expert', 'supervisor'],
+  // 评标大厅：招标人/招标代理/评标专家/监督人员
+  '/admin/evaluation-hall': ['tenderee', 'agent', 'expert', 'supervisor'],
 
   // 投标人页面
   '/admin/bidder-projects': ['bidder'],
@@ -76,6 +85,9 @@ export const PAGE_PERMISSIONS = {
   '/admin/admin-news': ['admin'],
   '/admin/organization': ['admin'],
   '/admin/sub-accounts': ['admin'],
+  '/admin/notification-manage': ['admin'],
+  '/admin/template-manage': ['admin'],
+  '/admin/system-settings': ['admin'],
 
   // 供应商档案
   '/admin/supplier-profile': ['bidder'],
@@ -149,7 +161,15 @@ export const BREADCRUMB_NAMES = {
   NoticeDetail: '公告详情',
   Contact: '联系我们',
   ProjectDetail: '项目详情',
-  SubAccounts: '子账号管理'
+  SubAccounts: '子账号管理',
+  SupplierAuthorization: '供应商授权',
+  TodoCenter: '待办中心',
+  NotificationManage: '通知管理',
+  TemplateManage: '模板管理',
+  SystemSettings: '系统设置',
+  ProcurementAnalytics: '采购数据分析',
+  ApprovalCenter: '审批中心',
+  ApprovalFlowConfig: '审批流配置'
 }
 
 // 统一业务状态颜色
