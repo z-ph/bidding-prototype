@@ -1,0 +1,43 @@
+[
+  {
+    "number": 1,
+    "category": "回退",
+    "task": "App.jsx 改回 ReviewTool，删除自封装组件",
+    "steps": [
+      {
+        "step": "App.jsx 引入 ReviewTool 与 style.css，替换 PageReview",
+        "completed": true
+      },
+      {
+        "step": "删除 src/components/PageReview/",
+        "completed": true
+      },
+      {
+        "step": "npm run build 通过",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "reviewRefs": ["1415-004"],
+    "statusNote": "2026-07-17 代码核实：ReviewTool@0.7.10 挂 App.jsx，PageReview 自封装组件已移除；1415-004 编辑已提交评审缺口维持未修复，见评审变更列表"
+  },
+  {
+    "number": 2,
+    "category": "验证",
+    "task": "运行时验证",
+    "steps": [
+      {
+        "step": "默认隐藏 / 打开 / 退出",
+        "completed": true
+      },
+      {
+        "step": "工具栏可拖动，选择/提交/导出可用",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：构建通过，ReviewTool 运行时行为随回退恢复"
+  }
+]

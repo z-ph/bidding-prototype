@@ -1,0 +1,200 @@
+[
+  {
+    "number": 1,
+    "category": "脚手架",
+    "task": "搭建 React 项目脚手架",
+    "steps": [
+      {
+        "step": "更新 package.json：替换 Vue 依赖为 React + ReactDOM + React Router + Ant Design + Ant Design Icons",
+        "completed": true
+      },
+      {
+        "step": "更新 vite.config.js：使用 @vitejs/plugin-react",
+        "completed": true
+      },
+      {
+        "step": "删除 Vue 相关依赖与插件",
+        "completed": true
+      },
+      {
+        "step": "运行 npm install 并验证 dev/build",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：全库无 .vue 文件、无 vue/element-plus 依赖"
+  },
+  {
+    "number": 2,
+    "category": "基础设施",
+    "task": "迁移公共基础设施",
+    "steps": [
+      {
+        "step": "将 src/composables/useRole.js 改写为 React Hook src/hooks/useRole.js",
+        "completed": true
+      },
+      {
+        "step": "将 src/config/permissions.js 保留为纯 JS 工具函数",
+        "completed": true
+      },
+      {
+        "step": "将 src/components/Layout.vue 改写为 React 组件 src/components/Layout.jsx",
+        "completed": true
+      },
+      {
+        "step": "将 src/components/StatusTag.vue 改写为 React 组件 src/components/StatusTag.jsx",
+        "completed": true
+      },
+      {
+        "step": "将 src/components/EmptyState.vue、Forbidden.vue 改写为 React 组件",
+        "completed": true
+      },
+      {
+        "step": "将 src/router/index.js 改写为 React Router 配置",
+        "completed": true
+      },
+      {
+        "step": "将 src/App.vue、src/main.js 改写为 React 入口",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：全库无 .vue 文件、无 vue/element-plus 依赖"
+  },
+  {
+    "number": 3,
+    "category": "认证与门户",
+    "task": "迁移认证与门户页面",
+    "steps": [
+      {
+        "step": "迁移 Portal.vue → Portal.jsx",
+        "completed": true
+      },
+      {
+        "step": "迁移 Login.vue → Login.jsx",
+        "completed": true
+      },
+      {
+        "step": "迁移 Register.vue → Register.jsx",
+        "completed": true
+      },
+      {
+        "step": "迁移 Forbidden.vue → Forbidden.jsx",
+        "completed": true
+      },
+      {
+        "step": "迁移 Dashboard.vue → Dashboard.jsx",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：全库无 .vue 文件、无 vue/element-plus 依赖"
+  },
+  {
+    "number": 4,
+    "category": "招标流程",
+    "task": "迁移招标人/代理核心流程页面",
+    "steps": [
+      {
+        "step": "迁移 ProjectList.vue / ProjectCreate.vue / ProjectTrack.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 TenderDoc.vue / NoticePublish.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 OpeningHall.vue / EvaluationHall.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 AwardConfirm.vue / AwardNotice.vue / ContractArchive.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 FeeManage.vue / ObjectionManage.vue / Organization.vue",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：全库无 .vue 文件、无 vue/element-plus 依赖"
+  },
+  {
+    "number": 5,
+    "category": "投标流程",
+    "task": "迁移投标人流程页面",
+    "steps": [
+      {
+        "step": "迁移 BidderProjects.vue / BidRegister.vue / BidPayment.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 BidDownload.vue / BidQuote.vue / BidUpload.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 BidderInvoices.vue / SupplierProfile.vue",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：全库无 .vue 文件、无 vue/element-plus 依赖"
+  },
+  {
+    "number": 6,
+    "category": "专家监督与管理",
+    "task": "迁移专家、监督、管理员页面",
+    "steps": [
+      {
+        "step": "迁移 ExpertProject.vue / ExpertProfile.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 SupervisorHall.vue / SupervisorAbnormal.vue / SupervisorLogs.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 AdminDashboard.vue / AdminUsers.vue / AdminDictionary.vue",
+        "completed": true
+      },
+      {
+        "step": "迁移 AdminSupplierAudit.vue / AdminLogs.vue / MessageCenter.vue",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：全库无 .vue 文件、无 vue/element-plus 依赖"
+  },
+  {
+    "number": 7,
+    "category": "清理与验证",
+    "task": "清理 Vue 文件并验证构建",
+    "steps": [
+      {
+        "step": "删除所有 .vue 文件与 Vue 入口文件",
+        "completed": true
+      },
+      {
+        "step": "更新 index.html 中的挂载点与标题",
+        "completed": true
+      },
+      {
+        "step": "运行 npm run build 确保无错误",
+        "completed": true
+      },
+      {
+        "step": "运行 npm run dev 抽查关键页面",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：全库无 .vue 文件、无 vue/element-plus 依赖"
+  }
+]

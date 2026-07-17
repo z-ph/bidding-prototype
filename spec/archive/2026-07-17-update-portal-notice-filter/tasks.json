@@ -1,0 +1,41 @@
+[
+  {
+    "number": 1,
+    "category": "提案与规范",
+    "task": "创建 openspec 变更提案",
+    "steps": [
+      { "step": "创建 spec/changes/update-portal-notice-filter/ 目录结构", "completed": true },
+      { "step": "编写 proposal.md（Why/What/Impact）", "completed": true },
+      { "step": "编写 spec-delta.md（ADDED/MODIFIED/REMOVED）", "completed": true }
+    ],
+    "passes": true,
+    "status": "无需修复",
+    "statusNote": "该设计已被 fix-portal-double-header 回退取代，归档时标注 superseded"
+  },
+  {
+    "number": 2,
+    "category": "前端实现",
+    "task": "改造 Portal.vue 交易信息筛选区",
+    "steps": [
+      { "step": "在 portal-header 下方新增 .filter-nav 区域", "completed": true },
+      { "step": "将 el-radio-group 从 section-title 迁移到 .filter-nav", "completed": true },
+      { "step": "将筛选按钮尺寸调整为 large", "completed": true },
+      { "step": "section-title 仅保留标题", "completed": true }
+    ],
+    "passes": true,
+    "status": "无需修复",
+    "statusNote": "该设计已被 fix-portal-double-header 回退取代，归档时标注 superseded"
+  },
+  {
+    "number": 3,
+    "category": "验证",
+    "task": "构建与功能验证",
+    "steps": [
+      { "step": "运行 npm run build 确保构建通过", "completed": true },
+      { "step": "确认顶部筛选页签可切换全部/招标公告/变更公告/候选人公示/中标公告", "completed": true }
+    ],
+    "passes": true,
+    "status": "无需修复",
+    "statusNote": "该设计已被 fix-portal-double-header 回退取代，归档时标注 superseded"
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "number": 1,
+    "category": "新增",
+    "task": "实现新闻公告 / 帮助中心 / 下载中心页面",
+    "steps": [
+      {
+        "step": "新增 src/views/News.jsx（公告列表 + 分页）",
+        "completed": true
+      },
+      {
+        "step": "新增 src/views/Help.jsx（FAQ 折叠 + 帮助分类）",
+        "completed": true
+      },
+      {
+        "step": "新增 src/views/Downloads.jsx（文件列表 + 下载按钮）",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：News/Help/Downloads/Contact 页面与路由齐全"
+  },
+  {
+    "number": 2,
+    "category": "修复",
+    "task": "路由与导航接线",
+    "steps": [
+      {
+        "step": "src/router/index.jsx 注册 /news、/help、/downloads",
+        "completed": true
+      },
+      {
+        "step": "src/views/Portal.jsx header 导航改为 navigate 到真实路由",
+        "completed": true
+      },
+      {
+        "step": "Portal 快速入口卡片链接到真实页面",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：News/Help/Downloads/Contact 页面与路由齐全"
+  },
+  {
+    "number": 3,
+    "category": "验证",
+    "task": "冒烟验证",
+    "steps": [
+      {
+        "step": "本地 Playwright 冒烟：三个菜单都能进入真实页面并返回首页",
+        "completed": true
+      },
+      {
+        "step": "构建部署后线上冒烟",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 代码核实：News/Help/Downloads/Contact 页面与路由齐全"
+  }
+]

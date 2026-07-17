@@ -1,0 +1,56 @@
+{
+  "proposal": "remove-deprecated-flows-20260717",
+  "tasks": [
+    {
+      "id": "remove-bid-register",
+      "title": "下线报名流与报名审核入口",
+      "description": "移除 BidRegister 报名流程、招标人/代理报名审核入口（RegistrationAudit，如已按 add-bidder-review-flows-20260717 创建）、标段「报名需审核」（needRegisterAudit）相关逻辑；门户公告详情（NoticeDetail）与投标人项目中心不再出现报名入口，供应商链路从下载招标文件开始。实施前需甲方确认（§3-a/b/c；本任务对应 §3-a：清单 10/11「没有报名环节」与清单 47 面板「投标登记/投标登记确认/资格预审」并存，是否保留「投标登记」动作待确认）。",
+      "files": ["src/views/BidRegister.jsx", "src/views/BidderProjects.jsx", "src/views/NoticeDetail.jsx", "src/data/registrationStore.js", "src/data/projects.js"],
+      "acceptance": [
+        "门户与后台不再出现报名入口与报名审核入口",
+        "标段不再含「报名需审核」配置",
+        "供应商链路从下载招标文件开始，无报名节点"
+      ],
+      "blocked": true,
+      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+    },
+    {
+      "id": "remove-contract-archive",
+      "title": "下线合同归档页",
+      "description": "移除 ContractArchive 页面与菜单入口；定标阶段门禁链（中标通知书→归档，见 add-award-stage-gating-20260717）不再包含归档环节，定标流程在中标通知书发出后结束。实施前需甲方确认（§3-a/b/c；本任务对应 §3-c：概要五「不留档合同」与清单 47 招标人面板「合同管理（合同公示）」并存，是否保留合同公示公告待确认）。",
+      "files": ["src/views/ContractArchive.jsx", "src/views/AwardNotice.jsx"],
+      "acceptance": [
+        "合同归档页面与菜单入口移除",
+        "定标流程在中标通知书发出后结束，无归档节点"
+      ],
+      "blocked": true,
+      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+    },
+    {
+      "id": "remove-objection-flow",
+      "title": "下线供应商异议/质疑功能",
+      "description": "移除 ObjectionManage 页面与菜单入口、BidDownload 质疑按钮及 objectionStore 读写调用（清单 44/45「没有供应商异议环节」）；招标答疑（澄清）功能不受影响。实施前需甲方确认（§3-a/b/c；本任务不直接涉及张力项，但随提案整体在确认前不实施）。",
+      "files": ["src/views/ObjectionManage.jsx", "src/views/BidDownload.jsx", "src/data/objectionStore.js"],
+      "acceptance": [
+        "异议管理页面与菜单入口移除",
+        "BidDownload 不再显示质疑按钮",
+        "供应商侧无质疑/异议提交入口"
+      ],
+      "blocked": true,
+      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+    },
+    {
+      "id": "rework-fee-to-ledger",
+      "title": "缴费前置取消，费用管理转为中标人费用登记台账",
+      "description": "取消 BidPayment 缴费前置（下载招标文件、提交投标不再校验缴费）与 FeeManage 在线缴费审核；费用管理改造为采购结果发布后的「中标人投标费用登记台账」（线下收缴、登记凭证，无在线支付）（概要七、清单 26）。实施前需甲方确认（§3-a/b/c；本任务对应 §3-b：概要「支付全不用做」与清单 47 面板费用模块（报名费/保证金/保函/专家费/交易服务费）并存，费用台账保留范围待确认）。",
+      "files": ["src/views/BidPayment.jsx", "src/views/FeeManage.jsx", "src/views/BidDownload.jsx"],
+      "acceptance": [
+        "下载招标文件、提交投标不再以缴费为前置",
+        "无在线缴费与缴费审核流程",
+        "采购结果发布后可登记中标人投标费用（台账）"
+      ],
+      "blocked": true,
+      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+    }
+  ]
+}

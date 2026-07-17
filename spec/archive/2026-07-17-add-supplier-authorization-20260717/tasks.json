@@ -1,0 +1,57 @@
+{
+  "proposal": "add-supplier-authorization-20260717",
+  "tasks": [
+    {
+      "id": "supplier-authorization",
+      "title": "供应商授权管理页（招标人/代理）",
+      "description": "新增 src/data/authorizationStore.js（localStorage mock：项目/供应商/授权时间/有效期/状态）与 src/views/SupplierAuthorization.jsx（招标人/代理按项目维护授权供应商：授权、撤销、列表查看授权状态）；路由/菜单/权限由基础设施 agent 统一接线。",
+      "files": ["src/data/authorizationStore.js", "src/views/SupplierAuthorization.jsx"],
+      "acceptance": [
+        "可按项目对供应商执行授权与撤销",
+        "授权记录持久化并展示状态",
+        "授权列表可按项目筛选"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "download-gating",
+      "title": "BidDownload 按「公开/授权」二态下载门控",
+      "description": "BidDownload 按「公开/授权」二态控制下载：公开项目（公开招标/公开询比价）供应商可自行下载；非公开项目仅 authorizationStore 授权名单内供应商可下载，未授权时阻断并提示需招标人授权；下载不再以报名/缴费为前置（清单 23）。",
+      "files": ["src/views/BidDownload.jsx", "src/data/authorizationStore.js"],
+      "acceptance": [
+        "公开项目供应商可直接下载招标文件",
+        "非公开项目未授权供应商下载被阻断并提示",
+        "授权供应商可正常下载且不校验报名/缴费状态"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "authorization-expiry",
+      "title": "授权年度周期与过期重授权",
+      "description": "授权记录带年度有效期（每年授权一次，概要三）；过期授权自动标记「需重新授权」，下载门控视同未授权；授权管理页展示有效期与过期标记，支持对过期供应商重新授权。",
+      "files": ["src/data/authorizationStore.js", "src/views/SupplierAuthorization.jsx", "src/views/BidDownload.jsx"],
+      "acceptance": [
+        "授权记录包含年度有效期",
+        "过期授权在管理页标记「需重新授权」",
+        "过期供应商下载被阻断直至重新授权"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "invitation-letter-auto",
+      "title": "投标邀请书按模板自动生成（mock）",
+      "description": "投标邀请书按模板自动生成（清单 24）：被邀请/授权供应商可在项目中心查看系统生成的投标邀请书，项目名称、标段、时间节点自动填充；模板内容为 mock 占位并注明真实模板维护联系采购管理部；不实现 PDF 生成与电子签章。",
+      "files": ["src/views/BidderProjects.jsx", "src/data/authorizationStore.js"],
+      "acceptance": [
+        "被邀请/授权供应商可查看自动生成的投标邀请书",
+        "邀请书项目信息/标段/时间与项目数据一致",
+        "模板为 mock 占位并注明真实模板联系采购管理部"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    }
+  ]
+}

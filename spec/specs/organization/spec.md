@@ -127,3 +127,81 @@ AND 刷新后仍存在。
 GIVEN 管理员创建子账号
 WHEN 填写信息时
 THEN 可选择已维护的组织部门。
+
+
+<!-- Merged from add-admin-missing-pages-20260717 / organization -->
+
+## ADDED Requirements
+
+### Requirement: 待办事项独立页面
+WHEN 用户进入待办事项页,
+系统 SHALL 按当前角色聚合展示待办（类型、来源、时间）,
+AND 点击待办 SHALL 跳转到对应处理页面。
+
+#### Scenario: 角色待办
+GIVEN 招标人登录
+WHEN 打开待办事项
+THEN 展示其职责相关待办（如报名审核、异议答复、报告确认）并可跳转处理。
+
+### Requirement: 通知管理
+WHEN 管理员/招标方进入通知管理,
+系统 SHALL 展示通知列表（标题、类型、接收角色、时间、状态）,
+AND 支持发送通知，发送结果 SHALL 持久化并在消息中心可见。
+
+#### Scenario: 发送通知
+GIVEN 管理员填写通知标题与内容并选择接收角色
+WHEN 点击发送
+THEN 通知出现在列表中且对应角色消息中心可见。
+
+### Requirement: 模板管理
+WHEN 管理员进入模板管理,
+系统 SHALL 展示公告与招标文件模板列表（名称、类型、更新时间、状态）,
+AND 支持启停用与内容编辑并持久化。
+
+#### Scenario: 编辑模板
+GIVEN 管理员打开一个公告模板
+WHEN 修改内容并保存
+THEN 列表更新修改时间，刷新后内容保留。
+
+### Requirement: 系统设置
+WHEN 管理员进入系统设置,
+系统 SHALL 提供演示参数配置（CA 沙箱、短信模拟、演示数据重置）并持久化,
+AND 数据重置 SHALL 二次确认。
+
+#### Scenario: 重置演示数据
+GIVEN 管理员点击数据重置
+WHEN 二次确认后执行
+THEN 本地演示数据恢复初始状态。
+
+
+<!-- Merged from fix-admin-users-tender-perm-20260717 / organization -->
+
+## MODIFIED Requirements
+
+### Requirement: 账号停用保护
+原能力：管理员可将任意账号（含当前登录账号）直接停用，无确认、无持久化。
+现修改：系统 SHALL 禁止停用当前登录账号；停用/启用账号 SHALL 二次确认；账号状态 SHALL 持久化；已停用账号登录 SHALL 被拦截并提示。
+
+#### Scenario: 停用本人被禁止
+GIVEN 管理员 admin 登录
+WHEN 查看用户列表中 admin 自己的行
+THEN 停用按钮禁用并提示「不能停用当前登录账号」。
+
+#### Scenario: 停用他人生效
+GIVEN 管理员停用账号 expert1 并二次确认
+WHEN expert1 尝试登录
+THEN 登录被拦截并提示账号已停用。
+
+### Requirement: 新增用户校验
+原能力：空表单保存也提示成功且不写入列表。
+现修改：新增用户 SHALL 校验账号（必填且唯一）、姓名（必填）、角色（必选）、所属组织（必填）；校验通过 SHALL 立即写入列表并持久化。
+
+#### Scenario: 空表阻断
+GIVEN 管理员打开新增用户对话框且未填写任何字段
+WHEN 点击保存
+THEN 各必填字段显示校验错误，不提示保存成功。
+
+#### Scenario: 成功入列
+GIVEN 填写合法的新用户信息
+WHEN 保存
+THEN 列表立即出现该用户，刷新后仍在。

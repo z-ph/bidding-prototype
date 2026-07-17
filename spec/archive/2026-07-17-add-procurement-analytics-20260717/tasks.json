@@ -1,0 +1,70 @@
+{
+  "proposal": "add-procurement-analytics-20260717",
+  "tasks": [
+    {
+      "id": "analytics-dashboard",
+      "title": "数据分析看板页（价格趋势 + 三维筛选）",
+      "description": "新建 /admin/analytics 看板页：价格趋势图按时间轴展示价格变化，支持时间、供应商、材料三个维度组合筛选，图表随筛选联动。页面组件放 src/views/，路由文件只放元数据。",
+      "files": ["src/views/AnalyticsDashboard.jsx", "src/routes/admin.analytics.jsx", "src/routes/admin.analytics.lazy.jsx"],
+      "acceptance": [
+        "看板展示价格趋势图，数据来自 analyticsStore mock",
+        "时间/供应商/材料三个筛选维度可组合使用且图表联动更新",
+        "路由文件仅含 createFileRoute 元数据与 staticData.title，组件在 src/views/"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "price-compare",
+      "title": "材料报价比价视图",
+      "description": "在看板内提供材料报价比价视图：选定材料后对比多家供应商历史报价，展示各供应商报价及价差。",
+      "files": ["src/views/AnalyticsPriceCompare.jsx"],
+      "acceptance": [
+        "同一材料可对比至少两家供应商的历史报价",
+        "支持按材料筛选并展示供应商间价差",
+        "比价数据来自 analyticsStore mock"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "risk-warning",
+      "title": "预警规则引擎 mock 与预警列表",
+      "description": "实现三类预警规则的 mock 判定与预警列表：法人相同、存在上下级关系、报价异常高。三类规则各自提供可配开关，关闭后列表不再产生对应类别预警；列表展示命中规则、涉及供应商/项目、时间。",
+      "files": ["src/views/AnalyticsRiskWarning.jsx", "src/data/analyticsStore.js"],
+      "acceptance": [
+        "三类规则（法人相同/上下级关系/报价异常高）各有独立开关，关闭后对应预警不再出现",
+        "预警列表展示命中规则类别、涉及供应商与项目、命中时间",
+        "mock 数据至少覆盖三类规则各一条命中样例"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "data-source-stub",
+      "title": "mock 数据层与 e签宝接口预留",
+      "description": "新建 src/data/analyticsStore.js，按既有 localStorage store 模式（参照 src/data/objectionStore.js）提供价格趋势、报价比价、预警命中等默认 mock 数据；新建 src/utils/eqianbaoAnalyticsApi.js 作为 e签宝接口预留占位（仅导出未实现函数与注释：数据来源 e签宝、经甲方提供的接口调用），页面不直接调用。",
+      "files": ["src/data/analyticsStore.js", "src/utils/eqianbaoAnalyticsApi.js"],
+      "acceptance": [
+        "analyticsStore 采用 localStorage 持久化 + 默认 mock 数据的既有 store 模式",
+        "eqianbaoAnalyticsApi 仅为占位预留，含数据来源与对接方式注释，无任何真实网络调用",
+        "看板/比价/预警三个视图均只从 analyticsStore 取数"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过（analyticsStore + eqianbaoAnalyticsApi.js 接口占位预留）"
+    },
+    {
+      "id": "menu-wiring",
+      "title": "菜单接入（可见角色暂定，待甲方确认）",
+      "description": "在 Layout.jsx 菜单增加「采购数据分析」入口，permissions.js 配置可见角色暂定为招标人（tenderee）、代理机构（agent）、管理员（admin），并在代码注释中标注可见角色为暂定口径、待甲方确认。共享文件由基础设施 agent 统一接线。",
+      "files": ["src/components/Layout.jsx", "src/config/permissions.js"],
+      "acceptance": [
+        "招标人/代理机构/管理员菜单出现「采购数据分析」入口并可进入看板",
+        "投标人/专家/监督人菜单不出现该入口",
+        "代码中留有「可见角色暂定，待甲方确认」注释"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过（菜单/权限已由基础设施统一接线）"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "proposal": "add-award-stage-gating-20260717",
+  "tasks": [
+    {
+      "id": "award-project-dimension",
+      "title": "三个定标页面按项目维度渲染（1415-007）",
+      "description": "AwardConfirm/AwardNotice/ContractArchive 顶部增加项目选择（projectStore 项目列表），候选人/通知书/合同内容按所选项目渲染，去除写死单一项目。",
+      "files": ["src/views/AwardConfirm.jsx", "src/views/AwardNotice.jsx", "src/views/ContractArchive.jsx"],
+      "acceptance": [
+        "三个页面均有项目选择且切换后内容联动",
+        "不再出现写死的单一项目标题"
+      ],
+      "status": "已修复",
+      "reviewRefs": ["1415-007"],
+      "statusNote": "2026-07-17 实施+验证通过",
+      "disposition": "缩圈",
+      "dispositionNote": "剔除合同归档对象（合同归档无此环节），仅保留确认中标人/中标通知书的项目维度渲染。",
+      "dispositionBasis": "需求确认清单 33；会议概要五"
+    },
+    {
+      "id": "award-stage-gating",
+      "title": "按项目阶段门禁（test-001，P0）",
+      "description": "确认中标人需项目「评标完成」；中标通知书需「已确认中标人」；合同归档需「通知书已发出」。未达阶段展示锁定提示并禁用操作。",
+      "files": ["src/views/AwardConfirm.jsx", "src/views/AwardNotice.jsx", "src/views/ContractArchive.jsx"],
+      "acceptance": [
+        "未到阶段时操作禁用并有明确提示",
+        "到达阶段后可正常操作",
+        "操作后项目状态回写并解锁下一步"
+      ],
+      "status": "已修复",
+      "reviewRefs": ["test-001"],
+      "statusNote": "2026-07-17 实施+验证通过",
+      "disposition": "缩圈",
+      "dispositionNote": "剔除合同归档的阶段门禁（合同归档无此环节），仅保留确认中标人/中标通知书的阶段门控。",
+      "dispositionBasis": "需求确认清单 33；会议概要五"
+    }
+  ]
+}

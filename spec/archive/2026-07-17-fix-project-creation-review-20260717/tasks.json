@@ -1,0 +1,86 @@
+{
+  "proposal": "fix-project-creation-review-20260717",
+  "tasks": [
+    {
+      "id": "remove-project-purchase-mode",
+      "title": "移除项目级采购方式（cxy-016）",
+      "description": "ProjectCreate 基本信息移除「采购方式」字段（含确认页），新标段默认采购方式改为「公开招标」；ProjectList/详情采购方式由标段派生。",
+      "files": ["src/views/ProjectCreate.jsx", "src/views/ProjectList.jsx", "src/data/projects.js"],
+      "acceptance": [
+        "基本信息表单无项目级采购方式",
+        "列表/详情采购方式来自标段数据",
+        "grep 项目级 purchaseMode 无残留引用"
+      ],
+      "status": "已修复",
+      "reviewRefs": ["cxy-016"],
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "purge-single-source",
+      "title": "清理「单一来源」残留（cxy-017）",
+      "description": "NoticePublish、AdminDictionary、Help 中「单一来源」统一替换为「邀请询比价」。",
+      "files": ["src/views/NoticePublish.jsx", "src/views/AdminDictionary.jsx", "src/views/Help.jsx"],
+      "acceptance": ["全库 grep「单一来源」无残留（历史评审文档除外）"],
+      "status": "已修复",
+      "reviewRefs": ["cxy-017"],
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "package-need-audit-flag",
+      "title": "标段「报名是否需要审核」开关（cxy-015）",
+      "description": "标段表单新增 needRegisterAudit 开关，随项目持久化到 projectStore。",
+      "files": ["src/views/ProjectCreate.jsx"],
+      "acceptance": ["标段卡片可见开关", "保存的项目标段含 needRegisterAudit 字段"],
+      "status": "未修复",
+      "reviewRefs": ["cxy-015"],
+      "statusNote": "cxy-015 未修复：标段表单无「报名是否需要审核」开关字段。",
+      "disposition": "废弃",
+      "dispositionNote": "新口径无报名环节，标段无需「报名是否需要审核」开关。",
+      "dispositionBasis": "需求确认清单 10/11"
+    },
+    {
+      "id": "contract-step-reorder",
+      "title": "委托合同确认移到供应商要求之后（1415-011）",
+      "description": "ProjectCreate 步骤编排中，委托合同确认从第 0 步移到「供应商要求」完成之后。",
+      "files": ["src/views/ProjectCreate.jsx"],
+      "acceptance": ["委托合同确认出现在供应商要求步骤之后", "原第 0 步不再出现委托合同"],
+      "status": "未修复",
+      "reviewRefs": ["1415-011"],
+      "statusNote": "1415-011 未修复：委托合同确认仍放在第 0 步「基本信息」，未移到「供应商要求」之后。",
+      "disposition": "废弃",
+      "dispositionNote": "委托合同不用审核（清单 72），无审批节点可调整，步骤重排失去意义。",
+      "dispositionBasis": "需求确认清单 72"
+    },
+    {
+      "id": "agency-random-extraction",
+      "title": "代理机构筛选+随机抽取（cxy-018）",
+      "description": "委托代理选择提供两种模式：条件筛选（资质/地区/黑名单/回避）+随机抽取，或直接手动指定；抽取结果进入委托合同展示。",
+      "files": ["src/views/ProjectCreate.jsx"],
+      "acceptance": [
+        "可选择「随机抽取」模式并设置筛选条件",
+        "抽取结果展示并进入委托合同",
+        "「手动指定」模式保留"
+      ],
+      "status": "已修复",
+      "reviewRefs": ["cxy-018"],
+      "statusNote": "2026-07-17 实施+验证通过：口径确认代理机构直接指定（清单 71）",
+      "disposition": "关闭-口径已解",
+      "dispositionNote": "新口径明确代理机构直接指定（清单 71；概要六），当前实现已是直接指定，无需随机抽取；原评审待确认项 cxy-018 就此解除。",
+      "dispositionBasis": "需求确认清单 71；会议概要六"
+    },
+    {
+      "id": "project-list-store",
+      "title": "项目列表接入 projectStore（2052-004）",
+      "description": "ProjectList 读取 projectStore（mock 基线+新建合并），新建「待审核」与「草稿」状态入列表并刷新保留；ProjectCreate 草稿落库；statusMap 补齐 pending/draft。",
+      "files": ["src/views/ProjectList.jsx", "src/views/ProjectCreate.jsx", "src/data/projects.js"],
+      "acceptance": [
+        "创建项目提交后出现在列表（待审核）",
+        "保存草稿出现在列表（草稿）",
+        "刷新页面后仍在"
+      ],
+      "status": "已修复",
+      "reviewRefs": ["2052-004"],
+      "statusNote": "2026-07-17 实施+验证通过"
+    }
+  ]
+}

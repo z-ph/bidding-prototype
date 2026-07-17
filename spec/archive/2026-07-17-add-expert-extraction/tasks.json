@@ -1,0 +1,72 @@
+[
+  {
+    "number": 1,
+    "category": "数据模型",
+    "task": "扩展专家库 mock 数据",
+    "steps": [
+      { "step": "为每位专家增加专业领域标签数组", "completed": true },
+      { "step": "为每位专家增加所属单位与回避单位信息", "completed": true },
+      { "step": "为项目数据增加所需专业领域字段", "completed": true }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "reviewRefs": ["1415-001", "cal-005"],
+    "statusNote": "2026-07-17 实施+验证通过"
+  },
+  {
+    "number": 2,
+    "category": "路由与权限",
+    "task": "注册专家抽取页面",
+    "steps": [
+      { "step": "创建 src/views/ExpertExtraction.vue", "completed": true },
+      { "step": "在 router/index.js 中添加 /admin/expert-extraction 路由", "completed": true },
+      { "step": "在 permissions.js 中配置允许访问的角色", "completed": true },
+      { "step": "在 Layout.vue 对应角色菜单中添加入口", "completed": true }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "reviewRefs": ["yy0-005"],
+    "statusNote": "2026-07-17 实施+验证通过"
+  },
+  {
+    "number": 3,
+    "category": "核心实现",
+    "task": "实现专家随机抽取逻辑",
+    "steps": [
+      { "step": "按项目需求自动填充专业领域条件", "completed": true },
+      { "step": "按回避规则过滤候选专家", "completed": true },
+      { "step": "实现随机抽取算法并展示结果", "completed": true },
+      { "step": "支持重新抽取与确认操作", "completed": true }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "reviewRefs": ["cal-005", "1415-001"],
+    "statusNote": "2026-07-17 实施+验证通过"
+  },
+  {
+    "number": 4,
+    "category": "联动展示",
+    "task": "抽取结果同步到评标流程",
+    "steps": [
+      { "step": "ExpertProject.vue 读取抽取结果作为签到专家名单", "completed": true },
+      { "step": "EvaluationHall.vue 展示抽取出的专家评审", "completed": true }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "reviewRefs": ["yy0-005"],
+    "statusNote": "2026-07-17 实施+验证通过"
+  },
+  {
+    "number": 5,
+    "category": "验证",
+    "task": "构建与功能验证",
+    "steps": [
+      { "step": "运行 npm run build 构建通过", "completed": true },
+      { "step": "验证各角色菜单可见性", "completed": true },
+      { "step": "验证按领域随机抽取结果符合回避规则", "completed": true }
+    ],
+    "passes": true,
+    "status": "已修复",
+    "statusNote": "2026-07-17 实施+验证通过：pnpm run build 2026-07-17 通过"
+  }
+]

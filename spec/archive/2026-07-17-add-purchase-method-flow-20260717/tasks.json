@@ -1,0 +1,57 @@
+{
+  "proposal": "add-purchase-method-flow-20260717",
+  "tasks": [
+    {
+      "id": "purchase-method-flow-map",
+      "title": "采购方式→流程节点映射配置",
+      "description": "新建 src/utils/purchaseMethodFlow.js：定义公开招标、邀请招标、公开询比价、邀请询比价四种采购方式的流程节点序列；四种方式节点一致，唯邀请询比价剔除开标、评标节点；提供按 purchaseMode 判断节点是否启用的辅助函数，供各页面统一调用。",
+      "files": ["src/utils/purchaseMethodFlow.js"],
+      "acceptance": [
+        "映射覆盖四种采购方式且节点序列可查询",
+        "邀请询比价节点序列不含开标、评标",
+        "其余三种方式节点与现有开标→评标→定标链路一致"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "opening-evaluation-gating",
+      "title": "开标/评标大厅按采购方式门禁",
+      "description": "OpeningHall、EvaluationHall 按项目 purchaseMode 判断可达性：邀请询比价项目直接访问时阻断并提示「该采购方式无开标/评标环节」；相关菜单与按钮入口隐藏（共享菜单/权限文件由基础设施 agent 统一接线）。",
+      "files": ["src/views/OpeningHall.jsx", "src/views/EvaluationHall.jsx", "src/utils/purchaseMethodFlow.js"],
+      "acceptance": [
+        "邀请询比价项目访问开标/评标页被阻断并有明确提示",
+        "邀请询比价项目不出现开标大厅/评标大厅入口",
+        "其他三种方式的开标/评标链路行为不变"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "invited-rfq-direct-award",
+      "title": "邀请询比价报价截止直通采购结果",
+      "description": "邀请询比价项目报价截止后，项目阶段直接推进为定标/采购结果，不产生待开标、开标中、评标中等中间状态；补充邀请询比价 mock 项目样例驱动演示闭环。",
+      "files": ["src/utils/purchaseMethodFlow.js", "src/views/ProjectDetail.jsx"],
+      "acceptance": [
+        "邀请询比价项目报价截止后阶段直接为定标/采购结果",
+        "项目状态流转中不出现开标、评标中间态",
+        "采购结果相关入口对该类项目可见"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "track-and-center-by-method",
+      "title": "ProjectTrack 时间线与项目中心按钮按方式渲染",
+      "description": "ProjectTrack 流程时间线按 purchaseMethodFlow 映射渲染节点（邀请询比价无开标/评标节点）；BidderProjects 项目中心按方式聚合操作按钮（邀请询比价不显示「进入开标大厅」等入口）。",
+      "files": ["src/views/ProjectTrack.jsx", "src/views/BidderProjects.jsx", "src/utils/purchaseMethodFlow.js"],
+      "acceptance": [
+        "邀请询比价项目时间线不含开标、评标节点",
+        "项目中心对邀请询比价项目不显示开标大厅/评标相关按钮",
+        "其他采购方式的时间线与按钮渲染不变"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    }
+  ]
+}

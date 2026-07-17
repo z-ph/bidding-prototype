@@ -1,0 +1,96 @@
+{
+  "proposal": "add-approval-flow-20260717",
+  "tasks": [
+    {
+      "id": "approval-center",
+      "title": "审批中心页（待办/已办/我发起的）",
+      "description": "新建 /admin/approval-center 审批中心：待办、已办、我发起的三个页签按当前用户角色正确分流；待办详情支持通过、驳回（必填原因）、加签、转办、退回操作；操作后审批单状态与流转记录写入 approvalStore。页面组件放 src/views/，路由文件只放元数据。",
+      "files": ["src/views/ApprovalCenter.jsx", "src/routes/admin.approval-center.jsx", "src/routes/admin.approval-center.lazy.jsx", "src/data/approvalStore.js"],
+      "acceptance": [
+        "待办/已办/我发起的三页签数据按当前用户正确分流",
+        "通过、驳回（驳回原因必填）、加签、转办、退回操作均可用且写入流转记录",
+        "操作后审批单状态实时更新并持久化到 localStorage"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "requirement-approval",
+      "title": "采购需求发布接入审批链",
+      "description": "采购需求提交后进入审批链：招标代理发布→招标人（采购管理部）审核；招标人发布→需求部门→采购管理部。审批通过前需求不可发布；通过后自动推进需求状态为已发布；驳回退回经办人，可修改后重新提交。",
+      "files": ["src/views/ProcurementRequirementList.jsx", "src/views/ProcurementRequirementEdit.jsx", "src/data/approvalStore.js"],
+      "acceptance": [
+        "需求提交后按发起人角色进入对应审批链（代理→采购管理部；招标人→需求部门→采购管理部）",
+        "审批通过前需求不可对外发布，通过后状态自动推进",
+        "驳回后需求退回经办人并可重新提交"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "tender-doc-approval",
+      "title": "招标文件发布接入审批链",
+      "description": "招标文件发布前必须经审批链审批（链路与需求一致：代理发布→采购管理部；招标人发布→需求部门→采购管理部）；通过后自动推进为已发布；驳回退回经办人；招标文件页面展示当前审批状态。",
+      "files": ["src/views/TenderDoc.jsx", "src/data/approvalStore.js"],
+      "acceptance": [
+        "招标文件发布前必须审批通过，未通过不可发布",
+        "驳回后退回经办人并可重新提交",
+        "招标文件页面可见当前审批状态（待审/通过/驳回）"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "award-result-record",
+      "title": "中标结果审批结果登记（不做系统内审批流）",
+      "description": "中标结果审批不在本系统完成（清单 31）：在中标相关页面提供审批结果登记入口，登记通过/不通过、审批文号、审批日期与附件；登记为通过后中标结果方可发布；不发起系统内审批流转。",
+      "files": ["src/views/AwardConfirm.jsx", "src/data/approvalStore.js"],
+      "acceptance": [
+        "提供审批结果登记表单（通过/不通过、审批文号、日期、附件）",
+        "登记为通过后中标结果方可发布，未登记或登记不通过不可发布",
+        "不产生系统内审批待办，仅留存登记记录"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "approval-flow-config",
+      "title": "审批流配置页（限采购管理部）",
+      "description": "新建 /admin/approval-flow-config：仅招标人（采购管理部）角色可见可操作，支持审批流的新建、修改、启停、发布；停用/未发布的审批流不作用于新发起的审批单；不按采购方式区分审批流（清单 51）。",
+      "files": ["src/views/ApprovalFlowConfig.jsx", "src/routes/admin.approval-flow-config.jsx", "src/routes/admin.approval-flow-config.lazy.jsx", "src/data/approvalStore.js"],
+      "acceptance": [
+        "仅招标人（采购管理部）角色可进入并操作，其他角色不可见",
+        "新建/修改/启停/发布操作可用并持久化",
+        "停用或未发布的审批流不影响新发起的审批单"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "approval-notify",
+      "title": "审批操作后站内信通知",
+      "description": "审批提交、通过、驳回、加签、转办、退回等操作后，向相关经办人/下一审批人发送站内信（清单 54），接入 MessageCenter；若 MessageCenter 仍无 store，则按既有 localStorage store 模式新建 src/data/messageStore.js 并改造 MessageCenter 读取。短信/邮件仅预留不实现。",
+      "files": ["src/data/approvalStore.js", "src/data/messageStore.js", "src/views/MessageCenter.jsx"],
+      "acceptance": [
+        "审批操作后相关人站内信列表出现对应通知（含业务类型、项目、操作结果）",
+        "MessageCenter 从 store 读取并可展示审批通知",
+        "无任何短信/邮件真实发送逻辑"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    },
+    {
+      "id": "approval-archive",
+      "title": "审批记录全量进入项目归档",
+      "description": "项目归档视图中展示该项目全部审批记录（清单 53）：审批节点、审批人、意见、附件、签名（mock）、时间；中标结果审批登记记录同样入归档。",
+      "files": ["src/views/ProjectDetail.jsx", "src/data/approvalStore.js"],
+      "acceptance": [
+        "项目归档视图可查看该项目全部审批记录，含意见/附件/签名/时间",
+        "中标结果审批登记记录同步出现在归档中",
+        "审批记录只读，不可在归档中修改"
+      ],
+      "status": "已修复",
+      "statusNote": "2026-07-17 实施+验证通过"
+    }
+  ]
+}

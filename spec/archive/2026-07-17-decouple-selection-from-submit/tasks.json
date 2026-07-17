@@ -1,0 +1,55 @@
+[
+  {
+    "number": 1,
+    "category": "组件",
+    "task": "选择与提交解耦",
+    "steps": [
+      {
+        "step": "targets 集合状态替代单 target；点击只选中不弹表单",
+        "completed": true
+      },
+      {
+        "step": "Cmd/Ctrl+点击多选/取消；选中态持久高亮并跟随滚动",
+        "completed": true
+      },
+      {
+        "step": "框选区域加入 targets 而非直接弹表单",
+        "completed": true
+      },
+      {
+        "step": "工具条计数 + 提交评审 + 取消选择",
+        "completed": true
+      },
+      {
+        "step": "提交时逐目标生成 targets 数组与截图，提交后清空",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "无需修复",
+    "reviewRefs": ["1415-004"],
+    "statusNote": "自封装组件已移除，被 revert-to-provided-review-tool 取代"
+  },
+  {
+    "number": 2,
+    "category": "验证",
+    "task": "运行时验证与构建",
+    "steps": [
+      {
+        "step": "点击不弹表单、cmd 多选、框选累积验证",
+        "completed": true
+      },
+      {
+        "step": "多目标提交记录正确，列表可见",
+        "completed": true
+      },
+      {
+        "step": "npm run build 通过并提交",
+        "completed": true
+      }
+    ],
+    "passes": true,
+    "status": "无需修复",
+    "statusNote": "自封装组件已移除，被 revert-to-provided-review-tool 取代"
+  }
+]
