@@ -26,7 +26,7 @@ import { BarChartOutlined } from '@ant-design/icons'
 import { analyticsStore, WARNING_RULE_LABELS } from '../data/analyticsStore.js'
 import PriceTrendChart from '../components/analytics/PriceTrendChart.jsx'
 
-// 项目 id → 名称映射（沿用 ObjectionManage 的既有约定，mock 项目未入 projectStore）
+// 项目 id → 名称映射（沿用全局列表页的既有约定，mock 项目未入 projectStore）
 const PROJECT_NAMES = {
   '1': 'XX市轨道交通设备采购项目',
   '2': '办公桌椅采购项目',

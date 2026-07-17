@@ -65,8 +65,6 @@ export default function ProjectCreate() {
     name: '',
     code: 'ZB20260708001',
     budget: '',
-    registerStart: null,
-    registerEnd: null,
     openTime: null,
     evalLocation: '线上评标大厅',
     intro: '',
@@ -107,8 +105,6 @@ export default function ProjectCreate() {
     const toDayjs = (v) => (v ? dayjs(v) : null)
     const restored = {
       ...stored,
-      registerStart: toDayjs(stored.registerStart),
-      registerEnd: toDayjs(stored.registerEnd),
       openTime: toDayjs(stored.openTime),
       packages: (stored.packages || []).map((pkg) => ({
         ...pkg,
@@ -120,8 +116,6 @@ export default function ProjectCreate() {
     form.setFieldsValue({
       name: restored.name,
       budget: restored.budget,
-      registerStart: restored.registerStart,
-      registerEnd: restored.registerEnd,
       openTime: restored.openTime,
       intro: restored.intro,
       orgMode: restored.orgMode || 'self'
@@ -153,8 +147,6 @@ export default function ProjectCreate() {
     { key: 'budget', label: '预算金额' },
     { key: 'content', label: '标段内容' },
     { key: 'purchaseMode', label: '采购方式' },
-    { key: 'bidFee', label: '标书费' },
-    { key: 'deposit', label: '保证金' },
     { key: 'bidStart', label: '投标开始时间' },
     { key: 'bidEnd', label: '投标截止时间' }
   ]
@@ -239,8 +231,6 @@ export default function ProjectCreate() {
           content: '',
           // 标段级采购方式默认「公开招标」（cxy-016：项目级采购方式已移除）
           purchaseMode: 'open',
-          bidFee: '',
-          deposit: '',
           bidStart: null,
           bidEnd: null
         }
@@ -313,8 +303,6 @@ export default function ProjectCreate() {
     const basicCheck = validateRequiredFields([
       { key: 'name', value: formData.name, label: '项目名称' },
       { key: 'budget', value: formData.budget, label: '项目预算' },
-      { key: 'registerStart', value: formData.registerStart, label: '报名开始时间' },
-      { key: 'registerEnd', value: formData.registerEnd, label: '报名截止时间' },
       { key: 'openTime', value: formData.openTime, label: '开标时间' },
       { key: 'intro', value: formData.intro, label: '项目简介' }
     ])
@@ -370,17 +358,6 @@ export default function ProjectCreate() {
   const basicRules = {
     name: [formRules.required('请输入项目名称'), formRules.maxLength(100)],
     budget: [formRules.required('请输入预算金额'), formRules.positiveNumber('请输入有效的预算金额')],
-    registerStart: [formRules.required('请选择报名开始时间')],
-    registerEnd: [
-      formRules.required('请选择报名截止时间'),
-      formRules.custom((_, value) => {
-        if (!formData.registerStart || !value) return Promise.resolve()
-        if (new Date(value) <= new Date(formData.registerStart)) {
-          return Promise.reject(new Error('报名截止时间必须晚于开始时间'))
-        }
-        return Promise.resolve()
-      })
-    ],
     openTime: [formRules.required('请选择开标时间')],
     intro: [formRules.required('请输入项目简介'), formRules.maxLength(500)]
   }
@@ -447,28 +424,6 @@ export default function ProjectCreate() {
                       value={formData.budget}
                       onChange={(e) => updateField('budget', e.target.value)}
                       addonAfter="万元"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={20}>
-                <Col span={12}>
-                  <Form.Item label="报名开始" name="registerStart" rules={basicRules.registerStart}>
-                    <DatePicker
-                      showTime
-                      style={{ width: '100%' }}
-                      value={formData.registerStart}
-                      onChange={(value) => updateField('registerStart', value)}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item label="报名截止" name="registerEnd" rules={basicRules.registerEnd}>
-                    <DatePicker
-                      showTime
-                      style={{ width: '100%' }}
-                      value={formData.registerEnd}
-                      onChange={(value) => updateField('registerEnd', value)}
                     />
                   </Form.Item>
                 </Col>
@@ -778,24 +733,6 @@ export default function ProjectCreate() {
                       />
                     </Form.Item>
                   </Col>
-                  <Col span={8}>
-                    <Form.Item label="标书费">
-                      <Input
-                        placeholder="元"
-                        value={pkg.bidFee}
-                        onChange={(e) => updatePackage(idx, 'bidFee', e.target.value)}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item label="保证金">
-                      <Input
-                        placeholder="元"
-                        value={pkg.deposit}
-                        onChange={(e) => updatePackage(idx, 'deposit', e.target.value)}
-                      />
-                    </Form.Item>
-                  </Col>
                 </Row>
                 <Row gutter={20}>
                   <Col span={12}>
@@ -1003,13 +940,11 @@ export default function ProjectCreate() {
                   <Descriptions.Item label="资质要求">{formData.qualifications.join('、') || '-'}</Descriptions.Item>
                 </Descriptions>
                 {formData.packages.length > 0 && (
-                  <Card size="small" title="标段费用与时间" style={{ marginTop: 16, textAlign: 'left' }}>
+                  <Card size="small" title="标段采购方式与时间" style={{ marginTop: 16, textAlign: 'left' }}>
                     {formData.packages.map((pkg, idx) => (
                       <div key={idx} className="package-review-row">
                         <strong>标段 {idx + 1} {pkg.name || pkg.code}</strong>
                         <span>采购方式：{PURCHASE_MODE_OPTIONS.find((o) => o.value === pkg.purchaseMode)?.label || '-'}</span>
-                        <span>标书费：{pkg.bidFee || '-'} 元</span>
-                        <span>保证金：{pkg.deposit || '-'} 元</span>
                         <span>投标开始：{formatTime(pkg.bidStart)}</span>
                         <span>投标截止：{formatTime(pkg.bidEnd)}</span>
                       </div>
@@ -1079,7 +1014,7 @@ export default function ProjectCreate() {
         }
         .package-review-row {
           display: grid;
-          grid-template-columns: 1.5fr repeat(5, 1fr);
+          grid-template-columns: 1.5fr repeat(3, 1fr);
           gap: 12px;
           padding: 8px 0;
           border-bottom: 1px solid #f0f0f0;

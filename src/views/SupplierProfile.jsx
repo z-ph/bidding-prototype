@@ -203,7 +203,7 @@ export default function SupplierProfile() {
           <Form.Item label="资质文件">
             <div style={{ marginBottom: 12 }}>
               <Tag color="blue">按资质类型上传</Tag>
-              <span style={{ color: '#666', marginLeft: 8 }}>报名时将按项目要求自动检测是否齐全，带有效期资质到期前 30 天预警</span>
+              <span style={{ color: '#666', marginLeft: 8 }}>投标时将按项目要求自动检测是否齐全，带有效期资质到期前 30 天预警</span>
             </div>
             <Row gutter={[20, 20]}>
               {qualificationTypes.map((q) => (

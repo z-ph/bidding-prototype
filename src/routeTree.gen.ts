@@ -35,7 +35,6 @@ import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
 import { Route as AdminProcurementRequirementsRouteImport } from './routes/admin.procurement-requirements'
 import { Route as AdminOrganizationRouteImport } from './routes/admin.organization'
 import { Route as AdminOpeningHallRouteImport } from './routes/admin.opening-hall'
-import { Route as AdminObjectionManageRouteImport } from './routes/admin.objection-manage'
 import { Route as AdminNotificationManageRouteImport } from './routes/admin.notification-manage'
 import { Route as AdminNoticePublishRouteImport } from './routes/admin.notice-publish'
 import { Route as AdminNoticeListRouteImport } from './routes/admin.notice-list'
@@ -48,13 +47,9 @@ import { Route as AdminExpertProfileRouteImport } from './routes/admin.expert-pr
 import { Route as AdminExpertExtractionRouteImport } from './routes/admin.expert-extraction'
 import { Route as AdminEvaluationHallRouteImport } from './routes/admin.evaluation-hall'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
-import { Route as AdminContractArchiveRouteImport } from './routes/admin.contract-archive'
 import { Route as AdminBidderProjectsRouteImport } from './routes/admin.bidder-projects'
-import { Route as AdminBidderInvoicesRouteImport } from './routes/admin.bidder-invoices'
 import { Route as AdminBidUploadRouteImport } from './routes/admin.bid-upload'
-import { Route as AdminBidRegisterRouteImport } from './routes/admin.bid-register'
 import { Route as AdminBidQuoteRouteImport } from './routes/admin.bid-quote'
-import { Route as AdminBidPaymentRouteImport } from './routes/admin.bid-payment'
 import { Route as AdminBidDownloadRouteImport } from './routes/admin.bid-download'
 import { Route as AdminAwardNoticeRouteImport } from './routes/admin.award-notice'
 import { Route as AdminAwardConfirmRouteImport } from './routes/admin.award-confirm'
@@ -234,13 +229,6 @@ const AdminOpeningHallRoute = AdminOpeningHallRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.opening-hall.lazy').then((d) => d.Route),
 )
-const AdminObjectionManageRoute = AdminObjectionManageRouteImport.update({
-  id: '/objection-manage',
-  path: '/objection-manage',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.objection-manage.lazy').then((d) => d.Route),
-)
 const AdminNotificationManageRoute = AdminNotificationManageRouteImport.update({
   id: '/notification-manage',
   path: '/notification-manage',
@@ -325,26 +313,12 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.dashboard.lazy').then((d) => d.Route),
 )
-const AdminContractArchiveRoute = AdminContractArchiveRouteImport.update({
-  id: '/contract-archive',
-  path: '/contract-archive',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.contract-archive.lazy').then((d) => d.Route),
-)
 const AdminBidderProjectsRoute = AdminBidderProjectsRouteImport.update({
   id: '/bidder-projects',
   path: '/bidder-projects',
   getParentRoute: () => AdminRoute,
 } as any).lazy(() =>
   import('./routes/admin.bidder-projects.lazy').then((d) => d.Route),
-)
-const AdminBidderInvoicesRoute = AdminBidderInvoicesRouteImport.update({
-  id: '/bidder-invoices',
-  path: '/bidder-invoices',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.bidder-invoices.lazy').then((d) => d.Route),
 )
 const AdminBidUploadRoute = AdminBidUploadRouteImport.update({
   id: '/bid-upload',
@@ -353,26 +327,12 @@ const AdminBidUploadRoute = AdminBidUploadRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.bid-upload.lazy').then((d) => d.Route),
 )
-const AdminBidRegisterRoute = AdminBidRegisterRouteImport.update({
-  id: '/bid-register',
-  path: '/bid-register',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.bid-register.lazy').then((d) => d.Route),
-)
 const AdminBidQuoteRoute = AdminBidQuoteRouteImport.update({
   id: '/bid-quote',
   path: '/bid-quote',
   getParentRoute: () => AdminRoute,
 } as any).lazy(() =>
   import('./routes/admin.bid-quote.lazy').then((d) => d.Route),
-)
-const AdminBidPaymentRoute = AdminBidPaymentRouteImport.update({
-  id: '/bid-payment',
-  path: '/bid-payment',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.bid-payment.lazy').then((d) => d.Route),
 )
 const AdminBidDownloadRoute = AdminBidDownloadRouteImport.update({
   id: '/bid-download',
@@ -529,13 +489,9 @@ export interface FileRoutesByFullPath {
   '/admin/award-confirm': typeof AdminAwardConfirmRoute
   '/admin/award-notice': typeof AdminAwardNoticeRoute
   '/admin/bid-download': typeof AdminBidDownloadRoute
-  '/admin/bid-payment': typeof AdminBidPaymentRoute
   '/admin/bid-quote': typeof AdminBidQuoteRoute
-  '/admin/bid-register': typeof AdminBidRegisterRoute
   '/admin/bid-upload': typeof AdminBidUploadRoute
-  '/admin/bidder-invoices': typeof AdminBidderInvoicesRoute
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
-  '/admin/contract-archive': typeof AdminContractArchiveRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
   '/admin/expert-extraction': typeof AdminExpertExtractionRoute
@@ -548,7 +504,6 @@ export interface FileRoutesByFullPath {
   '/admin/notice-list': typeof AdminNoticeListRoute
   '/admin/notice-publish': typeof AdminNoticePublishRoute
   '/admin/notification-manage': typeof AdminNotificationManageRoute
-  '/admin/objection-manage': typeof AdminObjectionManageRoute
   '/admin/opening-hall': typeof AdminOpeningHallRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/procurement-requirements': typeof AdminProcurementRequirementsRouteWithChildren
@@ -594,13 +549,9 @@ export interface FileRoutesByTo {
   '/admin/award-confirm': typeof AdminAwardConfirmRoute
   '/admin/award-notice': typeof AdminAwardNoticeRoute
   '/admin/bid-download': typeof AdminBidDownloadRoute
-  '/admin/bid-payment': typeof AdminBidPaymentRoute
   '/admin/bid-quote': typeof AdminBidQuoteRoute
-  '/admin/bid-register': typeof AdminBidRegisterRoute
   '/admin/bid-upload': typeof AdminBidUploadRoute
-  '/admin/bidder-invoices': typeof AdminBidderInvoicesRoute
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
-  '/admin/contract-archive': typeof AdminContractArchiveRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
   '/admin/expert-extraction': typeof AdminExpertExtractionRoute
@@ -613,7 +564,6 @@ export interface FileRoutesByTo {
   '/admin/notice-list': typeof AdminNoticeListRoute
   '/admin/notice-publish': typeof AdminNoticePublishRoute
   '/admin/notification-manage': typeof AdminNotificationManageRoute
-  '/admin/objection-manage': typeof AdminObjectionManageRoute
   '/admin/opening-hall': typeof AdminOpeningHallRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/review-change-list': typeof AdminReviewChangeListRoute
@@ -659,13 +609,9 @@ export interface FileRoutesById {
   '/admin/award-confirm': typeof AdminAwardConfirmRoute
   '/admin/award-notice': typeof AdminAwardNoticeRoute
   '/admin/bid-download': typeof AdminBidDownloadRoute
-  '/admin/bid-payment': typeof AdminBidPaymentRoute
   '/admin/bid-quote': typeof AdminBidQuoteRoute
-  '/admin/bid-register': typeof AdminBidRegisterRoute
   '/admin/bid-upload': typeof AdminBidUploadRoute
-  '/admin/bidder-invoices': typeof AdminBidderInvoicesRoute
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
-  '/admin/contract-archive': typeof AdminContractArchiveRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
   '/admin/expert-extraction': typeof AdminExpertExtractionRoute
@@ -678,7 +624,6 @@ export interface FileRoutesById {
   '/admin/notice-list': typeof AdminNoticeListRoute
   '/admin/notice-publish': typeof AdminNoticePublishRoute
   '/admin/notification-manage': typeof AdminNotificationManageRoute
-  '/admin/objection-manage': typeof AdminObjectionManageRoute
   '/admin/opening-hall': typeof AdminOpeningHallRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/procurement-requirements': typeof AdminProcurementRequirementsRouteWithChildren
@@ -727,13 +672,9 @@ export interface FileRouteTypes {
     | '/admin/award-confirm'
     | '/admin/award-notice'
     | '/admin/bid-download'
-    | '/admin/bid-payment'
     | '/admin/bid-quote'
-    | '/admin/bid-register'
     | '/admin/bid-upload'
-    | '/admin/bidder-invoices'
     | '/admin/bidder-projects'
-    | '/admin/contract-archive'
     | '/admin/dashboard'
     | '/admin/evaluation-hall'
     | '/admin/expert-extraction'
@@ -746,7 +687,6 @@ export interface FileRouteTypes {
     | '/admin/notice-list'
     | '/admin/notice-publish'
     | '/admin/notification-manage'
-    | '/admin/objection-manage'
     | '/admin/opening-hall'
     | '/admin/organization'
     | '/admin/procurement-requirements'
@@ -792,13 +732,9 @@ export interface FileRouteTypes {
     | '/admin/award-confirm'
     | '/admin/award-notice'
     | '/admin/bid-download'
-    | '/admin/bid-payment'
     | '/admin/bid-quote'
-    | '/admin/bid-register'
     | '/admin/bid-upload'
-    | '/admin/bidder-invoices'
     | '/admin/bidder-projects'
-    | '/admin/contract-archive'
     | '/admin/dashboard'
     | '/admin/evaluation-hall'
     | '/admin/expert-extraction'
@@ -811,7 +747,6 @@ export interface FileRouteTypes {
     | '/admin/notice-list'
     | '/admin/notice-publish'
     | '/admin/notification-manage'
-    | '/admin/objection-manage'
     | '/admin/opening-hall'
     | '/admin/organization'
     | '/admin/review-change-list'
@@ -856,13 +791,9 @@ export interface FileRouteTypes {
     | '/admin/award-confirm'
     | '/admin/award-notice'
     | '/admin/bid-download'
-    | '/admin/bid-payment'
     | '/admin/bid-quote'
-    | '/admin/bid-register'
     | '/admin/bid-upload'
-    | '/admin/bidder-invoices'
     | '/admin/bidder-projects'
-    | '/admin/contract-archive'
     | '/admin/dashboard'
     | '/admin/evaluation-hall'
     | '/admin/expert-extraction'
@@ -875,7 +806,6 @@ export interface FileRouteTypes {
     | '/admin/notice-list'
     | '/admin/notice-publish'
     | '/admin/notification-manage'
-    | '/admin/objection-manage'
     | '/admin/opening-hall'
     | '/admin/organization'
     | '/admin/procurement-requirements'
@@ -1098,13 +1028,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOpeningHallRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/objection-manage': {
-      id: '/admin/objection-manage'
-      path: '/objection-manage'
-      fullPath: '/admin/objection-manage'
-      preLoaderRoute: typeof AdminObjectionManageRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/notification-manage': {
       id: '/admin/notification-manage'
       path: '/notification-manage'
@@ -1189,25 +1112,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/contract-archive': {
-      id: '/admin/contract-archive'
-      path: '/contract-archive'
-      fullPath: '/admin/contract-archive'
-      preLoaderRoute: typeof AdminContractArchiveRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/bidder-projects': {
       id: '/admin/bidder-projects'
       path: '/bidder-projects'
       fullPath: '/admin/bidder-projects'
       preLoaderRoute: typeof AdminBidderProjectsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/bidder-invoices': {
-      id: '/admin/bidder-invoices'
-      path: '/bidder-invoices'
-      fullPath: '/admin/bidder-invoices'
-      preLoaderRoute: typeof AdminBidderInvoicesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/bid-upload': {
@@ -1217,25 +1126,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBidUploadRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/bid-register': {
-      id: '/admin/bid-register'
-      path: '/bid-register'
-      fullPath: '/admin/bid-register'
-      preLoaderRoute: typeof AdminBidRegisterRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/bid-quote': {
       id: '/admin/bid-quote'
       path: '/bid-quote'
       fullPath: '/admin/bid-quote'
       preLoaderRoute: typeof AdminBidQuoteRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/bid-payment': {
-      id: '/admin/bid-payment'
-      path: '/bid-payment'
-      fullPath: '/admin/bid-payment'
-      preLoaderRoute: typeof AdminBidPaymentRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/bid-download': {
@@ -1416,13 +1311,9 @@ interface AdminRouteChildren {
   AdminAwardConfirmRoute: typeof AdminAwardConfirmRoute
   AdminAwardNoticeRoute: typeof AdminAwardNoticeRoute
   AdminBidDownloadRoute: typeof AdminBidDownloadRoute
-  AdminBidPaymentRoute: typeof AdminBidPaymentRoute
   AdminBidQuoteRoute: typeof AdminBidQuoteRoute
-  AdminBidRegisterRoute: typeof AdminBidRegisterRoute
   AdminBidUploadRoute: typeof AdminBidUploadRoute
-  AdminBidderInvoicesRoute: typeof AdminBidderInvoicesRoute
   AdminBidderProjectsRoute: typeof AdminBidderProjectsRoute
-  AdminContractArchiveRoute: typeof AdminContractArchiveRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminEvaluationHallRoute: typeof AdminEvaluationHallRoute
   AdminExpertExtractionRoute: typeof AdminExpertExtractionRoute
@@ -1435,7 +1326,6 @@ interface AdminRouteChildren {
   AdminNoticeListRoute: typeof AdminNoticeListRoute
   AdminNoticePublishRoute: typeof AdminNoticePublishRoute
   AdminNotificationManageRoute: typeof AdminNotificationManageRoute
-  AdminObjectionManageRoute: typeof AdminObjectionManageRoute
   AdminOpeningHallRoute: typeof AdminOpeningHallRoute
   AdminOrganizationRoute: typeof AdminOrganizationRoute
   AdminProcurementRequirementsRoute: typeof AdminProcurementRequirementsRouteWithChildren
@@ -1467,13 +1357,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAwardConfirmRoute: AdminAwardConfirmRoute,
   AdminAwardNoticeRoute: AdminAwardNoticeRoute,
   AdminBidDownloadRoute: AdminBidDownloadRoute,
-  AdminBidPaymentRoute: AdminBidPaymentRoute,
   AdminBidQuoteRoute: AdminBidQuoteRoute,
-  AdminBidRegisterRoute: AdminBidRegisterRoute,
   AdminBidUploadRoute: AdminBidUploadRoute,
-  AdminBidderInvoicesRoute: AdminBidderInvoicesRoute,
   AdminBidderProjectsRoute: AdminBidderProjectsRoute,
-  AdminContractArchiveRoute: AdminContractArchiveRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminEvaluationHallRoute: AdminEvaluationHallRoute,
   AdminExpertExtractionRoute: AdminExpertExtractionRoute,
@@ -1486,7 +1372,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminNoticeListRoute: AdminNoticeListRoute,
   AdminNoticePublishRoute: AdminNoticePublishRoute,
   AdminNotificationManageRoute: AdminNotificationManageRoute,
-  AdminObjectionManageRoute: AdminObjectionManageRoute,
   AdminOpeningHallRoute: AdminOpeningHallRoute,
   AdminOrganizationRoute: AdminOrganizationRoute,
   AdminProcurementRequirementsRoute:

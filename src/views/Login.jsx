@@ -344,7 +344,7 @@ export default function Login() {
             <div className="feature"><CheckOutlined /> 在线招标发标</div>
             <div className="feature"><CheckOutlined /> 电子投标加密</div>
             <div className="feature"><CheckOutlined /> 线上开标评标</div>
-            <div className="feature"><CheckOutlined /> 合同归档管理</div>
+            <div className="feature"><CheckOutlined /> 定标结果公示</div>
           </div>
         </div>
         <div className="login-right">

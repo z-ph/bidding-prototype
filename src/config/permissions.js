@@ -45,10 +45,8 @@ export const PAGE_PERMISSIONS = {
   '/admin/procurement-requirements/edit': ['tenderee', 'admin'],
   '/admin/fee-manage': ['tenderee', 'agent'],
   '/admin/expert-extraction': ['tenderee', 'agent', 'admin'],
-  '/admin/objection-manage': ['tenderee', 'agent'],
   '/admin/award-confirm': ['tenderee', 'agent'],
   '/admin/award-notice': ['tenderee', 'agent', 'bidder'],
-  '/admin/contract-archive': ['tenderee', 'agent'],
 
   // 开标大厅：仅招标人/招标代理/投标人可进入，但操作权限不同
   '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
@@ -58,12 +56,9 @@ export const PAGE_PERMISSIONS = {
 
   // 投标人页面
   '/admin/bidder-projects': ['bidder'],
-  '/admin/bid-register': ['bidder'],
-  '/admin/bid-payment': ['bidder'],
   '/admin/bid-download': ['bidder'],
   '/admin/bid-quote': ['bidder'],
   '/admin/bid-upload': ['bidder'],
-  '/admin/bidder-invoices': ['bidder'],
 
   // 专家页面
   '/admin/expert-project': ['expert'],
@@ -132,11 +127,8 @@ export const BREADCRUMB_NAMES = {
   ProcurementRequirementList: '采购需求',
   ProcurementRequirementEdit: '编辑采购需求',
   BidderProjects: '我参与的项目',
-  BidRegister: '项目报名',
-  BidPayment: '缴纳费用',
   BidDownload: '下载文件',
   BidQuote: '在线报价',
-  BidderInvoices: '发票申请',
   ExpertProject: '评标任务',
   ExpertExtraction: '专家抽取',
   ExpertTasks: '我的任务',
@@ -149,9 +141,7 @@ export const BREADCRUMB_NAMES = {
   AdminLogs: '日志审计',
   AwardConfirm: '确认中标人',
   AwardNotice: '中标通知书',
-  ContractArchive: '合同归档',
-  FeeManage: '费用管理',
-  ObjectionManage: '异议管理',
+  FeeManage: '费用台账',
   Organization: '组织机构',
   SupplierProfile: '企业档案',
   ExpertProfile: '专家信息',

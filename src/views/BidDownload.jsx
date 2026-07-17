@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { Alert, Button, Card, Form, Input, Modal, Radio, Result, Steps, Table, Tag, Upload, message } from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
+import { Alert, Button, Card, Result, Steps, Table, Tag, message } from 'antd'
 import { useRole } from '../hooks/useRole.js'
-import { objectionStore } from '../data/objectionStore.js'
 import { tenderDocStore } from '../data/tenderDocStore.js'
 import { projectStore } from '../data/projects.js'
 import { authorizationStore } from '../data/authorizationStore.js'
@@ -96,13 +94,6 @@ export default function BidDownload() {
     }
   }, [tenderDocVersion, viewedVersion])
 
-  const [objectionVisible, setObjectionVisible] = useState(false)
-  const [objectionForm, setObjectionForm] = useState({
-    type: '商务',
-    content: '',
-    attachments: []
-  })
-
   const preview = (row) => {
     message.success(`在线预览：${row.name}`)
   }
@@ -110,33 +101,6 @@ export default function BidDownload() {
   const download = (row) => {
     markViewed()
     message.success(`开始下载：${row.name}`)
-  }
-
-  const updateObjectionField = (key, value) => {
-    setObjectionForm((prev) => ({ ...prev, [key]: value }))
-  }
-
-  const submitObjection = () => {
-    if (!objectionForm.content.trim()) {
-      message.warning('请填写质疑内容')
-      return
-    }
-    objectionStore.add({
-      id: `obj-${Date.now()}`,
-      project: projectMeta.name,
-      projectId,
-      type: '招标文件',
-      subType: objectionForm.type,
-      bidder: userInfo?.nickname || '当前投标人',
-      content: objectionForm.content,
-      status: '待答复',
-      attachments: objectionForm.attachments.map((f) => f.name || f),
-      reply: '',
-      createdAt: new Date().toLocaleString()
-    })
-    message.success('质疑已提交，招标人/代理将在异议管理中处理')
-    setObjectionVisible(false)
-    setObjectionForm({ type: '商务', content: '', attachments: [] })
   }
 
   const columns = [
@@ -240,53 +204,10 @@ export default function BidDownload() {
               <span>文件已获取？</span>
               <Button type="primary" onClick={() => navigate({ to: '/admin/bid-quote', search: { projectId } })}>去填写报价</Button>
               <Button onClick={() => navigate({ to: '/admin/bid-upload', search: { projectId } })}>去上传投标文件</Button>
-              <Button onClick={() => setObjectionVisible(true)}>质疑招标文件</Button>
             </div>
           </>
         )}
       </Card>
-
-      <Modal
-        title="质疑招标文件"
-        open={objectionVisible}
-        width={640}
-        onOk={submitObjection}
-        onCancel={() => setObjectionVisible(false)}
-        okText="提交质疑"
-        cancelText="取消"
-      >
-        <Form layout="horizontal" labelCol={{ flex: '100px' }}>
-          <Form.Item label="质疑类型">
-            <Radio.Group
-              value={objectionForm.type}
-              onChange={(e) => updateObjectionField('type', e.target.value)}
-            >
-              <Radio value="商务">商务</Radio>
-              <Radio value="技术">技术</Radio>
-              <Radio value="其他">其他</Radio>
-            </Radio.Group>
-          </Form.Item>
-          <Form.Item label="质疑内容">
-            <Input.TextArea
-              rows={6}
-              placeholder="请详细描述对招标文件的质疑内容，包括条款、参数、评分办法等..."
-              value={objectionForm.content}
-              onChange={(e) => updateObjectionField('content', e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item label="附件">
-            <Upload
-              fileList={objectionForm.attachments}
-              onChange={({ fileList }) => updateObjectionField('attachments', fileList)}
-              beforeUpload={() => false}
-              multiple
-            >
-              <Button icon={<UploadOutlined />}>上传附件</Button>
-            </Upload>
-            <div style={{ color: '#999', fontSize: 12, marginTop: 8 }}>支持 PDF、DOC、图片等，单个不超过 50MB</div>
-          </Form.Item>
-        </Form>
-      </Modal>
 
       <style>{`
         .bid-download {

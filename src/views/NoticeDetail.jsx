@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { useParams, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
 import {
   Card,
   Button,
@@ -9,24 +8,15 @@ import {
   List,
   Empty,
   message,
-  Alert,
-  Modal,
-  Form,
-  Input,
-  Upload,
-  Radio
+  Alert
 } from 'antd'
 import {
   HomeOutlined,
   DownloadOutlined,
-  FormOutlined,
-  ArrowLeftOutlined,
-  QuestionCircleOutlined,
-  UploadOutlined
+  ArrowLeftOutlined
 } from '@ant-design/icons'
 import PortalHeader from '../components/PortalHeader.jsx'
 import { portalStore } from '../data/portalStore.js'
-import { objectionStore } from '../data/objectionStore.js'
 
 const tagColorMap = {
   primary: 'processing',
@@ -39,64 +29,6 @@ export default function NoticeDetail() {
   const { id } = useParams({ strict: false })
   const navigate = useNavigate()
   const notice = useMemo(() => portalStore.getNoticeById(id), [id])
-
-  const isLoggedIn = Boolean(localStorage.getItem('bidding-role'))
-  const role = localStorage.getItem('bidding-role') || ''
-  const isSupplier = role === 'bidder'
-
-  const [objectionVisible, setObjectionVisible] = useState(false)
-  const [objectionForm, setObjectionForm] = useState({ type: '商务', content: '', attachments: [] })
-
-  const now = new Date()
-  const inRegisterPeriod = notice?.registerStart && notice?.registerEnd
-    ? now >= new Date(notice.registerStart) && now <= new Date(notice.registerEnd)
-    : false
-
-  const canRegister = isLoggedIn && isSupplier && notice?.canRegister && inRegisterPeriod
-
-  const updateObjectionField = (key, value) => {
-    setObjectionForm((prev) => ({ ...prev, [key]: value }))
-  }
-
-  const submitObjection = () => {
-    if (!objectionForm.content.trim()) {
-      message.warning('请填写质疑内容')
-      return
-    }
-    objectionStore.add({
-      id: `obj-${Date.now()}`,
-      project: notice?.projectName || '未知项目',
-      projectId: String(notice?.projectId || ''),
-      type: '招标文件',
-      subType: objectionForm.type,
-      bidder: localStorage.getItem('bidding-account') || '当前投标人',
-      content: objectionForm.content,
-      status: '待答复',
-      attachments: objectionForm.attachments.map((f) => f.name || f),
-      reply: '',
-      createdAt: new Date().toLocaleString()
-    })
-    message.success('质疑已提交，招标人/代理将在异议管理中处理')
-    setObjectionVisible(false)
-    setObjectionForm({ type: '商务', content: '', attachments: [] })
-  }
-
-  const handleRegister = () => {
-    if (!isLoggedIn) {
-      message.warning('请先登录')
-      navigate({ to: '/login' })
-      return
-    }
-    if (!isSupplier) {
-      message.warning('仅供应商可报名')
-      return
-    }
-    if (!inRegisterPeriod) {
-      message.warning('当前不在报名时间内')
-      return
-    }
-    navigate({ to: '/admin/bid-register' })
-  }
 
   const handleDownload = (attachment) => {
     const blob = new Blob([`附件内容：${attachment.name}\n演示文件，仅供原型演示。`], { type: 'text/plain;charset=utf-8' })
@@ -184,7 +116,7 @@ export default function NoticeDetail() {
             <Descriptions.Item label="关联标段">
               {notice.packages?.map((p) => p.name).join('、') || '-'}
             </Descriptions.Item>
-            <Descriptions.Item label="报名截止">{notice.deadline || '-'}</Descriptions.Item>
+            <Descriptions.Item label="投标截止">{notice.deadline || '-'}</Descriptions.Item>
           </Descriptions>
 
           <Card type="inner" title="公告正文" style={{ marginBottom: 24 }}>
@@ -217,78 +149,12 @@ export default function NoticeDetail() {
             )}
           </Card>
 
-          <div className="notice-actions">
-            <Button
-              type="primary"
-              size="large"
-              icon={<FormOutlined />}
-              disabled={!canRegister}
-              onClick={handleRegister}
-            >
-              立即报名
-            </Button>
-            {isLoggedIn && isSupplier && (
-              <Button
-                size="large"
-                icon={<QuestionCircleOutlined />}
-                onClick={() => setObjectionVisible(true)}
-              >
-                质疑招标文件
-              </Button>
-            )}
-            {!canRegister && (
-              <span className="register-hint">
-                {!isLoggedIn
-                  ? '请先登录后报名'
-                  : !isSupplier
-                    ? '仅供应商角色可报名'
-                    : !inRegisterPeriod
-                      ? '当前不在报名时间内'
-                      : '该公告不支持报名'}
-              </span>
-            )}
-          </div>
-
-      <Modal
-        title="质疑招标文件"
-        open={objectionVisible}
-        width={640}
-        onOk={submitObjection}
-        onCancel={() => setObjectionVisible(false)}
-        okText="提交质疑"
-        cancelText="取消"
-      >
-        <Form layout="horizontal" labelCol={{ flex: '100px' }}>
-          <Form.Item label="质疑类型">
-            <Radio.Group
-              value={objectionForm.type}
-              onChange={(e) => updateObjectionField('type', e.target.value)}
-            >
-              <Radio value="商务">商务</Radio>
-              <Radio value="技术">技术</Radio>
-              <Radio value="其他">其他</Radio>
-            </Radio.Group>
-          </Form.Item>
-          <Form.Item label="质疑内容">
-            <Input.TextArea
-              rows={6}
-              placeholder="请详细描述对招标文件的质疑内容，包括条款、参数、评分办法等..."
-              value={objectionForm.content}
-              onChange={(e) => updateObjectionField('content', e.target.value)}
-            />
-          </Form.Item>
-          <Form.Item label="附件">
-            <Upload
-              fileList={objectionForm.attachments}
-              onChange={({ fileList }) => updateObjectionField('attachments', fileList)}
-              beforeUpload={() => false}
-              multiple
-            >
-              <Button icon={<UploadOutlined />}>上传附件</Button>
-            </Upload>
-          </Form.Item>
-        </Form>
-      </Modal>
+          <Alert
+            title="供应商参与投标请登录后进入工作台「项目中心」，从下载招标文件开始（新口径无报名环节）。"
+            type="info"
+            showIcon
+            closable={false}
+          />
         </Card>
       </div>
       <style>{`
@@ -313,17 +179,6 @@ export default function NoticeDetail() {
         .notice-content {
           line-height: 1.8;
           white-space: pre-wrap;
-        }
-        .notice-actions {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          justify-content: center;
-          padding: 20px 0;
-        }
-        .register-hint {
-          color: #999;
-          font-size: 14px;
         }
       `}</style>
     </div>

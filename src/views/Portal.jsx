@@ -1,14 +1,12 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
-  Button,
   Radio,
   Table,
   Tag,
   Pagination,
   Card,
-  Carousel,
-  message
+  Carousel
 } from 'antd'
 import {
   UserOutlined,
@@ -59,10 +57,6 @@ export default function Portal() {
     navigate({ to: `/notice/${row.id}` })
   }
 
-  const register = (row) => {
-    navigate({ to: `/notice/${row.id}` })
-  }
-
   const columns = [
     {
       title: '公告标题',
@@ -80,18 +74,7 @@ export default function Portal() {
     },
     { title: '采购方式', dataIndex: 'purchaseMode', key: 'purchaseMode', width: 120 },
     { title: '发布时间', dataIndex: 'publishTime', key: 'publishTime', width: 150 },
-    { title: '截止时间', dataIndex: 'deadline', key: 'deadline', width: 150 },
-    {
-      title: '操作',
-      key: 'action',
-      width: 120,
-      render: (_, row) =>
-        row.canRegister ? (
-          <Button type="primary" size="small" onClick={(e) => { e.stopPropagation(); register(row) }}>
-            报名
-          </Button>
-        ) : null
-    }
+    { title: '投标截止', dataIndex: 'deadline', key: 'deadline', width: 150 }
   ]
 
   const carouselSlides = [

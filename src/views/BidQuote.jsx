@@ -222,11 +222,11 @@ export default function BidQuote() {
         )}
         <Steps
           size="small"
-          current={isInquiryMode ? 4 : 3}
+          current={isInquiryMode ? 3 : 2}
           style={{ marginBottom: 24 }}
           items={(isInquiryMode
-            ? ['报名通过', '下载文件', '编制标书', '上传并加密', '开标', '填写报价']
-            : ['报名通过', '下载文件', '编制标书', '填写报价', '上传并加密']
+            ? ['下载文件', '编制标书', '上传并加密', '开标', '填写报价']
+            : ['下载文件', '编制标书', '填写报价', '上传并加密']
           ).map((title) => ({ title }))}
         />
         {quoteLocked ? (

@@ -23,7 +23,7 @@ export const PROJECT_STATUS_MAP = {
   draft: { text: '草稿', color: 'default' },
   pending: { text: '待审核', color: 'processing' },
   tendering: { text: '招标中', color: 'success' },
-  registering: { text: '报名中', color: 'geekblue' },
+  registering: { text: '公告中', color: 'geekblue' },
   pending_open: { text: '待开标', color: 'warning' },
   evaluating: { text: '评标中', color: 'error' },
   // 定标阶段（ExpertProject 评标报告生成后回写 status='评标完成'；定标侧另以 awardStage 记录阶段）
@@ -41,7 +41,7 @@ export const NEXT_STEP_MAP = {
   draft: { label: '继续编辑', description: '草稿待完善，继续编辑后可提交审核' },
   pending: { label: '查看进度', description: '已提交审核，等待管理员审核' },
   tendering: { label: '发布公告', description: '招标中，下一步前往发布公告' },
-  registering: { label: '进入开标', description: '报名中，报名截止后进入开标大厅' },
+  registering: { label: '进入开标', description: '公告中，投标截止后进入开标大厅' },
   pending_open: { label: '开标大厅', description: '待开标，进入开标大厅完成开标' },
   evaluating: { label: '评标大厅', description: '评标中，进入评标大厅查看进度' },
   // 定标阶段：评标完成→前往定标；已确认中标人→中标通知书；通知书已发→查看详情
@@ -51,74 +51,11 @@ export const NEXT_STEP_MAP = {
   'winner-confirmed': { label: '中标通知书', description: '已确认中标人，前往发送中标通知书' },
   '通知书已发': { label: '查看详情', description: '中标通知书已发出，查看项目详情' },
   'notice-sent': { label: '查看详情', description: '中标通知书已发出，查看项目详情' },
-  done: { label: '查看详情', description: '项目已完成并归档' }
+  done: { label: '查看详情', description: '项目已完成' }
 }
 
-// mock 基线数据：projectStore 中存在同 id 记录时以 store 为准（发标/编辑后持久化覆盖）
-export const BASELINE_PROJECTS = [
-  {
-    id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', orgMode: 'self', budget: 850,
-    status: 'registering', publishTime: '2026-07-01', deadline: '2026-07-20', openTime: '2026-07-21 09:30',
-    owner: '张三', deptCode: 'CG', demandSource: '年度采购计划', demandCode: 'XQ-2026-001',
-    packages: [
-      { name: '第一标段：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidFee: 500, deposit: 50000, bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
-      { name: '第二标段：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidFee: 300, deposit: 20000, bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
-    ],
-    qualifications: ['营业执照', 'ISO9001认证'],
-    intro: '本项目为轨道交通设备采购，包含主设备及辅材两个标段。'
-  },
-  {
-    id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', orgMode: 'self', budget: 45,
-    status: 'pending_open', publishTime: '2026-07-02', deadline: '2026-07-18', openTime: '2026-07-19 09:30',
-    owner: '李四', deptCode: 'ZB',
-    packages: [
-      { name: '办公家具标段', code: 'B1', budget: 45, content: '办公桌椅一批', purchaseMode: 'inquiry', bidFee: 100, deposit: 5000, bidStart: '2026-07-05 09:00', bidEnd: '2026-07-18 17:00' }
-    ],
-    qualifications: ['营业执照'],
-    intro: '办公桌椅集中采购。'
-  },
-  {
-    id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', orgMode: 'agent', budget: 120,
-    status: 'evaluating', publishTime: '2026-07-03', deadline: '2026-07-15', openTime: '2026-07-16 09:30',
-    owner: '张三', deptCode: 'CG', agentId: 'agent_01',
-    packages: [
-      { name: '软件开发服务标段', code: 'B1', budget: 120, content: '信息系统定制开发', purchaseMode: 'invitation', bidFee: 800, deposit: 20000, bidStart: '2026-07-06 09:00', bidEnd: '2026-07-15 17:00' }
-    ],
-    qualifications: ['营业执照', '特定行业资质'],
-    intro: '软件开发服务邀请招标项目。'
-  },
-  {
-    id: 4, name: '物业服务采购项目', code: 'ZB20260704004', type: '公开招标', orgMode: 'self', budget: 60,
-    status: 'done', publishTime: '2026-06-20', deadline: '2026-07-05', openTime: '2026-07-06 09:30',
-    owner: '王五', deptCode: 'FW',
-    packages: [
-      { name: '物业服务标段', code: 'B1', budget: 60, content: '园区物业服务', purchaseMode: 'open', bidFee: 200, deposit: 10000, bidStart: '2026-06-25 09:00', bidEnd: '2026-07-05 17:00' }
-    ],
-    qualifications: ['营业执照'],
-    intro: '年度物业服务采购。'
-  },
-  {
-    id: 5, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', orgMode: 'agent', budget: 230,
-    status: 'tendering', publishTime: '2026-07-05', deadline: '2026-07-25', openTime: '2026-07-26 09:30',
-    owner: '张三', deptCode: 'CG', agentId: 'agent_02',
-    packages: [
-      { name: '实验设备标段', code: 'B1', budget: 230, content: '实验室仪器设备', purchaseMode: 'open', bidFee: 600, deposit: 30000, bidStart: '2026-07-10 09:00', bidEnd: '2026-07-25 17:00' }
-    ],
-    qualifications: ['营业执照', '安全生产许可证'],
-    intro: '实验室设备采购项目。'
-  },
-  {
-    // 邀请询比价演示样例（add-purchase-method-flow-20260717）：驱动 项目中心 → 报价 → 定标 直通链路
-    id: 6, name: '办公耗材邀请询比价项目', code: 'ZB20260710006', type: '邀请询比价', orgMode: 'self', budget: 18,
-    status: 'registering', publishTime: '2026-07-10', deadline: '2026-07-22', openTime: null,
-    owner: '李四', deptCode: 'CG',
-    packages: [
-      { name: '办公耗材标段', code: 'B1', budget: 18, content: '打印纸、硒鼓等办公耗材一批', purchaseMode: 'invitation_inquiry', bidFee: 0, deposit: 0, bidStart: '2026-07-12 09:00', bidEnd: '2026-07-22 17:00' }
-    ],
-    qualifications: ['营业执照'],
-    intro: '邀请询比价演示项目：无开标/评标环节，报价截止后直接进入采购结果。'
-  }
-]
+// 演示环境不再预置 mock 基线数据；所有项目均通过页面 CRUD 写入 projectStore（localStorage）
+export const BASELINE_PROJECTS = []
 
 // 项目采购方式由标段派生：去重后拼接；无标段数据时回退到历史 type 字段
 export function getPurchaseModeValues(project) {
@@ -140,17 +77,17 @@ export function getPurchaseModeText(project) {
 // ── 采购方式 → 流程节点映射（add-purchase-method-flow-20260717，任务 purchase-method-flow-map）──
 // 口径：2026-07-17 需求确认清单 20——四种采购方式环节一样，唯邀请询比价（invitation_inquiry）
 // 不用开标和评标，报价截止后可直接进入采购结果。
+// 2026-07-17 新口径（清单 10/11/26/33）：无报名环节、不缴纳费用、无合同归档，
+// 流程节点不含「投标报名与缴费」「合同归档」，定标公示后流程结束。
 // 方式取值与 ProjectCreate 的 PURCHASE_MODE_OPTIONS 一致：open / invitation / inquiry / invitation_inquiry
 export const FLOW_NODES = [
   { key: 'requirement', label: '创建采购需求' },
   { key: 'doc', label: '编制招标文件' },
   { key: 'notice', label: '发布招标公告' },
-  { key: 'register', label: '投标报名与缴费' },
   { key: 'bid', label: '上传投标文件/报价' },
   { key: 'opening', label: '线上开标' },
   { key: 'evaluation', label: '线上评标' },
-  { key: 'award', label: '定标公示' },
-  { key: 'contract', label: '合同归档' }
+  { key: 'award', label: '定标公示' }
 ]
 
 // 开标/评标节点 key，邀请询比价剔除这两项
@@ -410,7 +347,7 @@ export default function ProjectList() {
       title: '截止时间',
       key: 'deadline',
       width: 120,
-      render: (_, row) => formatDate(row.deadline || row.registerEnd)
+      render: (_, row) => formatDate(row.deadline || row.packages?.[0]?.bidEnd)
     },
     {
       title: '操作',
@@ -456,7 +393,7 @@ export default function ProjectList() {
                   { label: '草稿', value: 'draft' },
                   { label: '待审核', value: 'pending' },
                   { label: '招标中', value: 'tendering' },
-                  { label: '报名中', value: 'registering' },
+                  { label: '公告中', value: 'registering' },
                   { label: '待开标', value: 'pending_open' },
                   { label: '评标中', value: 'evaluating' },
                   { label: '已完成', value: 'done' }

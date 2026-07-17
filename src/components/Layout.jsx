@@ -64,20 +64,18 @@ function useMenuItems(role) {
         { key: '/admin/projects/track', label: '项目跟踪' }
       ]
     },
-    { key: '/admin/procurement-requirements', label: '采购需求', icon: FileTextOutlined },
-    { key: '/admin/tender-doc', label: '招标文件', icon: FileTextOutlined },
-    { key: '/admin/notice-publish', label: '发布公告', icon: BellOutlined },
-    { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
-    { key: '/admin/supplier-authorization', label: '供应商授权', icon: TeamOutlined },
-    { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
-    { key: '/admin/objection-manage', label: '异议管理', icon: WarningOutlined },
-    { key: '/admin/award-confirm', label: '确认中标人', icon: TrophyOutlined },
-    { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
-    { key: '/admin/contract-archive', label: '合同归档', icon: FileProtectOutlined },
+    { key: '/admin/procurement-requirements', label: '采购需求库', icon: FileTextOutlined },
     { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
-    { key: '/admin/approval-flow-config', label: '审批流配置', icon: ToolOutlined },
     { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
-    { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
+    { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined },
+    {
+      key: '/admin/system-settings-group',
+      label: '系统设置',
+      icon: ToolOutlined,
+      children: [
+        { key: '/admin/approval-flow-config', label: '审批流配置' }
+      ]
+    }
   ]
 
   const agentMenus = [
@@ -94,9 +92,8 @@ function useMenuItems(role) {
     { key: '/admin/notice-publish', label: '公告发布', icon: BellOutlined },
     { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
     { key: '/admin/supplier-authorization', label: '供应商授权', icon: TeamOutlined },
-    { key: '/admin/fee-manage', label: '费用管理', icon: WalletOutlined },
+    { key: '/admin/fee-manage', label: '费用台账', icon: WalletOutlined },
     { key: '/admin/expert-extraction', label: '专家抽取', icon: TeamOutlined },
-    { key: '/admin/objection-manage', label: '异议处理', icon: WarningOutlined },
     { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
     { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
     { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
@@ -105,12 +102,10 @@ function useMenuItems(role) {
 
   const bidderMenus = [
     { key: '/admin/bidder-projects', label: '项目中心', icon: FolderOutlined },
-    { key: '/admin/bid-register', label: '项目报名', icon: FileProtectOutlined },
     { key: '/admin/bid-quote', label: '在线报价', icon: WalletOutlined },
     { key: '/admin/opening-hall', label: '开标大厅', icon: PlayCircleOutlined },
     { key: '/admin/award-notice', label: '中标通知', icon: TrophyOutlined },
     { key: '/admin/supplier-profile', label: '企业档案', icon: BankOutlined },
-    { key: '/admin/bidder-invoices', label: '发票申请', icon: BookOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 

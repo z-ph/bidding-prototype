@@ -47,8 +47,6 @@ const projectMetaMap = {
     orgMode: 'agent',
     bidOpenTime: '2026-07-21 09:30',
     bidCloseTime: '2026-07-20 17:00',
-    registerStart: '2026-07-01 09:00',
-    registerEnd: '2026-07-20 17:00',
     evalLocation: '线上评标大厅',
     budget: 850,
     evaluationMethod: '综合评分法',
@@ -71,9 +69,6 @@ const projectMetaMap = {
         code: 'B1',
         name: '第一标段：主设备',
         budget: 600,
-        bidFee: 500,
-        deposit: 120000,
-        depositReturn: '中标公示结束后 5 个工作日内原路退还',
         content: '主设备采购',
         delivery: '合同签订后 90 天内'
       },
@@ -81,9 +76,6 @@ const projectMetaMap = {
         code: 'B2',
         name: '第二标段：辅材',
         budget: 250,
-        bidFee: 300,
-        deposit: 50000,
-        depositReturn: '中标公示结束后 5 个工作日内原路退还',
         content: '辅助材料',
         delivery: '合同签订后 60 天内'
       }
@@ -96,8 +88,6 @@ const projectMetaMap = {
     purchaseMode: '邀请招标',
     bidOpenTime: '2026-07-15 09:00',
     bidCloseTime: '2026-07-14 17:00',
-    registerStart: '2026-07-03 09:00',
-    registerEnd: '2026-07-14 17:00',
     evalLocation: '线上评标大厅',
     budget: 120,
     evaluationMethod: '综合评分法',
@@ -119,9 +109,6 @@ const projectMetaMap = {
         code: 'B1',
         name: '软件开发服务',
         budget: 120,
-        bidFee: 0,
-        deposit: 20000,
-        depositReturn: '合同签订后 10 个工作日内退还',
         content: '定制化软件开发及一年运维',
         delivery: '合同签订后 6 个月内上线'
       }
@@ -137,8 +124,6 @@ const defaultProjectMeta = {
   orgMode: 'self',
   bidOpenTime: '-',
   bidCloseTime: '-',
-  registerStart: '-',
-  registerEnd: '-',
   evalLocation: '-',
   budget: 0,
   evaluationMethod: '-',
@@ -195,9 +180,7 @@ function mapStoredProject(p) {
     purchaseMode: PURCHASE_MODE_LABELS[p.purchaseMode] || p.purchaseMode || '-',
     orgMode: p.orgMode === 'agent' ? 'agent' : 'self',
     bidOpenTime: fmtTime(p.openTime),
-    bidCloseTime: fmtTime(p.registerEnd),
-    registerStart: fmtTime(p.registerStart),
-    registerEnd: fmtTime(p.registerEnd),
+    bidCloseTime: fmtTime(p.deadline || p.packages?.[0]?.bidEnd),
     evalLocation: p.evalLocation || '线上评标大厅',
     budget: p.budget || 0,
     evaluationMethod: p.evaluationMethod || '综合评分法',
@@ -207,9 +190,6 @@ function mapStoredProject(p) {
       name: pkg.name || `标段 ${i + 1}`,
       content: pkg.content || '-',
       budget: pkg.budget ?? 0,
-      bidFee: pkg.bidFee ?? 0,
-      deposit: pkg.deposit ?? 0,
-      depositReturn: pkg.depositReturn || '-',
       delivery: pkg.delivery || fmtTime(pkg.bidEnd)
     })),
     bidSummaryColumns: deriveBidSummaryColumns(quoteFields)
@@ -706,9 +686,6 @@ export default function TenderDoc() {
     { title: '标段名称', dataIndex: 'name', minWidth: 200 },
     { title: '采购内容', dataIndex: 'content', minWidth: 160 },
     { title: '预算（万元）', dataIndex: 'budget', width: 120, render: (v) => `${v} 万元` },
-    { title: '文件费（元）', dataIndex: 'bidFee', width: 120, render: (v) => (v ? `¥${v}` : '免费') },
-    { title: '保证金（元）', dataIndex: 'deposit', width: 130, render: (v) => `¥${Number(v || 0).toLocaleString()}` },
-    { title: '保证金退还', dataIndex: 'depositReturn', minWidth: 220 },
     { title: '交货/服务期', dataIndex: 'delivery', minWidth: 180 }
   ]
 
@@ -889,11 +866,17 @@ export default function TenderDoc() {
   // T2：未选择项目时不进入编制，提示先关联项目
   if (!projectId) {
     return (
-      <div className="tender-doc">
-        {headerCard}
-        <Card>
-          <Empty description="招标文件需关联项目后编制，请先在页面顶部选择招标项目" />
-        </Card>
+      <div className="tender-doc" style={{ maxWidth: 1100, margin: '0 auto', paddingTop: 40 }}>
+        <Result
+          status="warning"
+          title="需从项目进入"
+          subTitle="招标文件属于项目阶段操作，请先从「项目管理」选择一个项目。"
+          extra={
+            <Button type="primary" onClick={() => navigate({ to: '/admin/projects' })}>
+              返回项目列表
+            </Button>
+          }
+        />
         {styleTag}
       </div>
     )
@@ -982,8 +965,6 @@ export default function TenderDoc() {
               <Descriptions.Item label="采购方式">{projectMeta.purchaseMode}</Descriptions.Item>
               <Descriptions.Item label="组织方式">{orgMode === 'agent' ? '委托代理' : '自行招标'}</Descriptions.Item>
               <Descriptions.Item label="项目预算">{projectMeta.budget ? `${projectMeta.budget} 万元` : '-'}</Descriptions.Item>
-              <Descriptions.Item label="报名开始">{projectMeta.registerStart}</Descriptions.Item>
-              <Descriptions.Item label="报名截止">{projectMeta.registerEnd}</Descriptions.Item>
               <Descriptions.Item label="开标时间">{projectMeta.bidOpenTime}</Descriptions.Item>
               <Descriptions.Item label="投标截止">{projectMeta.bidCloseTime}</Descriptions.Item>
               <Descriptions.Item label="评标地点">{projectMeta.evalLocation}</Descriptions.Item>

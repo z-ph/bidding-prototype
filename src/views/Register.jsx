@@ -116,7 +116,7 @@ export default function Register() {
         <Form.Item label="资质附件">
           <div style={{ marginBottom: 12 }}>
             <Tag color="blue">按资质类型上传</Tag>
-            <span style={{ color: '#666', marginLeft: 8 }}>便于后续报名系统自动检测</span>
+            <span style={{ color: '#666', marginLeft: 8 }}>便于后续按项目资质要求自动检测</span>
           </div>
           <Row gutter={[16, 16]}>
             {bidderQualifications.map((q) => (

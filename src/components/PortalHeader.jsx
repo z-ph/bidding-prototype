@@ -34,11 +34,11 @@ export default function PortalHeader({ activeKey }) {
             }
           },
           {
-            element: '#portal-notice-table .ant-btn',
+            element: '#portal-notice-table',
             popover: {
-              title: '报名参加项目',
-              description: '看到合适的项目后，点击“报名”按钮即可进入投标流程。',
-              side: 'left',
+              title: '查看公告详情',
+              description: '点击公告标题查看详情与附件；供应商登录后进入工作台「项目中心」，从下载招标文件开始参与投标。',
+              side: 'top',
               align: 'center'
             }
           },

@@ -1,102 +1,110 @@
 import { useState } from 'react'
-import { Alert, Button, Card, Table, Tabs, Tag, message } from 'antd'
+import { Alert, Button, Card, Form, Input, Modal, Table, Tag, message } from 'antd'
+
+// 2026-07-17 新口径（清单 26、概要七）：保证金/文件费不要求缴纳、不实现支付功能；
+// 采购结果发布后由中标人线下缴纳投标费用，本页仅作登记台账（登记凭证），无在线缴费与缴费审核。
+const FEE_TYPE = '投标费用'
 
 export default function FeeManage() {
-  const [activeTab, setActiveTab] = useState('pending')
-
-  const [pendingFees, setPendingFees] = useState([
-    { project: 'XX市轨道交通设备采购项目', bidder: 'A科技有限公司', type: '投标保证金', amount: '50,000', payMode: '线下转账', status: '待审核' },
-    { project: '办公桌椅采购项目', bidder: 'B实业有限公司', type: '招标文件费', amount: '300', payMode: '线下转账', status: '待审核' }
-  ])
-
-  const [paidFees] = useState([
-    { project: 'XX市轨道交通设备采购项目', bidder: 'A科技有限公司', type: '招标文件费', amount: '500', payTime: '2026-07-05 10:00' }
-  ])
-
-  const updateStatus = (row, status) => {
-    setPendingFees((prev) => prev.map((item) => (item === row ? { ...item, status } : item)))
-  }
-
-  const approve = (row) => {
-    updateStatus(row, '已通过')
-    message.success('审核通过')
-  }
-  const reject = (row) => {
-    updateStatus(row, '已驳回')
-    message.success('已驳回')
-  }
-  const refund = (row) => {
-    message.success(`退还 ${row.bidder} 的 ${row.type}`)
-  }
-
-  const pendingColumns = [
-    { title: '关联项目', dataIndex: 'project', minWidth: 240 },
-    { title: '缴纳人', dataIndex: 'bidder', width: 180 },
-    { title: '费用类型', dataIndex: 'type', width: 140 },
-    { title: '金额', dataIndex: 'amount', width: 120 },
-    { title: '缴纳方式', dataIndex: 'payMode', width: 120 },
+  const [records, setRecords] = useState([
     {
-      title: '状态',
+      id: 1,
+      project: '软件开发服务项目',
+      winner: 'A科技有限公司',
+      type: FEE_TYPE,
+      amount: '3,000',
+      status: '已缴',
+      voucherNo: 'PZ20260715001',
+      registeredAt: '2026-07-16 10:30'
+    },
+    {
+      id: 2,
+      project: 'XX市轨道交通设备采购项目',
+      winner: 'B实业有限公司',
+      type: FEE_TYPE,
+      amount: '5,000',
+      status: '未缴',
+      voucherNo: '',
+      registeredAt: '2026-07-17 09:10'
+    }
+  ])
+
+  const [registerVisible, setRegisterVisible] = useState(false)
+  const [payTarget, setPayTarget] = useState(null)
+  const [form] = Form.useForm()
+
+  const openRegister = () => {
+    setPayTarget(null)
+    form.resetFields()
+    setRegisterVisible(true)
+  }
+
+  const openMarkPaid = (row) => {
+    setPayTarget(row)
+    form.setFieldsValue({
+      project: row.project,
+      winner: row.winner,
+      amount: row.amount,
+      voucherNo: row.voucherNo || ''
+    })
+    setRegisterVisible(true)
+  }
+
+  const submitRegister = async () => {
+    const values = await form.validateFields().catch(() => null)
+    if (!values) return
+    if (payTarget) {
+      // 标记已缴：补录凭证号，缴费状态置为已缴
+      setRecords((prev) =>
+        prev.map((item) =>
+          item.id === payTarget.id
+            ? { ...item, status: '已缴', voucherNo: values.voucherNo }
+            : item
+        )
+      )
+      message.success(`已登记 ${payTarget.winner} 的缴费凭证，状态更新为已缴`)
+    } else {
+      setRecords((prev) => [
+        {
+          id: Date.now(),
+          project: values.project,
+          winner: values.winner,
+          type: FEE_TYPE,
+          amount: values.amount,
+          status: '未缴',
+          voucherNo: '',
+          registeredAt: new Date().toLocaleString()
+        },
+        ...prev
+      ])
+      message.success('已登记中标人投标费用（待线下收缴）')
+    }
+    setRegisterVisible(false)
+    setPayTarget(null)
+    form.resetFields()
+  }
+
+  const columns = [
+    { title: '关联项目', dataIndex: 'project', minWidth: 220 },
+    { title: '中标人', dataIndex: 'winner', width: 180 },
+    { title: '费用类型', dataIndex: 'type', width: 110 },
+    { title: '金额（元）', dataIndex: 'amount', width: 110 },
+    {
+      title: '缴费状态',
       dataIndex: 'status',
       width: 100,
-      render: (status) => <Tag color="warning">{status}</Tag>
+      render: (status) => <Tag color={status === '已缴' ? 'success' : 'warning'}>{status}</Tag>
     },
+    { title: '凭证号', dataIndex: 'voucherNo', width: 150, render: (v) => v || '-' },
+    { title: '登记时间', dataIndex: 'registeredAt', width: 170 },
     {
       title: '操作',
-      width: 180,
+      width: 130,
       fixed: 'right',
-      render: (_, row) => (
-        <>
-          <Button type="link" style={{ color: '#67C23A' }} onClick={() => approve(row)}>通过</Button>
-          <Button type="link" danger onClick={() => reject(row)}>驳回</Button>
-        </>
-      )
-    }
-  ]
-
-  const paidColumns = [
-    { title: '关联项目', dataIndex: 'project', minWidth: 240 },
-    { title: '缴纳人', dataIndex: 'bidder', width: 180 },
-    { title: '费用类型', dataIndex: 'type', width: 140 },
-    { title: '金额', dataIndex: 'amount', width: 120 },
-    { title: '到账时间', dataIndex: 'payTime', width: 180 },
-    {
-      title: '操作',
-      width: 120,
-      render: (_, row) => (
-        <Button type="link" onClick={() => refund(row)}>退还</Button>
-      )
-    }
-  ]
-
-  const rowKey = (row) => `${row.project}-${row.bidder}-${row.type}`
-
-  const tabItems = [
-    {
-      key: 'pending',
-      label: '待审核',
-      children: (
-        <Table
-          columns={pendingColumns}
-          dataSource={pendingFees}
-          rowKey={rowKey}
-          pagination={false}
-          style={{ width: '100%' }}
-        />
-      )
-    },
-    {
-      key: 'paid',
-      label: '已缴纳',
-      children: (
-        <Table
-          columns={paidColumns}
-          dataSource={paidFees}
-          rowKey={rowKey}
-          pagination={false}
-          style={{ width: '100%' }}
-        />
-      )
+      render: (_, row) =>
+        row.status === '未缴' ? (
+          <Button type="link" onClick={() => openMarkPaid(row)}>登记缴费凭证</Button>
+        ) : null
     }
   ]
 
@@ -105,24 +113,75 @@ export default function FeeManage() {
       <Card
         title={
           <div className="card-header">
-            <span>费用管理</span>
+            <span>费用台账（中标人投标费用登记）</span>
+            <Button type="primary" onClick={openRegister}>登记</Button>
           </div>
         }
       >
         <Alert
-          title="管理招标文件费、保证金、平台使用费的缴纳、审核、退还记录。线上支付自动到账，线下转账需人工审核。"
+          title="按 2026-07-17 新口径（清单 26、概要七）：保证金、文件费不要求缴纳，平台不实现在线支付。采购结果发布后，由中标人线下缴纳投标费用，本页仅登记台账与缴费凭证。"
           type="info"
           showIcon
           closable={false}
           style={{ marginBottom: 20 }}
         />
-        <Tabs
-          type="card"
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          items={tabItems}
+        <Table
+          columns={columns}
+          dataSource={records}
+          rowKey="id"
+          pagination={false}
+          style={{ width: '100%' }}
         />
       </Card>
+
+      <Modal
+        title={payTarget ? '登记缴费凭证' : '登记中标人投标费用'}
+        open={registerVisible}
+        width={520}
+        onOk={submitRegister}
+        onCancel={() => {
+          setRegisterVisible(false)
+          setPayTarget(null)
+        }}
+        okText={payTarget ? '确认登记' : '登记'}
+        cancelText="取消"
+      >
+        <Form form={form} layout="horizontal" labelCol={{ flex: '110px' }}>
+          <Form.Item
+            label="关联项目"
+            name="project"
+            rules={[{ required: true, message: '请输入项目名称' }]}
+          >
+            <Input placeholder="采购结果已发布的项目" disabled={Boolean(payTarget)} />
+          </Form.Item>
+          <Form.Item
+            label="中标人"
+            name="winner"
+            rules={[{ required: true, message: '请输入中标人名称' }]}
+          >
+            <Input placeholder="中标人（供应商）名称" disabled={Boolean(payTarget)} />
+          </Form.Item>
+          <Form.Item label="费用类型">
+            <Input value={FEE_TYPE} disabled />
+          </Form.Item>
+          <Form.Item
+            label="金额（元）"
+            name="amount"
+            rules={[{ required: true, message: '请输入金额' }]}
+          >
+            <Input placeholder="投标费用金额" disabled={Boolean(payTarget)} />
+          </Form.Item>
+          {payTarget && (
+            <Form.Item
+              label="凭证号"
+              name="voucherNo"
+              rules={[{ required: true, message: '请输入线下收缴凭证号' }]}
+            >
+              <Input placeholder="线下收缴的凭证号" />
+            </Form.Item>
+          )}
+        </Form>
+      </Modal>
 
       <style>{`
         .fee-manage {
@@ -130,7 +189,11 @@ export default function FeeManage() {
           margin: 0 auto;
         }
         .fee-manage .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
           font-weight: bold;
+          width: 100%;
         }
       `}</style>
     </div>

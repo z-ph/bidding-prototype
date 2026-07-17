@@ -49,7 +49,7 @@ export default function Dashboard() {
     const map = {
       tenderee: '发起采购需求、管理项目、确认评标和定标结果',
       agent: '受委托执行招标流程，编制文件、发公告、组织开评标',
-      bidder: '报名、缴费、下载文件、上传投标文件、报价',
+      bidder: '下载文件、上传投标文件、报价',
       expert: '参与评标、独立评分、签署评标报告',
       supervisor: '查看并监督开标、评标、定标全过程',
       admin: '维护系统基础数据、用户权限、日志审计'
@@ -66,14 +66,14 @@ export default function Dashboard() {
 
   const bidderStats = [
     { title: '可参与项目', value: 5, icon: SearchOutlined, bg: '#409EFF' },
-    { title: '已报名项目', value: 3, icon: FileProtectOutlined, bg: '#67C23A' },
-    { title: '待缴费', value: 1, icon: WalletOutlined, bg: '#E6A23C' },
-    { title: '待上传标书', value: 2, icon: UploadOutlined, bg: '#F56C6C' }
+    { title: '我参与的项目', value: 3, icon: FileProtectOutlined, bg: '#67C23A' },
+    { title: '待上传标书', value: 2, icon: UploadOutlined, bg: '#F56C6C' },
+    { title: '待开标', value: 1, icon: PlayCircleOutlined, bg: '#E6A23C' }
   ]
 
   const tendereeTodos = [
     { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请确认开标安排', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall', projectId: '1' },
-    { id: 2, content: '办公桌椅采购项目有 2 家供应商报名，请审核资质', type: 'primary', time: '2026-07-08 09:30', path: '/admin/projects', projectId: '2' },
+    { id: 2, content: '办公桌椅采购项目有 2 家供应商已获取招标文件，请关注投标进展', type: 'primary', time: '2026-07-08 09:30', path: '/admin/projects', projectId: '2' },
     { id: 3, content: '软件开发服务项目评标报告待审批', type: 'danger', time: '2026-07-07 16:00', path: '/admin/award-confirm', projectId: '3' },
     { id: 4, content: '物业服务采购项目中标公告待发布', type: 'success', time: '2026-07-07 11:20', path: '/admin/notice-publish', projectId: '4' }
   ]
@@ -88,7 +88,7 @@ export default function Dashboard() {
   const todos = role === 'agent' ? agentTodos : tendereeTodos
 
   const bidderTodos = [
-    { id: 1, content: 'XX市轨道交通设备采购项目已报名通过，请缴纳招标文件费', type: 'warning', time: '2026-07-08', path: '/admin/bid-payment', projectId: '1' },
+    { id: 1, content: 'XX市轨道交通设备采购项目招标文件已发布，请下载并编制投标文件', type: 'warning', time: '2026-07-08', path: '/admin/bid-download', projectId: '1' },
     { id: 2, content: '软件开发服务项目待上传投标文件并报价', type: 'danger', time: '2026-07-07', path: '/admin/bid-upload', projectId: '3' }
   ]
 
@@ -100,7 +100,7 @@ export default function Dashboard() {
     { title: '创建项目', icon: PlusOutlined, color: '#409EFF', path: '/admin/projects/create' },
     { title: '审批文件', icon: FileTextOutlined, color: '#909399', path: '/admin/tender-doc' },
     { title: '确认中标', icon: BellOutlined, color: '#E6A23C', path: '/admin/award-confirm' },
-    { title: '合同归档', icon: FileProtectOutlined, color: '#67C23A', path: '/admin/contract-archive' }
+    { title: '费用台账', icon: WalletOutlined, color: '#67C23A', path: '/admin/fee-manage' }
   ]
 
   const agentQuickEntries = [
@@ -113,7 +113,7 @@ export default function Dashboard() {
   const quickEntries = role === 'agent' ? agentQuickEntries : tendereeQuickEntries
 
   const recentProjects = [
-    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', stage: '报名中', deadline: '2026-07-20 17:00' },
+    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', stage: '公告中', deadline: '2026-07-20 17:00' },
     { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', stage: '待开标', deadline: '2026-07-18 14:00' },
     { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', stage: '评标中', deadline: '2026-07-15 09:00' },
     { id: 4, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', stage: '招标中', deadline: '2026-07-25 17:00' }
@@ -130,7 +130,7 @@ export default function Dashboard() {
   const continueProject = (row) => {
     const map = {
       '招标中': '/admin/tender-doc',
-      '报名中': '/admin/projects',
+      '公告中': '/admin/projects',
       '待开标': '/admin/opening-hall',
       '评标中': '/admin/evaluation-hall'
     }
@@ -247,7 +247,7 @@ export default function Dashboard() {
           element: '#dashboard-todos',
           popover: {
             title: '待办事项',
-            description: '报名审核、评标报告、公告发布等需要您处理的待办。',
+            description: '公告发布、评标报告确认等需要您处理的待办。',
             side: 'right',
             align: 'start'
           }
@@ -267,7 +267,7 @@ export default function Dashboard() {
           element: '.stat-row',
           popover: {
             title: '我的投标看板',
-            description: '可参与项目、已报名项目、待缴费、待上传标书一目了然。',
+            description: '可参与项目、我参与的项目、待上传标书一目了然。',
             side: 'bottom',
             align: 'start'
           }

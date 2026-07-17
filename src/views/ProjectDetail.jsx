@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from '@tanstack/react-router'
 import {
   Alert,
@@ -28,9 +28,9 @@ import {
   BASELINE_PROJECTS,
   PROJECT_STATUS_MAP,
   getNextStepInfo,
-  getPurchaseModeText,
-  isInvitedRfqProject
+  getPurchaseModeText
 } from './ProjectList.jsx'
+import { getProjectFlowNodes, getTendereeActions } from '../utils/projectFlow.js'
 import EmptyState from '../components/EmptyState.jsx'
 
 const FALLBACK_PROJECT = {
@@ -48,8 +48,8 @@ const FALLBACK_PROJECT = {
   linkedRequirementId: '',
   agentId: '',
   packages: [
-    { name: '第一标段：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidFee: 500, deposit: 50000, bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
-    { name: '第二标段：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidFee: 300, deposit: 20000, bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
+    { name: '第一标段：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
+    { name: '第二标段：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
   ],
   qualifications: ['营业执照', 'ISO9001认证'],
   intro: '本项目为轨道交通设备采购，包含主设备及辅材两个标段。'
@@ -77,6 +77,16 @@ const APPROVAL_ACTION_LABELS = {
 }
 const approvalTypeLabel = (type) =>
   APPROVAL_TYPES.find((t) => t.value === type)?.label || type
+
+const NODE_ICON_MAP = {
+  CheckCircleOutlined,
+  EditOutlined,
+  UploadOutlined,
+  PlayCircleOutlined,
+  StarOutlined,
+  TrophyOutlined,
+  CheckSquareOutlined
+}
 
 export default function ProjectDetail() {
   const { id } = useParams({ strict: false })
@@ -112,27 +122,10 @@ export default function ProjectDetail() {
 
   const beforeOpen = ['draft', 'tendering', 'registering'].includes(project.status)
 
-  const iconMap = {
-    CheckCircleOutlined,
-    EditOutlined,
-    UploadOutlined,
-    PlayCircleOutlined,
-    StarOutlined,
-    TrophyOutlined,
-    CheckSquareOutlined
-  }
+  // 按采购方式过滤流程节点，并按当前状态高亮
+  const flowNodes = useMemo(() => getProjectFlowNodes(project), [project])
 
-  const [nodes] = useState([
-    { title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
-    { title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
-    { title: '发布招标公告', desc: '招标公告已发布至门户，供应商可报名', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
-    { title: '投标报名与缴费', desc: '供应商报名并通过审核、缴纳费用', time: '2026-07-05 16:00', color: 'green', icon: 'CheckCircleOutlined' },
-    { title: '上传投标文件', desc: '供应商上传加密投标文件并报价', time: '进行中', color: 'blue', icon: 'UploadOutlined' },
-    { title: '线上开标', desc: '开标大厅完成签到、解密、唱标', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' },
-    { title: '线上评标', desc: '专家评分、生成评标报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
-    { title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' },
-    { title: '合同归档', desc: '上传合同，项目结束', time: '待进行', color: 'gray', icon: 'CheckSquareOutlined' }
-  ])
+  const tendereeActions = useMemo(() => getTendereeActions(project), [project])
 
   const publish = () => {
     Modal.confirm({
@@ -164,27 +157,22 @@ export default function ProjectDetail() {
     navigate({ to: '/admin/tender-doc', search: { projectId: project.id } })
   }
 
-  const goOpeningHall = () => {
-    navigate({ to: '/admin/opening-hall', search: { projectId: project.id } })
+  const goNextStep = () => {
+    const actions = getTendereeActions(project)
+    const first = actions[0]
+    if (!first?.action) return
+    handleAction(first.action)
   }
 
-  const goNextStep = () => {
-    // 邀请询比价（清单 20）：无开标/评标环节，报价相关状态直达定标（与项目列表操作列同一口径）
-    if (isInvitedRfqProject(project) && ['registering', 'pending_open', 'evaluating'].includes(project.status)) {
-      navigate({ to: '/admin/award-confirm', search: { projectId: project.id } })
+  const handleAction = (action) => {
+    if (!action) return
+    if (action.type === 'publish') {
+      publish()
       return
     }
-    const to = {
-      tendering: '/admin/notice-publish',
-      registering: '/admin/opening-hall',
-      pending_open: '/admin/opening-hall',
-      evaluating: '/admin/evaluation-hall'
-    }[project.status]
-    if (project.status === 'draft') {
-      goEdit()
-      return
+    if (action.type === 'navigate') {
+      navigate({ to: action.target, search: action.search })
     }
-    if (to) navigate({ to, search: { projectId: project.id } })
   }
 
   const packageColumns = [
@@ -192,8 +180,6 @@ export default function ProjectDetail() {
     { title: '标段编号', dataIndex: 'code', width: 100 },
     { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '公开招标', invitation: '邀请招标', inquiry: '公开询比价', invitation_inquiry: '邀请询比价' }[v] || v || '-') },
     { title: '预算金额', dataIndex: 'budget', width: 120, render: (v) => (v ? `${v} 万元` : '-') },
-    { title: '标书费', dataIndex: 'bidFee', width: 100, render: (v) => (v ? `${v} 元` : '-') },
-    { title: '保证金', dataIndex: 'deposit', width: 120, render: (v) => (v ? `${v} 元` : '-') },
     { title: '投标开始', dataIndex: 'bidStart', width: 160, render: (v) => formatTime(v) },
     { title: '投标截止', dataIndex: 'bidEnd', width: 160, render: (v) => formatTime(v) },
     { title: '采购内容', dataIndex: 'content', ellipsis: true }
@@ -220,9 +206,6 @@ export default function ProjectDetail() {
               {role === 'tenderee' && project.status === 'draft' && (
                 <Button type="primary" onClick={publish}>发标</Button>
               )}
-              {project.status === 'pending_open' && (
-                <Button type="primary" onClick={goOpeningHall}>进入开标大厅</Button>
-              )}
               <Button onClick={() => navigate({ to: '/admin/projects' })}>返回列表</Button>
             </div>
           </div>
@@ -235,7 +218,7 @@ export default function ProjectDetail() {
           closable={false}
           style={{ marginBottom: 20 }}
           action={
-            ['draft', 'tendering', 'registering', 'pending_open', 'evaluating'].includes(project.status) ? (
+            tendereeActions.length > 0 ? (
               <Button size="small" type="primary" onClick={goNextStep}>
                 {nextStepInfo.label}
               </Button>
@@ -243,13 +226,35 @@ export default function ProjectDetail() {
           }
         />
 
+        {tendereeActions.length > 0 && (
+          <Card title="当前阶段操作" size="small" style={{ marginBottom: 20 }}>
+            <div className="action-grid">
+              {tendereeActions.map((action, idx) => (
+                <Card
+                  key={idx}
+                  size="small"
+                  className="action-card"
+                  title={action.title}
+                  extra={
+                    <Button type="primary" size="small" onClick={() => handleAction(action.action)}>
+                      {action.buttonText}
+                    </Button>
+                  }
+                >
+                  <p style={{ margin: 0, color: '#666', fontSize: 13 }}>{action.desc}</p>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        )}
+
         <Descriptions column={3} bordered style={{ marginBottom: 20 }}>
           <Descriptions.Item label="项目编号">{project.code || '-'}</Descriptions.Item>
           <Descriptions.Item label="采购方式">{purchaseModeText}</Descriptions.Item>
           <Descriptions.Item label="组织方式">{orgModeText}</Descriptions.Item>
           <Descriptions.Item label="项目预算">{project.budget ? `${project.budget} 万元` : '-'}</Descriptions.Item>
           <Descriptions.Item label="发布时间">{formatDate(project.publishTime || project.submitTime)}</Descriptions.Item>
-          <Descriptions.Item label="报名截止">{formatDate(project.deadline || project.registerEnd)}</Descriptions.Item>
+          <Descriptions.Item label="投标截止">{formatDate(project.deadline || project.packages?.[0]?.bidEnd)}</Descriptions.Item>
           <Descriptions.Item label="开标时间">{formatTime(project.openTime)}</Descriptions.Item>
           <Descriptions.Item label="代理机构">{agentOption ? agentOption.label : '-'}</Descriptions.Item>
           <Descriptions.Item label="资质要求">{(project.qualifications || []).join('、') || '-'}</Descriptions.Item>
@@ -363,15 +368,15 @@ export default function ProjectDetail() {
 
         <Card title="项目流程跟踪" size="small">
           <Timeline
-            items={nodes.map((node, idx) => {
-              const Icon = iconMap[node.icon]
+            items={flowNodes.map((node, idx) => {
+              const Icon = NODE_ICON_MAP[node.icon]
               return {
                 key: idx,
                 color: node.color,
                 dot: Icon ? <Icon /> : null,
                 content: (
                   <>
-                    <h4>{node.title}</h4>
+                    <h4>{node.label}</h4>
                     <p>{node.desc}</p>
                     <p style={{ color: '#999', fontSize: 12, marginTop: 4 }}>{node.time}</p>
                   </>
@@ -404,6 +409,21 @@ export default function ProjectDetail() {
           display: flex;
           align-items: center;
           gap: 12px;
+        }
+        .action-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 16px;
+        }
+        .action-card .ant-card-head {
+          min-height: 44px;
+        }
+        .action-card .ant-card-head-title {
+          font-size: 14px;
+          font-weight: 500;
+        }
+        .action-card p {
+          line-height: 1.6;
         }
       `}</style>
     </div>

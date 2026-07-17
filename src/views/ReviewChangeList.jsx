@@ -4,6 +4,12 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0717 新口径下线（提案 remove-deprecated-flows-20260717；甲方 2026-07-17 确认：清单 47 的投标登记/费用模块/合同公示字样为旧需求残留，一律按下线口径执行）
+  { id: '0717-rm-001', source: '0717新口径', module: '投标人工作流', page: 'BidRegister / NoticeDetail / Portal / ProjectCreate / TodoCenter / Dashboard', severity: '高', issue: '原型存在 BidRegister 报名流、门户/公告详情报名入口、标段报名起止字段与报名待办，与「没有报名环节」冲突（清单 10/11、概要二）', status: '已修复', fix: 'BidRegister 页面/路由/菜单/权限整体删除；门户与公告详情报名入口移除（供应商链路从下载招标文件开始）；ProjectCreate 报名开始/截止字段删除；TodoCenter/Dashboard 报名待办与文案清理；项目阶段「报名中」改称「公告中」', commit: 'feat(remove-deprecated)' },
+  { id: '0717-rm-002', source: '0717新口径', module: '定标/归档', page: 'ContractArchive / Dashboard / TodoCenter / ProjectTrack / Login', severity: '高', issue: '原型存在 ContractArchive 合同归档页与归档节点，与「没有合同归档环节」冲突（清单 33、概要五）', status: '已修复', fix: 'ContractArchive 页面/路由/权限删除；Dashboard 快捷入口与 TodoCenter 归档待办移除；项目流程节点不再含「合同归档」，定标流程在中标通知书发出后结束；Login 特性文案同步调整', commit: 'feat(remove-deprecated)' },
+  { id: '0717-rm-003', source: '0717新口径', module: '异议管理', page: 'ObjectionManage / BidDownload / NoticeDetail / objectionStore', severity: '高', issue: '原型存在异议管理页与质疑招标文件入口，与「没有供应商异议环节」冲突（清单 44/45）', status: '已修复', fix: 'ObjectionManage 页面/路由/菜单/权限与 objectionStore 整体删除；BidDownload、NoticeDetail 的质疑按钮与提交弹窗移除', commit: 'feat(remove-deprecated)' },
+  { id: '0717-rm-004', source: '0717新口径', module: '费用管理', page: 'BidPayment / BidderInvoices / FeeManage / ProjectCreate / ProjectTrack', severity: '高', issue: '原型存在在线缴费（BidPayment）、缴费前置校验、发票申请与标段标书费/保证金字段，与「不缴纳、不实现支付，采购结果出来后由中标人缴纳投标费用」冲突（清单 26、概要七）', status: '已修复', fix: 'BidPayment、BidderInvoices 页面/路由/菜单/权限删除；BidDownload/BidUpload 无缴费前置；FeeManage 改造为「中标人投标费用登记台账」（登记/凭证号/未缴已缴，线下收缴、无在线支付），菜单更名「费用台账」；ProjectCreate 标段标书费/保证金字段及 TenderDoc/ProjectDetail 对应展示列删除', commit: 'feat(remove-deprecated)' },
+
   // 胡桃评审 #1-26
   { id: 'zip-001', source: '胡桃', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '查阅资料不应作为左侧单独菜单项', status: '已修复', fix: '从专家菜单移除查阅资料，改为评标流程内步骤入口', commit: 'feat(project)' },
   { id: 'zip-002', source: '胡桃', module: '评标大厅', page: 'ExpertProject', severity: '中', issue: '评标组长没有单独统计结果流程', status: '已修复', fix: '增加组长统计评标结果、生成报告入口', commit: 'feat(project)' },
@@ -63,13 +69,13 @@ const reviewData = [
 
   // cxy 2026-07-16 复测评审（新发现问题）
   { id: 'cxy-012', source: 'cxy', module: '项目管理', page: 'ProjectList', severity: 'P1', issue: '创建项目按钮点击无效，点击后无任何反应', status: '已修复', fix: '创建按钮改为 TanStack Router 对象式导航（fa951a9），路由/权限链路完整；7-16 复测仍报无效，疑为旧部署包，当前代码静态验证有效', commit: 'fix(navigation)' },
-  { id: 'cxy-013', source: 'cxy', module: '费用管理', page: 'BidPayment / FeeManage', severity: 'P1', issue: '缺少标书费缴纳/上传缴费凭证入口，报名审核通过后直接跳过缴费环节', status: '无需修复', fix: '2026-07-17 新口径（清单 26/概要七）：保证金/文件费不缴纳、不实现支付功能，缴费入口需求作废；费用台账改造见提案 remove-deprecated-flows-20260717（待甲方确认）', commit: '-' },
+  { id: 'cxy-013', source: 'cxy', module: '费用管理', page: 'BidPayment / FeeManage', severity: 'P1', issue: '缺少标书费缴纳/上传缴费凭证入口，报名审核通过后直接跳过缴费环节', status: '无需修复', fix: '2026-07-17 新口径（清单 26/概要七）：保证金/文件费不缴纳、不实现支付功能，缴费入口需求作废；费用台账改造已随 0717-rm-004 实施（甲方已确认四类全下）', commit: '-' },
   { id: 'cxy-014', source: 'cxy', module: '报名管理', page: '新增页面', severity: 'P1', issue: '缺少报名审核入口，招标人/代理无法对报名的投标方进行审核', status: '无需修复', fix: '2026-07-17 新口径（清单 10/11/概要二）：无报名环节，报名审核需求作废', commit: '-' },
   { id: 'cxy-015', source: 'cxy', module: '标段管理', page: 'ProjectCreate', severity: 'P1', issue: '标段设置缺少「报名是否需要审核」配置字段', status: '无需修复', fix: '同上：无报名环节，标段「报名需审核」配置不需要', commit: '-' },
   { id: 'cxy-016', source: 'cxy', module: '项目管理', page: 'ProjectCreate', severity: 'P2', issue: '项目基本信息存在「采购方式」字段，与标段级采购方式冗余', status: '已修复', fix: '项目级「采购方式」字段已移除（标段级保留），列表/详情从标段派生展示', commit: '-' },
   { id: 'cxy-017', source: 'cxy', module: '项目管理', page: 'ProjectList / NoticePublish', severity: 'P1', issue: '采购方式选项中包含「单一来源」，应为「邀请询比价」', status: '已修复', fix: 'NoticePublish/参数字典/帮助文案残留「单一来源」已全部清理为「邀请询比价」（grep 全库无残留）', commit: 'fix(project)' },
   { id: 'cxy-018', source: 'cxy', module: '委托代理', page: 'ProjectCreate', severity: '待确认', issue: '代理机构抽选方式：当前直接指定代理，需求文档要求按条件筛选后随机抽取，需确认最终支持哪些方式', status: '已修复', fix: '口径确认（清单 71/概要六）：代理机构直接指定，无需随机抽取；当前实现即直接指定，关闭本项', commit: '-' },
-  { id: 'cxy-019', source: 'cxy', module: '投标管理', page: 'BidDownload', severity: 'P1', issue: '缺少供应商质疑招标文件功能入口，投标人菜单无质疑入口', status: '无需修复', fix: '2026-07-17 新口径（清单 44/45）：没有供应商异议环节，质疑入口需求作废；已实现的质疑功能待下线（remove-deprecated-flows-20260717 待甲方确认）', commit: 'fix(tender)' },
+  { id: 'cxy-019', source: 'cxy', module: '投标管理', page: 'BidDownload', severity: 'P1', issue: '缺少供应商质疑招标文件功能入口，投标人菜单无质疑入口', status: '无需修复', fix: '2026-07-17 新口径（清单 44/45）：没有供应商异议环节，质疑入口需求作废；已实现的质疑功能已随 0717-rm-003 下线（甲方已确认四类全下）', commit: 'fix(tender)' },
 
   // cal 2026-07-15 交叉评审
   { id: 'cal-001', source: 'cal', module: '招标文件', page: 'TenderDoc', severity: 'P0', issue: '委托代理模式下招标文件应由代理机构编制，招标人仅有查看/确认权限，编制入口应按组织方式动态控制', status: '已修复', fix: 'TenderDoc canEdit 按「角色 + 项目组织方式」双维度控制：委托代理(orgMode=agent)下招标人只读并显示原因提示，自行招标(self)下招标人/代理均可编制；projectMeta 增加 orgMode 字段', commit: 'fix(tender-doc-perm)' },
@@ -108,7 +114,7 @@ const reviewData = [
   { id: '1415-006', source: 'page-reviews-20260715-1415', module: '投标人工作流', page: 'BidderProjects', severity: '严重', issue: '缺少接受邀请入口', status: '已修复', fix: '受邀项目在 BidderProjects 显示「待接受邀请」，可接受/拒绝并持久化；邀请书自动生成可查看下载', commit: '-' },
   { id: '1415-007', source: 'page-reviews-20260715-1415', module: '通用', page: 'ObjectionManage / AwardConfirm / AwardNotice / ContractArchive / FeeManage', severity: '中', issue: '异议管理、确认中标人、中标通知书、合同归档、费用管理属于项目强相关，应按项目列表显示', status: '部分修复', fix: '异议管理、费用管理为带「关联项目」列的全局列表；确认中标人/中标通知书/合同归档仍写死单一项目，未按项目维度展示', commit: '-' },
   { id: '1415-008', source: 'page-reviews-20260715-1415', module: '公告管理', page: 'NoticePublish', severity: '严重', issue: '发布公告按钮页面报错', status: '已修复', fix: 'TanStack Router 迁移重写（e40b8ff/fa951a9）后页面静态检查无报错点；评审时版本为迁移前旧代码', commit: 'fix(navigation)' },
-  { id: '1415-009', source: 'page-reviews-20260715-1415', module: '项目创建', page: 'ProjectCreate', severity: '高', issue: '标书费异议：每个标段单独设置标书费，但标书按项目上传，费用与文件维度矛盾', status: '待确认', fix: '2026-07-17 新口径不缴纳标书费/保证金（清单 26），费用维度矛盾将随字段下线消除（remove-deprecated-flows-20260717 待甲方确认）；中标人结果后缴费的收款方仍待确认', commit: '-' },
+  { id: '1415-009', source: 'page-reviews-20260715-1415', module: '项目创建', page: 'ProjectCreate', severity: '高', issue: '标书费异议：每个标段单独设置标书费，但标书按项目上传，费用与文件维度矛盾', status: '待确认', fix: '2026-07-17 新口径不缴纳标书费/保证金（清单 26），标段标书费/保证金字段已随 0717-rm-004 下线，费用维度矛盾消除；中标人结果后缴费的收款方仍待确认', commit: '-' },
   { id: '1415-010', source: 'page-reviews-20260715-1415', module: '项目创建', page: 'ProjectCreate', severity: '严重', issue: '「选择已发布/已审核的采购需求」下拉框选择后页面报错', status: '已修复', fix: '需求选择 onChange 加可选链守卫并联动回填预算/简介（e40b8ff），选择后不再报错', commit: 'fix(project)' },
   { id: '1415-011', source: 'page-reviews-20260715-1415', module: '项目创建', page: 'ProjectCreate', severity: '高', issue: '代理合同确认流程错误：应在供应商要求填写完成后发布委托合同', status: '无需修复', fix: '2026-07-17 新口径（清单 72）：委托合同不用审核，无审批节点，原流程调整需求作废', commit: '-' },
 
@@ -267,6 +273,7 @@ export default function ReviewChangeList() {
             value={sourceFilter}
             onChange={setSourceFilter}
             options={[
+              { label: '0717新口径', value: '0717新口径' },
               { label: '胡桃 评审', value: '胡桃' },
               { label: 'yy0 评审', value: 'yy0' },
               { label: 'zph 评审', value: 'zph' },

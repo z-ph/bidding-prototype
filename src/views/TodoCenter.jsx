@@ -25,19 +25,19 @@ const PROJECT_STATUS_TODOS = {
   tenderee: {
     draft: { text: '为草稿，待发标', path: '/admin/projects' },
     pending: { text: '已提交，待确认发布', path: '/admin/projects' },
-    registering: { text: '报名中，待审核报名资质', path: '/admin/projects' },
+    registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
     pending_open: { text: '待开标，请确认开标安排', path: '/admin/opening-hall' },
     evaluating: { text: '评标中，待确认评标结果', path: '/admin/award-confirm' }
   },
   agent: {
     draft: { text: '为草稿，招标文件待编制', path: '/admin/tender-doc' },
     pending: { text: '已提交，待确认发布', path: '/admin/projects' },
-    registering: { text: '报名中，待审核报名资质', path: '/admin/projects' },
+    registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
     pending_open: { text: '待开标，请完成开标准备', path: '/admin/opening-hall' },
     evaluating: { text: '评标中，待汇总提交评标报告', path: '/admin/evaluation-hall' }
   },
   bidder: {
-    registering: { text: '报名中，可前往报名', path: '/admin/bid-register' },
+    registering: { text: '公告中，可下载招标文件', path: '/admin/bid-download' },
     pending_open: { text: '待开标，请准时参加在线开标', path: '/admin/opening-hall' }
   }
 }
@@ -45,7 +45,7 @@ const PROJECT_STATUS_TODOS = {
 // 系统待办 mock：目标路径均为已存在且角色可访问的页面
 const SYSTEM_TODOS = {
   tenderee: [
-    { title: '中标公告发布后，合同待归档', source: '合同管理', time: '2026-07-17 09:00', path: '/admin/contract-archive' }
+    { title: '采购结果已发布，中标人投标费用待登记', source: '费用台账', time: '2026-07-17 09:00', path: '/admin/fee-manage' }
   ],
   agent: [
     { title: '委托代理合同待确认后开展代理业务', source: '委托代理', time: '2026-07-17 09:00', path: '/admin/projects' }

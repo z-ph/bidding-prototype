@@ -26,6 +26,7 @@ import {
 } from '../data/notices.js'
 import { projectStore } from '../data/projects.js'
 import { mergeWithBaseline } from './ProjectList.jsx'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 const EMPTY_NOTICE = {
   type: 'tender',
@@ -53,6 +54,11 @@ export default function NoticePublish() {
   const noticeId = searchParams.id
   const projectIdFromQuery = searchParams.projectId
 
+  // 公告发布属于项目阶段操作，必须从项目上下文进入
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
+  }
+
   // 与项目列表同一口径：projectStore（新建/草稿）+ mock 基线合并
   const projects = useMemo(() => mergeWithBaseline(projectStore.getProjects()), [])
 
@@ -61,10 +67,7 @@ export default function NoticePublish() {
 
   useEffect(() => {
     if (!noticeId) {
-      const initialProjectId =
-        projectIdFromQuery !== undefined && projectIdFromQuery !== null
-          ? String(projectIdFromQuery)
-          : (projects[0]?.id != null ? String(projects[0].id) : null)
+      const initialProjectId = String(projectIdFromQuery)
       setForm((prev) => ({
         ...EMPTY_NOTICE,
         projectId: initialProjectId,
@@ -177,12 +180,6 @@ export default function NoticePublish() {
       deadline: form.deadline
         ? dayjs(form.deadline).format('YYYY-MM-DD HH:mm:ss')
         : '-',
-      registerStart: status === 'published' && form.publishTime
-        ? dayjs(form.publishTime).format('YYYY-MM-DD HH:mm:ss')
-        : '',
-      registerEnd: form.deadline
-        ? dayjs(form.deadline).format('YYYY-MM-DD HH:mm:ss')
-        : '',
       projectCode: form.projectCode.trim(),
       purchaseMode: form.purchaseMode,
       bidOpenTime: form.bidOpenTime
@@ -195,8 +192,7 @@ export default function NoticePublish() {
       contactPhone: form.contactPhone.trim(),
       content: form.content,
       attachments: noticeStore.buildAttachments(fileList),
-      channels: form.channels,
-      canRegister: form.type === 'tender' && status === 'published'
+      channels: form.channels
     }
   }
 
@@ -504,7 +500,7 @@ export default function NoticePublish() {
               options={[
                 { label: '平台门户', value: '平台门户' },
                 { label: '电子招投标系统', value: '电子招投标系统' },
-                { label: '短信通知已报名供应商', value: '短信通知已报名供应商' },
+                { label: '短信通知受邀供应商', value: '短信通知受邀供应商' },
                 { label: '邮件通知', value: '邮件通知' }
               ]}
             />
