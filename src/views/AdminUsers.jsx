@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Alert, Button, Card, Col, Form, Input, Modal, Row, Select, Table, Tag, message } from 'antd'
+import { loadUsers, saveUsers } from '../data/userStore'
 
 const roleOptions = [
   { label: '招标人', value: 'tenderee' },
@@ -12,32 +13,60 @@ const roleOptions = [
 
 export default function AdminUsers() {
   const [search, setSearch] = useState({ name: '', role: undefined })
-  const [users, setUsers] = useState([
-    { account: 'admin', name: '平台管理员', role: '平台管理员', org: '平台运营部', status: '启用' },
-    { account: 'tenderee01', name: '张三', role: '招标人', org: 'XX市轨道交通集团', status: '启用' },
-    { account: 'agent01', name: '李四', role: '招标代理', org: 'XX招标代理有限公司', status: '启用' },
-    { account: 'bidder01', name: 'A科技有限公司', role: '投标人', org: 'A科技有限公司', status: '启用' },
-    { account: 'expert01', name: '专家甲', role: '评标专家', org: '个人', status: '启用' }
-  ])
+  const [users, setUsers] = useState(() => loadUsers())
+
+  // 写入持久化：任何 users 变更都落库，刷新后保留
+  const updateUsers = (next) => {
+    setUsers(next)
+    saveUsers(next)
+  }
 
   const [dialogVisible, setDialogVisible] = useState(false)
   const [form, setForm] = useState({ account: '', name: '', role: undefined, org: '' })
+  const [formErrors, setFormErrors] = useState({})
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }))
+    // 清除该字段已显示的校验错误
+    if (formErrors[key]) setFormErrors((prev) => ({ ...prev, [key]: undefined }))
+  }
+
+  const openCreate = () => {
+    setForm({ account: '', name: '', role: undefined, org: '' })
+    setFormErrors({})
+    setDialogVisible(true)
   }
 
   const load = () => message.success('查询用户')
   const edit = (row) => message.success(`编辑：${row.name}`)
   const setPermission = (row) => message.success(`配置 ${row.name} 的菜单权限`)
   const toggleStatus = (row) => {
-    setUsers((prev) =>
-      prev.map((user) =>
+    updateUsers(
+      users.map((user) =>
         user === row ? { ...user, status: user.status === '启用' ? '禁用' : '启用' } : user
       )
     )
   }
   const save = () => {
+    // 新增用户校验：账号必填且唯一、姓名必填、角色必选、所属组织必填
+    const errors = {}
+    const account = form.account.trim()
+    const name = form.name.trim()
+    const org = form.org.trim()
+    if (!account) errors.account = '请输入账号'
+    else if (users.some((u) => u.account === account)) errors.account = '账号已存在'
+    if (!name) errors.name = '请输入姓名/企业名称'
+    if (!form.role) errors.role = '请选择角色'
+    if (!org) errors.org = '请输入所属组织'
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors)
+      message.error('请完善必填项后再保存')
+      return
+    }
+    updateUsers([
+      ...users,
+      { account, name, role: form.role, org, status: '启用' }
+    ])
     message.success('用户已保存')
     setDialogVisible(false)
   }
@@ -76,7 +105,7 @@ export default function AdminUsers() {
         title={
           <div className="card-header">
             <span>用户与权限</span>
-            <Button type="primary" onClick={() => setDialogVisible(true)}>新增用户</Button>
+            <Button type="primary" onClick={openCreate}>新增用户</Button>
           </div>
         }
       >
@@ -130,13 +159,13 @@ export default function AdminUsers() {
         ]}
       >
         <Form labelCol={{ flex: '0 0 100px' }} wrapperCol={{ flex: 'auto' }}>
-          <Form.Item label="账号">
+          <Form.Item label="账号" validateStatus={formErrors.account ? 'error' : ''} help={formErrors.account}>
             <Input value={form.account} onChange={(e) => updateField('account', e.target.value)} />
           </Form.Item>
-          <Form.Item label="姓名">
+          <Form.Item label="姓名" validateStatus={formErrors.name ? 'error' : ''} help={formErrors.name}>
             <Input value={form.name} onChange={(e) => updateField('name', e.target.value)} />
           </Form.Item>
-          <Form.Item label="角色">
+          <Form.Item label="角色" validateStatus={formErrors.role ? 'error' : ''} help={formErrors.role}>
             <Select
               style={{ width: '100%' }}
               value={form.role}
@@ -144,7 +173,7 @@ export default function AdminUsers() {
               options={roleOptions}
             />
           </Form.Item>
-          <Form.Item label="所属组织">
+          <Form.Item label="所属组织" validateStatus={formErrors.org ? 'error' : ''} help={formErrors.org}>
             <Input value={form.org} onChange={(e) => updateField('org', e.target.value)} />
           </Form.Item>
         </Form>
