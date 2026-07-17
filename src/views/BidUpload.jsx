@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useSearch } from '@tanstack/react-router'
 import {
   Alert,
@@ -33,10 +33,22 @@ export default function BidUpload() {
   const selectedProjectId = Form.useWatch('projectId', form)
   const selectedPackages = Form.useWatch('packages', form) || []
 
-  const projects = [
-    { id: 1, name: 'XX市轨道交通设备采购项目' },
-    { id: 2, name: '办公桌椅采购项目' }
-  ]
+  const projects = useMemo(() => {
+    const seeds = [
+      { id: 1, name: 'XX市轨道交通设备采购项目' },
+      { id: 2, name: '办公桌椅采购项目' }
+    ]
+    const merged = [...seeds]
+    projectStore.getProjects().forEach((p) => {
+      if (!merged.some((s) => String(s.id) === String(p.id))) {
+        merged.push({ id: p.id, name: p.name })
+      }
+    })
+    return merged
+  }, [])
+
+  // 生效项目：表单所选优先，其次 URL 参数
+  const effectiveProjectId = selectedProjectId || projectId
 
   // 标段按所选项目动态拉取：优先读取项目保存的标段，无则回退默认标段
   const packages = useMemo(() => {
@@ -97,9 +109,9 @@ export default function BidUpload() {
     }
   ])
 
-  // 报价字段由项目创建时的报价模板驱动，缺失时回退默认字段
+  // 报价字段由项目创建时的报价模板驱动，跟随所选项目动态切换，缺失时回退默认字段
   const quoteFields = useMemo(() => {
-    const project = projectStore.getProjectById(projectId)
+    const project = projectStore.getProjectById(effectiveProjectId)
     if (project?.quoteFields?.length) return project.quoteFields
     return [
       { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
@@ -107,7 +119,7 @@ export default function BidUpload() {
       { key: 'quality', label: '质保期', unit: '', required: true },
       { key: 'payment', label: '付款方式', unit: '', required: true }
     ]
-  }, [projectId])
+  }, [effectiveProjectId])
 
   const [quote, setQuote] = useState(() => {
     const init = {}
@@ -115,15 +127,27 @@ export default function BidUpload() {
     return init
   })
 
+  // 切换项目后报价字段随之变化：重置填报值（保留同名 key 已填内容）
+  useEffect(() => {
+    setQuote((prev) => {
+      const next = {}
+      quoteFields.forEach((f) => { next[f.key] = prev[f.key] || '' })
+      return next
+    })
+  }, [quoteFields])
+
   const [quoteItems, setQuoteItems] = useState([
     { name: '主设备 A 型', spec: '详见技术参数', quantity: 10, unit: '台', price: '' },
     { name: '辅材 B 型', spec: '详见技术参数', quantity: 50, unit: '套', price: '' }
   ])
 
-  // 评审条款关联：将上传的投标文件逐条挂接到招标文件评审条款
-  const [clauseLinks, setClauseLinks] = useState(() => clauseStore.getLinks(projectId))
+  // 评审条款关联：将上传的投标文件逐条挂接到招标文件评审条款（按生效项目隔离）
+  const [clauseLinks, setClauseLinks] = useState(() => clauseStore.getLinks(effectiveProjectId || '1'))
+  useEffect(() => {
+    setClauseLinks(clauseStore.getLinks(effectiveProjectId || '1'))
+  }, [effectiveProjectId])
   const setClauseLink = (clauseId, fileName) => {
-    const next = clauseStore.setLink(projectId, clauseId, fileName)
+    const next = clauseStore.setLink(effectiveProjectId || '1', clauseId, fileName)
     setClauseLinks({ ...next })
   }
 
@@ -133,7 +157,7 @@ export default function BidUpload() {
   const [submitted, setSubmitted] = useState(false)
 
   const allEncrypted = fileList.length > 0 && fileList.every((f) => f.encrypted && f.encryptMethod === 'ca')
-  const projectName = (projects.find((item) => item.id === selectedProjectId) || {}).name || '-'
+  const projectName = (projects.find((item) => String(item.id) === String(selectedProjectId)) || {}).name || '-'
   const packageNames =
     packages.filter((p) => selectedPackages.includes(p.id)).map((p) => p.name).join('、') || '-'
 
@@ -418,7 +442,7 @@ export default function BidUpload() {
 
         <Form
           form={form}
-          initialValues={{ encryptMode: 'ca', packages: [] }}
+          initialValues={{ encryptMode: 'ca', packages: [], projectId: projectId ? String(projectId) : undefined }}
           labelCol={{ flex: '0 0 120px' }}
           wrapperCol={{ flex: 'auto' }}
           className="upload-form"
@@ -431,7 +455,7 @@ export default function BidUpload() {
             <Select
               placeholder="请选择投标项目"
               style={{ width: '100%' }}
-              options={projects.map((p) => ({ label: p.name, value: p.id }))}
+              options={projects.map((p) => ({ label: p.name, value: String(p.id) }))}
             />
           </Form.Item>
           <Form.Item
