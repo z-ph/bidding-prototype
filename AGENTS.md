@@ -34,6 +34,24 @@
 
 递增 `version` 时必须同步在 `src/data/changelog.js` 顶部新增对应条目（版本号、日期、变更明细），变更时间线页面（`/admin/changelog`，全角色菜单可见）按该数据自动渲染。
 
+## 评审变更列表与变更时间线维护
+
+这两个页面是持续维护的台账：任何评审整改、口径变更、版本交付都要同步登记，不允许只改代码不登记。
+
+### 评审变更列表（`/admin/review-change-list`）
+
+- 数据在 `src/views/ReviewChangeList.jsx` 顶部的 `reviewData` 数组，新批次条目加在数组最前。
+- 字段：`id`（来源前缀 + 序号，如 `0717-rm-001`）、`source`、`module`、`page`、`severity`、`issue`、`status`、`fix`、`commit`。
+- 登记时机：每轮评审/测试反馈、需求口径变更都要登记；`commit` 先填 `-`，实施并提交后回填批次标签（如 `fix(p1)`、`feat(remove-deprecated)`）。
+- 状态维护：`status`（未修复/已修复/无需修复/部分修复/待确认）必须经代码复核后更新，不能只凭实施方自述；被新口径作废的旧需求标 `无需修复` 并引用清单号；`待确认` 必须写清等谁确认什么。
+- 历史条目不删除、不改写 `issue` 原文；纠偏只更新 `status`/`fix`/`commit`。
+
+### 变更时间线（`/admin/changelog`）
+
+- 数据在 `src/data/changelog.js`，视图 `src/views/Changelog.jsx`。
+- 按「版本信息维护」要求：递增 `package.json` 的 `version` 时必须同步在数组顶部新增条目（版本号、日期、标题、变更明细）。
+- 明细类型：`feat` 新增 / `fix` 修复 / `remove` 下线 / `docs` 文档，对应页面标签颜色；口径类下线用 `remove` 并注明清单号。
+
 ## 路由约定
 
 本项目使用 TanStack Router 文件路由。官方文档见：
