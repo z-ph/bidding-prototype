@@ -32,6 +32,7 @@ const projectMetaMap = {
     name: 'XX市轨道交通设备采购项目',
     code: 'ZB20260701001',
     purchaseMode: '公开招标',
+    orgMode: 'agent',
     bidOpenTime: '2026-07-21 09:30',
     bidCloseTime: '2026-07-20 17:00',
     registerStart: '2026-07-01 09:00',
@@ -121,6 +122,7 @@ const defaultProjectMeta = {
   name: '未关联项目',
   code: '-',
   purchaseMode: '-',
+  orgMode: 'self',
   bidOpenTime: '-',
   bidCloseTime: '-',
   registerStart: '-',
@@ -181,10 +183,18 @@ export default function TenderDoc() {
   const searchParams = useSearch({ strict: false })
   const projectId = searchParams.projectId
   const { role, userName } = useRole()
-  const canEdit = role === 'tenderee' || role === 'agent'
-  const creatorName = role === 'tenderee' ? '张三' : '李四'
 
   const projectMeta = useMemo(() => getProjectMeta(projectId), [projectId])
+
+  // 编制权限按「角色 + 项目组织方式」双维度控制（cal-001）：
+  // - 自行招标(self)：招标人/代理均可编制
+  // - 委托代理(agent)：仅代理可编制，招标人只读
+  const orgMode = projectMeta.orgMode || 'self'
+  const tendereeRestricted = role === 'tenderee' && orgMode === 'agent'
+  const canEdit = tendereeRestricted
+    ? false
+    : role === 'tenderee' || role === 'agent'
+  const creatorName = role === 'tenderee' ? '张三' : '李四'
 
   const [versions, setVersions] = useState(() => tenderDocStore.getProjectVersions(projectId))
   const [selectedVersionId, setSelectedVersionId] = useState(() => {
@@ -475,6 +485,15 @@ export default function TenderDoc() {
       {isHistoryVersion && latestVersion && (
         <Alert
           title={`当前查看的是历史版本 ${selectedVersion.versionNo}，当前有效版本为 ${latestVersion.versionNo}。`}
+          type="info"
+          showIcon
+          closable={false}
+          style={{ marginBottom: 16 }}
+        />
+      )}
+      {tendereeRestricted && (
+        <Alert
+          title="本项目为委托代理招标，招标文件由招标代理机构编制，招标人仅有查看和确认权限。"
           type="info"
           showIcon
           closable={false}

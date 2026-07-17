@@ -72,7 +72,7 @@ const reviewData = [
   { id: 'cxy-019', source: 'cxy', module: '投标管理', page: 'BidDownload', severity: 'P1', issue: '缺少供应商质疑招标文件功能入口，投标人菜单无质疑入口', status: '部分修复', fix: 'BidDownload 已有「质疑招标文件」按钮并写入 objectionStore 闭环；投标人菜单仍无质疑/异议入口，提交后答复状态供应商不可见', commit: 'fix(tender)' },
 
   // cal 2026-07-15 交叉评审
-  { id: 'cal-001', source: 'cal', module: '招标文件', page: 'TenderDoc', severity: 'P0', issue: '委托代理模式下招标文件应由代理机构编制，招标人仅有查看/确认权限，编制入口应按组织方式动态控制', status: '未修复', fix: 'TenderDoc canEdit 仅按角色判断（tenderee/agent 均可编辑），无组织方式维度控制', commit: '-' },
+  { id: 'cal-001', source: 'cal', module: '招标文件', page: 'TenderDoc', severity: 'P0', issue: '委托代理模式下招标文件应由代理机构编制，招标人仅有查看/确认权限，编制入口应按组织方式动态控制', status: '已修复', fix: 'TenderDoc canEdit 按「角色 + 项目组织方式」双维度控制：委托代理(orgMode=agent)下招标人只读并显示原因提示，自行招标(self)下招标人/代理均可编制；projectMeta 增加 orgMode 字段', commit: 'fix(tender-doc-perm)' },
   { id: 'cal-002', source: 'cal', module: '发标管理/邀请招标', page: 'ProjectCreate / BidderProjects', severity: 'P0', issue: '投标邀请管理缺失：缺少受邀供应商选择、投标邀请书发送、受邀接受/拒绝、非受邀阻断报名、邀请状态跟踪', status: '部分修复', fix: 'ProjectCreate 邀请招标步骤已有受邀企业 Transfer + 邀请码并持久化 invitedBidders；邀请书发送、供应商接受/拒绝入口、非受邀报名阻断、状态跟踪均缺失', commit: 'feat(project)' },
   { id: 'cal-003', source: 'cal', module: '开标管理', page: 'OpeningHall', severity: 'P1', issue: '代理机构开标准备前无法指定主持人/监督人', status: '未修复', fix: '开标参与人为硬编码 mock，无指定主持人/监督人功能', commit: '-' },
   { id: 'cal-004', source: 'cal', module: '开标大厅', page: 'OpeningHall', severity: 'P0', issue: '投标人缺少在线解密功能，招标人不可解密', status: '已修复', fix: 'OpeningHall canDecrypt 限制仅投标人解密本企业文件（CA 解密确认弹窗），招标人/代理/监督仅查看状态', commit: 'fix(p1)' },
