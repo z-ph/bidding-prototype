@@ -50,3 +50,26 @@
 - AwardConfirm/AwardNotice 只回写 awardStage 不回写 project.status（列表引导停留在「前往定标」），建议另立项。
 - antd 6 弃用警告 4 条（Drawer width、Timeline items.children、Statistic valueStyle、InputNumber addonAfter），非阻断。
 - SystemSettings/ApprovalFlowConfig 页内只读死代码可择机清理。
+
+---
+
+## 追加：remove-deprecated-flows-20260717 实施验证（2026-07-17 晚）
+
+**前提变更**：甲方（用户）已于本日确认「四类全下」——清单 47 面板中的投标登记/资格预审/合同公示/费用模块字样认定为旧需求残留，§3-a/b/c 口径张力解除，提案由 blocked 转入实施并归档至 `spec/archive/2026-07-17-remove-deprecated-flows-20260717`。
+
+**实施范围**：报名流（BidRegister/门户与公告详情报名入口/ProjectCreate 报名起止字段/报名待办/「报名中」阶段改称「公告中」）、合同归档（ContractArchive/流程归档节点）、供应商异议（ObjectionManage/objectionStore/质疑按钮）、在线缴费（BidPayment/BidderInvoices 删除；FeeManage 改造为「中标人投标费用登记台账」；标段标书费/保证金字段删除）。
+
+**验证记录**（Playwright DOM 结构化抽查 + grep 清扫）：
+
+- `pnpm run build` 绿；五条被删路由（bid-register/bid-payment/contract-archive/objection-manage/bidder-invoices）访问失效 ✓
+- 创建项目向导（含标段设置步骤）无「报名开始/报名截止/标书费/保证金」字段 ✓
+- 费用台账页含凭证号/缴费状态/登记要素，无在线缴费审核功能 ✓
+- 门户无「立即报名」；菜单无「项目报名/异议/合同归档/发票申请」 ✓
+- 项目跟踪（招标人视角）时间线 7 节点标题全部渲染（顺带修复 FLOW_NODES `label` 与渲染端 `node.title` 不匹配的存量 bug）✓
+- 残留 grep（报名/缴费/保证金/标书费/合同归档/异议/质疑/bidFee/deposit/needRegisterAudit）：功能性残留为零；保留项均为口径注释、台账「缴费凭证」语义、文书惯用语「经公示无异议」及历史评审条目 ✓
+
+**变更登记**：`ReviewChangeList.jsx` 新增 0717-rm-001~004（source `0717新口径`）；cxy-013/cxy-019/1415-009 三条旧条目「待甲方确认」表述同步勘误为已实施（1415-009 收款方问题维持待确认）。
+
+**工作区说明（不属于本提案）**：`src/data/notices.js`、`src/data/requirements.js` 的 mock 预置清空改动与 AwardConfirm/AwardNotice/EvaluationHall/OpeningHall 的 ProjectEntryGuard 改动（含未跟踪的 `src/components/ProjectEntryGuard.jsx`）为用户侧并行工作，未纳入本提案提交范围。
+
+**遗留**：1415-003 评标流程性质、1415-009 中标人缴费收款方仍待甲方确认。

@@ -11,8 +11,8 @@
         "标段不再含「报名需审核」配置",
         "供应商链路从下载招标文件开始，无报名节点"
       ],
-      "blocked": true,
-      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+      "completed": true,
+      "implementationNote": "2026-07-17 甲方已确认清单 47「投标登记/资格预审」字样为旧需求残留，按无报名口径执行。已删除 BidRegister 视图与 admin.bid-register 路由、投标人菜单「项目报名」及权限；门户 Portal 报名按钮列、NoticeDetail「立即报名」入口与报名时间窗逻辑移除；ProjectCreate 删除报名开始/截止字段与校验；TodoCenter/Dashboard 报名待办与文案改为公告期口径；项目状态「报名中」统一改称「公告中」（状态键 registering 保留，避免存量数据迁移）；BidQuote 步骤条去掉「报名通过」；项目流程节点移除「投标报名与缴费」。registrationStore.js 与 needRegisterAudit 全库无实现（未创建），无需删除。"
     },
     {
       "id": "remove-contract-archive",
@@ -23,8 +23,8 @@
         "合同归档页面与菜单入口移除",
         "定标流程在中标通知书发出后结束，无归档节点"
       ],
-      "blocked": true,
-      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+      "completed": true,
+      "implementationNote": "2026-07-17 甲方已确认清单 47「合同管理（合同公示）」字样为旧需求残留，按无合同归档口径执行。已删除 ContractArchive 视图与 admin.contract-archive 路由及权限（菜单此前已不在 Layout）；Dashboard 快捷入口、TodoCenter 归档待办移除；项目流程节点（FLOW_NODES）与 ProjectTrack 时间线移除「合同归档」，AwardNotice 阶段链原本即以中标通知书发出为终点（notice-sent），无需改动；公告类型中无「合同公示」类型（NOTICE_TYPES 核实）；Login 特性文案「合同归档管理」改为「定标结果公示」。审批记录归档（清单 53）与评标报告/文件版本归档属另一语义，保留。"
     },
     {
       "id": "remove-objection-flow",
@@ -36,8 +36,8 @@
         "BidDownload 不再显示质疑按钮",
         "供应商侧无质疑/异议提交入口"
       ],
-      "blocked": true,
-      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+      "completed": true,
+      "implementationNote": "已删除 ObjectionManage 视图、admin.objection-manage 路由、代理菜单「异议处理」及权限、src/data/objectionStore.js；BidDownload 与 NoticeDetail 的「质疑招标文件」按钮、提交弹窗及 objectionStore 引用全部移除；澄清公告（clarification）类型保留不受影响。"
     },
     {
       "id": "rework-fee-to-ledger",
@@ -49,8 +49,8 @@
         "无在线缴费与缴费审核流程",
         "采购结果发布后可登记中标人投标费用（台账）"
       ],
-      "blocked": true,
-      "blockedReason": "待甲方确认口径张力（整理稿 §3）"
+      "completed": true,
+      "implementationNote": "2026-07-17 甲方已确认清单 47 费用模块字样为旧需求残留，按「不缴纳、不实现支付」口径执行。已删除 BidPayment 与 BidderInvoices（发票申请属缴费衍生流程）视图/路由/菜单/权限；BidDownload/BidUpload 无缴费前置校验（下载按公开/授权二态，提交按签章加密校验）；FeeManage 重写为「中标人投标费用登记台账」：字段为项目/中标人/费用类型（固定投标费用）/金额/缴费状态（未缴/已缴）/凭证号/登记时间，提供「登记」与「登记缴费凭证」动作，菜单与路由标题更名「费用台账」；ProjectCreate 标段标书费/保证金字段删除，ProjectDetail/TenderDoc 对应展示列与 mock 的 bidFee/deposit/depositReturn 清理；ProjectTrack 缴费模拟节点移除。"
     }
   ]
 }

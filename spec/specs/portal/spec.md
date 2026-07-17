@@ -63,6 +63,7 @@ WHEN 刷新页面
 THEN 统计数字与刷新前一致。
 
 ### Requirement: 公告列表进入真正详情页
+<!-- 2026-07-17 新口径修订：无报名环节，本条被文末 remove-deprecated-flows 合并块的 MODIFIED 版本取代 -->
 WHEN 用户在门户公告列表点击标题或"报名",
 系统 SHALL 跳转到 `/notice/:id` 详情页,
 AND 详情页 SHALL 展示公告正文、附件、报名条件,
@@ -220,3 +221,24 @@ THEN 跳转 /help 并展示 FAQ 内容。
 GIVEN 访客在门户首页
 WHEN 点击"下载中心"快速入口卡片
 THEN 跳转 /downloads 并展示文件下载列表。
+
+
+<!-- Merged from remove-deprecated-flows-20260717 / portal -->
+
+## MODIFIED Requirements
+
+### Requirement: 公告列表进入真正详情页
+原能力：公告详情页展示报名条件，已登录且符合条件的供应商可点击「立即报名」。
+现修改：无报名环节（清单 10/11、概要二），公告详情页 SHALL NOT 展示「立即报名」入口与报名条件，供应商参与路径为下载招标文件（授权/公开二态门控）后直接投标。
+
+#### Scenario: 公告详情无报名入口
+GIVEN 供应商已登录
+WHEN 打开某招标公告详情页
+THEN 看到公告正文和附件列表
+AND 不出现「立即报名」按钮。
+
+#### Scenario: 未登录用户查看公告
+GIVEN 未登录用户打开公告详情页
+WHEN 页面渲染
+THEN 正常展示公告正文
+AND 不因报名流程被引导登录。
