@@ -3,8 +3,12 @@ import react from '@vitejs/plugin-react'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 // https://vite.dev/config/
+// GitHub Pages 项目站点挂在子路径 /bidding-prototype/ 下；
+// Cloudflare Pages 等根路径托管平台需要 base 为 '/'。
+// Cloudflare Pages 构建环境自动注入 CF_PAGES=1
+// （https://developers.cloudflare.com/pages/configuration/build-configuration/#environment-variables）
 export default defineConfig({
-  base: '/bidding-prototype/',
+  base: process.env.CF_PAGES ? '/' : '/bidding-prototype/',
   plugins: [
     tanstackRouter({
       target: 'react',
