@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
   Card,
   Table,
@@ -28,16 +28,27 @@ import {
   requirementStore,
   REQUIREMENT_STATUS_MAP
 } from '../data/requirements.js'
+import { approvalStore } from '../data/approvalStore.js'
+import { messageStore } from '../data/messageStore.js'
+import { useRole } from '../hooks/useRole.js'
+
+// 审批接入（清单 48/14/22）：发布改为提交审批，新增「审批中」本地状态（requirements.js 不改动）
+const STATUS_MAP = {
+  ...REQUIREMENT_STATUS_MAP,
+  approving: { label: '审批中', color: 'warning' }
+}
 
 const TAB_ITEMS = [
   { key: 'all', label: '全部' },
   { key: 'draft', label: '草稿' },
+  { key: 'approving', label: '审批中' },
   { key: 'published', label: '已发布' },
   { key: 'approved', label: '已审核' },
   { key: 'rejected', label: '已驳回' }
 ]
 
 export default function ProcurementRequirementList() {
+  const { role, userName } = useRole()
   const [activeTab, setActiveTab] = useState('all')
   const [keyword, setKeyword] = useState('')
   const [refresh, setRefresh] = useState(0)
@@ -47,6 +58,25 @@ export default function ProcurementRequirementList() {
   const [form] = Form.useForm()
 
   const requirementTypes = requirementStore.getTypes()
+
+  // 发布者类型（清单 14）：招标代理发布 → 采购管理部审核；招标人发布 → 需求部门 → 采购管理部
+  const publisherKind = role === 'agent' ? 'agent' : 'self'
+
+  // 页面加载时同步在途审批单结果：通过 → 已发布；驳回 → 已驳回（清单 49/50）
+  useEffect(() => {
+    const list = requirementStore.getRequirements()
+    let changed = false
+    list.forEach((req) => {
+      if (req.status !== 'approving') return
+      const approval =
+        (req.approvalId && approvalStore.get(req.approvalId)) ||
+        approvalStore.list({ type: 'requirement' }).find((a) => a.refId === req.id)
+      if (!approval || approval.status === 'pending') return
+      requirementStore.updateStatus(req.id, approval.status === 'approved' ? 'published' : 'rejected')
+      changed = true
+    })
+    if (changed) setRefresh((n) => n + 1)
+  }, [])
 
   const dataSource = useMemo(() => {
     let list = requirementStore.getRequirements()
@@ -102,7 +132,28 @@ export default function ProcurementRequirementList() {
 
   const changeStatus = (record, status) => {
     requirementStore.updateStatus(record.id, status)
-    message.success(`需求已${REQUIREMENT_STATUS_MAP[status].label}`)
+    message.success(`需求已${STATUS_MAP[status].label}`)
+    setRefresh((n) => n + 1)
+  }
+
+  // 发布 = 提交审批（清单 48）：创建审批单后需求置「审批中」，通过/驳回结果由加载时同步回写
+  const submitApproval = (record) => {
+    const instance = approvalStore.create({
+      type: 'requirement',
+      refId: record.id,
+      title: record.title,
+      publisherKind,
+      submittedBy: userName,
+      projectId: record.projectId || ''
+    })
+    requirementStore.saveRequirement({ ...record, status: 'approving', approvalId: instance.id })
+    messageStore.add({
+      toRole: instance.chain[0],
+      title: `【审批待办】${record.title}`,
+      content: `${userName} 提交了采购需求「${record.title}」发布申请（审批链：${instance.chain.join(' → ')}），请及时审批。`,
+      type: 'approval'
+    })
+    message.success(`已提交审批（${instance.chain.join(' → ')}），审批通过后自动发布`)
     setRefresh((n) => n + 1)
   }
 
@@ -143,7 +194,7 @@ export default function ProcurementRequirementList() {
       dataIndex: 'status',
       width: 100,
       render: (value) => {
-        const cfg = REQUIREMENT_STATUS_MAP[value]
+        const cfg = STATUS_MAP[value] || { label: value, color: 'default' }
         return <Tag color={cfg.color}>{cfg.label}</Tag>
       }
     },
@@ -167,16 +218,17 @@ export default function ProcurementRequirementList() {
           <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openEdit(record)}>
             编辑
           </Button>
-          {record.status === 'draft' && (
+          {(record.status === 'draft' || record.status === 'rejected') && (
             <Button
               type="link"
               size="small"
               icon={<SendOutlined />}
-              onClick={() => changeStatus(record, 'published')}
+              onClick={() => submitApproval(record)}
             >
-              发布
+              提交审批
             </Button>
           )}
+          {record.status === 'approving' && <Tag color="warning">审批中</Tag>}
           {record.status === 'published' && (
             <>
               <Button
@@ -218,7 +270,7 @@ export default function ProcurementRequirementList() {
         <div className="header-actions">
           <div>
             <h3>采购需求管理</h3>
-            <p className="tip">采购需求经发布、审核后可被项目创建时关联。</p>
+            <p className="tip">采购需求提交审批通过后方可发布（清单 48）；代理发布由采购管理部审核，招标人发布经需求部门、采购管理部审核（清单 14/22）。</p>
           </div>
           <Space>
             <Button icon={<SettingOutlined />} onClick={() => setTypesOpen(true)}>
@@ -324,6 +376,7 @@ export default function ProcurementRequirementList() {
               placeholder="请选择状态"
               options={[
                 { label: '草稿', value: 'draft' },
+                { label: '审批中', value: 'approving' },
                 { label: '已发布', value: 'published' },
                 { label: '已审核', value: 'approved' },
                 { label: '已驳回', value: 'rejected' }
