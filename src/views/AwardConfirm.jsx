@@ -48,10 +48,6 @@ export default function AwardConfirm() {
   const { role, userName } = useRole()
   const projectIdFromQuery = searchParams.projectId
 
-  if (!projectIdFromQuery) {
-    return <ProjectEntryGuard />
-  }
-
   const [projectId, setProjectId] = useState(String(projectIdFromQuery))
   const [selected, setSelected] = useState('')
   const [form, setForm] = useState({ opinion: '' })
@@ -235,6 +231,12 @@ export default function AwardConfirm() {
     'winner-confirmed': 3,
     'notice-sent': 4
   }[stage]
+
+  // 入口守卫（所有 hooks 之后）：无 projectId 时阻断并引导从项目进入；
+  // 同路由无参→有参导航复用组件实例，hooks 数量必须保持不变
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
+  }
 
   return (
     <div className="award-confirm">

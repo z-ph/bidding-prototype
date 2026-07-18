@@ -205,7 +205,11 @@ export default function ProjectList() {
   const statusText = (s) => PROJECT_STATUS_MAP[s]?.text || s || '-'
   const statusColor = (s) => PROJECT_STATUS_MAP[s]?.color || 'default'
 
-  const nextLabel = (row) => getNextStepInfo(row).label
+  const nextLabel = (row) => {
+    // 代理无项目创建/编辑权限（zip-014），草稿阶段下一步为编制招标文件
+    if (role === 'agent' && row.status === 'draft') return '编制文件'
+    return getNextStepInfo(row).label
+  }
 
   const loadProjects = () => {
     setLoading(true)
@@ -267,7 +271,13 @@ export default function ProjectList() {
   }
 
   const nextStep = (row) => {
+    const isAgentRole = role === 'agent'
     if (row.status === 'draft') {
+      // 代理草稿阶段进入招标文件编制（无项目创建/编辑权限，与驾驶舱 getAgentActions 一致）
+      if (isAgentRole) {
+        navigate({ to: '/admin/tender-doc', search: { projectId: row.id } })
+        return
+      }
       navigate({ to: '/admin/projects/create', search: { editId: row.id } })
       return
     }
@@ -276,8 +286,9 @@ export default function ProjectList() {
       return
     }
     // 定标阶段（评标报告生成后 status='评标完成'；兼容 awardStage 键值口径）
+    // 代理职责为汇总评标报告提交定标审批（approval-center），招标人进入定标确认
     if (['评标完成', 'evaluation-done'].includes(row.status)) {
-      navigate({ to: '/admin/award-confirm', search: { projectId: row.id } })
+      navigate({ to: isAgentRole ? '/admin/approval-center' : '/admin/award-confirm', search: { projectId: row.id } })
       return
     }
     if (['已确认中标人', 'winner-confirmed'].includes(row.status)) {
@@ -288,9 +299,9 @@ export default function ProjectList() {
       viewDetail(row)
       return
     }
-    // 邀请询比价（清单 20）：无开标/评标环节，报价相关状态直达定标/采购结果
+    // 邀请询比价（清单 20）：无开标/评标环节，报价相关状态直达定标/采购结果（代理直达定标审批）
     if (isInvitedRfqProject(row) && ['registering', 'pending_open', 'evaluating'].includes(row.status)) {
-      navigate({ to: '/admin/award-confirm', search: { projectId: row.id } })
+      navigate({ to: isAgentRole ? '/admin/approval-center' : '/admin/award-confirm', search: { projectId: row.id } })
       return
     }
     const to = {
@@ -357,7 +368,7 @@ export default function ProjectList() {
       render: (_, row) => (
         <>
           <Button type="link" onClick={() => viewDetail(row)}>详情</Button>
-          {beforeOpenStatuses.includes(row.status) && (
+          {beforeOpenStatuses.includes(row.status) && role === 'tenderee' && (
             <Button type="link" onClick={() => edit(row)}>编辑</Button>
           )}
           {row.status === 'draft' && role === 'tenderee' && (

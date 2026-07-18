@@ -50,10 +50,6 @@ export default function OpeningHall() {
   const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
 
-  if (!projectId) {
-    return <ProjectEntryGuard />
-  }
-
   // 采购方式门禁（add-purchase-method-flow-20260717）：项目/标段均为邀请询比价时无开标环节
   const project = useMemo(
     () =>
@@ -350,6 +346,12 @@ export default function OpeningHall() {
     { title: '交货期', dataIndex: 'delivery', width: 140 },
     { title: '质保期', dataIndex: 'quality', width: 120 }
   ]
+
+  // 入口守卫（所有 hooks 之后）：无 projectId 时阻断并引导从项目进入；
+  // 同路由无参→有参导航复用组件实例，hooks 数量必须保持不变
+  if (!projectId) {
+    return <ProjectEntryGuard />
+  }
 
   // 页面级门禁（清单 20）：邀请询比价项目无开标环节，阻断开标操作区并引导前往定标/采购结果
   if (invitedRfq) {

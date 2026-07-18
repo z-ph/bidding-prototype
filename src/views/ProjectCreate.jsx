@@ -423,7 +423,7 @@ export default function ProjectCreate() {
                       placeholder="请输入预算金额"
                       value={formData.budget}
                       onChange={(e) => updateField('budget', e.target.value)}
-                      addonAfter="万元"
+                      suffix="万元"
                     />
                   </Form.Item>
                 </Col>

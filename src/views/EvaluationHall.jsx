@@ -33,10 +33,6 @@ export default function EvaluationHall() {
   const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
 
-  if (!projectId) {
-    return <ProjectEntryGuard />
-  }
-
   // 采购方式门禁（add-purchase-method-flow-20260717）：项目/标段均为邀请询比价时无评标环节
   const project = useMemo(
     () =>
@@ -497,6 +493,12 @@ export default function EvaluationHall() {
       return <span>评标结果已提交，进入中标公示流程</span>
     }
     return <span>等待评标委员会完成评审（只读）</span>
+  }
+
+  // 入口守卫（所有 hooks 之后）：无 projectId 时阻断并引导从项目进入；
+  // 同路由无参→有参导航复用组件实例，hooks 数量必须保持不变
+  if (!projectId) {
+    return <ProjectEntryGuard />
   }
 
   // 页面级门禁（清单 20）：邀请询比价项目无评标环节，阻断评标操作区并引导前往定标/采购结果

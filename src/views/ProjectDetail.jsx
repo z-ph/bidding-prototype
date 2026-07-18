@@ -30,7 +30,7 @@ import {
   getNextStepInfo,
   getPurchaseModeText
 } from './ProjectList.jsx'
-import { getProjectFlowNodes, getTendereeActions } from '../utils/projectFlow.js'
+import { getProjectFlowNodes, getTendereeActions, getAgentActions } from '../utils/projectFlow.js'
 import EmptyState from '../components/EmptyState.jsx'
 
 const FALLBACK_PROJECT = {
@@ -125,7 +125,13 @@ export default function ProjectDetail() {
   // 按采购方式过滤流程节点，并按当前状态高亮
   const flowNodes = useMemo(() => getProjectFlowNodes(project), [project])
 
-  const tendereeActions = useMemo(() => getTendereeActions(project), [project])
+  // 「当前阶段操作」按角色分发（refactor-agent-menu-workflow-20260718）：
+  // agent → 代理动作集，tenderee → 招标人动作集，其他角色（bidder 等）不渲染操作卡片
+  const stageActions = useMemo(() => {
+    if (role === 'agent') return getAgentActions(project)
+    if (role === 'tenderee') return getTendereeActions(project)
+    return []
+  }, [project, role])
 
   const publish = () => {
     Modal.confirm({
@@ -158,8 +164,7 @@ export default function ProjectDetail() {
   }
 
   const goNextStep = () => {
-    const actions = getTendereeActions(project)
-    const first = actions[0]
+    const first = stageActions[0]
     if (!first?.action) return
     handleAction(first.action)
   }
@@ -218,7 +223,7 @@ export default function ProjectDetail() {
           closable={false}
           style={{ marginBottom: 20 }}
           action={
-            tendereeActions.length > 0 ? (
+            stageActions.length > 0 ? (
               <Button size="small" type="primary" onClick={goNextStep}>
                 {nextStepInfo.label}
               </Button>
@@ -226,10 +231,10 @@ export default function ProjectDetail() {
           }
         />
 
-        {tendereeActions.length > 0 && (
+        {stageActions.length > 0 && (
           <Card title="当前阶段操作" size="small" style={{ marginBottom: 20 }}>
             <div className="action-grid">
-              {tendereeActions.map((action, idx) => (
+              {stageActions.map((action, idx) => (
                 <Card
                   key={idx}
                   size="small"

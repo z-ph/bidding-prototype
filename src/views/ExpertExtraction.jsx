@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearch } from '@tanstack/react-router'
 import { Card, Select, InputNumber, Form, Button, Table, Tag, Alert, message, Modal, Empty, DatePicker } from 'antd'
 import { TeamOutlined, ReloadOutlined, CheckCircleOutlined, DownloadOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { expertStore } from '../data/expertStore.js'
 import { evaluationStore, formatDeadline } from '../data/evaluationStore.js'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 const PROJECT_OPTIONS = [
   { id: '1', name: 'XX市轨道交通设备采购项目', fields: ['电子信息', '机械设备'] },
@@ -46,15 +47,17 @@ function noteText(e) {
 
 export default function ExpertExtraction() {
   const searchParams = useSearch({ strict: false })
-  const initialProject = PROJECT_OPTIONS.find((p) => p.id === searchParams.projectId) || PROJECT_OPTIONS[0]
-  const [projectId, setProjectId] = useState(initialProject.id)
-  const [fields, setFields] = useState(initialProject.fields || [])
+  const projectIdFromQuery = searchParams.projectId
+
+  const initialProject = PROJECT_OPTIONS.find((p) => p.id === String(projectIdFromQuery))
+  const [projectId, setProjectId] = useState(String(projectIdFromQuery))
+  const [fields, setFields] = useState(initialProject?.fields || [])
   const [count, setCount] = useState(3)
   const [benchCount, setBenchCount] = useState(2)
   const [avoidOrgs, setAvoidOrgs] = useState([])
-  const [result, setResult] = useState(() => expertStore.getResult(initialProject.id))
+  const [result, setResult] = useState(() => expertStore.getResult(String(projectIdFromQuery)))
   const [deadline, setDeadline] = useState(() => {
-    const existing = evaluationStore.getEval(initialProject.id).deadline
+    const existing = evaluationStore.getEval(String(projectIdFromQuery)).deadline
     return existing ? dayjs(existing) : dayjs().add(5, 'day')
   })
 
@@ -68,6 +71,12 @@ export default function ExpertExtraction() {
     const existing = evaluationStore.getEval(id).deadline
     setDeadline(existing ? dayjs(existing) : dayjs().add(5, 'day'))
   }
+
+  // URL projectId 变化时同步页内状态：guard 位于 hooks 之后，组件实例在同路由
+  // 无参 → 有参导航时复用，useState 初始值不会重算，必须显式同步
+  useEffect(() => {
+    if (projectIdFromQuery) onProjectChange(String(projectIdFromQuery))
+  }, [projectIdFromQuery])
 
   const doExtract = () => {
     if (count < 1) {
@@ -143,6 +152,13 @@ export default function ExpertExtraction() {
     { title: '确认反馈', key: 'feedback', width: 190, render: (_, e) => feedbackTag(e) },
     { title: '备注', key: 'note', render: (_, e) => <span style={{ color: '#999', fontSize: 12 }}>{noteText(e)}</span> }
   ]
+
+  // 阶段页面必须携带 projectId 从项目驾驶舱进入（refactor-agent-menu-workflow-20260718）；
+  // 阻断判断放在所有 hooks 之后：同路由「无 projectId → 有 projectId」导航复用组件实例时
+  // hooks 数量保持不变，避免 "Rendered more hooks than during the previous render" 崩溃
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
+  }
 
   return (
     <div className="expert-extraction">

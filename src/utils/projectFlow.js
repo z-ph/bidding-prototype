@@ -77,6 +77,19 @@ export function getTendereeActions(project) {
 
   const commonView = (target) => go(target, { projectId })
 
+  // 邀请询比价（清单 20）：报价相关状态跳过开标/评标，直达定标/采购结果
+  // 与 ProjectList.INVITED_RFQ_NEXT_STEP_MAP / INVITED_RFQ_STATUS_TO_NODE_KEY 同一口径
+  if (isInvitedRfqProject(project) && ['registering', 'pending_open', 'evaluating'].includes(status)) {
+    return [
+      {
+        title: '前往定标',
+        desc: '邀请询比价无开标/评标环节，报价截止后直接进入定标/采购结果',
+        buttonText: '确认采购结果',
+        action: go('/admin/award-confirm')
+      }
+    ]
+  }
+
   switch (status) {
     case 'draft':
       return [
@@ -168,6 +181,149 @@ export function getTendereeActions(project) {
           desc: '根据评标委员会推荐，确定中标候选人',
           buttonText: '确认中标人',
           action: commonView('/admin/award-confirm')
+        }
+      ]
+    case '已确认中标人':
+    case 'winner-confirmed':
+      return [
+        {
+          title: '发送中标通知书',
+          desc: '向中标人发送中标通知书并公示结果',
+          buttonText: '中标通知书',
+          action: commonView('/admin/award-notice')
+        }
+      ]
+    case '通知书已发':
+    case 'notice-sent':
+    case 'done':
+      return [
+        {
+          title: '项目已完成',
+          desc: '中标通知书已发出，项目定标流程结束',
+          buttonText: '返回项目列表',
+          action: go('/admin/projects')
+        }
+      ]
+    default:
+      return []
+  }
+}
+
+// 招标代理视角：当前阶段可操作卡片（refactor-agent-menu-workflow-20260718）
+// 镜像 getTendereeActions 的状态分发结构与返回格式，动作按代理职责定义：
+// 编制招标文件、发布公告、组织开评标、专家抽取、提交定标审批、发中标通知书
+export function getAgentActions(project) {
+  const projectId = project?.id
+  const status = project?.status
+
+  const go = (target, search = {}) => ({
+    type: 'navigate',
+    target,
+    search: { ...search, projectId }
+  })
+
+  const commonView = (target) => go(target, { projectId })
+
+  // 邀请询比价（清单 20）：报价相关状态跳过开标/评标，报价截止后代理汇总结果直接提交定标审批
+  // 与 getTendereeActions / ProjectList.INVITED_RFQ_NEXT_STEP_MAP 同一口径
+  if (isInvitedRfqProject(project) && ['registering', 'pending_open', 'evaluating'].includes(status)) {
+    return [
+      {
+        title: '提交定标审批',
+        desc: '邀请询比价无开标/评标环节，报价截止后汇总报价结果提交定标审批',
+        buttonText: '定标审批',
+        action: go('/admin/approval-center')
+      }
+    ]
+  }
+
+  switch (status) {
+    case 'draft':
+      return [
+        {
+          title: '编制招标文件',
+          desc: '接受委托后编制招标公告、投标人须知、评标办法等章节',
+          buttonText: '招标文件',
+          action: commonView('/admin/tender-doc')
+        }
+      ]
+    case 'pending':
+      return [
+        {
+          title: '查看审批进度',
+          desc: '项目已提交审核，等待采购管理部处理',
+          buttonText: '查看审批',
+          action: go('/admin/approval-center')
+        }
+      ]
+    case 'tendering':
+      return [
+        {
+          title: '编制招标文件',
+          desc: '完善招标公告、投标人须知、评标办法等章节',
+          buttonText: '招标文件',
+          action: commonView('/admin/tender-doc')
+        },
+        {
+          title: '发布公告',
+          desc: '将招标公告发布至门户，供应商可查看并响应',
+          buttonText: '发布公告',
+          action: commonView('/admin/notice-publish')
+        },
+        {
+          title: '供应商授权',
+          desc: '向受邀供应商发放授权与邀请，控制可响应范围',
+          buttonText: '供应商授权',
+          action: commonView('/admin/supplier-authorization')
+        }
+      ]
+    case 'registering':
+      return [
+        {
+          title: '查看投标情况',
+          desc: '查看供应商投标文件与报价的响应进展',
+          buttonText: '项目跟踪',
+          action: commonView('/admin/projects/track')
+        },
+        {
+          title: '准备开标',
+          desc: '投标截止后进入开标大厅组织签到、解密、唱标',
+          buttonText: '进入开标大厅',
+          action: commonView('/admin/opening-hall')
+        }
+      ]
+    case 'pending_open':
+      return [
+        {
+          title: '进入开标大厅',
+          desc: '组织投标人完成签到、解密、唱标',
+          buttonText: '开标大厅',
+          action: commonView('/admin/opening-hall')
+        }
+      ]
+    case 'evaluating':
+      return [
+        {
+          title: '专家抽取',
+          desc: '按项目专业领域随机抽取评标专家并通知确认',
+          buttonText: '专家抽取',
+          action: commonView('/admin/expert-extraction')
+        },
+        {
+          title: '进入评标大厅',
+          desc: '查看专家评分进度与评标报告',
+          buttonText: '评标大厅',
+          action: commonView('/admin/evaluation-hall')
+        }
+      ]
+    case '评标完成':
+    case 'evaluation-done':
+      return [
+        {
+          title: '提交定标审批',
+          desc: '汇总评标报告，提交定标审批以确定中标人',
+          buttonText: '定标审批',
+          action: commonView('/admin/approval-center')
         }
       ]
     case '已确认中标人':

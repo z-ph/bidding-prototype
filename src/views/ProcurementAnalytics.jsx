@@ -330,7 +330,7 @@ export default function ProcurementAnalytics() {
                 min={0}
                 max={500}
                 step={5}
-                addonAfter="%"
+                suffix="%"
                 disabled={!rules.abnormalHighPrice}
                 value={rules.abnormalHighPriceThreshold}
                 onChange={(value) => setRules((prev) => ({ ...prev, abnormalHighPriceThreshold: value }))}

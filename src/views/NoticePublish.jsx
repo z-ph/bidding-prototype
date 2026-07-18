@@ -54,10 +54,7 @@ export default function NoticePublish() {
   const noticeId = searchParams.id
   const projectIdFromQuery = searchParams.projectId
 
-  // 公告发布属于项目阶段操作，必须从项目上下文进入
-  if (!projectIdFromQuery) {
-    return <ProjectEntryGuard />
-  }
+  // 公告发布属于项目阶段操作，必须从项目上下文进入（守卫见主 return 前，需在全部 hooks 之后）
 
   // 与项目列表同一口径：projectStore（新建/草稿）+ mock 基线合并
   const projects = useMemo(() => mergeWithBaseline(projectStore.getProjects()), [])
@@ -252,6 +249,12 @@ export default function NoticePublish() {
     }
     message.success('公告已发布')
     navigate({ to: '/admin/notice-list' })
+  }
+
+  // 入口守卫（所有 hooks 之后）：公告发布属于项目阶段操作，无 projectId 时阻断并引导从项目进入；
+  // 同路由无参→有参导航复用组件实例，hooks 数量必须保持不变
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
   }
 
   return (

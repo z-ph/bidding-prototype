@@ -41,10 +41,6 @@ export default function AwardNotice() {
   const searchParams = useSearch({ strict: false })
   const projectIdFromQuery = searchParams.projectId
 
-  if (!projectIdFromQuery) {
-    return <ProjectEntryGuard />
-  }
-
   const [projectId, setProjectId] = useState(String(projectIdFromQuery))
   // localStorage 无订阅机制：操作后递增 refreshTick 触发重读
   const [refreshTick, setRefreshTick] = useState(0)
@@ -136,6 +132,12 @@ export default function AwardNotice() {
     'winner-confirmed': 4,
     'notice-sent': 5
   }[stage]
+
+  // 入口守卫（所有 hooks 之后）：无 projectId 时阻断并引导从项目进入；
+  // 同路由无参→有参导航复用组件实例，hooks 数量必须保持不变
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
+  }
 
   return (
     <div className="award-notice">
