@@ -632,7 +632,7 @@ export default function BidUpload() {
         open={receiptVisible}
         width={520}
         closable={false}
-        maskClosable={false}
+        mask={{ closable: false }}
         onCancel={() => setReceiptVisible(false)}
         footer={[
           <Button key="ok" type="primary" onClick={() => setReceiptVisible(false)}>我知道了</Button>
