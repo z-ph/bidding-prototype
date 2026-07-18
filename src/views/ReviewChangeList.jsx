@@ -4,6 +4,8 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0718 交互重构（台账导航纠偏）
+  { id: '0718-ux-008', source: '0718交互重构', module: '通用（导航归属）', page: 'Layout common 组 / permissions.js / AGENTS.md', severity: '高', issue: '评审变更列表与变更时间线是开发阶段的台账产物（供开发/评审追溯，非业务功能），却错误地放进 common 菜单组，五个业务角色主导航各多出 2 项开发入口（把「能访问的页面」与「应出现在主导航的入口」混为一谈）；AGENTS.md 本身还错误记载「变更时间线全角色菜单可见」的规则', status: '已修复', fix: 'Layout.jsx common 组移除评审变更列表/变更时间线两项（业务角色顶层项：招标人 8、代理 7、投标人 5、专家 5、监督 6），清理无引用图标；路由与权限保留（URL 直达供开发/评审使用），门户头部既有「评审变更」公开入口不变；permissions.js 注释更正；AGENTS.md 错误规则修正为「开发阶段台账，不进业务主导航，URL 直达」；role-permission-matrix.md 新增第七节说明导航归属', commit: 'fix(p6)' },
   // 0718 交互重构（工作流驱动，第六期：监督人员）
   { id: '0718-ux-007', source: '0718交互重构', module: '监督人员', page: 'SupervisorHall / SupervisorAbnormal / Dashboard / supervisorStore', severity: '高', issue: '监督大厅是通用空载视图：签到、唱标、评标委员会、评分汇总全部硬编码 mock，无 projectId、无项目上下文（红线 3 变体）；「记录异常」「提交监督意见」仅 message 提示不落库，异常登记页 records 为组件 useState 刷新即丢，两页数据互不相通（复核清单第 7 条）', status: '已修复', fix: '新建 supervisorStore（localStorage key bidding-supervisor-records，结构 { id, projectId, project, type, desc, status, time, source }）；SupervisorHall 项目化——无 projectId 渲染今日开标/评标场次列表（projectStore 真实项目，空时 Empty），有 projectId 渲染项目监督视图（头部项目名/编号+只读标识，签到无真实数据源显示 Empty，唱标读 quoteStore、评标委员会读 expertStore、评分汇总读 evaluationStore 实时汇总，均无真实数据 Empty 不回退假数据），删除全部硬编码 mock 数组；「记录异常」「提交监督意见」关联 projectId+项目名写入 store（source hall）并提示可在异常登记查看；SupervisorAbnormal records 迁移到同 store（演示记录 YC20260708001 作种子首次写入，source abnormal），支持 URL projectId 预填项目名；Dashboard 监督概览三项计数（今日开标/今日评标/异常预警）改由 projectStore/evaluationStore/supervisorStore 真实计算；菜单 4 项不变', commit: 'feat(p5)' },
 

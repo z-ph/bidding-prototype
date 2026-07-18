@@ -11,6 +11,15 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.8.0',
+    date: '2026-07-18',
+    title: '开发台账移出业务主导航',
+    changes: [
+      { type: 'remove', text: 'common 菜单组移除「评审变更列表」「变更时间线」两个开发阶段台账入口（招标人 8、代理 7、投标人 5、专家 5、监督 6 项）；路由与权限保留，URL 直达供开发/评审使用' },
+      { type: 'fix', text: 'AGENTS.md 修正「变更时间线全角色菜单可见」的错误规则：开发台账不进业务主导航；permissions.js 注释更正；role-permission-matrix.md 新增第七节导航归属说明' }
+    ]
+  },
+  {
     version: '0.7.0',
     date: '2026-07-18',
     title: '交互重构：监督视图项目化与异常落库',

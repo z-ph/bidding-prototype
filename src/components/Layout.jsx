@@ -16,8 +16,7 @@ import {
   TeamOutlined,
   ScheduleOutlined,
   BarChartOutlined,
-  AuditOutlined,
-  HistoryOutlined
+  AuditOutlined
 } from '@ant-design/icons'
 import { useMemo } from 'react'
 import { useNavigate, useLocation, useMatches, Link, Outlet } from '@tanstack/react-router'
@@ -44,11 +43,11 @@ function buildItem(item) {
 }
 
 function useMenuItems(role) {
+  // common 组只保留业务角色工作流入口；评审变更列表/变更时间线为开发阶段台账，
+  // 不进业务主导航（fix-dev-ledger-out-of-business-nav-20260718），URL 直达可达
   const common = [
     { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
-    { key: '/admin/todo-center', label: '待办中心', icon: ScheduleOutlined },
-    { key: '/admin/review-change-list', label: '评审变更列表', icon: UnorderedListOutlined },
-    { key: '/admin/changelog', label: '变更时间线', icon: HistoryOutlined }
+    { key: '/admin/todo-center', label: '待办中心', icon: ScheduleOutlined }
   ]
 
   const tendereeMenus = [

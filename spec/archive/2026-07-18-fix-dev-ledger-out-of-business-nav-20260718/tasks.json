@@ -1,0 +1,57 @@
+{
+  "proposal": "fix-dev-ledger-out-of-business-nav-20260718",
+  "tasks": [
+    {
+      "id": "remove-dev-ledger-menu",
+      "title": "common 组移除开发台账菜单项",
+      "description": "Layout.jsx common 组移除「评审变更列表」「变更时间线」，清理 UnorderedListOutlined/HistoryOutlined 无引用图标；permissions.js 加注释说明两页为开发台账、URL 直达。",
+      "files": [
+        "src/components/Layout.jsx",
+        "src/config/permissions.js"
+      ],
+      "acceptance": [
+        "五个业务角色主导航均无评审变更列表/变更时间线",
+        "URL 直达 /admin/review-change-list 与 /admin/changelog 仍可访问"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "fix-agents-rule",
+      "title": "修正 AGENTS.md 错误规则",
+      "description": "「版本信息维护」中全角色菜单可见表述、台账维护一节的菜单可见表述改为：开发阶段产物，不进业务主导航，URL 直达。",
+      "files": [
+        "AGENTS.md"
+      ],
+      "acceptance": [
+        "AGENTS.md 不再存在「全角色菜单可见」的错误规则"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "role-permission-matrix.md 补充说明；ReviewChangeList 登记 0718-ux-008；changelog.js 新增 0.8.0；package.json 0.7.0 → 0.8.0。",
+      "files": [
+        "docs/role-permission-matrix.md",
+        "src/views/ReviewChangeList.jsx",
+        "src/data/changelog.js",
+        "package.json"
+      ],
+      "acceptance": [
+        "四处登记齐备"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "regression-verify",
+      "title": "全量红线回归",
+      "description": "pnpm run build + 5 角色红线脚本全量回归（菜单断言均为 ≤ 上限，移除后应全部通过且顶层项更少）。",
+      "files": [],
+      "acceptance": [
+        "build 通过",
+        "5 脚本 145 项断言全部通过"
+      ],
+      "status": "已完成"
+    }
+  ]
+}
