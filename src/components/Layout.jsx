@@ -4,17 +4,13 @@ import {
   DashboardOutlined,
   FolderOutlined,
   FileTextOutlined,
-  BellOutlined,
   PlayCircleOutlined,
-  StarOutlined,
   UserOutlined,
   ToolOutlined,
   UnorderedListOutlined,
   FileProtectOutlined,
   MoneyCollectOutlined,
   WarningOutlined,
-  TrophyOutlined,
-  WalletOutlined,
   BankOutlined,
   MessageOutlined,
   TeamOutlined,
@@ -80,6 +76,9 @@ function useMenuItems(role) {
     }
   ]
 
+  // 招标代理菜单（refactor-agent-menu-workflow-20260718）：阶段操作（招标文件编制/公告发布/
+  // 专家抽取/中标通知书）全部下沉到项目驾驶舱携带 projectId 进入，菜单只保留跨项目台账入口；
+  // 三个跨项目业务台账聚合为「业务台账」分组，控制顶层项数量
   const agentMenus = [
     {
       key: '/admin/projects-group',
@@ -90,30 +89,33 @@ function useMenuItems(role) {
         { key: '/admin/projects/track', label: '项目跟踪' }
       ]
     },
-    { key: '/admin/tender-doc', label: '招标文件编制', icon: FileTextOutlined },
-    { key: '/admin/notice-publish', label: '公告发布', icon: BellOutlined },
-    { key: '/admin/notice-list', label: '公告列表', icon: BellOutlined },
-    { key: '/admin/supplier-authorization', label: '供应商授权', icon: TeamOutlined },
-    { key: '/admin/fee-manage', label: '费用台账', icon: WalletOutlined },
-    { key: '/admin/expert-extraction', label: '专家抽取', icon: TeamOutlined },
-    { key: '/admin/award-notice', label: '中标通知书', icon: BookOutlined },
+    {
+      key: '/admin/biz-records-group',
+      label: '业务台账',
+      icon: UnorderedListOutlined,
+      children: [
+        { key: '/admin/notice-list', label: '公告列表' },
+        { key: '/admin/supplier-authorization', label: '供应商授权' },
+        { key: '/admin/fee-manage', label: '费用台账' }
+      ]
+    },
     { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
     { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 
+  // 投标人菜单（refactor-bidder-menu-workflow-20260718）：下载/报价/上传/开标/中标通知等阶段操作
+  // 全部在项目中心内按项目状态聚合携带 projectId 进入，主导航只保留跨项目入口
   const bidderMenus = [
     { key: '/admin/bidder-projects', label: '项目中心', icon: FolderOutlined },
-    { key: '/admin/bid-quote', label: '在线报价', icon: WalletOutlined },
-    { key: '/admin/opening-hall', label: '开标大厅', icon: PlayCircleOutlined },
-    { key: '/admin/award-notice', label: '中标通知', icon: TrophyOutlined },
     { key: '/admin/supplier-profile', label: '企业档案', icon: BankOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 
+  // 评标专家菜单（refactor-expert-menu-workflow-20260718）：双任务入口合并为单一
+  // 「我的评标任务」，评分详情页（/admin/expert-project）从任务列表携带 projectId 进入
   const expertMenus = [
-    { key: '/admin/expert-tasks', label: '我的任务', icon: ScheduleOutlined },
-    { key: '/admin/expert-project', label: '评标任务', icon: StarOutlined },
+    { key: '/admin/expert-tasks', label: '我的评标任务', icon: ScheduleOutlined },
     { key: '/admin/expert-profile', label: '专家信息', icon: UserOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
@@ -128,17 +130,37 @@ function useMenuItems(role) {
   const adminMenus = [
     { key: '/admin/dashboard', label: '工作台', icon: DashboardOutlined },
     { key: '/admin/todo-center', label: '待办中心', icon: ScheduleOutlined },
-    { key: '/admin/admin-dashboard', label: '管理控制台', icon: DashboardOutlined },
-    { key: '/admin/procurement-requirements', label: '采购需求', icon: FileTextOutlined },
-    { key: '/admin/admin-users', label: '用户权限', icon: UserOutlined },
-    { key: '/admin/notification-manage', label: '通知管理', icon: BellOutlined },
-    { key: '/admin/template-manage', label: '模板管理', icon: FileTextOutlined },
-    { key: '/admin/system-settings', label: '系统设置', icon: ToolOutlined },
-    { key: '/admin/admin-dictionary', label: '参数字典', icon: ToolOutlined },
+    {
+      key: '/admin/org-group',
+      label: '组织与用户',
+      icon: TeamOutlined,
+      children: [
+        { key: '/admin/admin-users', label: '用户权限' },
+        { key: '/admin/organization', label: '组织机构' },
+        { key: '/admin/sub-accounts', label: '子账号管理' }
+      ]
+    },
+    {
+      key: '/admin/sys-config-group',
+      label: '系统配置',
+      icon: ToolOutlined,
+      children: [
+        { key: '/admin/system-settings', label: '系统设置' },
+        { key: '/admin/admin-dictionary', label: '参数字典' },
+        { key: '/admin/notification-manage', label: '通知管理' },
+        { key: '/admin/template-manage', label: '模板管理' },
+        { key: '/admin/approval-flow-config', label: '审批流配置' }
+      ]
+    },
+    {
+      key: '/admin/content-group',
+      label: '内容管理',
+      icon: FileTextOutlined,
+      children: [
+        { key: '/admin/admin-news', label: '新闻公告维护' }
+      ]
+    },
     { key: '/admin/admin-supplier-audit', label: '准入审核', icon: FileProtectOutlined },
-    { key: '/admin/admin-news', label: '新闻公告维护', icon: FileTextOutlined },
-    { key: '/admin/organization', label: '组织机构', icon: BankOutlined },
-    { key: '/admin/sub-accounts', label: '子账号管理', icon: UserOutlined },
     { key: '/admin/admin-logs', label: '日志审计', icon: UnorderedListOutlined },
     { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }

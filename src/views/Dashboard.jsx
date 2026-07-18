@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import dayjs from 'dayjs'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {
@@ -11,7 +12,6 @@ import {
   Timeline,
   Table,
   Descriptions,
-  Result,
   message
 } from 'antd'
 import {
@@ -26,11 +26,14 @@ import {
   WalletOutlined,
   SearchOutlined,
   FileProtectOutlined,
-  QuestionCircleOutlined,
-  InfoCircleOutlined
+  QuestionCircleOutlined
 } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
 import StatusTag from '../components/StatusTag.jsx'
+import AdminDashboard from './AdminDashboard.jsx'
+import { projectStore } from '../data/projects.js'
+import { evaluationStore } from '../data/evaluationStore.js'
+import { supervisorStore } from '../data/supervisorStore.js'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -55,6 +58,17 @@ export default function Dashboard() {
       admin: '维护系统基础数据、用户权限、日志审计'
     }
     return map[role] || ''
+  }, [role])
+
+  // 监督概览三项计数：今日开标/今日评标来自项目与评标 store，异常预警来自 supervisorStore 待处理记录
+  const supervisorStats = useMemo(() => {
+    if (role !== 'supervisor') return null
+    const projects = projectStore.getProjects()
+    return {
+      todayOpening: projects.filter((p) => p.openTime && dayjs(p.openTime).isSame(dayjs(), 'day')).length,
+      todayEvaluating: projects.filter((p) => evaluationStore.getEval(p.id).deadline).length,
+      abnormalPending: supervisorStore.getRecords().filter((r) => r.status === '待处理').length
+    }
   }, [role])
 
   const stats = [
@@ -183,7 +197,7 @@ export default function Dashboard() {
       key: 'action',
       width: 150,
       render: () => (
-        <Button type="primary" size="small" onClick={() => navigate({ to: '/admin/expert-project' })}>
+        <Button type="primary" size="small" onClick={() => navigate({ to: '/admin/expert-tasks' })}>
           开始评标
         </Button>
       )
@@ -468,7 +482,7 @@ export default function Dashboard() {
           title={
             <div className="card-header">
               <span>我的评标任务</span>
-              <Button type="link" onClick={() => navigate({ to: '/admin/expert-project' })}>进入评标大厅</Button>
+              <Button type="link" onClick={() => navigate({ to: '/admin/expert-tasks' })}>进入评标大厅</Button>
             </div>
           }
         >
@@ -486,25 +500,14 @@ export default function Dashboard() {
           }
         >
           <Descriptions column={3} bordered>
-            <Descriptions.Item label="今日开标">3 场</Descriptions.Item>
-            <Descriptions.Item label="今日评标">2 场</Descriptions.Item>
-            <Descriptions.Item label="异常预警">0 条</Descriptions.Item>
+            <Descriptions.Item label="今日开标">{supervisorStats?.todayOpening ?? 0} 场</Descriptions.Item>
+            <Descriptions.Item label="今日评标">{supervisorStats?.todayEvaluating ?? 0} 场</Descriptions.Item>
+            <Descriptions.Item label="异常预警">{supervisorStats?.abnormalPending ?? 0} 条</Descriptions.Item>
           </Descriptions>
         </Card>
       )}
 
-      {role === 'admin' && (
-        <Result
-          icon={<InfoCircleOutlined />}
-          title="管理员工作台"
-          subTitle="管理员请使用左侧“管理控制台”菜单进入后台功能"
-          extra={
-            <Button type="primary" onClick={() => navigate({ to: '/admin/admin-dashboard' })}>
-              进入管理控制台
-            </Button>
-          }
-        />
-      )}
+      {role === 'admin' && <AdminDashboard />}
 
       <style>{`
         .dashboard {
