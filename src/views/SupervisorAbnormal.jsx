@@ -1,11 +1,36 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useSearch } from '@tanstack/react-router'
 import { Button, Card, Form, Input, Modal, Select, Table, message } from 'antd'
 import StatusTag from '../components/StatusTag.jsx'
+import { projectStore } from '../data/projects.js'
+import { supervisorStore } from '../data/supervisorStore.js'
+
+// 首次 store 为空时种入的演示记录（只种一次）
+const SEED_RECORDS = [
+  { id: 'YC20260708001', projectId: '', project: 'XX市轨道交通设备采购项目', type: '开标异常', desc: '投标人 A 公司 CA 证书检测失败，已要求重新插拔。', status: '已处理', time: '2026-07-08 15:10', source: 'abnormal' }
+]
 
 export default function SupervisorAbnormal() {
-  const [records, setRecords] = useState([
-    { id: 'YC20260708001', project: 'XX市轨道交通设备采购项目', type: '开标异常', desc: '投标人 A 公司 CA 证书检测失败，已要求重新插拔。', status: '已处理', time: '2026-07-08 15:10' }
-  ])
+  const search = useSearch({ strict: false })
+  const urlProjectId = search?.projectId ? String(search.projectId) : ''
+  // 无订阅机制：登记后通过 refreshKey 触发重读 store
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useState(() => {
+    supervisorStore.seedIfEmpty(SEED_RECORDS)
+    return 0
+  })
+
+  const records = useMemo(() => {
+    void refreshKey
+    return supervisorStore.getRecords()
+  }, [refreshKey])
+
+  // URL 携带 projectId 且能解析出项目名时，预填登记表单的涉及项目
+  const prefilledProject = useMemo(() => {
+    if (!urlProjectId) return ''
+    return projectStore.getProjectById(urlProjectId)?.name || ''
+  }, [urlProjectId])
 
   const [dialogVisible, setDialogVisible] = useState(false)
   const [form, setForm] = useState({
@@ -19,6 +44,7 @@ export default function SupervisorAbnormal() {
   }
 
   const openDialog = () => {
+    setForm((prev) => ({ ...prev, project: prev.project || prefilledProject }))
     setDialogVisible(true)
   }
 
@@ -27,17 +53,14 @@ export default function SupervisorAbnormal() {
       message.warning('请填写完整异常信息')
       return
     }
-    setRecords((prev) => [
-      {
-        id: 'YC' + Date.now(),
-        project: form.project,
-        type: form.type,
-        desc: form.desc,
-        status: '待处理',
-        time: new Date().toLocaleString()
-      },
-      ...prev
-    ])
+    supervisorStore.addRecord({
+      projectId: urlProjectId,
+      project: form.project,
+      type: form.type,
+      desc: form.desc,
+      source: 'abnormal'
+    })
+    setRefreshKey((k) => k + 1)
     setDialogVisible(false)
     setForm((prev) => ({ ...prev, project: '', desc: '' }))
     message.success('异常记录已登记')

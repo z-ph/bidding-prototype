@@ -1,44 +1,107 @@
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { Alert, Button, Card, Divider, Form, Input, Steps, Table, Tabs, Tag, message } from 'antd'
+import { useMemo, useState } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { Alert, Button, Card, Divider, Empty, Form, Input, Table, Tabs, Tag, message } from 'antd'
+import dayjs from 'dayjs'
 import StatusTag from '../components/StatusTag.jsx'
+import { useRole } from '../hooks/useRole.js'
+import { projectStore } from '../data/projects.js'
+import { evaluationStore, formatDeadline } from '../data/evaluationStore.js'
+import { expertStore } from '../data/expertStore.js'
+import { quoteStore } from '../data/quoteStore.js'
+import { supervisorStore } from '../data/supervisorStore.js'
+import { PROJECT_STATUS_MAP } from './ProjectList.jsx'
+
+// 开标时间兼容 ISO 串与 'YYYY-MM-DD HH:mm'
+const fmtTime = (v) => {
+  if (!v) return '-'
+  const d = dayjs(v)
+  return d.isValid() ? d.format('YYYY-MM-DD HH:mm') : String(v)
+}
+
+const CONFIRM_STATUS_MAP = {
+  confirmed: { text: '已确认', color: 'success' },
+  pending: { text: '待确认', color: 'warning' },
+  declined: { text: '已拒绝', color: 'error' }
+}
 
 export default function SupervisorHall() {
   const navigate = useNavigate()
+  const { userName } = useRole()
+  const search = useSearch({ strict: false })
+  const projectId = search?.projectId ? String(search.projectId) : ''
   const [activeTab, setActiveTab] = useState('opening')
   const [comment, setComment] = useState('')
 
-  const openingAttendees = [
-    { role: '招标人', name: '张三', status: '已签到', time: '2026-07-08 14:50' },
-    { role: '招标代理', name: '李四', status: '已签到', time: '2026-07-08 14:52' },
-    { role: '投标人', name: 'A科技有限公司', status: '已签到', time: '2026-07-08 14:55' },
-    { role: '监督人', name: '王监督', status: '已签到', time: '2026-07-08 14:53' }
-  ]
+  // 无 projectId：今日开标/评标场次列表（真实项目数据）
+  const projects = useMemo(() => projectStore.getProjects(), [])
 
-  const openingBids = [
-    { name: 'A科技有限公司', price: 820, delivery: '60天', quality: '3年' },
-    { name: 'B实业有限公司', price: 845, delivery: '55天', quality: '2年' },
-    { name: 'C股份有限公司', price: 798, delivery: '65天', quality: '3年' }
-  ]
+  // 有 projectId：项目监督视图数据（均无记录时 Empty，不回退演示假数据）
+  const project = projectId ? projectStore.getProjectById(projectId) : undefined
+  const projectName = project?.name || (projectId ? `项目 ${projectId}` : '')
+  const projectCode = project?.code || '-'
 
-  const evaluationExperts = [
-    { name: '专家甲', field: '电子信息', status: '已签到', scoreStatus: '已提交' },
-    { name: '专家乙', field: '机械设备', status: '已签到', scoreStatus: '已提交' },
-    { name: '专家丙', field: '工程造价', status: '已签到', scoreStatus: '待提交' }
-  ]
+  // 唱标结果：quoteStore 按 projectId 前缀匹配
+  const bids = useMemo(() => {
+    if (!projectId) return []
+    return Object.entries(quoteStore.getQuotes())
+      .filter(([key]) => key.startsWith(`${projectId}::`))
+      .map(([key, value]) => ({
+        name: key.split('::')[1],
+        price: value?.quote?.totalPrice ?? '-',
+        delivery: value?.quote?.delivery ?? '-',
+        quality: value?.quote?.quality ?? '-'
+      }))
+  }, [projectId])
 
-  const evaluationScores = [
-    { name: 'C股份有限公司', business: 28, tech: 36, price: 29, total: 93, recommend: '推荐中标' },
-    { name: 'A科技有限公司', business: 27, tech: 34, price: 28, total: 89, recommend: '备选' },
-    { name: 'B实业有限公司', business: 26, tech: 31, price: 27, total: 84, recommend: '备选' }
-  ]
+  // 评标委员会：expertStore 抽取结果
+  const committee = useMemo(
+    () => (projectId ? expertStore.getResult(projectId) : null),
+    [projectId]
+  )
+  const committeeExperts = committee?.experts || []
+
+  // 评分汇总：evaluationStore 实时汇总每个专家的 scores 与 submitted 状态
+  const scoreSummary = useMemo(() => {
+    const expertEntries = Object.entries(evaluationStore.getEval(projectId).experts || {})
+    if (!projectId || expertEntries.length === 0) return { experts: [], rows: [] }
+    const bidderSet = new Set()
+    expertEntries.forEach(([, data]) => {
+      Object.keys(data?.scores || {}).forEach((b) => bidderSet.add(b))
+    })
+    const experts = expertEntries.map(([name, data]) => ({ name, submitted: !!data?.submitted }))
+    const rows = [...bidderSet].map((bidder) => {
+      const totals = expertEntries.map(([name, data]) => {
+        const items = data?.scores?.[bidder]
+        if (!items) return null
+        const total = Object.values(items).reduce((sum, v) => sum + (Number(v) || 0), 0)
+        return { name, total }
+      })
+      const valid = totals.filter(Boolean)
+      const average = valid.length
+        ? Math.round((valid.reduce((s, t) => s + t.total, 0) / valid.length) * 100) / 100
+        : null
+      return { bidder, totals, average }
+    })
+    rows.sort((a, b) => (b.average ?? -1) - (a.average ?? -1))
+    rows.forEach((row, idx) => {
+      row.rank = row.average == null ? '-' : idx + 1
+    })
+    return { experts, rows }
+  }, [projectId])
 
   const recordAbnormal = () => {
     if (!comment.trim()) {
       message.warning('请先填写异常描述')
       return
     }
-    message.warning('异常记录已保存，将同步至日志')
+    supervisorStore.addRecord({
+      projectId,
+      project: projectName,
+      type: '监督记录',
+      desc: comment.trim(),
+      source: 'hall'
+    })
+    message.success('异常已登记，可在「异常登记」页面查看')
     setComment('')
   }
 
@@ -47,21 +110,49 @@ export default function SupervisorHall() {
       message.warning('请先填写监督意见')
       return
     }
-    message.success('监督意见已提交')
+    supervisorStore.addRecord({
+      projectId,
+      project: projectName,
+      type: '监督意见',
+      desc: comment.trim(),
+      source: 'hall'
+    })
+    message.success('监督意见已提交，可在「异常登记」页面查看')
     setComment('')
   }
 
-  const attendeeColumns = [
-    { title: '角色', dataIndex: 'role' },
-    { title: '姓名/企业', dataIndex: 'name' },
+  const sessionColumns = [
+    { title: '项目名称', dataIndex: 'name', minWidth: 220 },
+    { title: '项目编号', dataIndex: 'code', width: 160 },
+    { title: '开标时间', dataIndex: 'openTime', width: 160, render: (v) => fmtTime(v) },
+    {
+      title: '评标截止时间',
+      key: 'evalDeadline',
+      width: 160,
+      render: (_, row) => formatDeadline(evaluationStore.getEval(row.id).deadline)
+    },
     {
       title: '状态',
       dataIndex: 'status',
-      render: (status) => (
-        <StatusTag label={status} status={status === '已签到' ? 'completed' : 'pending'} />
-      )
+      width: 110,
+      render: (status) => {
+        const s = PROJECT_STATUS_MAP[status] || { text: status || '未知', color: 'default' }
+        return <Tag color={s.color}>{s.text}</Tag>
+      }
     },
-    { title: '时间', dataIndex: 'time' }
+    {
+      title: '操作',
+      key: 'action',
+      width: 110,
+      render: (_, row) => (
+        <Button
+          type="link"
+          onClick={() => navigate({ to: '/admin/supervisor-hall', search: { projectId: String(row.id) } })}
+        >
+          进入监督
+        </Button>
+      )
+    }
   ]
 
   const bidColumns = [
@@ -74,29 +165,45 @@ export default function SupervisorHall() {
   const expertColumns = [
     { title: '专家', dataIndex: 'name' },
     { title: '专业', dataIndex: 'field' },
+    { title: '所属单位', dataIndex: 'org' },
     {
-      title: '签到状态',
-      dataIndex: 'status',
-      render: (status) => (
-        <StatusTag label={status} status={status === '已签到' ? 'completed' : 'pending'} />
-      )
-    },
-    {
-      title: '评分状态',
-      dataIndex: 'scoreStatus',
-      render: (scoreStatus) => (
-        <StatusTag label={scoreStatus} status={scoreStatus === '已提交' ? 'completed' : 'processing'} />
-      )
+      title: '确认状态',
+      dataIndex: 'confirmStatus',
+      render: (confirmStatus, row) => {
+        const s = CONFIRM_STATUS_MAP[confirmStatus] || { text: confirmStatus || '待确认', color: 'default' }
+        return (
+          <>
+            <Tag color={s.color}>{s.text}</Tag>
+            {row.promotedAt && <Tag>递补</Tag>}
+          </>
+        )
+      }
     }
   ]
 
   const scoreColumns = [
-    { title: '投标人', dataIndex: 'name' },
-    { title: '商务', dataIndex: 'business' },
-    { title: '技术', dataIndex: 'tech' },
-    { title: '价格', dataIndex: 'price' },
-    { title: '总分', dataIndex: 'total' },
-    { title: '推荐意见', dataIndex: 'recommend' }
+    { title: '投标人', dataIndex: 'bidder' },
+    ...scoreSummary.experts.map((expert, idx) => ({
+      title: (
+        <>
+          {expert.name}
+          <div style={{ fontWeight: 'normal', fontSize: 12 }}>
+            <StatusTag
+              label={expert.submitted ? '已提交' : '待提交'}
+              status={expert.submitted ? 'completed' : 'pending'}
+            />
+          </div>
+        </>
+      ),
+      key: `expert-${expert.name}`,
+      render: (_, row) => row.totals[idx]?.total ?? '-'
+    })),
+    {
+      title: '平均分',
+      dataIndex: 'average',
+      render: (average) => (average == null ? '-' : average)
+    },
+    { title: '排名', dataIndex: 'rank' }
   ]
 
   const tabItems = [
@@ -105,34 +212,21 @@ export default function SupervisorHall() {
       label: '开标监督',
       children: (
         <>
-          <Steps
-            current={4}
-            items={[
-              { title: '签到' },
-              { title: '启动' },
-              { title: '解密' },
-              { title: '唱标' },
-              { title: '结束' }
-            ]}
-          />
           <h3>签到情况</h3>
-          <Table
-            columns={attendeeColumns}
-            dataSource={openingAttendees}
-            rowKey={(row) => `${row.role}-${row.name}`}
-            bordered
-            pagination={false}
-            style={{ width: '100%' }}
-          />
+          <Empty description="该项目暂无开标签到记录" />
           <h3>唱标结果</h3>
-          <Table
-            columns={bidColumns}
-            dataSource={openingBids}
-            rowKey="name"
-            bordered
-            pagination={false}
-            style={{ width: '100%' }}
-          />
+          {bids.length > 0 ? (
+            <Table
+              columns={bidColumns}
+              dataSource={bids}
+              rowKey="name"
+              bordered
+              pagination={false}
+              style={{ width: '100%' }}
+            />
+          ) : (
+            <Empty description="该项目暂无唱标报价记录" />
+          )}
         </>
       )
     },
@@ -142,27 +236,44 @@ export default function SupervisorHall() {
       children: (
         <>
           <h3>评标委员会</h3>
-          <Table
-            columns={expertColumns}
-            dataSource={evaluationExperts}
-            rowKey="name"
-            bordered
-            pagination={false}
-            style={{ width: '100%' }}
-          />
+          {committeeExperts.length > 0 ? (
+            <Table
+              columns={expertColumns}
+              dataSource={committeeExperts}
+              rowKey="name"
+              bordered
+              pagination={false}
+              style={{ width: '100%' }}
+            />
+          ) : (
+            <Empty description="该项目暂未抽取评标专家" />
+          )}
           <h3>评分汇总</h3>
-          <Table
-            columns={scoreColumns}
-            dataSource={evaluationScores}
-            rowKey="name"
-            bordered
-            pagination={false}
-            style={{ width: '100%' }}
-          />
+          {scoreSummary.rows.length > 0 ? (
+            <Table
+              columns={scoreColumns}
+              dataSource={scoreSummary.rows}
+              rowKey="bidder"
+              bordered
+              pagination={false}
+              style={{ width: '100%' }}
+            />
+          ) : (
+            <Empty description="该项目暂无专家评分记录" />
+          )}
         </>
       )
     }
   ]
+
+  const headerTags = (
+    <div className="header-tags">
+      <Tag color="error" style={{ fontSize: 14, padding: '4px 12px' }}>监督模式：只读</Tag>
+      <Tag>监督人员：{userName}</Tag>
+      {projectId && <Tag color="blue">项目：{projectName}</Tag>}
+      {projectId && <Tag>编号：{projectCode}</Tag>}
+    </div>
+  )
 
   return (
     <div className="supervisor-hall">
@@ -170,10 +281,7 @@ export default function SupervisorHall() {
         title={
           <div className="card-header">
             <span>监督大厅</span>
-            <div className="header-tags">
-              <Tag color="error" style={{ fontSize: 14, padding: '4px 12px' }}>监督模式：只读</Tag>
-              <Tag>监督人员：王监督</Tag>
-            </div>
+            {headerTags}
           </div>
         }
       >
@@ -185,42 +293,61 @@ export default function SupervisorHall() {
           style={{ marginBottom: 20 }}
         />
 
-        <Tabs
-          type="card"
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          items={tabItems}
-        />
+        {!projectId && (
+          projects.length > 0 ? (
+            <Table
+              columns={sessionColumns}
+              dataSource={projects}
+              rowKey={(row) => String(row.id)}
+              bordered
+              pagination={false}
+              style={{ width: '100%' }}
+            />
+          ) : (
+            <Empty description="暂无项目，待招标人创建项目后可监督" />
+          )
+        )}
 
-        <Divider />
+        {projectId && (
+          <>
+            <Tabs
+              type="card"
+              activeKey={activeTab}
+              onChange={setActiveTab}
+              items={tabItems}
+            />
 
-        <div className="supervisor-actions">
-          <Card
-            className="action-card"
-            title={<span>监督专属操作</span>}
-          >
-            <Form layout="vertical">
-              <Form.Item label="异常/意见记录">
-                <Input.TextArea
-                  rows={3}
-                  placeholder="如发现异常情况，请在此记录监督意见"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                />
-              </Form.Item>
-            </Form>
-            <div className="action-btns">
-              <Button
-                style={{ color: '#fff', background: '#E6A23C', borderColor: '#E6A23C' }}
-                onClick={recordAbnormal}
+            <Divider />
+
+            <div className="supervisor-actions">
+              <Card
+                className="action-card"
+                title={<span>监督专属操作</span>}
               >
-                记录异常
-              </Button>
-              <Button type="primary" onClick={submitComment}>提交监督意见</Button>
-              <Button onClick={() => navigate({ to: '/admin/supervisor-logs' })}>查看完整操作日志</Button>
+                <Form layout="vertical">
+                  <Form.Item label="异常/意见记录">
+                    <Input.TextArea
+                      rows={3}
+                      placeholder="如发现异常情况，请在此记录监督意见"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                    />
+                  </Form.Item>
+                </Form>
+                <div className="action-btns">
+                  <Button
+                    style={{ color: '#fff', background: '#E6A23C', borderColor: '#E6A23C' }}
+                    onClick={recordAbnormal}
+                  >
+                    记录异常
+                  </Button>
+                  <Button type="primary" onClick={submitComment}>提交监督意见</Button>
+                  <Button onClick={() => navigate({ to: '/admin/supervisor-logs' })}>查看完整操作日志</Button>
+                </div>
+              </Card>
             </div>
-          </Card>
-        </div>
+          </>
+        )}
       </Card>
 
       <style>{`
