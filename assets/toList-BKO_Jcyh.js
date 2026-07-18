@@ -1,1 +1,0 @@
-import{D as e}from"./compact-item-BzoyQ67m.js";var toList=(t,n={})=>!e(t)&&n?.skipEmpty?[]:Array.isArray(t)?t:[t];export{toList as t};

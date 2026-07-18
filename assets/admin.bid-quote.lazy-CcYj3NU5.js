@@ -1,0 +1,24 @@
+import{Q as e,Y as t,c as n}from"./useStore-DliLxn3V.js";import{_n as r,t as i}from"./button-CFq-rqtk.js";import{i as a,n as o}from"./fileRoute-uDG0Xyjp.js";import{t as s}from"./InfoCircleFilled-BbgdLyEW.js";import{t as c}from"./alert-CGiQH5vG.js";import{t as l}from"./table-DkLjcNMp.js";import{t as u}from"./message-DYXrK1o7.js";import{t as d}from"./card-B51hGroe.js";import{n as f,t as p}from"./row-ErzqQw3c.js";import{t as m}from"./form-CTexRMCX.js";import{t as h}from"./input-NJCky5ev.js";import{t as g}from"./steps-C3fNpjyk.js";import{t as _}from"./tag-CC1OK38A.js";import{t as v}from"./useRole-eT9C_jtb.js";import{t as y}from"./projects-BxECS7vb.js";import{t as b}from"./ProjectEntryGuard-T7fGVYsP.js";import{t as x}from"./quoteStore-DVCOn8rZ.js";var S=e(t(),1),C=n(),w=[{name:`主设备 A 型`,spec:`详见技术参数`,quantity:10,unit:`台`,price:``},{name:`辅材 B 型`,spec:`详见技术参数`,quantity:50,unit:`套`,price:``}];function BidQuote(){let e=r(),t=a({strict:!1}).projectId,{userInfo:n}=v(),o=n?.nickname||n?.org||``,T=(0,S.useMemo)(()=>{let e=y.getProjectById(t);return e?.quoteFields?.length?e.quoteFields:[{key:`totalPrice`,label:`投标报价`,unit:`万元`,required:!0},{key:`delivery`,label:`交货期`,unit:``,required:!0},{key:`quality`,label:`质保期`,unit:``,required:!0},{key:`payment`,label:`付款方式`,unit:``,required:!0}]},[t]),E=(0,S.useMemo)(()=>x.getQuote(t,o),[t,o]),[D,O]=(0,S.useState)(()=>{let e={};return T.forEach(t=>{e[t.key]=E?.quote?.[t.key]||``}),e});(0,S.useEffect)(()=>{O(e=>{let t={};return T.forEach(n=>{t[n.key]=E?.quote?.[n.key]||e[n.key]||``}),t})},[T,E]);let[k,A]=(0,S.useState)(()=>E?.items||w);if((0,S.useEffect)(()=>{A(E?.items||w)},[E]),!t)return(0,C.jsx)(b,{backTo:`/admin/bidder-projects`,backLabel:`返回项目中心`});let isTenderMode=e=>[`open`,`invitation`].includes(e),j=y.getProjectById(t),M=j&&!isTenderMode(j.purchaseMode),N=j?.status===`待报价`||j?.status===`已开标`,P=M&&!N,updateQuote=(e,t)=>{P||O(n=>({...n,[e]:t}))},updatePrice=(e,t)=>{P||A(n=>n.map((n,r)=>r===e?{...n,price:t}:n))};return(0,C.jsxs)(`div`,{className:`bid-quote`,children:[(0,C.jsxs)(d,{title:(0,C.jsxs)(`div`,{className:`card-header`,children:[(0,C.jsx)(`span`,{children:`在线报价`}),(0,C.jsx)(_,{color:`error`,children:`距投标截止：2 天 5 小时`})]}),children:[(0,C.jsx)(g,{size:`small`,current:M?3:2,style:{marginBottom:24},items:(M?[`下载文件`,`编制标书`,`上传并加密`,`开标`,`填写报价`]:[`下载文件`,`编制标书`,`填写报价`,`上传并加密`]).map(e=>({title:e}))}),P?(0,C.jsx)(c,{title:`询比价项目的报价将在开标后启动，当前项目尚未开标，暂不可报价。请在项目中心等待开标完成后进入。`,type:`info`,showIcon:!0,closable:!1,style:{marginBottom:20}}):(0,C.jsx)(c,{title:M?`当前为询比价项目，已开标，请填写最终报价，提交后进入唱标。`:`请按招标文件要求填写开标一览表和分项报价，提交后投标截止前可修改。`,type:`warning`,showIcon:!0,closable:!1,style:{marginBottom:20}}),(0,C.jsx)(`h3`,{children:`开标一览表`}),(0,C.jsx)(m,{labelCol:{flex:`0 0 140px`},wrapperCol:{flex:`auto`},className:`quote-form`,children:(0,C.jsx)(p,{gutter:20,children:T.map(e=>(0,C.jsx)(f,{span:12,children:(0,C.jsx)(m.Item,{label:e.unit?`${e.label}（${e.unit}）`:e.label,required:e.required,children:(0,C.jsx)(h,{value:D[e.key],disabled:P,onChange:t=>updateQuote(e.key,t.target.value),placeholder:`请输入${e.label}`})})},e.key))})}),(0,C.jsx)(`h3`,{children:`分项报价`}),(0,C.jsx)(l,{columns:[{title:`分项名称`,dataIndex:`name`,key:`name`},{title:`规格`,dataIndex:`spec`,key:`spec`},{title:`数量`,dataIndex:`quantity`,key:`quantity`,width:120},{title:`单位`,dataIndex:`unit`,key:`unit`,width:100},{title:`单价（元）`,key:`price`,width:180,render:(e,t,n)=>(0,C.jsx)(h,{value:t.price,onChange:e=>updatePrice(n,e.target.value),placeholder:`单价`})},{title:`小计（元）`,key:`subtotal`,width:150,render:(e,t)=>t.quantity*(Number(t.price)||0)}],dataSource:k,rowKey:`name`,pagination:!1,style:{width:`100%`,marginBottom:20}}),(0,C.jsx)(`div`,{className:`quote-tips`,children:(0,C.jsxs)(`p`,{children:[(0,C.jsx)(s,{}),` 报价将用于开标唱标，请确保与上传的报价文件一致。`]})}),(0,C.jsxs)(`div`,{className:`actions`,children:[(0,C.jsx)(i,{type:`primary`,size:`large`,disabled:P,onClick:()=>{if(P){u.warning(`询比价项目报价将在开标后启动，当前不可报价`);return}x.saveQuote(t,o,{quote:D,items:k}),u.success(M?`报价已保存`:`报价已保存，请继续上传投标文件`)},children:`保存报价`}),M?(0,C.jsx)(i,{size:`large`,onClick:()=>e({to:`/admin/bidder-projects`}),children:`返回项目中心`}):(0,C.jsx)(i,{size:`large`,onClick:()=>e({to:`/admin/bid-upload`,search:{projectId:t}}),children:`下一步：上传投标文件`})]})]}),(0,C.jsx)(`style`,{children:`
+        .bid-quote {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .bid-quote .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-weight: bold;
+        }
+        .bid-quote .quote-form {
+          margin: 20px 0;
+        }
+        .bid-quote .quote-tips {
+          color: #E6A23C;
+          margin-bottom: 20px;
+        }
+        .bid-quote .actions {
+          display: flex;
+          justify-content: center;
+          gap: 16px;
+        }
+      `})]})}var T=o(`/admin/bid-quote`)({component:BidQuote});export{T as Route};

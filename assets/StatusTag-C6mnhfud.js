@@ -1,1 +1,0 @@
-import{c as e}from"./useStore-DliLxn3V.js";import{r as t,s as n}from"./index-iA2mwhGe.js";var r=e(),i={info:`default`,warning:`warning`,primary:`processing`,success:`success`,danger:`error`};function StatusTag({status:e=``,label:a=``,size:o=`default`}){let s=t[String(e||a||``)]||`info`;return(0,r.jsx)(n,{color:i[s]||`default`,children:a||e})}export{StatusTag as t};

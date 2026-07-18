@@ -1,0 +1,11 @@
+import{Q as e,Y as t,c as n}from"./useStore-DliLxn3V.js";import{_n as r,t as i}from"./button-CFq-rqtk.js";import{n as a}from"./fileRoute-uDG0Xyjp.js";import{t as o}from"./table-DkLjcNMp.js";import{t as s}from"./message-DYXrK1o7.js";import{t as c}from"./card-B51hGroe.js";import{t as l}from"./tag-CC1OK38A.js";import{t as u}from"./DownloadOutlined-CKSoSKDw.js";import{t as d}from"./HomeOutlined--ZGAc4yE.js";import{n as f}from"./portalStore-BoTkaPUS.js";import{t as p}from"./PortalHeader-CQnXCtSZ.js";var m=e(t(),1),h=n(),g={驱动工具:`blue`,投标工具:`green`,操作手册:`orange`};function Downloads(){let e=r(),t=(0,m.useMemo)(()=>f.getDownloads(),[]),handleDownload=e=>{let t=new Blob([e.content||``],{type:`text/plain;charset=utf-8`}),n=URL.createObjectURL(t),r=document.createElement(`a`);r.href=n,r.download=`${e.name}.txt`,document.body.appendChild(r),r.click(),document.body.removeChild(r),URL.revokeObjectURL(n),s.success(`已开始下载：${e.name}`)};return(0,h.jsxs)(`div`,{className:`public-page`,children:[(0,h.jsx)(p,{activeKey:`downloads`}),(0,h.jsx)(`div`,{className:`public-page-content`,children:(0,h.jsx)(c,{title:(0,h.jsx)(`span`,{style:{fontSize:18,fontWeight:`bold`},children:`下载中心`}),extra:(0,h.jsx)(i,{type:`link`,icon:(0,h.jsx)(d,{}),onClick:()=>e({to:`/`}),children:`返回首页`}),children:(0,h.jsx)(o,{rowKey:`id`,dataSource:t,columns:[{title:`文件名称`,dataIndex:`name`,key:`name`},{title:`版本`,dataIndex:`version`,key:`version`,width:120},{title:`更新时间`,dataIndex:`updateTime`,key:`updateTime`,width:140},{title:`说明`,dataIndex:`desc`,key:`desc`},{title:`分类`,dataIndex:`category`,key:`category`,width:120,render:e=>(0,h.jsx)(l,{color:g[e]||`default`,children:e})},{title:`操作`,key:`action`,width:120,render:(e,t)=>(0,h.jsx)(i,{type:`primary`,icon:(0,h.jsx)(u,{}),size:`small`,onClick:()=>handleDownload(t),children:`下载`})}],pagination:!1})})}),(0,h.jsx)(`style`,{children:`
+        .public-page {
+          min-height: 100vh;
+          background-color: #f5f7fa;
+        }
+        .public-page-content {
+          max-width: 1200px;
+          margin: 40px auto;
+          padding: 0 20px;
+        }
+      `})]})}var _=a(`/downloads`)({component:Downloads});export{_ as Route};
