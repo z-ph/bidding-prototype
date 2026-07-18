@@ -4,6 +4,8 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0718 交互重构（门户过渡入口移除）
+  { id: '0718-ux-011', source: '0718交互重构', module: '通用（台账入口）', page: 'PortalHeader', severity: '中', issue: '门户头部「评审变更」按钮是开发阶段过渡入口，耦合在业务门面中；全局悬浮按钮已成为台账统一入口后该按钮冗余', status: '已修复', fix: '删除 PortalHeader.jsx 的「评审变更」按钮（navItemClass 通用函数不动）；/review-change-list 公开路由保留（重定向到 /dev-ledger?tab=review，兼容评审报告旧链接）；台账统一入口为全局悬浮按钮', commit: 'fix(p7-cleanup)' },
   // 0718 交互重构（台账合并页公开化修正）
   { id: '0718-ux-010', source: '0718交互重构', module: '通用（台账入口）', page: 'DevLedger / DevLedgerFab / 路由', severity: '高', issue: '台账合并页误放在 /admin 布局下：/admin 布局 beforeLoad 对未登录用户一律 redirect 到 Forbidden，导致未登录点击悬浮按钮显示「无权限」，与「全局可见、点击打开」语义矛盾（feat(p7) 验收测试盲区：只测了登录后点击，未测未登录点击）', status: '已修复', fix: '合并页改为公开路由 /dev-ledger（不经 /admin 布局、无权限拦截），页面加标题+返回头部；DevLedgerFab 点击与四个旧路由（/admin/dev-ledger、/admin/review-change-list、/admin/changelog、/review-change-list）重定向目标统一改到 /dev-ledger；permissions.js 删除 /admin/dev-ledger 权限项；实测脚本补齐未登录点击场景', commit: 'fix(p7-public)' },
   // 0718 交互重构（台账入口合并）

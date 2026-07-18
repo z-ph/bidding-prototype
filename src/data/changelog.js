@@ -11,6 +11,14 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.9.2',
+    date: '2026-07-18',
+    title: '移除门户头部「评审变更」过渡入口',
+    changes: [
+      { type: 'remove', text: '门户头部「评审变更」按钮移除：开发过渡入口不耦合进业务门面，台账统一走全局悬浮按钮；/review-change-list 公开路由保留（重定向到合并页，兼容旧链接）' }
+    ]
+  },
+  {
     version: '0.9.1',
     date: '2026-07-18',
     title: '评审台账合并页改公开路由（修复未登录 Forbidden）',

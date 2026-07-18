@@ -1,0 +1,29 @@
+{
+  "proposal": "fix-remove-portal-review-entry-20260718",
+  "tasks": [
+    {
+      "id": "remove-portal-review-button",
+      "title": "删除门户头部「评审变更」按钮",
+      "description": "删除 PortalHeader.jsx:92 按钮（navItemClass 通用函数不动）；/review-change-list 公开路由保留重定向兼容旧链接。",
+      "files": ["src/components/PortalHeader.jsx"],
+      "acceptance": ["门户页面无「评审变更」按钮", "悬浮按钮可见且未登录点击正常进入 /dev-ledger"],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "AGENTS.md 与 matrix 第七节入口表述更新；ReviewChangeList 登记 0718-ux-011；changelog 0.9.2；package.json 0.9.1 → 0.9.2。",
+      "files": ["AGENTS.md", "docs/role-permission-matrix.md", "src/views/ReviewChangeList.jsx", "src/data/changelog.js", "package.json"],
+      "acceptance": ["五处登记齐备"],
+      "status": "已完成"
+    },
+    {
+      "id": "verify",
+      "title": "构建与回归验证",
+      "description": "pnpm run build；门户实测（按钮移除/Fab 可见/未登录点击）；verify-dev-ledger.mjs 19/19。",
+      "files": [],
+      "acceptance": ["build 通过", "门户实测全 PASS", "19/19 通过"],
+      "status": "已完成"
+    }
+  ]
+}

@@ -89,7 +89,6 @@ export default function PortalHeader({ activeKey }) {
         </div>
         <div className="nav">
           <Button type="link" className={navItemClass('home')} onClick={goHome}>首页</Button>
-          <Button type="link" className={navItemClass('review')} onClick={() => navigate({ to: '/review-change-list' })}>评审变更</Button>
           <Button type="link" className={navItemClass('news')} onClick={() => navigate({ to: '/news' })}>新闻公告</Button>
           <Button type="link" className={navItemClass('help')} onClick={() => navigate({ to: '/help' })}>帮助中心</Button>
           <Button type="link" className={navItemClass('downloads')} onClick={() => navigate({ to: '/downloads' })}>下载中心</Button>
