@@ -23,7 +23,7 @@ const WORKSPACE_MAP = {
   bidder: '/admin/dashboard',
   expert: '/admin/dashboard',
   supervisor: '/admin/supervisor-hall',
-  admin: '/admin/admin-dashboard'
+  admin: '/admin/dashboard'
 }
 
 function getStored(key, fallback = null) {

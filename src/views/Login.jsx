@@ -71,7 +71,7 @@ export default function Login() {
     bidder: '/admin/dashboard',
     expert: '/admin/dashboard',
     supervisor: '/admin/supervisor-hall',
-    admin: '/admin/admin-dashboard'
+    admin: '/admin/dashboard'
   }
 
   const doLogin = (roleValue, accountValue, loginType = '账号') => {

@@ -423,9 +423,7 @@ const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
   id: '/admin-dashboard',
   path: '/admin-dashboard',
   getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.admin-dashboard.lazy').then((d) => d.Route),
-)
+} as any)
 const AdminProjectsIndexRoute = AdminProjectsIndexRouteImport.update({
   id: '/',
   path: '/',

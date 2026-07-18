@@ -8,7 +8,7 @@ const HOME_MAP = {
   bidder: '/admin/dashboard',
   expert: '/admin/dashboard',
   supervisor: '/admin/supervisor-hall',
-  admin: '/admin/admin-dashboard'
+  admin: '/admin/dashboard'
 }
 
 const ROLE_PERMISSION_HINT = {

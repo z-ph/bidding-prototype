@@ -40,9 +40,9 @@ export const PAGE_PERMISSIONS = {
   '/admin/notice-list': ['tenderee', 'agent'],
   '/admin/supplier-authorization': ['tenderee', 'agent'],
   '/admin/approval-center': ['tenderee', 'agent'],
-  '/admin/approval-flow-config': ['tenderee'],
-  '/admin/procurement-requirements': ['tenderee', 'admin'],
-  '/admin/procurement-requirements/edit': ['tenderee', 'admin'],
+  '/admin/approval-flow-config': ['tenderee', 'admin'],
+  '/admin/procurement-requirements': ['tenderee'],
+  '/admin/procurement-requirements/edit': ['tenderee'],
   '/admin/fee-manage': ['tenderee', 'agent'],
   '/admin/expert-extraction': ['tenderee', 'agent', 'admin'],
   '/admin/award-confirm': ['tenderee', 'agent'],
@@ -73,7 +73,6 @@ export const PAGE_PERMISSIONS = {
   '/admin/changelog': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
 
   // 管理员页面
-  '/admin/admin-dashboard': ['admin'],
   '/admin/admin-users': ['admin'],
   '/admin/admin-dictionary': ['admin'],
   '/admin/admin-supplier-audit': ['admin'],

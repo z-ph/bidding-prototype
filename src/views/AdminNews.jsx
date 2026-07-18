@@ -157,7 +157,7 @@ export default function AdminNews() {
       <Card
         title={
           <div className="admin-news-header">
-            <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate({ to: '/admin/admin-dashboard' })}>
+            <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate({ to: '/admin/dashboard' })}>
               返回
             </Button>
             <span>新闻公告维护</span>

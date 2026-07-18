@@ -78,7 +78,7 @@ export default function AdminDashboard() {
               items={todos.map((todo) => ({
                 key: todo.id,
                 color: timelineTypeMap[todo.type],
-                children: (
+                content: (
                   <>
                     <div className="todo-item">
                       <span>{todo.content}</span>
