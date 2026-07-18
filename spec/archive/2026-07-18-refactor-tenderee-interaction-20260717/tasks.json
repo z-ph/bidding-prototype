@@ -11,7 +11,7 @@
         "主导航中不再出现费用管理、异议管理、合同归档、招标文件、发布公告、确认中标人、中标通知书",
         "项目管理工作项下保留项目列表、创建项目、项目跟踪"
       ],
-      "status": "进行中"
+      "status": "已完成"
     },
     {
       "id": "project-detail-cockpit",
@@ -24,7 +24,7 @@
         "点击入口正确跳转到对应阶段页面并携带 projectId",
         "邀请询比价项目按现有口径跳过开标/评标，直达定标"
       ],
-      "status": "进行中"
+      "status": "已完成"
     },
     {
       "id": "project-list-actions",
@@ -36,7 +36,7 @@
         "详情按钮进入项目驾驶舱",
         "下一步按钮与项目状态正确联动"
       ],
-      "status": "进行中"
+      "status": "已完成"
     },
     {
       "id": "project-track-role-filter",
@@ -48,7 +48,7 @@
         "当前状态与下一步提示符合招标方职责",
         "投标人视角保持原有操作入口"
       ],
-      "status": "进行中"
+      "status": "已完成"
     },
     {
       "id": "stage-page-entry-guard",
@@ -67,7 +67,7 @@
         "携带 projectId 时页面正常展示",
         "阻断提示提供返回项目列表按钮"
       ],
-      "status": "进行中"
+      "status": "已完成"
     },
     {
       "id": "build-verify",
@@ -79,7 +79,7 @@
         "routeTree.gen.ts 无冲突",
         "Playwright 复核招标人菜单精简、驾驶舱操作入口、无 projectId 阻断均符合预期"
       ],
-      "status": "进行中"
+      "status": "已完成"
     }
   ]
 }
