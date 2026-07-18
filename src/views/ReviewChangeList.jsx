@@ -4,6 +4,8 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0718 交互重构（台账入口合并）
+  { id: '0718-ux-009', source: '0718交互重构', module: '通用（台账入口）', page: 'DevLedgerFab / DevLedger / __root / 路由', severity: '中', issue: '评审变更列表与变更时间线移出业务菜单后无便捷入口（只能手动输 URL），且两个台账分散在两个页面需分别打开', status: '已修复', fix: '新增 DevLedgerFab 全局可拖拽悬浮按钮（右下初始位避让 react-page-review 按钮，pointer events 拖拽，位移 ≤5px 判定点击，位置 localStorage 持久化，挂载于 __root 全局可见）；新增 /admin/dev-ledger Tab 合并页（评审变更列表/变更时间线，?tab= 深链，两组件接 embedded prop 隐藏重复页头）；旧后台路由 /admin/review-change-list、/admin/changelog 重定向到合并页对应 tab，删除 lazy 死文件；permissions 增加 /admin/dev-ledger 全角色；任何角色菜单不新增入口', commit: 'feat(p7)' },
   // 0718 交互重构（台账导航纠偏）
   { id: '0718-ux-008', source: '0718交互重构', module: '通用（导航归属）', page: 'Layout common 组 / permissions.js / AGENTS.md', severity: '高', issue: '评审变更列表与变更时间线是开发阶段的台账产物（供开发/评审追溯，非业务功能），却错误地放进 common 菜单组，五个业务角色主导航各多出 2 项开发入口（把「能访问的页面」与「应出现在主导航的入口」混为一谈）；AGENTS.md 本身还错误记载「变更时间线全角色菜单可见」的规则', status: '已修复', fix: 'Layout.jsx common 组移除评审变更列表/变更时间线两项（业务角色顶层项：招标人 8、代理 7、投标人 5、专家 5、监督 6），清理无引用图标；路由与权限保留（URL 直达供开发/评审使用），门户头部既有「评审变更」公开入口不变；permissions.js 注释更正；AGENTS.md 错误规则修正为「开发阶段台账，不进业务主导航，URL 直达」；role-permission-matrix.md 新增第七节说明导航归属', commit: 'fix(p6)' },
   // 0718 交互重构（工作流驱动，第六期：监督人员）
@@ -189,7 +191,7 @@ const severityColor = {
   '待确认': 'purple'
 }
 
-export default function ReviewChangeList() {
+export default function ReviewChangeList({ embedded = false }) {
   const [keyword, setKeyword] = useState('')
   const [statusFilter, setStatusFilter] = useState(null)
   const [sourceFilter, setSourceFilter] = useState(null)
@@ -247,7 +249,7 @@ export default function ReviewChangeList() {
   return (
     <div className="review-change-list">
       <Card
-        title={<Title level={4} style={{ margin: 0 }}>评审变更列表</Title>}
+        title={embedded ? null : <Title level={4} style={{ margin: 0 }}>评审变更列表</Title>}
       >
         <Alert
           title="本页面汇总 2026-07-13 至 2026-07-16 期间多轮页面评审与测试反馈的处理状态；状态列经逐条代码复核。；2026-07-17 按实施验证结果更新（验证报告 docs/verification-20260717-report.md）"

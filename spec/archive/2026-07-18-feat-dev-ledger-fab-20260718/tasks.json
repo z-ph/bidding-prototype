@@ -1,0 +1,84 @@
+{
+  "proposal": "feat-dev-ledger-fab-20260718",
+  "tasks": [
+    {
+      "id": "dev-ledger-page",
+      "title": "Tab 合并页与路由接线",
+      "description": "新建 src/views/DevLedger.jsx（Tabs：评审变更列表=<ReviewChangeList embedded />，变更时间线=<Changelog embedded />；activeKey 由 URL search tab 驱动，默认 review，切换 replace 更新 search）；ReviewChangeList.jsx 与 Changelog.jsx 新增 embedded prop（true 时隐藏页头 Title，默认 false 行为不变）；新建 src/routes/admin.dev-ledger.jsx（staticData.title 评审台账）+ admin.dev-ledger.lazy.jsx（按 AGENTS.md 路由约定）；permissions.js 增加 /admin/dev-ledger 全角色。",
+      "files": [
+        "src/views/DevLedger.jsx",
+        "src/views/ReviewChangeList.jsx",
+        "src/views/Changelog.jsx",
+        "src/routes/admin.dev-ledger.jsx",
+        "src/routes/admin.dev-ledger.lazy.jsx",
+        "src/config/permissions.js"
+      ],
+      "acceptance": [
+        "/admin/dev-ledger 渲染 Tabs 且默认显示评审变更列表",
+        "?tab=changelog 深链直接显示变更时间线",
+        "embedded 模式下两个组件无重复页头标题",
+        "原页面组件默认渲染（非 embedded）行为不变"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "legacy-route-redirect",
+      "title": "旧后台台账路由重定向",
+      "description": "admin.review-change-list.jsx 改为 beforeLoad redirect 到 /admin/dev-ledger?tab=review；admin.changelog.jsx 改为 redirect 到 /admin/dev-ledger?tab=changelog（参照 admin.admin-dashboard.jsx 模式，redirect 带 search）；删除 admin.review-change-list.lazy.jsx 与 admin.changelog.lazy.jsx；routeTree.gen.ts 由 build 自动重新生成，禁止手改。",
+      "files": [
+        "src/routes/admin.review-change-list.jsx",
+        "src/routes/admin.changelog.jsx",
+        "src/routes/admin.review-change-list.lazy.jsx",
+        "src/routes/admin.changelog.lazy.jsx"
+      ],
+      "acceptance": [
+        "访问旧两 URL 分别落到 /admin/dev-ledger?tab=review 与 ?tab=changelog",
+        "routeTree.gen.ts 无两 lazy import 残留",
+        "公开路由 /review-change-list 不受影响"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "dev-ledger-fab",
+      "title": "可拖拽全局悬浮按钮",
+      "description": "新建 src/components/DevLedgerFab.jsx：圆形 56px 图标按钮（antd 蓝底白图标 ProfileOutlined，box-shadow，title「评审台账（可拖拽）」），fixed 定位初始 right:24/bottom:96；pointer events 拖拽（setPointerCapture），位移 ≤5px 判定点击 navigate('/admin/dev-ledger')；位置存 localStorage bidding-dev-ledger-fab-pos 刷新保持；限制视口内（≥8px 边距）；z-index 900。挂载到 src/routes/__root.jsx 根组件 Outlet 旁。",
+      "files": [
+        "src/components/DevLedgerFab.jsx",
+        "src/routes/__root.jsx"
+      ],
+      "acceptance": [
+        "门户/登录/后台所有页面均可见悬浮按钮",
+        "可拖拽移动且位置刷新后保持",
+        "点击（非拖拽）跳转 /admin/dev-ledger",
+        "不遮挡 react-page-review 右下按钮（初始位置避让）"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "AGENTS.md 台账一节更新入口说明（悬浮按钮+Tab 合并页+深链，重申不进业务菜单）；role-permission-matrix.md 第七节同步；ReviewChangeList 最前登记 0718-ux-009（commit 填 feat(p7)）；changelog.js 顶部新增 0.9.0；package.json 0.8.0 → 0.9.0。",
+      "files": [
+        "AGENTS.md",
+        "docs/role-permission-matrix.md",
+        "src/views/ReviewChangeList.jsx",
+        "src/data/changelog.js",
+        "package.json"
+      ],
+      "acceptance": [
+        "五处登记齐备且内容一致"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "build-verify",
+      "title": "构建验证",
+      "description": "pnpm run build 通过，routeTree.gen.ts 自动包含 admin.dev-ledger。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 无错误"
+      ],
+      "status": "已完成"
+    }
+  ]
+}

@@ -11,6 +11,16 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.9.0',
+    date: '2026-07-18',
+    title: '评审台账悬浮入口与 Tab 合并页',
+    changes: [
+      { type: 'feat', text: '新增 DevLedgerFab 全局可拖拽悬浮按钮：右下初始位（避让 react-page-review 按钮），pointer events 拖拽，位移 ≤5px 判定点击，位置 localStorage 持久化，所有页面可见' },
+      { type: 'feat', text: '新增 /admin/dev-ledger 评审台账 Tab 合并页：评审变更列表/变更时间线两 Tab，?tab= 深链；两组件接 embedded prop 隐藏重复页头；旧后台路由重定向到合并页对应 tab' },
+      { type: 'docs', text: 'AGENTS.md 与权限矩阵更新台账入口说明（悬浮按钮 + 合并页，不进业务主导航）' }
+    ]
+  },
+  {
     version: '0.8.0',
     date: '2026-07-18',
     title: '开发台账移出业务主导航',

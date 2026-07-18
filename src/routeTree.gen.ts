@@ -46,6 +46,7 @@ import { Route as AdminExpertProjectRouteImport } from './routes/admin.expert-pr
 import { Route as AdminExpertProfileRouteImport } from './routes/admin.expert-profile'
 import { Route as AdminExpertExtractionRouteImport } from './routes/admin.expert-extraction'
 import { Route as AdminEvaluationHallRouteImport } from './routes/admin.evaluation-hall'
+import { Route as AdminDevLedgerRouteImport } from './routes/admin.dev-ledger'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminChangelogRouteImport } from './routes/admin.changelog'
 import { Route as AdminBidderProjectsRouteImport } from './routes/admin.bidder-projects'
@@ -202,9 +203,7 @@ const AdminReviewChangeListRoute = AdminReviewChangeListRouteImport.update({
   id: '/review-change-list',
   path: '/review-change-list',
   getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.review-change-list.lazy').then((d) => d.Route),
-)
+} as any)
 const AdminProjectsRoute = AdminProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
@@ -307,6 +306,13 @@ const AdminEvaluationHallRoute = AdminEvaluationHallRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.evaluation-hall.lazy').then((d) => d.Route),
 )
+const AdminDevLedgerRoute = AdminDevLedgerRouteImport.update({
+  id: '/dev-ledger',
+  path: '/dev-ledger',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.dev-ledger.lazy').then((d) => d.Route),
+)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -318,9 +324,7 @@ const AdminChangelogRoute = AdminChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
   getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.changelog.lazy').then((d) => d.Route),
-)
+} as any)
 const AdminBidderProjectsRoute = AdminBidderProjectsRouteImport.update({
   id: '/bidder-projects',
   path: '/bidder-projects',
@@ -500,6 +504,7 @@ export interface FileRoutesByFullPath {
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
   '/admin/changelog': typeof AdminChangelogRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dev-ledger': typeof AdminDevLedgerRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
   '/admin/expert-extraction': typeof AdminExpertExtractionRoute
   '/admin/expert-profile': typeof AdminExpertProfileRoute
@@ -561,6 +566,7 @@ export interface FileRoutesByTo {
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
   '/admin/changelog': typeof AdminChangelogRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dev-ledger': typeof AdminDevLedgerRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
   '/admin/expert-extraction': typeof AdminExpertExtractionRoute
   '/admin/expert-profile': typeof AdminExpertProfileRoute
@@ -622,6 +628,7 @@ export interface FileRoutesById {
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
   '/admin/changelog': typeof AdminChangelogRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/dev-ledger': typeof AdminDevLedgerRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
   '/admin/expert-extraction': typeof AdminExpertExtractionRoute
   '/admin/expert-profile': typeof AdminExpertProfileRoute
@@ -686,6 +693,7 @@ export interface FileRouteTypes {
     | '/admin/bidder-projects'
     | '/admin/changelog'
     | '/admin/dashboard'
+    | '/admin/dev-ledger'
     | '/admin/evaluation-hall'
     | '/admin/expert-extraction'
     | '/admin/expert-profile'
@@ -747,6 +755,7 @@ export interface FileRouteTypes {
     | '/admin/bidder-projects'
     | '/admin/changelog'
     | '/admin/dashboard'
+    | '/admin/dev-ledger'
     | '/admin/evaluation-hall'
     | '/admin/expert-extraction'
     | '/admin/expert-profile'
@@ -807,6 +816,7 @@ export interface FileRouteTypes {
     | '/admin/bidder-projects'
     | '/admin/changelog'
     | '/admin/dashboard'
+    | '/admin/dev-ledger'
     | '/admin/evaluation-hall'
     | '/admin/expert-extraction'
     | '/admin/expert-profile'
@@ -1117,6 +1127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEvaluationHallRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/dev-ledger': {
+      id: '/admin/dev-ledger'
+      path: '/dev-ledger'
+      fullPath: '/admin/dev-ledger'
+      preLoaderRoute: typeof AdminDevLedgerRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/dashboard'
@@ -1335,6 +1352,7 @@ interface AdminRouteChildren {
   AdminBidderProjectsRoute: typeof AdminBidderProjectsRoute
   AdminChangelogRoute: typeof AdminChangelogRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminDevLedgerRoute: typeof AdminDevLedgerRoute
   AdminEvaluationHallRoute: typeof AdminEvaluationHallRoute
   AdminExpertExtractionRoute: typeof AdminExpertExtractionRoute
   AdminExpertProfileRoute: typeof AdminExpertProfileRoute
@@ -1382,6 +1400,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBidderProjectsRoute: AdminBidderProjectsRoute,
   AdminChangelogRoute: AdminChangelogRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminDevLedgerRoute: AdminDevLedgerRoute,
   AdminEvaluationHallRoute: AdminEvaluationHallRoute,
   AdminExpertExtractionRoute: AdminExpertExtractionRoute,
   AdminExpertProfileRoute: AdminExpertProfileRoute,
