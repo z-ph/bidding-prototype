@@ -304,7 +304,7 @@ export default function ProcurementRequirementList() {
 
       <Drawer
         title={editing ? '编辑采购需求' : '新建采购需求'}
-        width={560}
+        size={560}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         footer={

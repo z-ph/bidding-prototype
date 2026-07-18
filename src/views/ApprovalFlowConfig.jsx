@@ -251,7 +251,7 @@ export default function ApprovalFlowConfig() {
 
       <Drawer
         title={editing ? '编辑审批流' : '新建审批流'}
-        width={520}
+        size={520}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         footer={

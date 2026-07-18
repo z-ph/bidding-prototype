@@ -395,7 +395,7 @@ export default function ApprovalCenter() {
 
       <Drawer
         title="审批单详情（归档记录）"
-        width={640}
+        size={640}
         open={!!detail}
         onClose={() => setDetail(null)}
         footer={detail && canAct(detail) ? <Space wrap>{actionButtons(detail, 'middle')}</Space> : null}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import { Navigate, useNavigate, useSearch } from '@tanstack/react-router'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {
@@ -30,13 +30,13 @@ import { evaluationStore, isEvalExpired, formatDeadline } from '../data/evaluati
 import { projectStore } from '../data/projects.js'
 import { useRole } from '../hooks/useRole.js'
 
-const evaluationProjects = [
-  { id: '1', name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', stage: '评标中', deadline: '2026-07-22 17:00' },
-  { id: '2', name: '办公桌椅采购项目', code: 'ZB20260702002', stage: '待评标', deadline: '2026-07-24 14:00' },
-  { id: '3', name: '软件开发服务项目', code: 'ZB20260703003', stage: '评标中', deadline: '2026-07-25 09:00' }
-]
-
-const PROJECT_INFO = Object.fromEntries(evaluationProjects.map((p) => [p.id, p]))
+// 项目名/编号兜底映射：EvaluationDetail 头部与签到/报告展示依赖（原 evaluationProjects
+// mock 列表已随无参态 ProjectTaskList 一并删除，0718-ux-006）
+const PROJECT_INFO = {
+  '1': { id: '1', name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001' },
+  '2': { id: '2', name: '办公桌椅采购项目', code: 'ZB20260702002' },
+  '3': { id: '3', name: '软件开发服务项目', code: 'ZB20260703003' }
+}
 
 // 演示投标人名单（开标结果 mock）
 const BIDDERS = ['A科技有限公司', 'B实业有限公司', 'C股份有限公司']
@@ -47,89 +47,13 @@ export default function ExpertProject() {
   const projectId = searchParams.projectId
   const { userName } = useRole()
 
+  // 统一入口：无 projectId 空载进入时重定向到真实任务列表「我的评标任务」，
+  // 评分详情只能从任务列表携带 projectId 进入（0718-ux-006）
   if (!projectId) {
-    return <ProjectTaskList userName={userName} onEnter={(id) => navigate({ to: '/admin/expert-project', search: { projectId: id } })} />
+    return <Navigate to="/admin/expert-tasks" replace />
   }
 
-  return <EvaluationDetail projectId={String(projectId)} userName={userName} onBack={() => navigate({ to: '/admin/expert-project' })} />
-}
-
-function ProjectTaskList({ userName, onEnter }) {
-  // 截止时间与组长从 evaluationStore 读取（无订阅机制，进入页面时重读）
-  const rows = evaluationProjects.map((p) => {
-    const evalData = evaluationStore.getEval(p.id)
-    const deadline = evalData.deadline || p.deadline
-    return {
-      ...p,
-      deadlineText: formatDeadline(deadline),
-      expired: isEvalExpired(deadline),
-      leader: evalData.leader || null,
-      hasReport: !!evalData.report
-    }
-  })
-
-  const columns = [
-    { title: '项目名称', dataIndex: 'name', minWidth: 240 },
-    { title: '项目编号', dataIndex: 'code', width: 150 },
-    {
-      title: '当前阶段',
-      key: 'stage',
-      width: 120,
-      render: (_, row) => <StatusTag label={row.hasReport ? '评标完成' : row.stage} status={row.hasReport ? 'completed' : row.stage} />
-    },
-    {
-      title: '评标截止',
-      dataIndex: 'deadlineText',
-      width: 190,
-      render: (text, row) => (
-        <span style={row.expired ? { color: '#999' } : undefined}>
-          {text}
-          {row.expired && <Tag style={{ marginLeft: 6 }}>已过期</Tag>}
-        </span>
-      )
-    },
-    {
-      title: '组长',
-      dataIndex: 'leader',
-      width: 130,
-      render: (leader) =>
-        leader ? (
-          <span>{leader}{leader === userName && <Tag color="gold" style={{ marginLeft: 4 }}>本人</Tag>}</span>
-        ) : (
-          <Tag>未推选</Tag>
-        )
-    },
-    {
-      title: '操作',
-      width: 130,
-      render: (_, row) => (
-        <Button type="primary" size="small" onClick={() => onEnter(row.id)}>
-          进入评标
-        </Button>
-      )
-    }
-  ]
-
-  return (
-    <div className="expert-project-list">
-      <Card title="评标任务列表">
-        <Alert
-          title="评标采用限时提交制：专家可在评标截止时间前随时进入并提交评分，无需全程在线（流程性质按评审条目 1415-003 口径落地，待产品最终确认）。"
-          type="info"
-          showIcon
-          closable={false}
-          style={{ marginBottom: 16 }}
-        />
-        <Table rowKey="id" dataSource={rows} columns={columns} pagination={false} />
-      </Card>
-      <style>{`
-        .expert-project-list {
-          max-width: 1100px;
-          margin: 0 auto;
-        }
-      `}</style>
-    </div>
-  )
+  return <EvaluationDetail projectId={String(projectId)} userName={userName} onBack={() => navigate({ to: '/admin/expert-tasks' })} />
 }
 
 // 版本号递增：V1.0 -> V1.1
@@ -1127,7 +1051,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
       <Drawer
         title="资料查阅"
         placement="right"
-        width={640}
+        size={640}
         open={evidenceOpen}
         onClose={() => setEvidenceOpen(false)}
       >
