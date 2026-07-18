@@ -1,0 +1,85 @@
+{
+  "proposal": "refactor-tenderee-interaction-20260717",
+  "tasks": [
+    {
+      "id": "tenderee-menu-refactor",
+      "title": "招标人左侧菜单精简重构",
+      "description": "重构 src/components/Layout.jsx 中的 tendereeMenus：保留工作台、待办中心、项目管理（列表/创建/跟踪）、采购需求库、审批中心、采购数据分析、消息中心、系统设置（审批流配置）；移除招标文件、发布公告、公告列表、供应商授权、费用管理、异议管理、确认中标人、中标通知书、合同归档等阶段操作菜单。",
+      "files": ["src/components/Layout.jsx"],
+      "acceptance": [
+        "招标人主导航项不超过 7 项（含二级展开）",
+        "主导航中不再出现费用管理、异议管理、合同归档、招标文件、发布公告、确认中标人、中标通知书",
+        "项目管理工作项下保留项目列表、创建项目、项目跟踪"
+      ],
+      "status": "进行中"
+    },
+    {
+      "id": "project-detail-cockpit",
+      "title": "项目详情页升级为招标人驾驶舱",
+      "description": "改造 src/views/ProjectDetail.jsx：在现有项目信息、标段、审批记录、流程跟踪基础上，增加按项目状态动态渲染的"当前阶段操作卡片区"；提供编制招标文件、发布公告、进入开标大厅、进入评标大厅、确认中标人、发送中标通知书等入口，并统一携带 projectId。",
+      "files": ["src/views/ProjectDetail.jsx"],
+      "acceptance": [
+        "项目详情页顶部或中部出现"当前阶段操作"区域",
+        "draft/tendering/registering/pending_open/evaluating/评标完成/已确认中标人 等状态均有对应操作入口",
+        "点击入口正确跳转到对应阶段页面并携带 projectId",
+        "邀请询比价项目按现有口径跳过开标/评标，直达定标"
+      ],
+      "status": "进行中"
+    },
+    {
+      "id": "project-list-actions",
+      "title": "项目列表操作列对齐驾驶舱",
+      "description": "调整 src/views/ProjectList.jsx 的操作列：保留详情、编辑、发标、下一步；"详情"统一进入 ProjectDetail 驾驶舱；移除指向独立菜单的多余入口。",
+      "files": ["src/views/ProjectList.jsx"],
+      "acceptance": [
+        "操作列按钮不超过 4 个",
+        "详情按钮进入项目驾驶舱",
+        "下一步按钮与项目状态正确联动"
+      ],
+      "status": "进行中"
+    },
+    {
+      "id": "project-track-role-filter",
+      "title": "修复项目跟踪角色过滤",
+      "description": "修改 src/views/ProjectTrack.jsx：招标人/招标代理视角下，时间线节点与按钮只展示符合自身职责的操作；不再显示"去缴纳""去上传"等投标人动作按钮。",
+      "files": ["src/views/ProjectTrack.jsx"],
+      "acceptance": [
+        "招标人/代理查看 ProjectTrack 时不出现"去缴纳""去上传"按钮",
+        "当前状态与下一步提示符合招标方职责",
+        "投标人视角保持原有操作入口"
+      ],
+      "status": "进行中"
+    },
+    {
+      "id": "stage-page-entry-guard",
+      "title": "阶段页面强制项目上下文",
+      "description": "在 TenderDoc、NoticePublish、OpeningHall、EvaluationHall、AwardConfirm、AwardNotice 六个阶段页面增加 projectId 必填校验：无 projectId 时展示阻断提示并提供返回项目列表按钮，不展示空的项目选择器。",
+      "files": [
+        "src/views/TenderDoc.jsx",
+        "src/views/NoticePublish.jsx",
+        "src/views/OpeningHall.jsx",
+        "src/views/EvaluationHall.jsx",
+        "src/views/AwardConfirm.jsx",
+        "src/views/AwardNotice.jsx"
+      ],
+      "acceptance": [
+        "每个阶段页面无 projectId 时均阻断并提示"需从项目进入"",
+        "携带 projectId 时页面正常展示",
+        "阻断提示提供返回项目列表按钮"
+      ],
+      "status": "进行中"
+    },
+    {
+      "id": "build-verify",
+      "title": "构建验证与 Playwright 复核",
+      "description": "运行 pnpm run build 确保通过且 routeTree.gen.ts 自动生成；使用 Playwright 截图或 DOM 检查按验收标准逐项复核招标人菜单、项目驾驶舱、阶段页面入口。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 无错误",
+        "routeTree.gen.ts 无冲突",
+        "Playwright 复核招标人菜单精简、驾驶舱操作入口、无 projectId 阻断均符合预期"
+      ],
+      "status": "进行中"
+    }
+  ]
+}

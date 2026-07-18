@@ -4,6 +4,7 @@ import { Alert, Button, Card, Form, Input, Select, Steps, Tag, message, Modal } 
 import { CheckOutlined, LockOutlined } from '@ant-design/icons'
 import { projectStore } from '../data/projects.js'
 import { evaluationStore } from '../data/evaluationStore.js'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 // 定标阶段（按推进顺序）：评标中 → 评标完成 → 已确认中标人 → 中标通知书已发出
 const AWARD_STAGES = ['evaluating', 'evaluation-done', 'winner-confirmed', 'notice-sent']
@@ -38,7 +39,13 @@ const stageIndex = (stage) => AWARD_STAGES.indexOf(stage)
 export default function AwardNotice() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
-  const [projectId, setProjectId] = useState(String(searchParams.projectId || '1'))
+  const projectIdFromQuery = searchParams.projectId
+
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
+  }
+
+  const [projectId, setProjectId] = useState(String(projectIdFromQuery))
   // localStorage 无订阅机制：操作后递增 refreshTick 触发重读
   const [refreshTick, setRefreshTick] = useState(0)
 

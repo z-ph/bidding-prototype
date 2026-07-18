@@ -7,6 +7,7 @@ import { evaluationStore } from '../data/evaluationStore.js'
 import { approvalStore } from '../data/approvalStore.js'
 import { useRole } from '../hooks/useRole.js'
 import { BASELINE_PROJECTS, isInvitedRfqProject } from './ProjectList.jsx'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 // 定标阶段（按推进顺序）：评标中 → 评标完成 → 已确认中标人 → 中标通知书已发出
 const AWARD_STAGES = ['evaluating', 'evaluation-done', 'winner-confirmed', 'notice-sent']
@@ -45,7 +46,13 @@ export default function AwardConfirm() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
   const { role, userName } = useRole()
-  const [projectId, setProjectId] = useState(String(searchParams.projectId || '1'))
+  const projectIdFromQuery = searchParams.projectId
+
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
+  }
+
+  const [projectId, setProjectId] = useState(String(projectIdFromQuery))
   const [selected, setSelected] = useState('')
   const [form, setForm] = useState({ opinion: '' })
   // localStorage 无订阅机制：操作后递增 refreshTick 触发重读

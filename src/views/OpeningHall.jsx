@@ -5,6 +5,7 @@ import { useRole } from '../hooks/useRole.js'
 import { projectStore } from '../data/projects.js'
 import { BASELINE_PROJECTS, getPurchaseModeText, isInvitedRfqProject } from './ProjectList.jsx'
 import StatusTag from '../components/StatusTag.jsx'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 // 开标准备配置（cal-003）：按项目持久化主持人/监督人指定结果
 // 未新建 src/data/openingPrepStore.js（本次仅允许改动两个视图文件），存储逻辑内联在此
@@ -46,8 +47,12 @@ const SUPERVISOR_OPTIONS = [
 export default function OpeningHall() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
-  const projectId = searchParams.projectId || '1'
+  const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
+
+  if (!projectId) {
+    return <ProjectEntryGuard />
+  }
 
   // 采购方式门禁（add-purchase-method-flow-20260717）：项目/标段均为邀请询比价时无开标环节
   const project = useMemo(

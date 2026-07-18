@@ -1,0 +1,75 @@
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam handwritten false
+skinparam defaultTextAlignment center
+skinparam wrapWidth 200
+skinparam activity {
+  BackgroundColor<<tenderee>> #E3F2FD
+  BackgroundColor<<agent>> #E8F5E9
+  BackgroundColor<<bidder>> #FFF3E0
+  BackgroundColor<<expert>> #FCE4EC
+  BackgroundColor<<supervisor>> #FFEBEE
+  BackgroundColor<<admin>> #F3E5F5
+  BorderColor #666
+  ArrowColor #666
+}
+skinparam swimlane {
+  BorderColor #999
+  TitleFontSize 14
+  TitleFontStyle bold
+}
+
+title 招投标项目主流程 - 角色职责泳道图
+
+|招标人|
+start
+:创建采购需求;
+:提交立项;
+:确认招标文件;
+:确认中标人;
+:发送中标通知书;
+stop
+
+|招标代理|
+:受委托执行招标;
+:编制招标文件;
+:发布公告/邀请书;
+:组织开标;
+:组织评标;
+:汇总评标报告;
+stop
+
+|投标人|
+:查看公告/邀请;
+:下载招标文件;
+:在线报价;
+:上传投标文件;
+:开标时解密文件;
+:查看中标结果;
+stop
+
+|评标专家|
+:接收评标任务;
+:回避声明与签到;
+:推选组长;
+:查阅资料;
+:在线评分;
+:电子签名;
+:组长生成评标报告;
+stop
+
+|监督人员|
+:查看开标场次;
+:监督开标过程;
+:查看评标进度;
+:记录异常;
+stop
+
+|管理员|
+:供应商准入审核;
+:用户权限管理;
+:系统参数配置;
+:日志审计;
+stop
+
+@enduml

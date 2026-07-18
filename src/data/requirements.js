@@ -11,41 +11,8 @@ const defaultRequirementTypes = [
   { value: 'it', label: '信息化类' }
 ]
 
-const defaultRequirements = [
-  {
-    id: 'REQ20260714001',
-    title: '2026年度办公电脑集中采购',
-    type: 'goods',
-    budget: 80,
-    content: '采购台式电脑、笔记本电脑及配套显示器约 120 台，要求三年质保。',
-    status: 'approved',
-    publisher: '张三',
-    publishTime: '2026-07-10',
-    createTime: '2026-07-08'
-  },
-  {
-    id: 'REQ20260714002',
-    title: '物业保洁服务采购',
-    type: 'service',
-    budget: 45,
-    content: '年度物业保洁服务，服务范围包括办公楼公共区域及会议室。',
-    status: 'published',
-    publisher: '李四',
-    publishTime: '2026-07-12',
-    createTime: '2026-07-11'
-  },
-  {
-    id: 'REQ20260714003',
-    title: '实验室通风系统改造',
-    type: 'project',
-    budget: 120,
-    content: '实验室通风系统设计与施工，包含排风、净化及自控系统。',
-    status: 'draft',
-    publisher: '张三',
-    publishTime: '',
-    createTime: '2026-07-14'
-  }
-]
+// 演示环境不再预置 mock 数据；所有采购需求均通过页面 CRUD 写入 localStorage
+const defaultRequirements = []
 
 function load(key, defaults) {
   try {

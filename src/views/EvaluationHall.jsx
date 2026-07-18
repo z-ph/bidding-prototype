@@ -6,6 +6,7 @@ import { evaluationStore } from '../data/evaluationStore.js'
 import { expertStore } from '../data/expertStore.js'
 import { projectStore } from '../data/projects.js'
 import { BASELINE_PROJECTS, getPurchaseModeText, isInvitedRfqProject } from './ProjectList.jsx'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 // 演示回退数据：evaluationStore / expertStore 均无记录时兜底，真实数据优先
 const FALLBACK_EXPERTS = ['专家甲', '专家乙', '专家丙']
@@ -29,8 +30,12 @@ const STATUS_MAP = {
 export default function EvaluationHall() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
-  const projectId = searchParams.projectId || '1'
+  const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
+
+  if (!projectId) {
+    return <ProjectEntryGuard />
+  }
 
   // 采购方式门禁（add-purchase-method-flow-20260717）：项目/标段均为邀请询比价时无评标环节
   const project = useMemo(
