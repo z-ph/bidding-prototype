@@ -1,0 +1,57 @@
+{
+  "proposal": "refactor-bidder-menu-workflow-20260718",
+  "tasks": [
+    {
+      "id": "guard-role-back",
+      "title": "ProjectEntryGuard 支持角色化返回",
+      "description": "src/components/ProjectEntryGuard.jsx 新增可选 props：backTo（默认 '/admin/projects'）、backLabel（默认 '返回项目列表'）。默认值保持现行为，现有 6 个页面调用方式不变即不受影响。",
+      "files": ["src/components/ProjectEntryGuard.jsx"],
+      "acceptance": [
+        "不传 props 时渲染与现版本一致（返回 /admin/projects，按钮文字「返回项目列表」）",
+        "传 backTo/backLabel 时按钮跳转到指定路径并显示指定文字"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "bid-quote-guard",
+      "title": "BidQuote 移除选择器门槛并补 guard",
+      "description": "删除 BidQuote 的项目选择门槛（chosenProjectId、选择器 UI、quotableProjects 硬编码 seeds 及选择器专用逻辑，清理只为选择器服务的 import）；无 URL projectId 时渲染 ProjectEntryGuard（backTo=/admin/bidder-projects，backLabel=返回项目中心，guard 位于所有 hooks 之后）；effectiveProjectId 简化为 URL projectId；报价字段驱动、提交、跳转上传标书行为不变。",
+      "files": ["src/views/BidQuote.jsx"],
+      "acceptance": [
+        "无 projectId 时阻断并显示「返回项目中心」按钮，无项目选择器",
+        "携带 projectId 时正常渲染报价页（无「当前报价项目」选择器提示条）",
+        "页面内不再有硬编码项目 seeds",
+        "报价页跳转 /admin/bid-upload 携带 projectId"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "bidder-menu-slim",
+      "title": "投标人菜单精简",
+      "description": "Layout.jsx bidderMenus 从 6 项减为 3 项：项目中心、企业档案、消息中心；移除在线报价、开标大厅、中标通知（路由与权限保留）。",
+      "files": ["src/components/Layout.jsx"],
+      "acceptance": [
+        "bidder 主导航顶层 ≤ 8（含 common 组）",
+        "菜单不再出现在线报价/开标大厅/中标通知",
+        "项目中心内到报价/上传/开标/中标通知的入口均携带 projectId（现有行为，验证即可）"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "role-permission-matrix.md 2.3 节更新为已实施并写目标结构；ReviewChangeList.jsx 最前登记（id 0718-ux-005，source 0718交互重构）；changelog.js 顶部新增 0.5.0；package.json version 0.4.0 → 0.5.0。",
+      "files": ["docs/role-permission-matrix.md", "src/views/ReviewChangeList.jsx", "src/data/changelog.js", "package.json"],
+      "acceptance": ["四处登记齐备且内容一致"],
+      "status": "已完成"
+    },
+    {
+      "id": "build-verify",
+      "title": "构建验证",
+      "description": "pnpm run build 通过。",
+      "files": [],
+      "acceptance": ["pnpm run build 无错误"],
+      "status": "已完成"
+    }
+  ]
+}

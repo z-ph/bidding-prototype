@@ -1,0 +1,85 @@
+{
+  "proposal": "refactor-admin-menu-workflow-20260718",
+  "note": "追认提案：实施先于提案完成（流程失误补救），任务状态按实际实施情况标记",
+  "tasks": [
+    {
+      "id": "admin-dashboard-merge",
+      "title": "工作台与管理控制台合并",
+      "description": "src/views/Dashboard.jsx 的 admin 分支删除空壳「前往管理控制台」Result 跳转，直接渲染 AdminDashboard 组件内容。",
+      "files": ["src/views/Dashboard.jsx"],
+      "acceptance": [
+        "管理员访问 /admin/dashboard 直接看到运营指标、待办等真实内容",
+        "不再存在「前往管理控制台」按钮页"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "legacy-route-redirect",
+      "title": "旧管理控制台路由重定向",
+      "description": "src/routes/admin.admin-dashboard.jsx 增加 beforeLoad redirect 到 /admin/dashboard；删除 admin.admin-dashboard.lazy.jsx；清理 AdminNews.jsx 等残留导航引用。",
+      "files": ["src/routes/admin.admin-dashboard.jsx", "src/routes/admin.admin-dashboard.lazy.jsx", "src/views/AdminNews.jsx"],
+      "acceptance": [
+        "访问 /admin/admin-dashboard 落到 /admin/dashboard",
+        "src/ 下无指向 /admin/admin-dashboard 的导航引用（redirect 路由自身与 routeTree.gen.ts 除外）"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "admin-menu-grouping",
+      "title": "管理员菜单按业务域分组",
+      "description": "Layout.jsx adminMenus 从 16 项平铺整合为 9 项：工作台、待办中心、组织与用户（用户权限/组织机构/子账号管理）、系统配置（系统设置/参数字典/通知管理/模板管理/审批流配置）、内容管理（新闻公告维护）、准入审核、日志审计、采购数据分析、消息中心。",
+      "files": ["src/components/Layout.jsx"],
+      "acceptance": [
+        "管理员主导航顶层项 ≤10",
+        "不再有「管理控制台」「采购需求」菜单项",
+        "后台功能按业务域分组，无 append-only 平铺"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "admin-permission-cleanup",
+      "title": "管理员权限对齐",
+      "description": "permissions.js 删除 /admin/admin-dashboard 项；/admin/procurement-requirements 与 /admin/procurement-requirements/edit 移除 admin；/admin/approval-flow-config 增加 admin。",
+      "files": ["src/config/permissions.js"],
+      "acceptance": [
+        "admin 访问采购需求页被 Forbidden 拦截",
+        "admin 可正常访问审批流配置",
+        "PAGE_PERMISSIONS 中无 /admin/admin-dashboard"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "default-path-unify",
+      "title": "管理员默认落地路径统一",
+      "description": "useRole.js WORKSPACE_MAP、Login.jsx dashboardMap、Forbidden.jsx HOME_MAP 的 admin 路径统一为 /admin/dashboard。",
+      "files": ["src/hooks/useRole.js", "src/views/Login.jsx", "src/components/Forbidden.jsx"],
+      "acceptance": [
+        "admin 登录后落地 /admin/dashboard",
+        "admin 访问无权限页面时 Forbidden 返回按钮指向 /admin/dashboard"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "role-permission-matrix.md 2.6 节更新为已实施；ReviewChangeList.jsx 登记 0718-ux-001；changelog.js 新增 0.2.0；package.json version 0.1.0 → 0.2.0。",
+      "files": ["docs/role-permission-matrix.md", "src/views/ReviewChangeList.jsx", "src/data/changelog.js", "package.json"],
+      "acceptance": [
+        "四处登记齐备且内容一致"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "build-redline-verify",
+      "title": "构建验证与红线实测",
+      "description": "pnpm run build 通过；Playwright 实测：admin 登录 → 工作台渲染真实控制台内容 → 菜单为 9 项分组且无管理控制台/采购需求 → /admin/admin-dashboard redirect 生效 → 阶段页面无关（管理员无阶段页面）。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 无错误",
+        "Playwright DOM 实测四项全部通过",
+        "7 条红线逐条核对通过"
+      ],
+      "status": "已完成"
+    }
+  ]
+}

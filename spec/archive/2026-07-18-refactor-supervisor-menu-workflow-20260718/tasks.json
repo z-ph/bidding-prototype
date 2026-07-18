@@ -1,0 +1,86 @@
+{
+  "proposal": "refactor-supervisor-menu-workflow-20260718",
+  "tasks": [
+    {
+      "id": "supervisor-store",
+      "title": "新建 supervisorStore 异常记录存储",
+      "description": "新建 src/data/supervisorStore.js：localStorage key bidding-supervisor-records，结构 { id, projectId, project, type, desc, status, time, source }（source 区分登记入口：hall/abnormal）；读写风格参照 expertStore.js 的 load/save；方法：getRecords()、addRecord({projectId, project, type, desc, source})（id 用 'YC'+Date.now()、status 默认待处理、time toLocaleString）、seedIfEmpty(seedList)（首次为空时写入种子）。",
+      "files": [
+        "src/data/supervisorStore.js"
+      ],
+      "acceptance": [
+        "addRecord 写入后 getRecords 可读",
+        "无 projectId 时 projectId 字段存空串不报错",
+        "代码风格与 expertStore/quoteStore 一致"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "supervisor-hall-projectized",
+      "title": "SupervisorHall 项目化（场次列表 + 项目监督视图）",
+      "description": "无 projectId 渲染「今日开标/评标场次」列表：数据 projectStore.getProjects()，列示项目名称/编号/开标时间(openTime)/评标截止(evaluationStore.getEval(id).deadline)/状态，操作列「进入监督」navigate 携带 projectId，空数据 Empty 态；有 projectId 渲染项目监督视图：头部展示项目名/编号（projectStore.getProjectById 兜底「项目 {id}」），评标委员会 tab 读 expertStore.getResult(projectId)（无记录 Empty）、评分汇总 tab 读 evaluationStore.getEval(projectId).experts 实时汇总（无记录 Empty）、唱标 tab 读 quoteStore 按 projectId 前缀匹配（无记录 Empty）；保留只读模式标识；「记录异常」按钮改为写 supervisorStore（关联当前 projectId+项目名，source:'hall'）并提示可在异常登记查看；不再保留任何硬编码演示表格数据。",
+      "files": [
+        "src/views/SupervisorHall.jsx"
+      ],
+      "acceptance": [
+        "无 projectId 显示真实项目场次列表（来自 projectStore），空时 Empty",
+        "携带 projectId 进入显示项目名/编号与只读标识",
+        "三个数据区均有真实数据时渲染、无真实数据时 Empty（无硬编码演示表格）",
+        "记录异常写入 supervisorStore 且含 projectId"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "abnormal-store-migration",
+      "title": "异常登记页迁移到 supervisorStore",
+      "description": "SupervisorAbnormal.jsx：records 从组件 useState 迁移为 supervisorStore（初始 1 条演示记录用 seedIfEmpty 种子化）；登记表单的项目字段优先支持从 URL projectId 预填（若有），提交写 store；列表刷新后持久可见。",
+      "files": [
+        "src/views/SupervisorAbnormal.jsx"
+      ],
+      "acceptance": [
+        "登记新异常后刷新页面记录仍在",
+        "SupervisorHall 登记的异常在本页列表可见（同 store）",
+        "演示种子记录仅在 store 为空时写入一次"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "dashboard-supervisor-stats",
+      "title": "工作台监督概览接真实计数",
+      "description": "Dashboard.jsx supervisor 分支 Descriptions：今日开标=projectStore.getProjects() 中 openTime 为当日的项目数，今日评标=evaluationStore 中有 deadline 的项目数，异常预警=supervisorStore 待处理记录数；「进入监督大厅」按钮不变。",
+      "files": [
+        "src/views/Dashboard.jsx"
+      ],
+      "acceptance": [
+        "三项计数均来自 store 真实计算，非硬编码",
+        "其他角色工作台分支零改动"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "role-permission-matrix.md 2.5 节更新为已实施并写目标结构；ReviewChangeList.jsx 最前登记（id 0718-ux-007，source 0718交互重构）；changelog.js 顶部新增 0.7.0；package.json version 0.6.0 → 0.7.0。",
+      "files": [
+        "docs/role-permission-matrix.md",
+        "src/views/ReviewChangeList.jsx",
+        "src/data/changelog.js",
+        "package.json"
+      ],
+      "acceptance": [
+        "四处登记齐备且内容一致"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "build-verify",
+      "title": "构建验证",
+      "description": "pnpm run build 通过。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 无错误"
+      ],
+      "status": "已完成"
+    }
+  ]
+}

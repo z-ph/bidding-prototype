@@ -1,0 +1,88 @@
+{
+  "proposal": "refactor-agent-menu-workflow-20260718",
+  "tasks": [
+    {
+      "id": "agent-actions",
+      "title": "新增 getAgentActions 代理动作集",
+      "description": "src/utils/projectFlow.js 新增 getAgentActions(project)，镜像 getTendereeActions 的状态分发结构与返回格式（title/desc/buttonText/action），动作按代理职责：编制招标文件、发布公告、进入开标大厅、专家抽取、进入评标大厅、提交定标审批、发中标通知书；邀请询比价项目跳过开评标直达定标审批；所有 action 携带 projectId。",
+      "files": [
+        "src/utils/projectFlow.js"
+      ],
+      "acceptance": [
+        "每个项目状态返回的动作均为代理职责（无「确认采购结果」等招标人动作）",
+        "邀请询比价项目报价相关状态直达定标审批",
+        "返回格式与 getTendereeActions 一致，可直接被 ProjectDetail 复用"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "cockpit-role-dispatch",
+      "title": "驾驶舱按角色分发动作",
+      "description": "ProjectDetail.jsx 根据当前角色分发：agent → getAgentActions，tenderee → getTendereeActions，其他角色不渲染「当前阶段操作」卡片；检查 ProjectList.jsx 的 nextStep/nextLabel 对 agent 的适配，确保跳转目标与代理动作一致。",
+      "files": [
+        "src/views/ProjectDetail.jsx",
+        "src/views/ProjectList.jsx"
+      ],
+      "acceptance": [
+        "agent 打开项目详情看到代理动作卡片",
+        "tenderee 打开项目详情仍看到招标人动作（回归不破）",
+        "bidder 打开项目详情不渲染招标方操作卡片",
+        "ProjectList「下一步」对 agent 跳转目标与驾驶舱一致"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "agent-menu-grouping",
+      "title": "招标代理菜单聚合",
+      "description": "Layout.jsx agentMenus 整合：委托项目（项目列表/项目跟踪）、业务台账（公告列表/供应商授权/费用台账）、审批中心、采购数据分析、消息中心；移除招标文件编制、公告发布、专家抽取、中标通知书 4 个顶层菜单项（路由权限保留）。",
+      "files": [
+        "src/components/Layout.jsx"
+      ],
+      "acceptance": [
+        "agent 主导航顶层项 ≤ 9（含 common 组）",
+        "菜单不再出现招标文件编制/公告发布/专家抽取/中标通知书",
+        "公告列表/供应商授权/费用台账聚合为「业务台账」分组，审批中心、采购数据分析、消息中心保持顶层"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "expert-extraction-guard",
+      "title": "专家抽取补 ProjectEntryGuard",
+      "description": "ExpertExtraction.jsx 增加无 projectId 阻断（复用 src/components/ProjectEntryGuard.jsx 或 TenderDoc 内联模式），移除默认选中第一个项目的兜底逻辑；携带 projectId 进入时正常渲染。含 hooks 顺序修复：guard 移至所有 hooks 之后",
+      "files": [
+        "src/views/ExpertExtraction.jsx"
+      ],
+      "acceptance": [
+        "无 projectId 时阻断并提示从项目进入（带返回项目列表按钮）",
+        "携带 projectId 时正常渲染该项目抽取页",
+        "不再默认展示任意项目数据"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "role-permission-matrix.md 2.2 节更新为已实施并写目标结构；ReviewChangeList.jsx 最前登记（id 0718-ux-003，source 0718交互重构）；changelog.js 顶部新增 0.4.0；package.json version 0.3.0 → 0.4.0。",
+      "files": [
+        "docs/role-permission-matrix.md",
+        "src/views/ReviewChangeList.jsx",
+        "src/data/changelog.js",
+        "package.json"
+      ],
+      "acceptance": [
+        "四处登记齐备且内容一致"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "build-verify",
+      "title": "构建验证",
+      "description": "pnpm run build 通过；不改 routeTree.gen.ts（自动生成除外）。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 无错误"
+      ],
+      "status": "已完成"
+    }
+  ]
+}

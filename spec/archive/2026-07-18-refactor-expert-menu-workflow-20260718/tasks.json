@@ -1,0 +1,72 @@
+{
+  "proposal": "refactor-expert-menu-workflow-20260718",
+  "tasks": [
+    {
+      "id": "expert-menu-merge",
+      "title": "评标专家菜单合并为单一任务入口",
+      "description": "Layout.jsx expertMenus 从 4 项减为 3 项：我的评标任务（/admin/expert-tasks）、专家信息、消息中心；移除「评标任务」菜单项（/admin/expert-project 路由与权限保留）。清理不再使用的图标 import（StarOutlined 若无其他引用）。",
+      "files": [
+        "src/components/Layout.jsx"
+      ],
+      "acceptance": [
+        "expert 主导航顶层 ≤ 8（含 common 组）",
+        "菜单只有「我的评标任务」一个任务类入口，不再有「评标任务」",
+        "菜单 label 为「我的评标任务」而非「我的任务」"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "expert-project-redirect",
+      "title": "ExpertProject 无 projectId 重定向到任务列表",
+      "description": "ExpertProject.jsx：无 projectId 时改为 <Navigate to=\"/admin/expert-tasks\" replace />（@tanstack/react-router 导出）；删除 ProjectTaskList 组件与 evaluationProjects 常量列表（PROJECT_INFO 保留，EvaluationDetail 依赖）；EvaluationDetail 的 onBack 改跳 /admin/expert-tasks；清理失效 import（注意 evaluationStore 的 isEvalExpired/formatDeadline 若 EvaluationDetail 仍用则保留）。",
+      "files": [
+        "src/views/ExpertProject.jsx"
+      ],
+      "acceptance": [
+        "访问 /admin/expert-project（无 projectId）重定向到 /admin/expert-tasks",
+        "携带 projectId 时 EvaluationDetail 正常渲染",
+        "详情页返回按钮跳 /admin/expert-tasks",
+        "文件内不再有 ProjectTaskList/evaluationProjects 列表渲染代码"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "dashboard-expert-entry",
+      "title": "工作台专家分支跳转对齐",
+      "description": "Dashboard.jsx expert 分支：「开始评标」按钮（expertColumns 内）与「进入评标大厅」按钮（卡片右上角）目标从 /admin/expert-project 改为 /admin/expert-tasks；expertTasks 表格数据不动。",
+      "files": [
+        "src/views/Dashboard.jsx"
+      ],
+      "acceptance": [
+        "专家工作台两个跳转按钮均直达 /admin/expert-tasks",
+        "其他角色工作台分支零改动"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "role-permission-matrix.md 2.4 节更新为已实施并写目标结构；ReviewChangeList.jsx 最前登记（id 0718-ux-006，source 0718交互重构）；changelog.js 顶部新增 0.6.0；package.json version 0.5.0 → 0.6.0。",
+      "files": [
+        "docs/role-permission-matrix.md",
+        "src/views/ReviewChangeList.jsx",
+        "src/data/changelog.js",
+        "package.json"
+      ],
+      "acceptance": [
+        "四处登记齐备且内容一致"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "build-verify",
+      "title": "构建验证",
+      "description": "pnpm run build 通过。",
+      "files": [],
+      "acceptance": [
+        "pnpm run build 无错误"
+      ],
+      "status": "已完成"
+    }
+  ]
+}
