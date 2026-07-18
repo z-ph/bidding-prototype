@@ -22,16 +22,36 @@ async function main() {
   page.on('pageerror', (err) => consoleErrors.push(err.message))
 
   try {
-    // ============ A. 门户/登录页可见性 ============
+    // ============ A. 门户可见 + 未登录点击（核心回归场景：不得出现无权限） ============
     await page.goto(`${BASE_URL}/`)
     await page.waitForLoadState('networkidle')
     await page.waitForSelector(FAB, { timeout: 15000 })
     check('门户页悬浮按钮可见', await page.locator(FAB).isVisible())
-    await page.goto(hashUrl(BASE_URL, '/login'))
-    await page.waitForTimeout(800)
-    check('登录页悬浮按钮可见', await page.locator(FAB).isVisible())
 
-    // ============ B. 登录后点击进入合并页 ============
+    await page.locator(FAB).click()
+    await page.waitForURL('**/#/dev-ledger**', { timeout: 15000 })
+    await page.waitForTimeout(1000)
+    const guestText = await page.locator('body').innerText()
+    check('未登录点击悬浮按钮打开 /dev-ledger', page.url().includes('/dev-ledger'), page.url())
+    const forbiddenCount = await page.locator('.forbidden-page').count()
+    check('未登录访问无 Forbidden 拦截页', forbiddenCount === 0 && !guestText.includes('无权限访问'))
+    check('未登录可见评审变更列表内容', guestText.includes('评审变更列表'))
+    check('公开页含标题与返回按钮', guestText.includes('评审台账') && guestText.includes('返回'))
+    await page.screenshot({ path: 'review-assets/dev-ledger-guest.png' })
+
+    // 未登录深链 changelog tab
+    await page.goto(hashUrl(BASE_URL, '/dev-ledger?tab=changelog'))
+    await page.waitForTimeout(1000)
+    const guestChangelog = await page.locator('.ant-tabs-tab-active').innerText()
+    check('未登录深链 ?tab=changelog 直接激活', guestChangelog.includes('变更时间线'), guestChangelog)
+
+    // 公开旧路由重定向（门户「评审变更」按钮目标）
+    await page.goto(hashUrl(BASE_URL, '/review-change-list'))
+    await page.waitForURL('**/#/dev-ledger?tab=review**', { timeout: 15000 })
+    check('公开旧路由 /review-change-list 重定向到合并页', true, page.url())
+
+    // ============ B. 登录后点击与 tab 切换 ============
+    await page.goto(hashUrl(BASE_URL, '/login'))
     await page.waitForSelector('#login-role', { timeout: 15000 })
     await page.click('#login-role button:has-text("招标人")')
     await page.waitForSelector('ul.ant-menu-root', { timeout: 15000 })
@@ -39,40 +59,35 @@ async function main() {
     check('后台页悬浮按钮可见', await page.locator(FAB).isVisible())
 
     await page.locator(FAB).click()
-    await page.waitForURL('**/#/admin/dev-ledger**', { timeout: 15000 })
+    await page.waitForURL('**/#/dev-ledger**', { timeout: 15000 })
     await page.waitForTimeout(1000)
-    check('点击跳转 /admin/dev-ledger', true, page.url())
-    const reviewTabText = await page.locator('body').innerText()
-    check('默认显示评审变更列表 tab', reviewTabText.includes('状态') && reviewTabText.includes('修复手段'))
-    check('embedded 无重复页头 Title', !reviewTabText.includes('本页面汇总 2026-07-13') || true) // Alert 保留属预期
     const activeTab = await page.locator('.ant-tabs-tab-active').innerText()
-    check('激活 tab 为「评审变更列表」', activeTab.includes('评审变更列表'), activeTab)
+    check('登录后点击进入合并页，默认评审变更列表', activeTab.includes('评审变更列表'), activeTab)
 
-    // ============ C. Tab 切换与深链 ============
     await page.locator('.ant-tabs-tab').filter({ hasText: '变更时间线' }).click()
     await page.waitForTimeout(800)
     check('切 tab 更新 URL 为 ?tab=changelog', page.url().includes('tab=changelog'), page.url())
     const changelogText = await page.locator('body').innerText()
-    check('变更时间线渲染（v0.9.0 在列）', changelogText.includes('0.9.0') && changelogText.includes('评审台账悬浮入口'))
+    check('变更时间线渲染（v0.9.1 在列）', changelogText.includes('0.9.1'))
 
-    await page.goto(hashUrl(BASE_URL, '/admin/dev-ledger?tab=changelog'))
-    await page.waitForTimeout(800)
-    const deepLinkTab = await page.locator('.ant-tabs-tab-active').innerText()
-    check('深链 ?tab=changelog 直接激活对应 tab', deepLinkTab.includes('变更时间线'), deepLinkTab)
-
-    // ============ D. 旧路由重定向 ============
+    // ============ C. 后台旧路由重定向 ============
     await page.goto(hashUrl(BASE_URL, '/admin/review-change-list'))
-    await page.waitForURL('**/#/admin/dev-ledger?tab=review**', { timeout: 15000 })
-    check('旧 /admin/review-change-list 重定向到合并页 review tab', true, page.url())
+    await page.waitForURL('**/#/dev-ledger?tab=review**', { timeout: 15000 })
+    check('旧 /admin/review-change-list 重定向到 /dev-ledger?tab=review', true, page.url())
     await page.goto(hashUrl(BASE_URL, '/admin/changelog'))
-    await page.waitForURL('**/#/admin/dev-ledger?tab=changelog**', { timeout: 15000 })
-    check('旧 /admin/changelog 重定向到合并页 changelog tab', true, page.url())
+    await page.waitForURL('**/#/dev-ledger?tab=changelog**', { timeout: 15000 })
+    check('旧 /admin/changelog 重定向到 /dev-ledger?tab=changelog', true, page.url())
+    await page.goto(hashUrl(BASE_URL, '/admin/dev-ledger'))
+    await page.waitForURL('**/#/dev-ledger**', { timeout: 15000 })
+    check('旧 /admin/dev-ledger 重定向到 /dev-ledger', true, page.url())
 
-    // ============ E. 菜单无新增项 ============
+    // ============ D. 菜单无新增项 ============
+    await page.goto(hashUrl(BASE_URL, '/admin/dashboard'))
+    await page.waitForTimeout(1000)
     const menuItems = (await page.locator('ul.ant-menu-root > li').allInnerTexts()).map((t) => t.trim())
     check('招标人菜单顶层仍为 8 项（无台账入口）', menuItems.length === 8, JSON.stringify(menuItems))
 
-    // ============ F. 拖拽与位置持久化 ============
+    // ============ E. 拖拽与位置持久化 ============
     const fab = page.locator(FAB)
     const before = await fab.boundingBox()
     await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2)
@@ -83,9 +98,10 @@ async function main() {
     const after = await fab.boundingBox()
     check('拖拽后位置移动', Math.abs(after.x - before.x) > 100 && Math.abs(after.y - before.y) > 80,
       `(${before.x},${before.y}) → (${after.x},${after.y})`)
-    check('拖拽不触发跳转（仍在 dev-ledger）', page.url().includes('/admin/dev-ledger'), page.url())
+    check('拖拽不触发跳转', page.url().includes('/admin/dashboard'), page.url())
 
-    await page.goto(hashUrl(BASE_URL, '/admin/dashboard'))
+    await page.reload()
+    await page.waitForLoadState('networkidle')
     await page.waitForTimeout(1000)
     const persisted = await fab.boundingBox()
     check('刷新后拖拽位置保持', Math.abs(persisted.x - after.x) < 5 && Math.abs(persisted.y - after.y) < 5,

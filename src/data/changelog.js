@@ -11,6 +11,15 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.9.1',
+    date: '2026-07-18',
+    title: '评审台账合并页改公开路由（修复未登录 Forbidden）',
+    changes: [
+      { type: 'fix', text: '合并页从 /admin 布局移至公开路由 /dev-ledger：修复未登录点击悬浮按钮被 Forbidden 拦截（/admin 布局 beforeLoad 对未登录一律拦截）；页面加标题+返回头部，DevLedgerFab 与四个旧路由重定向目标统一改到 /dev-ledger' },
+      { type: 'remove', text: 'permissions.js 删除 /admin/dev-ledger 权限项（公开页无需权限）；删除 admin.dev-ledger.lazy、review-change-list.lazy 死文件' }
+    ]
+  },
+  {
     version: '0.9.0',
     date: '2026-07-18',
     title: '评审台账悬浮入口与 Tab 合并页',

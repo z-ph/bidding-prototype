@@ -15,6 +15,7 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as DownloadsRouteImport } from './routes/downloads'
+import { Route as DevLedgerRouteImport } from './routes/dev-ledger'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -75,9 +76,7 @@ const ReviewChangeListRoute = ReviewChangeListRouteImport.update({
   id: '/review-change-list',
   path: '/review-change-list',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() =>
-  import('./routes/review-change-list.lazy').then((d) => d.Route),
-)
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -103,6 +102,11 @@ const DownloadsRoute = DownloadsRouteImport.update({
   path: '/downloads',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/downloads.lazy').then((d) => d.Route))
+const DevLedgerRoute = DevLedgerRouteImport.update({
+  id: '/dev-ledger',
+  path: '/dev-ledger',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/dev-ledger.lazy').then((d) => d.Route))
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -310,9 +314,7 @@ const AdminDevLedgerRoute = AdminDevLedgerRouteImport.update({
   id: '/dev-ledger',
   path: '/dev-ledger',
   getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.dev-ledger.lazy').then((d) => d.Route),
-)
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -481,6 +483,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
+  '/dev-ledger': typeof DevLedgerRoute
   '/downloads': typeof DownloadsRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -543,6 +546,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
+  '/dev-ledger': typeof DevLedgerRoute
   '/downloads': typeof DownloadsRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -605,6 +609,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
+  '/dev-ledger': typeof DevLedgerRoute
   '/downloads': typeof DownloadsRoute
   '/help': typeof HelpRoute
   '/login': typeof LoginRoute
@@ -670,6 +675,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/dev-ledger'
     | '/downloads'
     | '/help'
     | '/login'
@@ -732,6 +738,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/contact'
+    | '/dev-ledger'
     | '/downloads'
     | '/help'
     | '/login'
@@ -793,6 +800,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/contact'
+    | '/dev-ledger'
     | '/downloads'
     | '/help'
     | '/login'
@@ -857,6 +865,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
+  DevLedgerRoute: typeof DevLedgerRoute
   DownloadsRoute: typeof DownloadsRoute
   HelpRoute: typeof HelpRoute
   LoginRoute: typeof LoginRoute
@@ -908,6 +917,13 @@ declare module '@tanstack/react-router' {
       path: '/downloads'
       fullPath: '/downloads'
       preLoaderRoute: typeof DownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev-ledger': {
+      id: '/dev-ledger'
+      path: '/dev-ledger'
+      fullPath: '/dev-ledger'
+      preLoaderRoute: typeof DevLedgerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -1437,6 +1453,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
+  DevLedgerRoute: DevLedgerRoute,
   DownloadsRoute: DownloadsRoute,
   HelpRoute: HelpRoute,
   LoginRoute: LoginRoute,

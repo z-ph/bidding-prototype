@@ -4,6 +4,6 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 export const Route = createFileRoute('/admin/changelog')({
   staticData: { title: '变更时间线' },
   beforeLoad: () => {
-    throw redirect({ to: '/admin/dev-ledger', search: { tab: 'changelog' }, replace: true })
+    throw redirect({ to: '/dev-ledger', search: { tab: 'changelog' }, replace: true })
   }
 })

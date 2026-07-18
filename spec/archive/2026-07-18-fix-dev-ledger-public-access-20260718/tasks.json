@@ -1,0 +1,37 @@
+{
+  "proposal": "fix-dev-ledger-public-access-20260718",
+  "tasks": [
+    {
+      "id": "public-dev-ledger-route",
+      "title": "合并页改公开路由 /dev-ledger",
+      "description": "新增 src/routes/dev-ledger.jsx + dev-ledger.lazy.jsx（__root 直下，无 /admin 布局权限拦截）；DevLedger.jsx 加标题「评审台账」+ 返回头部（history.back()）。",
+      "files": ["src/routes/dev-ledger.jsx", "src/routes/dev-ledger.lazy.jsx", "src/views/DevLedger.jsx"],
+      "acceptance": ["未登录访问 /dev-ledger 正常渲染且无 Forbidden", "页面含标题与返回按钮"],
+      "status": "已完成"
+    },
+    {
+      "id": "entries-and-redirects",
+      "title": "入口与四个旧路由统一改目标",
+      "description": "DevLedgerFab 点击改 /dev-ledger；/admin/dev-ledger、/admin/review-change-list、/admin/changelog、/review-change-list 全部 redirect 到 /dev-ledger（带对应 tab search）；删除 admin.dev-ledger.lazy.jsx 与 review-change-list.lazy.jsx；permissions.js 删除 /admin/dev-ledger 权限项。",
+      "files": ["src/components/DevLedgerFab.jsx", "src/routes/admin.dev-ledger.jsx", "src/routes/admin.review-change-list.jsx", "src/routes/admin.changelog.jsx", "src/routes/review-change-list.jsx", "src/config/permissions.js"],
+      "acceptance": ["四个旧 URL 分别落到 /dev-ledger 对应 tab", "routeTree.gen.ts 无死 lazy import", "未登录点击悬浮按钮直达合并页"],
+      "status": "已完成"
+    },
+    {
+      "id": "doc-ledger-version",
+      "title": "文档台账与版本登记",
+      "description": "AGENTS.md 与 matrix 第七节入口路径更新为 /dev-ledger（公开路由）；ReviewChangeList 登记 0718-ux-010；changelog 0.9.1；package.json 0.9.0 → 0.9.1。",
+      "files": ["AGENTS.md", "docs/role-permission-matrix.md", "src/views/ReviewChangeList.jsx", "src/data/changelog.js", "package.json"],
+      "acceptance": ["五处登记齐备"],
+      "status": "已完成"
+    },
+    {
+      "id": "regression-verify",
+      "title": "专项实测与全量回归",
+      "description": "verify-dev-ledger.mjs 更新路径断言并新增未登录点击场景；pnpm run build + 5 角色全量回归。",
+      "files": ["scripts/verify-dev-ledger.mjs"],
+      "acceptance": ["专项 19/19（含未登录场景）", "全量 145/145", "控制台零错误"],
+      "status": "已完成"
+    }
+  ]
+}

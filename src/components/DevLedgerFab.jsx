@@ -79,7 +79,7 @@ export default function DevLedgerFab() {
       }
       return
     }
-    navigate({ to: '/admin/dev-ledger' })
+    navigate({ to: '/dev-ledger' })
   }
 
   const positionStyle = pos

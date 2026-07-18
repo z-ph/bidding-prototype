@@ -68,8 +68,8 @@ export const PAGE_PERMISSIONS = {
   '/admin/supervisor-hall': ['supervisor'],
   '/admin/supervisor-logs': ['supervisor'],
 
-  // 开发阶段台账：不进任何业务角色主导航，入口为全局悬浮按钮；旧两 URL 重定向到合并页对应 tab
-  '/admin/dev-ledger': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+  // 开发阶段台账：不进任何业务角色主导航；公开合并页 /dev-ledger（无权限拦截），
+  // 以下两个 /admin 旧路径已重定向到合并页（已登录全角色可经 redirect 通过布局校验）
   '/admin/review-change-list': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
   '/admin/changelog': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
 
