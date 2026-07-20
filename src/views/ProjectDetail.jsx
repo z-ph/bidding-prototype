@@ -211,7 +211,7 @@ export default function ProjectDetail() {
               {role === 'tenderee' && project.status === 'draft' && (
                 <Button type="primary" onClick={publish}>发标</Button>
               )}
-              <Button onClick={() => navigate({ to: '/admin/projects' })}>返回列表</Button>
+              <Button onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : '/admin/projects' })}>返回列表</Button>
             </div>
           </div>
         }
@@ -283,7 +283,7 @@ export default function ProjectDetail() {
         <Card
           title="招标文件"
           size="small"
-          extra={<Button type="link" onClick={goTenderDoc}>查看/编辑招标文件</Button>}
+          extra={(role === 'tenderee' || role === 'agent') && <Button type="link" onClick={goTenderDoc}>查看/编辑招标文件</Button>}
           style={{ marginBottom: 20 }}
         >
           <p>招标公告、投标人须知、评标办法、合同条款、采购需求、投标文件格式等章节。</p>

@@ -520,17 +520,19 @@ export default function EvaluationHall() {
               </>
             }
             extra={[
-              <Button
-                key="award"
-                type="primary"
-                onClick={() => navigate({ to: '/admin/award-confirm', search: { projectId } })}
-              >
-                前往定标
-              </Button>,
-              <Button key="back" onClick={() => navigate({ to: '/admin/projects' })}>
-                返回项目列表
+              (role === 'tenderee' || role === 'agent') && (
+                <Button
+                  key="award"
+                  type="primary"
+                  onClick={() => navigate({ to: '/admin/award-confirm', search: { projectId } })}
+                >
+                  前往定标
+                </Button>
+              ),
+              <Button key="back" onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : role === 'supervisor' ? '/admin/supervisor-hall' : '/admin/projects' })}>
+                返回
               </Button>
-            ]}
+            ].filter(Boolean)}
           />
           <Alert
             type="info"
