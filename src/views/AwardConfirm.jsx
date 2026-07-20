@@ -18,25 +18,15 @@ const STAGE_LABELS = {
   'notice-sent': '中标通知书已发出'
 }
 
-// 内置演示项目（与项目跟踪等页面同一套默认 mock）
-const DEFAULT_PROJECTS = [
-  { id: '1', name: 'XX市轨道交通设备采购项目' },
-  { id: '2', name: '办公桌椅采购项目' }
-]
-
 // 现状可用的阶段判定（按优先级）：
 // 1. 项目记录上的 awardStage —— 定标侧操作回写，最优先；
-// 2. 邀请询比价（RFQ）项目（清单 20）无开标/评标环节，报价相关状态跳过「需评标完成」门槛，
-//    直接视为「评标完成」即可确认中标人（isInvitedRfqProject：全部标段 purchaseMode 均为 invitation_inquiry）；
-// 3. evaluationStore 评标状态 submitted/confirmed —— 评标环节已提交评标报告，视为「评标完成」；
-// 4. 内置 1 号演示项目按历史演示口径默认处于「评标完成」（候选人已公示、待确认中标人），
-//    其余项目默认「评标中」（evaluationStore 暂无其他页面写入，见实施报告说明）。
+// 2. 邀请询比价（RFQ）项目无开标/评标环节，直接视为「评标完成」；
+// 3. evaluationStore 评标状态 submitted/confirmed —— 评标环节已提交评标报告，视为「评标完成」。
 function resolveAwardStage(projectId, project) {
   if (project?.awardStage) return project.awardStage
   if (isInvitedRfqProject(project)) return 'evaluation-done'
   const evalStatus = evaluationStore.getEval(projectId).status
   if (evalStatus === 'submitted' || evalStatus === 'confirmed') return 'evaluation-done'
-  if (String(projectId) === '1') return 'evaluation-done'
   return 'evaluating'
 }
 
@@ -60,12 +50,9 @@ export default function AwardConfirm() {
   const projectOptions = useMemo(() => {
     const stored = projectStore.getProjects().slice(0, 20)
     const map = new Map()
-    DEFAULT_PROJECTS.forEach((p) => map.set(String(p.id), p.name))
-    // 基线 mock 项目（含邀请询比价演示项目 id=6）也进入下拉，store 同 id 覆盖
-    BASELINE_PROJECTS.forEach((p) => map.set(String(p.id), p.name))
     stored.forEach((p) => map.set(String(p.id), p.name))
     return Array.from(map.entries()).map(([value, label]) => ({ value, label }))
-  }, [refreshTick])
+  }, [])
 
   // 与项目列表同一数据源：projectStore 优先，基线 mock 兜底（邀请询比价演示项目来自基线）
   const project = useMemo(
@@ -183,22 +170,7 @@ export default function AwardConfirm() {
       okText: '确认中标',
       cancelText: '取消',
       onOk: () => {
-        const winnerRow = candidates.find((c) => c.name === selected)
-        projectStore.saveProject({
-          ...(project || {}),
-          id: projectId,
-          name: projectName,
-          awardStage: 'winner-confirmed',
-          winner: {
-            name: selected,
-            total: winnerRow?.total,
-            price: winnerRow?.price,
-            opinion: form.opinion,
-            confirmedAt: new Date().toISOString()
-          }
-        })
-        setRefreshTick((t) => t + 1)
-        message.success(`已确认中标人：${selected}`)
+        message.success(`演示环境 · 已确认中标人：${selected}`)
         navigate({ to: '/admin/award-notice', search: { projectId } })
       }
     })

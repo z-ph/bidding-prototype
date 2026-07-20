@@ -1,13 +1,7 @@
-// 门户级 mock 数据存储
-// 使用 localStorage 持久化，刷新后数据保持一致
+// 门户级 mock 数据存储（纯内存静态种子，无任何持久化）
 
 import { noticeStore } from './notices.js'
-
-const NEWS_KEY = 'portal-news'
-const STATS_KEY = 'portal-stats'
-const DOWNLOADS_KEY = 'portal-downloads'
-const PROJECTS_KEY = 'bidding-projects'
-const SUPPLIER_KEY = 'bidding-supplier-profile'
+import { projectStore } from './projects.js'
 
 const defaultNews = [
   { id: 1, title: '关于平台上线试运行的通知', category: '平台公告', content: '平台已正式上线试运行，欢迎各供应商、招标人注册使用。试运行期间如有问题，请联系技术支持。', publishTime: '2026-07-10', status: 'published', attachments: [] },
@@ -37,29 +31,16 @@ const defaultDownloads = [
   { id: 6, name: '评标专家操作手册', version: 'V2026.06', updateTime: '2026-06-28', desc: '在线评标、打分、出具评标报告操作指南', category: '操作手册', content: '评标专家操作手册（演示内容）\n版本：V2026.06\n更新日期：2026-06-28' }
 ]
 
-function load(key, defaults) {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : defaults
-  } catch {
-    return defaults
-  }
-}
-
-function save(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch {
-    // ignore storage errors
-  }
+function clone(value) {
+  return value ? JSON.parse(JSON.stringify(value)) : value
 }
 
 export const portalStore = {
   getNews() {
-    return load(NEWS_KEY, defaultNews)
+    return clone(defaultNews)
   },
-  saveNews(news) {
-    save(NEWS_KEY, news)
+  saveNews() {
+    return null
   },
   getPublishedNews() {
     return this.getNews().filter((n) => n.status === 'published')
@@ -68,45 +49,27 @@ export const portalStore = {
     // 门户仅展示已发布公告
     return noticeStore.getNotices().filter((n) => n.status === 'published')
   },
-  saveNotices(notices) {
-    noticeStore.saveNotices(notices)
+  saveNotices() {
+    return null
   },
   getNoticeById(id) {
     return this.getNotices().find((n) => String(n.id) === String(id))
   },
   getStats() {
-    // 在默认基线之上叠加真实业务数据：已建项目数 + 已建档供应商，使统计随业务增长
-    const base = load(STATS_KEY, defaultStats)
-    let extraProjects = 0
-    let extraSuppliers = 0
-    try {
-      const projectsRaw = localStorage.getItem(PROJECTS_KEY)
-      if (projectsRaw) {
-        const projects = JSON.parse(projectsRaw)
-        if (Array.isArray(projects)) extraProjects = projects.length
-      }
-    } catch {
-      // ignore
-    }
-    try {
-      if (localStorage.getItem(SUPPLIER_KEY)) extraSuppliers = 1
-    } catch {
-      // ignore
-    }
+    // 在默认基线之上叠加演示项目数，保持与项目列表一致
     return {
-      ...base,
-      totalProjects: base.totalProjects + extraProjects,
-      totalSuppliers: base.totalSuppliers + extraSuppliers
+      ...defaultStats,
+      totalProjects: defaultStats.totalProjects + projectStore.getProjects().length
     }
   },
-  saveStats(stats) {
-    save(STATS_KEY, stats)
+  saveStats() {
+    return null
   },
   getDownloads() {
-    return load(DOWNLOADS_KEY, defaultDownloads)
+    return clone(defaultDownloads)
   },
-  saveDownloads(downloads) {
-    save(DOWNLOADS_KEY, downloads)
+  saveDownloads() {
+    return null
   },
   getDownloadById(id) {
     return this.getDownloads().find((d) => d.id === id)

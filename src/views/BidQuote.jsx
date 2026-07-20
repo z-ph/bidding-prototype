@@ -61,31 +61,19 @@ export default function BidQuote() {
     return <ProjectEntryGuard backTo="/admin/bidder-projects" backLabel="返回项目中心" />
   }
 
-  // 询比价项目报价在开标后启动：判断采购方式与项目报价阶段
-  const isTenderMode = (mode) => ['open', 'invitation'].includes(mode)
   const project = projectStore.getProjectById(projectId)
-  // 询比价项目需处于"已开标/待报价"阶段才能报价；招标项目报价在上传阶段即可
-  const isInquiryMode = project && !isTenderMode(project.purchaseMode)
-  const inquiryQuoteReady = project?.status === '待报价' || project?.status === '已开标'
-  const quoteLocked = isInquiryMode && !inquiryQuoteReady
 
   const updateQuote = (key, value) => {
-    if (quoteLocked) return
     setQuote((prev) => ({ ...prev, [key]: value }))
   }
 
   const updatePrice = (index, value) => {
-    if (quoteLocked) return
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, price: value } : item)))
   }
 
   const saveQuote = () => {
-    if (quoteLocked) {
-      message.warning('询比价项目报价将在开标后启动，当前不可报价')
-      return
-    }
-    quoteStore.saveQuote(projectId, supplierName, { quote, items })
-    message.success(isInquiryMode ? '报价已保存' : '报价已保存，请继续上传投标文件')
+    message.success('演示环境 · 报价数据已预置，操作仅作展示')
+    navigate({ to: '/admin/bid-upload', search: { projectId } })
   }
 
   const columns = [

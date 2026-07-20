@@ -5,33 +5,24 @@ import { useRole } from '../hooks/useRole.js'
 import { tenderDocStore } from '../data/tenderDocStore.js'
 import { projectStore } from '../data/projects.js'
 import { authorizationStore } from '../data/authorizationStore.js'
-
-// 招标文件下载按「公开/授权」二态控制（清单 23）：公开项目可自行下载，非公开项目仅授权供应商可下载，
-// 不以报名/缴费为前置。授权为年度周期，过期自动判定为 expired，视同未授权（概要三）。
-
-// 与项目中心一致的种子项目元数据（projectStore 无记录时回退）
-const FALLBACK_PROJECTS = {
-  '1': { name: 'XX市轨道交通设备采购项目', purchaseMode: 'open' },
-  '2': { name: '办公桌椅采购项目', purchaseMode: 'inquiry' },
-  '3': { name: '软件开发服务项目', purchaseMode: 'invitation' },
-  '4': { name: '物业服务采购项目', purchaseMode: 'open' },
-  '5': { name: '实验室设备采购项目', purchaseMode: 'open' }
-}
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 export default function BidDownload() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
-  const projectId = searchParams.projectId || '1'
+  const projectId = searchParams.projectId
   const { userInfo } = useRole()
   const supplierName = userInfo?.nickname || userInfo?.org || ''
 
   const projectMeta = useMemo(() => {
     const stored = projectStore.getProjectById(projectId)
     if (stored) {
-      return { id: String(projectId), name: stored.name, code: stored.code, purchaseMode: stored.purchaseMode }
+      const modeLabels = (stored.packages || [])
+        .map((pkg) => pkg.purchaseMode)
+        .filter(Boolean)
+      return { id: String(projectId), name: stored.name, code: stored.code, purchaseMode: modeLabels[0] || 'open' }
     }
-    const fallback = FALLBACK_PROJECTS[String(projectId)] || { name: '未知项目', purchaseMode: 'open' }
-    return { id: String(projectId), ...fallback }
+    return { id: String(projectId), name: '未知项目', purchaseMode: 'open' }
   }, [projectId])
 
   const isPublicProject = ['open', 'inquiry'].includes(projectMeta.purchaseMode)
@@ -77,13 +68,11 @@ export default function BidDownload() {
     return [docFile, ...attachments]
   }, [tenderDocVersion])
 
-  const viewedKey = `bid-download-viewed-${projectId}`
-  const [viewedVersion, setViewedVersion] = useState(() => localStorage.getItem(viewedKey) || '')
+  const [viewedVersion, setViewedVersion] = useState(null)
   const versionChanged = viewedVersion && tenderDocVersion && viewedVersion !== tenderDocVersion.versionNo
 
   const markViewed = () => {
     if (tenderDocVersion) {
-      localStorage.setItem(viewedKey, tenderDocVersion.versionNo)
       setViewedVersion(tenderDocVersion.versionNo)
     }
   }
@@ -95,12 +84,12 @@ export default function BidDownload() {
   }, [tenderDocVersion, viewedVersion])
 
   const preview = (row) => {
-    message.success(`在线预览：${row.name}`)
+    message.success('演示环境 · 文件为演示内容')
   }
 
   const download = (row) => {
     markViewed()
-    message.success(`开始下载：${row.name}`)
+    message.success('演示环境 · 文件为演示内容')
   }
 
   const columns = [
@@ -127,6 +116,8 @@ export default function BidDownload() {
     revoked: '您的授权已被撤销，暂无法下载。如有疑问请联系项目招标人/代理。',
     none: '该项目为邀请/非公开项目，仅经招标人/代理授权的供应商可下载招标文件。请联系项目招标人/代理开通授权。'
   }
+
+  if (!projectId) return <ProjectEntryGuard />
 
   return (
     <div className="bid-download">

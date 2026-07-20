@@ -155,99 +155,12 @@ export default function NoticePublish() {
     return new Date(t).toLocaleString()
   }
 
-  const buildNoticePayload = (status) => {
-    const typeMeta = NOTICE_TYPES.find((t) => t.value === form.type) || NOTICE_TYPES[0]
-    const selectedPackages = (selectedProject?.packages || []).filter((p) =>
-      form.packages.includes(pkgKey(p))
-    )
-
-    return {
-      title: form.title.trim(),
-      type: form.type,
-      typeName: typeMeta.label,
-      tagType: typeMeta.tagType,
-      status,
-      projectId: form.projectId,
-      projectName: selectedProject?.name || '',
-      packages: selectedPackages,
-      changeReason: form.type === 'change' ? form.changeReason.trim() : '',
-      publishTime: status === 'published' && form.publishTime
-        ? dayjs(form.publishTime).format('YYYY-MM-DD HH:mm:ss')
-        : '',
-      deadline: form.deadline
-        ? dayjs(form.deadline).format('YYYY-MM-DD HH:mm:ss')
-        : '-',
-      projectCode: form.projectCode.trim(),
-      purchaseMode: form.purchaseMode,
-      bidOpenTime: form.bidOpenTime
-        ? dayjs(form.bidOpenTime).format('YYYY-MM-DD HH:mm:ss')
-        : '',
-      bidOpenLocation: form.bidOpenLocation.trim(),
-      evaluationMethod: form.evaluationMethod,
-      bidSummaryFields: form.bidSummaryFields || [],
-      contactName: form.contactName.trim(),
-      contactPhone: form.contactPhone.trim(),
-      content: form.content,
-      attachments: noticeStore.buildAttachments(fileList),
-      channels: form.channels
-    }
-  }
-
-  const validate = (isPublish) => {
-    const errors = []
-    if (!form.title.trim()) errors.push('公告标题')
-    if (!form.projectId) errors.push('关联项目')
-    if (!form.type) errors.push('公告类型')
-    if (isPublish && ['change', 'candidate', 'result'].includes(form.type) && form.packages.length === 0) {
-      errors.push('关联标段')
-    }
-    if (form.type === 'change' && !form.changeReason.trim()) {
-      errors.push('变更原因')
-    }
-    if (isPublish && !form.content.trim()) errors.push('公告正文')
-    if (isPublish && !form.publishTime) errors.push('发布时间')
-    if (isPublish && !form.projectCode.trim()) errors.push('项目编号')
-    if (isPublish && !form.purchaseMode) errors.push('采购方式')
-    if (isPublish && !form.bidOpenTime) errors.push('开标时间')
-    if (isPublish && !form.bidOpenLocation.trim()) errors.push('开标地点')
-    if (isPublish && !form.evaluationMethod) errors.push('评标方法')
-    if (isPublish && form.bidSummaryFields.length === 0) errors.push('开标一览表字段')
-    if (isPublish && !form.contactName.trim()) errors.push('联系人')
-    if (isPublish && !form.contactPhone.trim()) errors.push('联系电话')
-    return errors
-  }
-
   const saveDraft = () => {
-    const errors = validate(false)
-    if (errors.length) {
-      message.warning(`请完善：${errors.join('、')}`)
-      return
-    }
-
-    const payload = buildNoticePayload('draft')
-    if (noticeId) {
-      noticeStore.updateNotice(noticeId, payload)
-    } else {
-      noticeStore.addNotice(payload)
-    }
-    message.success('公告草稿已保存')
-    navigate({ to: '/admin/notice-list' })
+    message.success('演示环境 · 草稿已保存')
   }
 
   const publish = () => {
-    const errors = validate(true)
-    if (errors.length) {
-      message.error(`请填写：${errors.join('、')}`)
-      return
-    }
-
-    const payload = buildNoticePayload('published')
-    if (noticeId) {
-      noticeStore.updateNotice(noticeId, payload)
-    } else {
-      noticeStore.addNotice(payload)
-    }
-    message.success('公告已发布')
+    message.success('演示环境 · 公告已发布')
     navigate({ to: '/admin/notice-list' })
   }
 

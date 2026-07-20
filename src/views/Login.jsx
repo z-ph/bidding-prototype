@@ -18,21 +18,6 @@ import {
 } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
 import { resolveRoleFromAccount, ROLE_NAMES } from '../config/permissions.js'
-import { isAccountDisabled } from '../data/userStore'
-
-const DEMO_ACCOUNTS = {
-  tenderee: '123456',
-  agent: '123456',
-  bidder: '123456',
-  expert: '123456',
-  supervisor: '123456',
-  admin: '123456',
-  zhangsan: '123456',
-  lisi: '123456',
-  gongying: '123456',
-  zhuanjia: '123456',
-  jiandu: '123456'
-}
 
 const DEFAULT_SCOPE_BY_ROLE = {
   admin: 'all',
@@ -81,61 +66,32 @@ export default function Login() {
     navigate({ to: dashboardMap[roleValue] })
   }
 
+  // 纯演示：登录不做账号密码校验，按账号解析角色直接进入演示
   const accountLogin = () => {
-    accountForm.validateFields().then((values) => {
-      const rawAccount = String(values.account).trim()
-      const key = rawAccount.toLowerCase().trim()
-      if (!DEMO_ACCOUNTS[key] || DEMO_ACCOUNTS[key] !== values.password) {
-        message.error('账号或密码错误')
-        return
-      }
-      // 登录拦截：账号在用户管理中被停用则禁止登录（test2-001）
-      if (isAccountDisabled(rawAccount) || isAccountDisabled(key)) {
-        message.error('该账号已被停用，请联系管理员')
-        return
-      }
-      const resolvedRole = resolveRoleFromAccount(values.account)
-      doLogin(resolvedRole, values.account, '账号密码')
-    })
+    const rawAccount = String(accountForm.getFieldValue('account') || 'tenderee').trim()
+    const resolvedRole = resolveRoleFromAccount(rawAccount)
+    doLogin(resolvedRole, rawAccount, '账号密码')
   }
 
   const sendCode = () => {
-    phoneForm.validateFields(['phone']).then(() => {
-      message.success('验证码已发送：123456')
-      setCountdown(60)
-    })
+    message.success('验证码已发送：123456')
+    setCountdown(60)
   }
 
+  // 纯演示：手机号登录默认作为投标人
   const phoneLogin = () => {
-    phoneForm.validateFields().then((values) => {
-      if (values.code !== '123456') {
-        message.error('验证码错误')
-        return
-      }
-      // 演示环境：手机号登录默认作为投标人
-      doLogin('bidder', values.phone, '手机验证码')
-    })
+    const phone = phoneForm.getFieldValue('phone') || '13800138000'
+    doLogin('bidder', phone, '手机验证码')
   }
 
   const caLogin = () => {
-    caForm.validateFields(['account']).then((values) => {
-      const account = String(values.account).trim()
-      if (!account) {
-        message.error('请输入账号以确定角色')
-        return
-      }
-      setCaStatus({ status: 'checking', message: '正在检测 CA 证书...' })
-      setTimeout(() => {
-        // 演示环境：输入 ca 模拟检测到合法证书；其他情况模拟未插入 UKey
-        if (account.toLowerCase() === 'ca') {
-          setCaStatus({ status: 'success', message: '证书检测通过' })
-          const resolvedRole = resolveRoleFromAccount('ca') || 'bidder'
-          doLogin(resolvedRole, account, 'CA 证书')
-        } else {
-          setCaStatus({ status: 'error', message: '未检测到 CA 证书，请插入 UKey' })
-        }
-      }, 800)
-    })
+    const account = String(caForm.getFieldValue('account') || 'ca').trim()
+    setCaStatus({ status: 'checking', message: '正在检测 CA 证书...' })
+    setTimeout(() => {
+      setCaStatus({ status: 'success', message: '证书检测通过' })
+      const resolvedRole = resolveRoleFromAccount(account) || 'bidder'
+      doLogin(resolvedRole, account, 'CA 证书')
+    }, 800)
   }
 
   const startTour = () => {
@@ -178,7 +134,7 @@ export default function Login() {
           element: '#login-ca-panel',
           popover: {
             title: 'CA 数字证书登录',
-            description: '插入 CA UKey 后，点击“检测证书并登录”完成高安全身份认证。首次使用请下载 CA 驱动或申请证书。',
+            description: '插入 CA UKey 后，点击"检测证书并登录"完成高安全身份认证。首次使用请下载 CA 驱动或申请证书。',
             side: 'left',
             align: 'center'
           },
@@ -188,7 +144,7 @@ export default function Login() {
           element: '#login-phone-panel',
           popover: {
             title: '手机验证码登录',
-            description: '输入手机号，点击“获取验证码”，输入收到的短信验证码后登录。',
+            description: '输入手机号，点击"获取验证码"，输入收到的短信验证码后登录。',
             side: 'left',
             align: 'center'
           },
@@ -221,26 +177,18 @@ export default function Login() {
   const accountTab = (
     <>
       <Form form={accountForm} layout="vertical" initialValues={{ account: 'tenderee', password: '123456' }}>
-        <Form.Item
-          label="账号"
-          name="account"
-          rules={[{ required: true, message: '请输入账号' }]}
-        >
+        <Form.Item label="账号" name="account">
           <Input placeholder="请输入账号，如 tenderee / agent / bidder" />
         </Form.Item>
-        <Form.Item
-          label="密码"
-          name="password"
-          rules={[{ required: true, message: '请输入密码' }]}
-        >
-          <Input.Password placeholder="请输入密码" />
+        <Form.Item label="密码" name="password">
+          <Input.Password placeholder="演示环境无需密码，任意填写" />
         </Form.Item>
         <Form.Item>
           <Button id="login-submit" type="primary" style={{ width: '100%' }} onClick={accountLogin}>登录</Button>
         </Form.Item>
       </Form>
       <div id="login-role" className="role-hint">
-        <p>演示账号与角色：</p>
+        <p>演示账号与角色（点击一键登录）：</p>
         <Space wrap>
           {roleButtons.map((role) => (
             <Button
@@ -265,12 +213,8 @@ export default function Login() {
     <div id="login-ca-panel" className="ca-login">
       <LockOutlined style={{ fontSize: 60, color: '#409EFF' }} />
       <p>请插入 CA 数字证书 UKey</p>
-      <Form form={caForm} layout="vertical" className="ca-account-form">
-        <Form.Item
-          label="账号"
-          name="account"
-          rules={[{ required: true, message: '请输入账号以确定角色' }]}
-        >
+      <Form form={caForm} layout="vertical" className="ca-account-form" initialValues={{ account: 'ca' }}>
+        <Form.Item label="账号" name="account">
           <Input placeholder="请输入账号以确定角色" />
         </Form.Item>
       </Form>
@@ -287,29 +231,18 @@ export default function Login() {
         <span>|</span>
         <Button type="link">CA 证书申请</Button>
       </div>
-      <p className="ca-demo-tip">演示环境：输入账号 ca 模拟证书检测通过</p>
+      <p className="ca-demo-tip">演示环境：点击登录即模拟证书检测通过</p>
     </div>
   )
 
   const phoneTab = (
-    <Form id="login-phone-panel" form={phoneForm} layout="vertical">
-      <Form.Item
-        label="手机号"
-        name="phone"
-        rules={[
-          { required: true, message: '请输入手机号' },
-          { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号' }
-        ]}
-      >
+    <Form id="login-phone-panel" form={phoneForm} layout="vertical" initialValues={{ phone: '13800138000', code: '123456' }}>
+      <Form.Item label="手机号" name="phone">
         <Input placeholder="请输入手机号" />
       </Form.Item>
-      <Form.Item
-        label="验证码"
-        name="code"
-        rules={[{ required: true, message: '请输入验证码' }]}
-      >
+      <Form.Item label="验证码" name="code">
         <Input
-          placeholder="请输入验证码"
+          placeholder="演示环境固定为 123456"
           suffix={
             <Button
               id="login-phone-code"

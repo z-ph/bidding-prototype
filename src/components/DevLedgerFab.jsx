@@ -2,10 +2,9 @@ import { useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ProfileOutlined } from '@ant-design/icons'
 
-// 评审台账全局悬浮入口（feat-dev-ledger-fab-20260718）：
-// 可拖拽移动（位置持久化 localStorage），位移 ≤5px 判定为点击跳转 /admin/dev-ledger。
+// 评审台账全局悬浮入口：
+// 可拖拽移动（位置仅保存在会话内存，刷新回到默认位置），位移 ≤5px 判定为点击跳转 /dev-ledger。
 // 初始定位右下角并避让 react-page-review 的评审按钮（right:24 bottom:96）。
-const POS_KEY = 'bidding-dev-ledger-fab-pos'
 const SIZE = 56
 const MARGIN = 8
 const DRAG_THRESHOLD = 5
@@ -14,26 +13,9 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max)
 }
 
-function readStoredPos() {
-  try {
-    const raw = localStorage.getItem(POS_KEY)
-    if (!raw) return null
-    const p = JSON.parse(raw)
-    if (Number.isFinite(p?.left) && Number.isFinite(p?.top)) {
-      return {
-        left: clamp(p.left, MARGIN, window.innerWidth - SIZE - MARGIN),
-        top: clamp(p.top, MARGIN, window.innerHeight - SIZE - MARGIN)
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return null
-}
-
 export default function DevLedgerFab() {
   const navigate = useNavigate()
-  const [pos, setPos] = useState(readStoredPos)
+  const [pos, setPos] = useState(null)
   const [dragging, setDragging] = useState(false)
   const dragRef = useRef(null)
 
@@ -69,16 +51,7 @@ export default function DevLedgerFab() {
     if (!d || d.id !== e.pointerId) return
     dragRef.current = null
     setDragging(false)
-    if (d.moved) {
-      if (pos) {
-        try {
-          localStorage.setItem(POS_KEY, JSON.stringify(pos))
-        } catch {
-          // ignore
-        }
-      }
-      return
-    }
+    if (d.moved) return
     navigate({ to: '/dev-ledger' })
   }
 

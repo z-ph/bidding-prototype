@@ -34,6 +34,29 @@ import AdminDashboard from './AdminDashboard.jsx'
 import { projectStore } from '../data/projects.js'
 import { evaluationStore } from '../data/evaluationStore.js'
 import { supervisorStore } from '../data/supervisorStore.js'
+import { PROJECT_STATUS_MAP, PURCHASE_MODE_OPTIONS } from './ProjectList.jsx'
+
+// 快捷入口使用种子项目中对应状态的演示项目 id
+const DEMO_ENTRY_PROJECT = {
+  '审批文件': '1',    // 1=招标中,有已发布招标文件
+  '确认中标': '5',    // 5=评标中(评标已提交),可演示确认中标
+  '发布公告': '1',    // 1=招标中,可演示发布公告
+  '开标大厅': '3',    // 3=待开标,今日15:00开标
+  '评标大厅': '5',    // 5=评标中,有完整评标数据
+}
+
+// 阶段中文 → 跳转路径
+const STAGE_PATH_MAP = {
+  '草稿': '/admin/tender-doc',
+  '招标中': '/admin/tender-doc',
+  '公告中': '/admin/opening-hall',
+  '待开标': '/admin/opening-hall',
+  '评标中': '/admin/evaluation-hall',
+  '评标完成': '/admin/award-confirm',
+  '已确认中标人': '/admin/award-notice',
+  '通知书已发': '/admin/projects',
+  '已完成': '/admin/projects'
+}
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -126,12 +149,18 @@ export default function Dashboard() {
 
   const quickEntries = role === 'agent' ? agentQuickEntries : tendereeQuickEntries
 
-  const recentProjects = [
-    { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', type: '公开招标', stage: '公告中', deadline: '2026-07-20 17:00' },
-    { id: 2, name: '办公桌椅采购项目', code: 'ZB20260702002', type: '公开询比价', stage: '待开标', deadline: '2026-07-18 14:00' },
-    { id: 3, name: '软件开发服务项目', code: 'ZB20260703003', type: '邀请招标', stage: '评标中', deadline: '2026-07-15 09:00' },
-    { id: 4, name: '实验室设备采购项目', code: 'ZB20260705005', type: '公开招标', stage: '招标中', deadline: '2026-07-25 17:00' }
-  ]
+  const recentProjects = useMemo(() => {
+    return projectStore.getProjects().slice(0, 6).map((p) => {
+      const modeLabels = (p.packages || [])
+        .map((pkg) => PURCHASE_MODE_OPTIONS.find((o) => o.value === pkg.purchaseMode)?.label || pkg.purchaseMode)
+        .filter(Boolean)
+      return {
+        ...p,
+        stage: PROJECT_STATUS_MAP[p.status]?.text || p.status,
+        typeName: [...new Set(modeLabels)].join('、') || '-'
+      }
+    })
+  }, [])
 
   const handleTodo = (todo) => {
     if (todo.projectId) {
@@ -140,20 +169,14 @@ export default function Dashboard() {
       navigate({ to: todo.path })
     }
   }
-  const viewProject = (row) => message.success(`查看项目详情：${row.name}`)
+  const viewProject = (row) => {
+    navigate({ to: `/admin/projects/detail/${row.id}` })
+  }
   const continueProject = (row) => {
-    const map = {
-      '招标中': '/admin/tender-doc',
-      '公告中': '/admin/projects',
-      '待开标': '/admin/opening-hall',
-      '评标中': '/admin/evaluation-hall'
-    }
-    const path = map[row.stage] || '/admin/projects'
-    if (row.id && ['/admin/opening-hall', '/admin/tender-doc'].includes(path)) {
-      navigate({ to: path, search: { projectId: String(row.id) } })
-    } else {
-      navigate({ to: path })
-    }
+    const statusText = PROJECT_STATUS_MAP[row.status]?.text || row.status
+    const path = STAGE_PATH_MAP[statusText] || '/admin/projects'
+    // 所有阶段跳转一律带 projectId
+    navigate({ to: path, search: { projectId: String(row.id) } })
   }
 
   const timelineTypeMap = {
@@ -166,7 +189,7 @@ export default function Dashboard() {
   const projectColumns = [
     { title: '项目名称', dataIndex: 'name', key: 'name', minWidth: 250 },
     { title: '项目编号', dataIndex: 'code', key: 'code', width: 160 },
-    { title: '采购方式', dataIndex: 'type', key: 'type', width: 120 },
+    { title: '采购方式', dataIndex: 'typeName', key: 'type', width: 120 },
     {
       title: '当前阶段',
       dataIndex: 'stage',
@@ -417,7 +440,10 @@ export default function Dashboard() {
                   {quickEntries.map((item) => {
                     const Icon = item.icon
                     return (
-                      <div key={item.title} className="quick-entry" onClick={() => navigate({ to: item.path })}>
+                      <div key={item.title} className="quick-entry" onClick={() => {
+                        const pid = DEMO_ENTRY_PROJECT[item.title]
+                        navigate({ to: item.path, search: pid ? { projectId: pid } : undefined })
+                      }}>
                         <Icon style={{ fontSize: 24, color: item.color }} />
                         <span>{item.title}</span>
                       </div>

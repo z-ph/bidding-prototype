@@ -1,41 +1,33 @@
-// 评审条款关联 mock 存储
+// 评审条款关联 mock 存储（纯内存静态种子，无任何持久化）
 // 记录投标文件与招标文件评审条款的挂接关系，按项目隔离，供评标专家查阅
 
-const KEY = 'bidding-clause-links'
-
-function loadAll() {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? JSON.parse(raw) : {}
-  } catch {
-    return {}
+// 种子：项目 3 的 A科技有限公司 已挂接全部条款（开标前可查看挂接关系）
+const SEED_LINKS = {
+  '3': {
+    c1: '投标函及授权委托书.pdf',
+    c2: '营业执照等资质证明.pdf',
+    c3: '技术方案与参数响应.pdf',
+    c4: '项目实施方案.pdf',
+    c5: '报价一览表.pdf',
+    c6: '分项报价表.pdf'
   }
 }
 
-function saveAll(data) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(data))
-  } catch {
-    // ignore storage errors
-  }
+function clone(value) {
+  return value ? JSON.parse(JSON.stringify(value)) : value
 }
 
 export const clauseStore = {
   getLinks(projectId) {
-    const all = loadAll()
-    return all[String(projectId)] || {}
+    return clone(SEED_LINKS[String(projectId)]) || {}
   },
   setLink(projectId, clauseId, fileName) {
-    const all = loadAll()
-    const key = String(projectId)
-    all[key] = { ...(all[key] || {}), [clauseId]: fileName || '' }
-    saveAll(all)
-    return all[key]
+    // 纯演示：不保存数据
+    const current = this.getLinks(projectId)
+    return { ...current, [clauseId]: fileName || '' }
   },
-  clearLinks(projectId) {
-    const all = loadAll()
-    delete all[String(projectId)]
-    saveAll(all)
+  clearLinks() {
+    return null
   }
 }
 

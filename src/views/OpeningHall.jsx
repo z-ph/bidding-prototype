@@ -3,6 +3,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Alert, AutoComplete, Button, Card, Descriptions, Result, Steps, Table, Tag, Timeline, message, Modal } from 'antd'
 import { useRole } from '../hooks/useRole.js'
 import { projectStore } from '../data/projects.js'
+import { quoteStore } from '../data/quoteStore.js'
 import { BASELINE_PROJECTS, getPurchaseModeText, isInvitedRfqProject } from './ProjectList.jsx'
 import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
@@ -86,11 +87,18 @@ export default function OpeningHall() {
     { name: 'C股份有限公司', files: 3, status: '未解密', time: '-' }
   ])
 
-  const bids = [
-    { rank: 1, name: 'A科技有限公司', price: 820, delivery: '60天', quality: '3年' },
-    { rank: 2, name: 'B实业有限公司', price: 845, delivery: '55天', quality: '2年' },
-    { rank: 3, name: 'C股份有限公司', price: 798, delivery: '65天', quality: '3年' }
-  ]
+  const bids = useMemo(() => {
+    const quotes = quoteStore.getQuotes()
+    return Object.entries(quotes)
+      .filter(([key]) => key.startsWith(`${projectId}::`))
+      .map(([key, value], i) => ({
+        rank: i + 1,
+        name: key.split('::')[1],
+        price: value?.quote?.totalPrice ?? '-',
+        delivery: value?.quote?.deliveryPeriod ?? '-',
+        quality: value?.quote?.warrantyPeriod ?? '-'
+      }))
+  }, [projectId])
 
   function isSelfAttendee(a) {
     if (a.role === '主持人') return isHost && userName === a.name

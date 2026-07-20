@@ -1,11 +1,6 @@
-// 采购数据分析 mock 数据存储（localStorage 持久化）
+// 采购数据分析 mock 数据存储（纯内存静态种子，无任何持久化）
 // 供 AnalyticsDashboard（价格趋势）、AnalyticsPriceCompare（材料比价）、AnalyticsRiskWarning（风险预警）共享。
-// 数据来源口径为 e签宝接口，原型阶段使用本 store 的 mock 数据（预留 src/utils/eqianbaoAnalyticsApi.js 切换）。
 // 本文件为共享契约：导出名、参数与返回结构固定，实施 agent 不得修改签名；如需扩展请先协调。
-
-const PRICES_KEY = 'bidding-analytics-prices'
-const SUPPLIERS_KEY = 'bidding-analytics-suppliers'
-const WARNING_RULES_KEY = 'bidding-analytics-warning-rules'
 
 // 供应商画像：legalPerson（法人相同预警）、parentId（上下级预警）字段供预警规则使用
 const defaultSuppliers = [
@@ -49,38 +44,27 @@ export const WARNING_RULE_LABELS = {
   abnormalHighPrice: '报价异常高'
 }
 
-function load(key, defaults) {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : defaults
-  } catch {
-    return defaults
-  }
-}
-
-function save(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch {
-    // ignore storage errors
-  }
+function clone(value) {
+  return value ? JSON.parse(JSON.stringify(value)) : value
 }
 
 export const analyticsStore = {
   getPrices() {
-    return load(PRICES_KEY, defaultPrices)
+    return clone(defaultPrices)
   },
-  savePrices(prices) {
-    save(PRICES_KEY, prices)
+  savePrices() {
+    // 纯演示：不保存数据
+    return null
   },
   getSuppliers() {
-    return load(SUPPLIERS_KEY, defaultSuppliers)
+    return clone(defaultSuppliers)
   },
   getWarningRules() {
-    return { ...defaultWarningRules, ...load(WARNING_RULES_KEY, {}) }
+    return { ...defaultWarningRules }
   },
-  saveWarningRules(rules) {
-    save(WARNING_RULES_KEY, rules)
+  saveWarningRules() {
+    // 纯演示：不保存数据
+    return null
   },
   // 全部材料名（去重，供筛选项）
   getMaterials() {

@@ -1,16 +1,13 @@
-// 招标文件版本链 mock 数据存储
-// 支持按项目保存多版本招标文件，供 TenderDoc、BidDownload、ExpertProject 共享同一文件对象
+// 招标文件版本链 mock 数据存储（纯内存静态种子，无任何持久化）
+// 支持按项目读取多版本招标文件，供 TenderDoc、BidDownload、ExpertProject 共享同一文件对象
 //
-// 版本业务状态口径（2026-07-17 需求确认：招标文件需审批后发布）：
+// 版本业务状态口径：
 // - editing / previewing：编制中
-// - pendingConfirm：待确认（招标人确认，委托代理模式下招标人只读确认）
-// - confirmed / pendingApproval：待审批（预留，正式审批流由审批中心提案实施）
-// - published：已发布（当前生效版本，同一项目同一时间仅一个）
-// - archived：已归档（新版本发布时旧的已发布版本自动归档为历史版本）
+// - pendingConfirm：待确认（招标人确认）
+// - published：已发布（当前生效版本）
+// - archived：已归档（历史版本）
 
 import { defaultCatalog } from './tenderDocCatalog.js'
-
-const TENDER_DOCS_KEY = 'bidding-tender-docs-v1'
 
 const defaultFileList = [
   { uid: '-1', name: '图纸.zip', size: 1024000 },
@@ -30,10 +27,11 @@ export function getDefaultScoreItems() {
 
 const defaultHistory = (versionNo, creator) => [
   { id: 1, content: `${creator} 创建了招标文件 ${versionNo}`, time: '2026-07-08 09:00', type: 'primary' },
-  { id: 2, content: `${creator} 编辑了“招标公告”章节`, time: '2026-07-08 10:30', type: 'info' }
+  { id: 2, content: `${creator} 编辑了"招标公告"章节`, time: '2026-07-08 10:30', type: 'info' }
 ]
 
-const seedDocs = {
+// 种子：项目 1（招标中）/ 3（待开标）/ 5（评标中）均已发布 V1.0；项目 6（公告中）编制中待确认
+const SEED_DOCS = {
   '1': [
     {
       id: 'td-1-1',
@@ -59,68 +57,67 @@ const seedDocs = {
       catalog: JSON.parse(JSON.stringify(defaultCatalog)),
       fileList: JSON.parse(JSON.stringify(defaultFileList)),
       scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
-      history: defaultHistory('V1.0', '李四'),
-      creator: '李四',
+      history: defaultHistory('V1.0', '张三'),
+      creator: '张三',
       confirmer: '张三',
       updatedAt: '2026-07-03 09:00',
       publishedAt: '2026-07-03 09:00'
     }
+  ],
+  '5': [
+    {
+      id: 'td-5-1',
+      projectId: '5',
+      versionNo: 'V1.0',
+      status: 'published',
+      catalog: JSON.parse(JSON.stringify(defaultCatalog)),
+      fileList: JSON.parse(JSON.stringify(defaultFileList)),
+      scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
+      history: defaultHistory('V1.0', '张三'),
+      creator: '张三',
+      confirmer: '张三',
+      updatedAt: '2026-07-06 09:00',
+      publishedAt: '2026-07-06 09:00'
+    }
+  ],
+  '6': [
+    {
+      id: 'td-6-1',
+      projectId: '6',
+      versionNo: 'V1.0',
+      status: 'editing',
+      catalog: JSON.parse(JSON.stringify(defaultCatalog)),
+      fileList: JSON.parse(JSON.stringify(defaultFileList)),
+      scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
+      history: [
+        { id: 1, content: '张三 创建了招标文件 V1.0', time: '2026-07-15 09:00', type: 'primary' }
+      ],
+      creator: '张三',
+      confirmer: '',
+      updatedAt: '2026-07-15 09:00',
+      publishedAt: ''
+    }
   ]
 }
 
-function loadAll() {
-  try {
-    const raw = localStorage.getItem(TENDER_DOCS_KEY)
-    return raw ? JSON.parse(raw) : {}
-  } catch {
-    return {}
-  }
-}
-
-function saveAll(docs) {
-  try {
-    localStorage.setItem(TENDER_DOCS_KEY, JSON.stringify(docs))
-  } catch {
-    // ignore storage errors
-  }
-}
-
-function nowString() {
-  return new Date().toLocaleString()
-}
-
-function generateId(projectId) {
-  return `td-${projectId}-${Date.now()}`
-}
-
-function nextVersionNo(versions) {
-  if (!versions || versions.length === 0) return 'V1.0'
-  const last = versions[versions.length - 1].versionNo
-  const match = last.match(/V(\d+)\.(\d+)/)
-  if (!match) return `V${versions.length + 1}.0`
-  const major = Number(match[1])
-  const minor = Number(match[2]) + 1
-  return `V${major}.${minor}`
+function clone(value) {
+  return value ? JSON.parse(JSON.stringify(value)) : value
 }
 
 export const tenderDocStore = {
   getAll() {
-    return loadAll()
+    return clone(SEED_DOCS) || {}
   },
-  saveAll(docs) {
-    saveAll(docs)
+  saveAll() {
+    return null
   },
   getProjectVersions(projectId) {
-    const docs = loadAll()
     const key = String(projectId)
-    if (!docs[key] || docs[key].length === 0) {
-      const seed = seedDocs[key]
-        ? JSON.parse(JSON.stringify(seedDocs[key]))
-        : [this.createInitialVersion(projectId)]
-      docs[key] = seed
-      saveAll(docs)
+    if (SEED_DOCS[key] && SEED_DOCS[key].length > 0) {
+      return clone(SEED_DOCS[key])
     }
-    return docs[key]
+    // 未预置的项目返回一份编制中的初始版本（仅内存，不落盘）
+    return [this.createInitialVersion(projectId)]
   },
   getLatestVersion(projectId) {
     const versions = this.getProjectVersions(projectId)
@@ -140,7 +137,7 @@ export const tenderDocStore = {
   },
   createInitialVersion(projectId) {
     return {
-      id: generateId(projectId),
+      id: `td-${projectId}-demo`,
       projectId: String(projectId),
       versionNo: 'V1.0',
       status: 'editing',
@@ -148,86 +145,28 @@ export const tenderDocStore = {
       fileList: [],
       scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
       history: [
-        { id: Date.now(), content: '新建招标文件 V1.0', time: nowString(), type: 'primary' }
+        { id: 1, content: '新建招标文件 V1.0', time: '（演示）', type: 'primary' }
       ],
       creator: '',
       confirmer: '',
-      updatedAt: nowString(),
+      updatedAt: '（演示）',
       publishedAt: ''
     }
   },
   addVersion(projectId, baseVersion, creator) {
-    const docs = loadAll()
-    const key = String(projectId)
-    const versions = docs[key] || []
-    const nextNo = nextVersionNo(versions)
-    const newVersion = {
-      id: generateId(projectId),
-      projectId: key,
-      versionNo: nextNo,
-      status: 'editing',
-      catalog: JSON.parse(JSON.stringify(baseVersion?.catalog || defaultCatalog)),
-      fileList: JSON.parse(JSON.stringify(baseVersion?.fileList || [])),
-      scoreItems: JSON.parse(JSON.stringify(baseVersion?.scoreItems || defaultScoreItems)),
-      history: [
-        { id: Date.now(), content: `${creator || '用户'} 基于 ${baseVersion?.versionNo || '历史版本'} 创建新版本 ${nextNo}`, time: nowString(), type: 'primary' },
-        ...JSON.parse(JSON.stringify(baseVersion?.history || []))
-      ],
-      creator: creator || baseVersion?.creator || '',
-      confirmer: '',
-      updatedAt: nowString(),
-      publishedAt: ''
-    }
-    versions.push(newVersion)
-    docs[key] = versions
-    saveAll(docs)
-    return newVersion
+    // 纯演示：不写入数据
+    return { ...this.createInitialVersion(projectId), creator: creator || baseVersion?.creator || '' }
   },
   updateVersion(projectId, versionId, patch) {
-    const docs = loadAll()
-    const key = String(projectId)
-    const versions = docs[key] || []
-    const idx = versions.findIndex((v) => v.id === versionId)
-    if (idx === -1) return null
-    const next = { ...versions[idx], ...patch, id: versions[idx].id }
-    versions.splice(idx, 1, next)
-    docs[key] = versions
-    saveAll(docs)
-    return next
+    // 纯演示：不写入数据
+    const versions = this.getProjectVersions(projectId)
+    const found = versions.find((v) => v.id === versionId)
+    return found ? { ...found, ...patch, id: found.id } : null
   },
   publishVersion(projectId, versionId, patch) {
-    const docs = loadAll()
-    const key = String(projectId)
-    const versions = docs[key] || []
-    const idx = versions.findIndex((v) => v.id === versionId)
-    if (idx === -1) return null
-    const now = nowString()
-    // 版本链衔接：发布新版本时，旧的已发布版本自动归档为历史版本（archived），
-    // 保证同一项目同一时间仅一个生效的 published 版本
-    const nextVersions = versions.map((v, i) => {
-      if (v.id === versionId || v.status !== 'published') return v
-      return {
-        ...v,
-        status: 'archived',
-        archivedAt: now,
-        history: [
-          { id: Date.now() + i + 1, content: `新版本发布，${v.versionNo} 自动归档为历史版本`, time: now, type: 'info' },
-          ...(v.history || [])
-        ]
-      }
-    })
-    const target = nextVersions[idx]
-    const published = {
-      ...target,
-      ...patch,
-      id: target.id,
-      status: 'published',
-      publishedAt: now,
-      updatedAt: patch?.updatedAt || now
-    }
-    nextVersions.splice(idx, 1, published)
-    docs[key] = nextVersions
-    saveAll(docs)
-    return published
+    // 纯演示：不写入数据
+    const versions = this.getProjectVersions(projectId)
+    const found = versions.find((v) => v.id === versionId)
+    return found ? { ...found, ...patch, id: found.id, status: 'published', publishedAt: '（演示）' } : null
   }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useSearch } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import {
   Alert,
   Button,
@@ -22,51 +22,29 @@ import {
 } from 'antd'
 import { CheckCircleFilled, FileProtectOutlined, LockOutlined, UploadOutlined } from '@ant-design/icons'
 import StatusTag from '../components/StatusTag.jsx'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 import { projectStore } from '../data/projects.js'
 import { clauseStore, defaultClauses } from '../data/clauseStore.js'
 
 export default function BidUpload() {
+  const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
   const projectId = searchParams.projectId
   const [form] = Form.useForm()
   const encryptMode = Form.useWatch('encryptMode', form)
-  const selectedProjectId = Form.useWatch('projectId', form)
   const selectedPackages = Form.useWatch('packages', form) || []
 
-  const projects = useMemo(() => {
-    const seeds = [
-      { id: 1, name: 'XX市轨道交通设备采购项目' },
-      { id: 2, name: '办公桌椅采购项目' }
-    ]
-    const merged = [...seeds]
-    projectStore.getProjects().forEach((p) => {
-      if (!merged.some((s) => String(s.id) === String(p.id))) {
-        merged.push({ id: p.id, name: p.name })
-      }
-    })
-    return merged
-  }, [])
-
-  // 生效项目：表单所选优先，其次 URL 参数
-  const effectiveProjectId = selectedProjectId || projectId
-
-  // 标段按所选项目动态拉取：优先读取项目保存的标段，无则回退默认标段
+  // 标段按所选项目动态拉取
   const packages = useMemo(() => {
-    const project = projectStore.getProjectById(selectedProjectId)
+    const project = projectStore.getProjectById(projectId)
     if (project?.packages?.length) {
       return project.packages.map((p) => ({ id: p.code || p.name, name: p.name, code: p.code }))
-    }
-    if (projectId) {
-      const urlProject = projectStore.getProjectById(projectId)
-      if (urlProject?.packages?.length) {
-        return urlProject.packages.map((p) => ({ id: p.code || p.name, name: p.name, code: p.code }))
-      }
     }
     return [
       { id: 'B1', name: '第一标段：主设备', code: 'B1' },
       { id: 'B2', name: '第二标段：辅材', code: 'B2' }
     ]
-  }, [selectedProjectId, projectId])
+  }, [projectId])
 
   // 必传文件类型清单（按招标文件模板要求），用于齐全性校验与制作向导
   const requiredFileTypes = [
@@ -111,7 +89,7 @@ export default function BidUpload() {
 
   // 报价字段由项目创建时的报价模板驱动，跟随所选项目动态切换，缺失时回退默认字段
   const quoteFields = useMemo(() => {
-    const project = projectStore.getProjectById(effectiveProjectId)
+    const project = projectStore.getProjectById(projectId)
     if (project?.quoteFields?.length) return project.quoteFields
     return [
       { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
@@ -119,7 +97,7 @@ export default function BidUpload() {
       { key: 'quality', label: '质保期', unit: '', required: true },
       { key: 'payment', label: '付款方式', unit: '', required: true }
     ]
-  }, [effectiveProjectId])
+  }, [projectId])
 
   const [quote, setQuote] = useState(() => {
     const init = {}
@@ -142,12 +120,12 @@ export default function BidUpload() {
   ])
 
   // 评审条款关联：将上传的投标文件逐条挂接到招标文件评审条款（按生效项目隔离）
-  const [clauseLinks, setClauseLinks] = useState(() => clauseStore.getLinks(effectiveProjectId || '1'))
+  const [clauseLinks, setClauseLinks] = useState(() => clauseStore.getLinks(projectId || '1'))
   useEffect(() => {
-    setClauseLinks(clauseStore.getLinks(effectiveProjectId || '1'))
-  }, [effectiveProjectId])
+    setClauseLinks(clauseStore.getLinks(projectId || '1'))
+  }, [projectId])
   const setClauseLink = (clauseId, fileName) => {
-    const next = clauseStore.setLink(effectiveProjectId || '1', clauseId, fileName)
+    const next = clauseStore.setLink(projectId || '1', clauseId, fileName)
     setClauseLinks({ ...next })
   }
 
@@ -157,7 +135,7 @@ export default function BidUpload() {
   const [submitted, setSubmitted] = useState(false)
 
   const allEncrypted = fileList.length > 0 && fileList.every((f) => f.encrypted && f.encryptMethod === 'ca')
-  const projectName = (projects.find((item) => String(item.id) === String(selectedProjectId)) || {}).name || '-'
+  const projectName = (projectStore.getProjectById(projectId) || {}).name || '-'
   const packageNames =
     packages.filter((p) => selectedPackages.includes(p.id)).map((p) => p.name).join('、') || '-'
 
@@ -168,20 +146,20 @@ export default function BidUpload() {
     .filter((r) => !uploadedTypes.includes(r.type))
     .map((r) => r.type)
   const allTypesComplete = missingTypes.length === 0
-  const canDraft = selectedProjectId && selectedPackages.length > 0 && fileList.length > 0 && quoteFilled
+  const canDraft = projectId && selectedPackages.length > 0 && fileList.length > 0 && quoteFilled
   const canSubmit = canDraft && allEncrypted && allTypesComplete
 
   const submitBtnText = (() => {
     if (encryptMode === 'password') {
       if (!quoteFilled) return '请填写开标一览表'
       if (fileList.length === 0) return '请先上传文件'
-      if (!selectedProjectId || selectedPackages.length === 0) return '请完善投标信息'
+      if (!projectId || selectedPackages.length === 0) return '请完善投标信息'
       return '保存草稿'
     }
     if (!quoteFilled) return '请填写开标一览表'
     if (fileList.length === 0) return '请先上传文件'
     if (!allEncrypted) return '存在未加密文件'
-    if (!selectedProjectId || selectedPackages.length === 0) return '请完善投标信息'
+    if (!projectId || selectedPackages.length === 0) return '请完善投标信息'
     return '正式提交投标文件'
   })()
 
@@ -267,54 +245,16 @@ export default function BidUpload() {
     setQuoteItems((prev) => prev.map((item, i) => (i === index ? { ...item, price: value } : item)))
   }
 
-  const submitBid = async () => {
-    const valid = await form.validateFields().then(() => true).catch(() => false)
-    if (!valid) return
-    if (!quoteFilled) {
-      message.warning('请填写开标一览表')
-      return
-    }
-    if (fileList.length === 0) {
-      message.warning('请上传投标文件')
-      return
-    }
-
-    // 文件类型齐全性校验：缺少商务标/技术标/报价标时阻断提交
-    if (missingTypes.length > 0) {
-      message.error(`投标文件不完整，缺少：${missingTypes.join('、')}，请补齐后再提交`)
-      return
-    }
-
-    const unencryptedFiles = fileList.filter((f) => !f.encrypted)
-    if (unencryptedFiles.length > 0) {
-      message.error(`${unencryptedFiles.map((f) => f.name).join('、')} 未加密，请先完成加密`)
-      return
-    }
-
-    const nonCaFiles = fileList.filter((f) => f.encryptMethod !== 'ca')
-    if (nonCaFiles.length > 0) {
-      message.error('正式提交必须使用 CA 证书加密，当前为密码加密（仅草稿），请重新加密后提交')
-      return
-    }
-
-    Modal.confirm({
-      title: '提交投标文件确认',
-      content: '提交后投标文件将加密锁定，开标前不可修改，是否继续？',
-      okText: '确认提交',
-      cancelText: '取消',
-      onOk: () => {
-        setSubmitted(true)
-        setReceiptNo('ZB' + Date.now())
-        setSubmitTime(new Date().toLocaleString())
-        setReceiptVisible(true)
-        message.success('投标文件已加密并提交成功')
-      }
-    })
+  const submitBid = () => {
+    setSubmitted(true)
+    setReceiptNo('BID20260720DEMO')
+    setSubmitTime(new Date().toLocaleString())
+    setReceiptVisible(true)
+    message.success('演示环境 · 投标文件提交仅作展示')
   }
 
-  const saveDraft = async () => {
-    await form.validateFields().catch(() => {})
-    message.success('投标文件草稿已保存')
+  const saveDraft = () => {
+    message.success('演示环境 · 草稿保存仅作展示')
   }
 
   const encryptStatusLabel = (row) => {
@@ -447,22 +387,16 @@ export default function BidUpload() {
           wrapperCol={{ flex: 'auto' }}
           className="upload-form"
         >
-          <Form.Item
-            label="选择项目"
-            name="projectId"
-            rules={[{ required: true, message: '请选择投标项目' }]}
-          >
+          <Form.Item label="选择项目">
             <Select
               placeholder="请选择投标项目"
               style={{ width: '100%' }}
-              options={projects.map((p) => ({ label: p.name, value: String(p.id) }))}
+              value={projectId ? String(projectId) : undefined}
+              disabled
+              options={(projectStore.getProjects() || []).map((p) => ({ label: p.name, value: String(p.id) }))}
             />
           </Form.Item>
-          <Form.Item
-            label="投标标段"
-            name="packages"
-            rules={[{ required: true, type: 'array', message: '请至少选择一个标段' }]}
-          >
+          <Form.Item label="投标标段" name="packages">
             <Checkbox.Group>
               {packages.map((pkg) => (
                 <Checkbox key={pkg.id} value={pkg.id}>{pkg.name}</Checkbox>
@@ -613,12 +547,12 @@ export default function BidUpload() {
 
         <div className="actions">
           {encryptMode === 'password' ? (
-            <Button type="primary" size="large" disabled={!canDraft} onClick={saveDraft}>
+            <Button type="primary" size="large" onClick={saveDraft}>
               {submitBtnText}
             </Button>
           ) : (
             <>
-              <Button type="primary" size="large" disabled={!canSubmit} onClick={submitBid}>
+              <Button type="primary" size="large" onClick={submitBid}>
                 {submitBtnText}
               </Button>
               <Button size="large" onClick={saveDraft}>保存草稿</Button>
