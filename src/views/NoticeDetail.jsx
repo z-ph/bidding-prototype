@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useParams, useNavigate } from '@tanstack/react-router'
+import { useParams, useNavigate, useRouter } from '@tanstack/react-router'
 import {
   Card,
   Button,
@@ -28,7 +28,16 @@ const tagColorMap = {
 export default function NoticeDetail() {
   const { id } = useParams({ strict: false })
   const navigate = useNavigate()
+  const router = useRouter()
   const notice = useMemo(() => portalStore.getNoticeById(id), [id])
+
+  const goBack = () => {
+    if (window.history.length > 1) {
+      router.history.back()
+    } else {
+      navigate({ to: '/' })
+    }
+  }
 
   const handleDownload = (attachment) => {
     const blob = new Blob([`附件内容：${attachment.name}\n演示文件，仅供原型演示。`], { type: 'text/plain;charset=utf-8' })
@@ -79,9 +88,14 @@ export default function NoticeDetail() {
             <span style={{ fontSize: 18, fontWeight: 'bold' }}>公告详情</span>
           }
           extra={
-            <Button type="link" icon={<HomeOutlined />} onClick={() => navigate({ to: '/' })}>
-              返回首页
-            </Button>
+            <span style={{ display: 'inline-flex', gap: 8 }}>
+              <Button icon={<ArrowLeftOutlined />} onClick={goBack}>
+                返回上一页
+              </Button>
+              <Button type="link" icon={<HomeOutlined />} onClick={() => navigate({ to: '/' })}>
+                返回首页
+              </Button>
+            </span>
           }
         >
           <div className="notice-detail-title">

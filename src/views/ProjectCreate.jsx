@@ -70,12 +70,11 @@ export default function ProjectCreate() {
     intro: '',
     demandSource: '',
     demandCode: '',
-    linkedRequirementId: '',
+    linkedRequirementIds: [],
     orgMode: 'self',
     agentId: '',
     agentContractConfirmed: false,
     members: [],
-    approvalInfo: '',
     attachments: [],
     packages: [],
     qualifications: ['营业执照'],
@@ -129,9 +128,9 @@ export default function ProjectCreate() {
     []
   )
 
-  const linkedRequirement = useMemo(
-    () => publishedRequirements.find((r) => r.id === formData.linkedRequirementId),
-    [publishedRequirements, formData.linkedRequirementId]
+  const linkedRequirements = useMemo(
+    () => publishedRequirements.filter((r) => (formData.linkedRequirementIds || []).includes(r.id)),
+    [publishedRequirements, formData.linkedRequirementIds]
   )
 
   const packageBudgetTotal = formData.packages.reduce(
@@ -385,7 +384,7 @@ export default function ProjectCreate() {
     <div className="project-create">
       <Alert
         title="当前办理阶段：项目立项"
-        description="请完善项目来源、基本信息、标段和审批信息，所有必填项完成后方可提交审核。"
+        description="请完善项目来源、基本信息、标段与供应商要求，所有必填项完成后方可提交审核。"
         type="info"
         showIcon
         closable={false}
@@ -537,18 +536,20 @@ export default function ProjectCreate() {
                 <Col span={12}>
                   <Form.Item label="关联采购需求">
                     <Select
-                      placeholder="选择已发布/已审核的采购需求"
-                      value={formData.linkedRequirementId || undefined}
-                      onChange={(value) => {
-                        const req = publishedRequirements.find((r) => r.id === value)
+                      mode="multiple"
+                      placeholder="选择一个或多个已发布/已审核的采购需求"
+                      value={formData.linkedRequirementIds || []}
+                      onChange={(values) => {
+                        const ids = values || []
+                        const first = publishedRequirements.find((r) => r.id === ids[0])
                         setFormData((prev) => ({
                           ...prev,
-                          linkedRequirementId: value || '',
-                          demandSource: value ? 'requirement' : prev.demandSource,
-                          demandCode: value ? (req?.id || prev.demandCode) : prev.demandCode,
-                          budget: value && !prev.budget ? String(req?.budget || '') : prev.budget,
-                          intro: value && !prev.intro
-                            ? (req?.content ? req.content.slice(0, 120) : '')
+                          linkedRequirementIds: ids,
+                          demandSource: ids.length > 0 ? 'requirement' : prev.demandSource,
+                          demandCode: ids.length > 0 ? (first?.id || prev.demandCode) : prev.demandCode,
+                          budget: ids.length > 0 && !prev.budget ? String(first?.budget || '') : prev.budget,
+                          intro: ids.length > 0 && !prev.intro
+                            ? (first?.content ? first.content.slice(0, 120) : '')
                             : prev.intro
                         }))
                       }}
@@ -577,26 +578,28 @@ export default function ProjectCreate() {
                   </Form.Item>
                 </Col>
               </Row>
-              {linkedRequirement && (
+              {linkedRequirements.length > 0 && (
                 <Row gutter={20}>
                   <Col span={24}>
                     <Form.Item label="需求概要">
                       <Card size="small" className="linked-requirement-card">
-                        <Descriptions size="small" column={3}>
-                          <Descriptions.Item label="需求编号">{linkedRequirement.id}</Descriptions.Item>
-                          <Descriptions.Item label="需求类型">
-                            {requirementStore.getTypes().find((t) => t.value === linkedRequirement.type)?.label || linkedRequirement.type}
-                          </Descriptions.Item>
-                          <Descriptions.Item label="预算金额">{linkedRequirement.budget} 万元</Descriptions.Item>
-                          <Descriptions.Item label="状态">
-                            <Tag color={REQUIREMENT_STATUS_MAP[linkedRequirement.status]?.color}>
-                              {REQUIREMENT_STATUS_MAP[linkedRequirement.status]?.label}
-                            </Tag>
-                          </Descriptions.Item>
-                          <Descriptions.Item label="需求标题" span={2}>
-                            {linkedRequirement.title}
-                          </Descriptions.Item>
-                        </Descriptions>
+                        {linkedRequirements.map((req) => (
+                          <Descriptions key={req.id} size="small" column={3} style={{ marginBottom: 8 }}>
+                            <Descriptions.Item label="需求编号">{req.id}</Descriptions.Item>
+                            <Descriptions.Item label="需求类型">
+                              {requirementStore.getTypes().find((t) => t.value === req.type)?.label || req.type}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="预算金额">{req.budget} 万元</Descriptions.Item>
+                            <Descriptions.Item label="状态">
+                              <Tag color={REQUIREMENT_STATUS_MAP[req.status]?.color}>
+                                {REQUIREMENT_STATUS_MAP[req.status]?.label}
+                              </Tag>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="需求标题" span={2}>
+                              {req.title}
+                            </Descriptions.Item>
+                          </Descriptions>
+                        ))}
                       </Card>
                     </Form.Item>
                   </Col>
@@ -643,14 +646,6 @@ export default function ProjectCreate() {
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item label="审批信息">
-                <Input.TextArea
-                  rows={3}
-                  placeholder="填写审批链、审批人及审批意见摘要"
-                  value={formData.approvalInfo}
-                  onChange={(e) => updateField('approvalInfo', e.target.value)}
-                />
-              </Form.Item>
               <Form.Item label="附件上传">
                 <Upload
                   ref={uploadRef}
@@ -932,7 +927,9 @@ export default function ProjectCreate() {
                   <Descriptions.Item label="开标时间">{formatTime(formData.openTime)}</Descriptions.Item>
                   <Descriptions.Item label="标段数量">{formData.packages.length} 个</Descriptions.Item>
                   <Descriptions.Item label="关联采购需求">
-                    {linkedRequirement ? `${linkedRequirement.id} ${linkedRequirement.title}` : '-'}
+                    {linkedRequirements.length > 0
+                      ? linkedRequirements.map((r) => `${r.id} ${r.title}`).join('；')
+                      : '-'}
                   </Descriptions.Item>
                   <Descriptions.Item label="需求来源">{formData.demandSource || '-'}</Descriptions.Item>
                   <Descriptions.Item label="项目成员">{formData.members.join('、') || '-'}</Descriptions.Item>

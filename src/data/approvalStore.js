@@ -3,8 +3,9 @@
 // 采购需求/招标文件发布接入审批、审批归档视图、站内信审批通知共享。
 // 本文件为共享契约：导出名、参数与返回结构固定。
 
-// 审批节点类型（清单 48：需求/招标文件/中标结果三节点）
+// 审批节点类型：项目立项/采购需求/招标文件/中标结果
 export const APPROVAL_TYPES = [
+  { value: 'project', label: '项目立项' },
   { value: 'requirement', label: '采购需求' },
   { value: 'tender-doc', label: '招标文件' },
   { value: 'award-result', label: '中标结果' }
@@ -48,8 +49,44 @@ const SEED_FLOW_CONFIGS = [
   }
 ]
 
-// 审批单实例 seed：项目 2 需求审批中（代理发起）、项目 1 招标文件审批中（第二节点）、项目 4 中标结果已通过
+// 审批单实例 seed：项目 8 立项审批中、项目 2 需求审批中（代理发起）、项目 1 招标文件审批中（第二节点）、
+// 项目 1 立项已通过、项目 4 中标结果已通过
 const SEED_APPROVALS = [
+  {
+    id: 'ap-4',
+    type: 'project',
+    refId: '8',
+    title: '信息化系统运维服务项目 立项审批',
+    projectId: '8',
+    submittedBy: '张三',
+    publisherKind: 'self',
+    chain: ['需求部门', '采购管理部'],
+    currentNodeIndex: 0,
+    currentAssignee: '',
+    status: 'pending',
+    submittedAt: '2026-07-18 11:30',
+    finishedAt: '',
+    records: []
+  },
+  {
+    id: 'ap-5',
+    type: 'project',
+    refId: '1',
+    title: 'XX市轨道交通设备采购项目 立项审批',
+    projectId: '1',
+    submittedBy: '张三',
+    publisherKind: 'self',
+    chain: ['需求部门', '采购管理部'],
+    currentNodeIndex: 2,
+    currentAssignee: '',
+    status: 'approved',
+    submittedAt: '2026-07-01 10:00',
+    finishedAt: '2026-07-02 15:00',
+    records: [
+      { node: '需求部门', action: 'approve', actor: '王五', comment: '立项依据充分，同意。', at: '2026-07-01 16:00' },
+      { node: '采购管理部', action: 'approve', actor: '张三', comment: '同意立项，按计划推进。', at: '2026-07-02 15:00' }
+    ]
+  },
   {
     id: 'ap-1',
     type: 'requirement',

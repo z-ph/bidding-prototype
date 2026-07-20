@@ -4,6 +4,14 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0720 评审（静态 mock 重构后，评审反馈修复）
+  { id: '0720-006', source: '0720评审', module: '审批中心', page: 'ApprovalCenter / approvalStore', severity: '中', issue: '审批中心仅有采购需求/招标文件/中标结果三类节点，缺少对项目本身的审批；项目提交审核（pending）后审批中心无对应审批单', status: '已修复', fix: 'APPROVAL_TYPES 新增「项目立项」（value project）；approvalStore 种子新增 2 条审批单：ap-4 项目8信息化系统运维服务项目立项（审批中，当前节点需求部门）、ap-5 项目1 XX市轨道交通设备采购项目立项（已通过，含需求部门→采购管理部两级审批记录）；审批中心「我发起的」可见项目立项审批', commit: 'fix(review)' },
+  { id: '0720-005', source: '0720评审', module: '公告发布', page: 'NoticePublish', severity: '中', issue: '公告发布页字段过多（变更原因/发布时间/开标信息/评标方法/联系人等十余项），发布公告的核心动作淹没在冗余信息录入中', status: '已修复', fix: '公告发布页精简为公告类型、关联项目、公告标题、上传文件、公告预览 5 个区块；删除变更原因/发布时间/截止时间/项目编号/采购方式/开标时间地点/评标方法/开标一览表字段/联系人电话/公告正文/发布平台等字段及其校验与预览渲染；发布页新增「返回公告列表」按钮', commit: 'fix(review)' },
+  { id: '0720-004', source: '0720评审', module: '公告列表', page: 'NoticeList / NoticePublish', severity: '高', issue: '公告列表顶部「发布公告」按钮跳 /admin/notice-publish，但该页 ProjectEntryGuard 强制 URL projectId，空载被阻断为「需从项目进入」，按钮点击无效', status: '已修复', fix: '公告发布页关联项目改为页内下拉选择（不再依赖 URL projectId）并移除 ProjectEntryGuard，「发布公告」按钮可直达；保存草稿不再跳离编辑页', commit: 'fix(review)' },
+  { id: '0720-003', source: '0720评审', module: '公告详情', page: 'NoticeDetail', severity: '中', issue: '公告详情页（/notice/:id）仅有「返回首页」，无从列表查看公告后返回上一级的入口', status: '已修复', fix: '公告详情新增「返回上一页」按钮（router.history.back()，无历史深链兜底回首页），保留「返回首页」', commit: 'fix(review)' },
+  { id: '0720-002', source: '0720评审', module: '创建项目', page: 'ProjectCreate', severity: '中', issue: '创建项目第二步「需求与成员」要求填写「审批信息」（审批链/审批人/审批意见），而项目审批统一由审批中心承接，创建环节填写审批信息属职责重复', status: '已修复', fix: '移除 ProjectCreate 第二步「审批信息」TextArea 及 formData.approvalInfo，步骤说明文案同步更正；项目审批统一走审批中心「项目立项」类型', commit: 'fix(review)' },
+  { id: '0720-001', source: '0720评审', module: '创建项目', page: 'ProjectCreate', severity: '中', issue: '一个项目可关联多个采购需求，但创建项目第二步「关联采购需求」为单选 Select，只能关联一个采购需求', status: '已修复', fix: '「关联采购需求」改为多选（mode multiple，linkedRequirementId → linkedRequirementIds 数组）；需求概要卡片逐条展示所选需求，确认页关联采购需求以「；」拼接', commit: 'fix(review)' },
+
   // 0718 交互重构（门户过渡入口移除）
   { id: '0718-ux-011', source: '0718交互重构', module: '通用（台账入口）', page: 'PortalHeader', severity: '中', issue: '门户头部「评审变更」按钮是开发阶段过渡入口，耦合在业务门面中；全局悬浮按钮已成为台账统一入口后该按钮冗余', status: '已修复', fix: '删除 PortalHeader.jsx 的「评审变更」按钮（navItemClass 通用函数不动）；/review-change-list 公开路由保留（重定向到 /dev-ledger?tab=review，兼容评审报告旧链接）；台账统一入口为全局悬浮按钮', commit: 'fix(p7-cleanup)' },
   // 0718 交互重构（台账合并页公开化修正）
