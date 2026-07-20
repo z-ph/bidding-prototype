@@ -4,6 +4,9 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0720 评审（设计纠偏：发布公告入口归属）
+  { id: '0720-007', source: '0720评审', module: '公告管理', page: 'NoticeList / NoticePublish', severity: '高', issue: '0720-004 的修复方向错误：为让公告列表「发布公告」按钮可用而删除了 NoticePublish 的 ProjectEntryGuard。实际上发布公告必然从属于某个项目，该按钮根本不应存在于公告列表右上角（不依赖任何项目上下文），正确入口在项目侧。属「项目是一切业务的上下文」红线', status: '已修复', fix: '① NoticeList 移除右上角「发布公告」按钮（公告列表只看不发）；② NoticePublish 恢复 ProjectEntryGuard（无 projectId 阻断）；③ 关联项目由自由下拉改为锁定只读展示（绑定进入时的项目，projectId 统一转字符串避免 Select 严格匹配失败）；④ 发布公告入口收敛到项目详情「当前阶段操作」（projectFlow commonView 已携带 projectId，招标中状态可发）；⑤ NoticeList「编辑」草稿补传 projectId 以过守卫。作废 0720-004 的删守卫方案', commit: 'fix(review)' },
+
   // 0720 评审（静态 mock 重构后，评审反馈修复）
   { id: '0720-006', source: '0720评审', module: '审批中心', page: 'ApprovalCenter / approvalStore', severity: '中', issue: '审批中心仅有采购需求/招标文件/中标结果三类节点，缺少对项目本身的审批；项目提交审核（pending）后审批中心无对应审批单', status: '已修复', fix: 'APPROVAL_TYPES 新增「项目立项」（value project）；approvalStore 种子新增 2 条审批单：ap-4 项目8信息化系统运维服务项目立项（审批中，当前节点需求部门）、ap-5 项目1 XX市轨道交通设备采购项目立项（已通过，含需求部门→采购管理部两级审批记录）；审批中心「我发起的」可见项目立项审批', commit: 'fix(review)' },
   { id: '0720-005', source: '0720评审', module: '公告发布', page: 'NoticePublish', severity: '中', issue: '公告发布页字段过多（变更原因/发布时间/开标信息/评标方法/联系人等十余项），发布公告的核心动作淹没在冗余信息录入中', status: '已修复', fix: '公告发布页精简为公告类型、关联项目、公告标题、上传文件、公告预览 5 个区块；删除变更原因/发布时间/截止时间/项目编号/采购方式/开标时间地点/评标方法/开标一览表字段/联系人电话/公告正文/发布平台等字段及其校验与预览渲染；发布页新增「返回公告列表」按钮', commit: 'fix(review)' },

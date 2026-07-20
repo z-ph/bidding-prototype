@@ -59,7 +59,7 @@ export default function NoticeList() {
   }
 
   const editDraft = (row) => {
-    navigate({ to: '/admin/notice-publish', search: { id: row.id } })
+    navigate({ to: '/admin/notice-publish', search: { id: row.id, projectId: row.projectId } })
   }
 
   const withdraw = (row) => {
@@ -179,9 +179,6 @@ export default function NoticeList() {
               <Button type="primary" onClick={refresh}>查询</Button>
               <Button onClick={reset}>重置</Button>
             </Space>
-            <Button type="primary" onClick={() => navigate({ to: '/admin/notice-publish' })}>
-              发布公告
-            </Button>
           </div>
         }
       >

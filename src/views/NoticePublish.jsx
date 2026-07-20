@@ -11,10 +11,7 @@ import {
   Button,
   Divider,
   message,
-  Alert,
   Descriptions,
-  Tag,
-  Empty,
   List
 } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
@@ -24,6 +21,7 @@ import {
 } from '../data/notices.js'
 import { projectStore } from '../data/projects.js'
 import { mergeWithBaseline } from './ProjectList.jsx'
+import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 const EMPTY_NOTICE = {
   type: 'tender',
@@ -35,6 +33,7 @@ export default function NoticePublish() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
   const noticeId = searchParams.id
+  const projectIdFromQuery = searchParams.projectId
 
   // 与项目列表同一口径：projectStore + mock 基线合并
   const projects = useMemo(() => mergeWithBaseline(projectStore.getProjects()), [])
@@ -43,8 +42,9 @@ export default function NoticePublish() {
   const [fileList, setFileList] = useState([])
 
   useEffect(() => {
+    const pid = projectIdFromQuery != null ? String(projectIdFromQuery) : null
     if (!noticeId) {
-      setForm(EMPTY_NOTICE)
+      setForm({ ...EMPTY_NOTICE, projectId: pid })
       setFileList([])
       return
     }
@@ -56,7 +56,7 @@ export default function NoticePublish() {
     }
     setForm({
       type: notice.type || 'tender',
-      projectId: notice.projectId != null ? String(notice.projectId) : null,
+      projectId: notice.projectId != null ? String(notice.projectId) : pid,
       title: notice.title || ''
     })
     setFileList(
@@ -68,7 +68,7 @@ export default function NoticePublish() {
           : 2048
       }))
     )
-  }, [noticeId, projects, navigate])
+  }, [noticeId, projectIdFromQuery, projects, navigate])
 
   const selectedProject = useMemo(
     () => projects.find((p) => String(p.id) === String(form.projectId)),
@@ -77,10 +77,6 @@ export default function NoticePublish() {
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }))
-  }
-
-  const handleProjectChange = (projectId) => {
-    setForm((prev) => ({ ...prev, projectId }))
   }
 
   const handleTypeChange = (type) => {
@@ -97,6 +93,11 @@ export default function NoticePublish() {
   }
 
   const typeName = NOTICE_TYPES.find((t) => t.value === form.type)?.label || '公告'
+
+  // 入口守卫（所有 hooks 之后）：发布公告属于项目阶段操作，必须携带 projectId 从项目进入
+  if (!projectIdFromQuery) {
+    return <ProjectEntryGuard />
+  }
 
   return (
     <div className="notice-publish">
@@ -125,27 +126,10 @@ export default function NoticePublish() {
             </Col>
             <Col span={12}>
               <Form.Item label="关联项目" required>
-                <Select
-                  placeholder="请选择关联项目"
-                  style={{ width: '100%' }}
-                  value={form.projectId}
-                  onChange={handleProjectChange}
-                  options={projects.map((p) => ({ label: p.name, value: String(p.id) }))}
-                  notFoundContent={
-                    <Empty
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description="暂无可关联项目，请先在项目列表创建项目"
-                    />
-                  }
+                <Input
+                  readOnly
+                  value={selectedProject?.name || (form.projectId ? `项目 ${form.projectId}` : '')}
                 />
-                {projects.length === 0 && (
-                  <Alert
-                    type="warning"
-                    showIcon
-                    style={{ marginTop: 8 }}
-                    title="当前没有可关联的项目，请先在「项目管理」中创建项目后再发布公告。"
-                  />
-                )}
               </Form.Item>
             </Col>
           </Row>
