@@ -1,0 +1,27 @@
+import{Q as e,Y as t,c as n}from"./useStore-DliLxn3V.js";import{_n as r,t as i}from"./button-CFq-rqtk.js";import{i as a,n as o}from"./fileRoute-uDG0Xyjp.js";import{t as s}from"./alert-CGiQH5vG.js";import{t as c}from"./message-DYXrK1o7.js";import{t as l}from"./modal-DMA9f847.js";import{t as u}from"./card-B51hGroe.js";import{t as d}from"./select-Cc7b5aq5.js";import{t as f}from"./CheckOutlined-CpPv3_2m.js";import{t as p}from"./form-CTexRMCX.js";import{t as m}from"./input-NJCky5ev.js";import{t as h}from"./steps-C3fNpjyk.js";import{t as g}from"./tag-CC1OK38A.js";import{t as _}from"./LockOutlined-CdLF9bEJ.js";import{t as v}from"./projects-DIACDRyo.js";import{t as y}from"./useRole-D3rVtrrq.js";import{t as b}from"./evaluationStore-CBU2ttFo.js";import{t as x}from"./ProjectEntryGuard-Bf6kkTTS.js";var S=e(t(),1),C=n(),w={evaluating:`评标中`,"evaluation-done":`评标完成`,"winner-confirmed":`已确认中标人`,"notice-sent":`中标通知书已发出`};function resolveAwardStage(e,t){if(t?.awardStage)return t.awardStage;let n=b.getEval(e).status;return n===`submitted`||n===`confirmed`?`evaluation-done`:`evaluating`}function AwardNotice(){r();let e=a({strict:!1}),{role:t}=y(),n=e.projectId,[o,b]=(0,S.useState)(String(n)),[T,E]=(0,S.useState)({title:``,bidder:``,amount:``,content:``,signed:!1}),D=(0,S.useMemo)(()=>{let e=v.getProjects().slice(0,20),t=new Map;return e.forEach(e=>t.set(String(e.id),e.name)),Array.from(t.entries()).map(([e,t])=>({value:e,label:t}))},[]),O=(0,S.useMemo)(()=>v.getProjectById(o)||null,[o]),k=O?.name||D.find(e=>e.value===o)?.label||`-`,A=resolveAwardStage(o,O),j=A===`notice-sent`;(0,S.useEffect)(()=>{let e=v.getProjectById(o),t=e?.notice,n=e?.winner,r=e?.name||`-`;E(t?{...t}:{title:`${r}中标通知书`,bidder:n?.name||``,amount:n?.price?`${n.price} 万元`:``,content:`贵司参与的 ${r} 经评标委员会评审、招标人确认，被确定为中标人。请于收到通知书后 30 日内与招标人签订合同。`,signed:!1})},[o]);let updateField=(e,t)=>{E(n=>({...n,[e]:t}))},sign=()=>{c.success(`演示环境 · 电子签章仅作展示`),updateField(`signed`,!0)},preview=()=>{c.success(`演示环境 · 打开中标通知书预览`)},send=()=>{l.confirm({title:`发送中标通知书`,content:`确定将「${k}」的中标通知书发送给中标人 ${T.bidder} 吗？`,okText:`确认发送`,cancelText:`取消`,onOk:()=>{c.success(`演示环境 · 中标通知书已发送`)}})},M=t===`bidder`,N={evaluating:0,"evaluation-done":2,"winner-confirmed":4,"notice-sent":5}[A];return n?(0,C.jsxs)(`div`,{className:`award-notice`,children:[(0,C.jsxs)(u,{title:(0,C.jsxs)(`div`,{className:`card-header`,children:[(0,C.jsx)(`span`,{children:`发送中标通知书`}),(0,C.jsxs)(`span`,{children:[(0,C.jsxs)(g,{color:`warning`,children:[`项目：`,k]}),(0,C.jsx)(g,{color:j?`default`:`processing`,children:w[A]}),T.bidder&&(0,C.jsxs)(g,{color:`success`,children:[`中标人：`,T.bidder]})]})]}),children:[(0,C.jsxs)(`div`,{className:`project-bar`,children:[(0,C.jsx)(`span`,{className:`project-bar-label`,children:`选择项目`}),(0,C.jsx)(d,{style:{minWidth:320},value:o,options:D,onChange:e=>b(String(e))})]}),(0,C.jsx)(h,{current:N,style:{marginBottom:24},items:[{title:`评标结束`},{title:`候选人公示`},{title:`确认中标人`},{title:`结果公示`},{title:`发送通知书`}]}),j&&(0,C.jsx)(s,{title:`当前项目阶段：${w[A]}。需先在「确认中标人」页面完成中标人确认后，才能发送中标通知书。`,type:`warning`,showIcon:!0,icon:(0,C.jsx)(_,{}),closable:!1,style:{marginBottom:20}}),!j&&!j&&(0,C.jsx)(s,{title:`根据模板生成中标通知书，支持在线编辑、签章后发送给中标人。发送后中标人可在工作台查看。`,type:`info`,showIcon:!0,closable:!1,style:{marginBottom:20}}),j&&(0,C.jsx)(s,{title:`中标通知书已于 ${O?.notice?.sentAt?new Date(O.notice.sentAt).toLocaleString():`-`} 发送给中标人 ${T.bidder}，项目定标流程已完成。`,type:`success`,showIcon:!0,closable:!1,style:{marginBottom:20}}),(0,C.jsxs)(p,{layout:`horizontal`,labelCol:{flex:`120px`},children:[(0,C.jsx)(p.Item,{label:`通知书标题`,required:!0,children:(0,C.jsx)(m,{value:T.title,disabled:j||j,onChange:e=>updateField(`title`,e.target.value)})}),(0,C.jsx)(p.Item,{label:`中标人`,required:!0,children:(0,C.jsx)(m,{value:T.bidder||`（待确认中标人）`,disabled:!0})}),(0,C.jsx)(p.Item,{label:`中标金额`,required:!0,children:(0,C.jsx)(m,{value:T.amount,disabled:j||j,onChange:e=>updateField(`amount`,e.target.value)})}),(0,C.jsx)(p.Item,{label:`通知书正文`,required:!0,children:(0,C.jsx)(m.TextArea,{rows:10,value:T.content,disabled:j||j,onChange:e=>updateField(`content`,e.target.value)})}),(0,C.jsxs)(p.Item,{label:`电子签章`,children:[(0,C.jsx)(i,{type:`primary`,ghost:!0,disabled:j||j,onClick:sign,children:`点击进行电子签章`}),T.signed&&(0,C.jsxs)(`span`,{style:{color:`#67C23A`,marginLeft:12},children:[(0,C.jsx)(f,{}),` 已签章`]})]})]}),(0,C.jsx)(`div`,{className:`actions`,children:M?(0,C.jsx)(s,{type:`info`,message:`您以投标人身份查看中标通知书，发送操作仅限招标人/招标代理。`,showIcon:!0}):(0,C.jsxs)(C.Fragment,{children:[!j&&(0,C.jsx)(i,{type:`primary`,size:`large`,onClick:send,children:`发送中标通知书`}),(0,C.jsx)(i,{size:`large`,onClick:preview,children:`预览`})]})})]}),(0,C.jsx)(`style`,{children:`
+        .award-notice {
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+        .award-notice .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-weight: bold;
+        }
+        .award-notice .project-bar {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .award-notice .project-bar-label {
+          font-weight: 500;
+        }
+        .award-notice .actions {
+          display: flex;
+          justify-content: center;
+          gap: 16px;
+          margin-top: 24px;
+        }
+      `})]}):(0,C.jsx)(x,{})}var T=o(`/admin/award-notice`)({component:AwardNotice});export{T as Route};
