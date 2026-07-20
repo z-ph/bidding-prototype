@@ -62,6 +62,16 @@ function useMenuItems(role) {
       ]
     },
     { key: '/admin/procurement-requirements', label: '采购需求库', icon: FileTextOutlined },
+    {
+      key: '/admin/biz-records-group',
+      label: '业务台账',
+      icon: UnorderedListOutlined,
+      children: [
+        { key: '/admin/notice-list', label: '公告列表' },
+        { key: '/admin/supplier-authorization', label: '供应商授权' },
+        { key: '/admin/fee-manage', label: '费用台账' }
+      ]
+    },
     { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
     { key: '/admin/analytics', label: '采购数据分析', icon: BarChartOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined },
