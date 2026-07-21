@@ -1,0 +1,84 @@
+{
+  "proposal": "hall-purchase-method-mapping-20260721",
+  "note": "提案待确认：比价大厅环节构成、种子项目安排等 5 项待人类拍板后再实施",
+  "tasks": [
+    {
+      "id": "comparison-hall-page",
+      "title": "新增比价大厅页面与路由",
+      "description": "新建 src/views/ComparisonHall.jsx（询比族大厅：报价比较表，数据源 quoteStore 的 ${projectId}:: 前缀；招标人/代理可操作比价完成→评标大厅，投标人只读本人报价，监督只读）；新建 admin.comparison-hall.jsx / .lazy.jsx；重新生成 routeTree.gen.ts；ProjectEntryGuard 置于所有 hooks 之后。",
+      "files": ["src/views/ComparisonHall.jsx", "src/routes/admin.comparison-hall.jsx", "src/routes/admin.comparison-hall.lazy.jsx"],
+      "acceptance": [
+        "携带 projectId 访问 /admin/comparison-hall 正常渲染报价比较表",
+        "无 projectId 访问渲染 ProjectEntryGuard 引导页",
+        "比价完成按钮携带 projectId 跳转 /admin/evaluation-hall"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "opening-hall-gate-tender-family",
+      "title": "开标大厅门禁收窄为招标族",
+      "description": "OpeningHall.jsx 门禁由 isInvitedRfqProject 改为询比族判定（inquiry/invitation_inquiry）：询比族项目阻断并引导至比价大厅，招标族正常开标；口径说明 Alert 更新为新口径。",
+      "files": ["src/views/OpeningHall.jsx"],
+      "acceptance": [
+        "公开招标/邀请招标项目正常进入开标流程",
+        "公开询比价/邀请询比价项目进入开标大厅被引导至比价大厅"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "evaluation-hall-all-projects",
+      "title": "评标大厅移除邀请询比价门禁",
+      "description": "EvaluationHall.jsx 删除第 504-546 行邀请询比价阻断分支，所有项目可进入评标；口径说明 Alert 更新。",
+      "files": ["src/views/EvaluationHall.jsx"],
+      "acceptance": [
+        "邀请询比价项目（项目 6）携带 projectId 进入评标大厅不再被阻断",
+        "页面内无「邀请询比价项目无需评标」文案"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "flow-nodes-two-families",
+      "title": "流程节点两族化",
+      "description": "ProjectList.jsx：FLOW_NODES 新增 comparison 节点；PURCHASE_METHOD_FLOW_MAP 改为招标族（opening+evaluation）/询比族（comparison+evaluation）两模板；新增 isInquiryFamily，废止/重定义 INVITED_RFQ_NEXT_STEP_MAP、OPENING_EVALUATION_NODE_KEYS、isInvitedRfqProject 旧语义；getNextStepInfo 按族分流。",
+      "files": ["src/views/ProjectList.jsx"],
+      "acceptance": [
+        "询比族项目流程节点含「线上比价」「线上评标」，不含「线上开标」",
+        "招标族项目流程节点含「线上开标」「线上评标」，不含「线上比价」"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "nav-entries-family-aware",
+      "title": "导航入口按族分流",
+      "description": "projectFlow.js（STATUS_TO_NODE_KEY 族感知、getTendereeActions/getAgentActions 删除邀请询比价直达定标分支、registering/pending_open 按族跳开标或比价大厅）、ProjectList.nextStep、Dashboard STAGE_PATH_MAP 与快捷入口、TodoCenter 状态映射、BidderProjects 开标按钮、ProjectTrack 投标人硬编码时间线，全部改为按族分流。",
+      "files": ["src/utils/projectFlow.js", "src/views/ProjectList.jsx", "src/views/Dashboard.jsx", "src/views/TodoCenter.jsx", "src/views/BidderProjects.jsx", "src/views/ProjectTrack.jsx"],
+      "acceptance": [
+        "询比族项目在列表/详情/工作台/待办的下一步入口指向比价大厅",
+        "招标族项目入口指向不变（开标大厅）",
+        "邀请询比价不再出现「前往定标/确认采购结果」直达入口"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "award-stage-de-rfq",
+      "title": "定标阶段判定去询比短路",
+      "description": "AwardConfirm.resolveAwardStage 删除 isInvitedRfqProject → 'evaluation-done' 短路分支，统一 awardStage → evaluationStore 双依据；以 fix-award-step-regression-20260721 抽取的共享函数为准。",
+      "files": ["src/views/AwardConfirm.jsx", "src/utils/awardFlow.js"],
+      "acceptance": [
+        "邀请询比价项目的定标阶段由评标状态/awardStage 推导，不再无条件视为评标完成"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "permissions-and-seed",
+      "title": "权限/面包屑/种子数据",
+      "description": "permissions.js 新增 /admin/comparison-hall（tenderee/agent/bidder/supervisor）与 BREADCRUMB_NAMES ComparisonHall；projects.js 按确认方案新增或转换公开询比价种子项目。",
+      "files": ["src/config/permissions.js", "src/data/projects.js"],
+      "acceptance": [
+        "四角色可访问比价大厅路由，越权角色被 /admin 守卫拦截",
+        "存在至少 1 个公开询比价种子项目可演示比价大厅"
+      ],
+      "status": "已完成"
+    }
+  ]
+}

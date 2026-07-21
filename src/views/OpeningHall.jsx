@@ -4,7 +4,7 @@ import { Alert, AutoComplete, Button, Card, Descriptions, Result, Steps, Table, 
 import { useRole } from '../hooks/useRole.js'
 import { projectStore } from '../data/projects.js'
 import { quoteStore } from '../data/quoteStore.js'
-import { BASELINE_PROJECTS, getPurchaseModeText, isInvitedRfqProject } from './ProjectList.jsx'
+import { BASELINE_PROJECTS, getPurchaseModeText, isInquiryFamily } from './ProjectList.jsx'
 import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
@@ -51,7 +51,7 @@ export default function OpeningHall() {
   const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
 
-  // 采购方式门禁（add-purchase-method-flow-20260717）：项目/标段均为邀请询比价时无开标环节
+  // 大厅归属门禁（hall-purchase-method-mapping-20260721）：开标大厅仅服务招标族，询比族项目引导至比价大厅
   const project = useMemo(
     () =>
       projectStore.getProjectById(projectId) ||
@@ -59,7 +59,7 @@ export default function OpeningHall() {
       null,
     [projectId]
   )
-  const invitedRfq = isInvitedRfqProject(project)
+  const inquiryFamily = isInquiryFamily(project)
 
   const [currentStage, setCurrentStage] = useState(0)
   const [operationRecords, setOperationRecords] = useState([])
@@ -361,44 +361,43 @@ export default function OpeningHall() {
     return <ProjectEntryGuard />
   }
 
-  // 页面级门禁（清单 20）：邀请询比价项目无开标环节，阻断开标操作区并引导前往定标/采购结果
-  if (invitedRfq) {
+  // 页面级门禁（hall-purchase-method-mapping-20260721）：开标大厅仅服务招标族（公开招标/邀请招标），
+  // 询比族项目（公开询比价/邀请询比价）请在比价大厅操作
+  if (inquiryFamily) {
     return (
       <div className="opening-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <Card>
           <Result
             status="info"
-            title="邀请询比价项目无需开标"
+            title="询比族项目请在比价大厅操作"
             subTitle={
               <>
                 <p style={{ margin: 0 }}>
                   {project?.name || `项目ID：${projectId}`}（采购方式：{getPurchaseModeText(project)}）
                 </p>
                 <p style={{ margin: '8px 0 0' }}>
-                  邀请询比价项目无需开标/评标，报价截止后直接进入采购结果。
+                  公开询比价、邀请询比价项目无需开标，报价截止后在比价大厅比较各供应商报价。
                 </p>
               </>
             }
             extra={[
-              (role === 'tenderee' || role === 'agent') && (
-                <Button
-                  key="award"
-                  type="primary"
-                  onClick={() => navigate({ to: '/admin/award-confirm', search: { projectId } })}
-                >
-                  前往定标
-                </Button>
-              ),
+              <Button
+                key="comparison"
+                type="primary"
+                onClick={() => navigate({ to: '/admin/comparison-hall', search: { projectId } })}
+              >
+                前往比价大厅
+              </Button>,
               <Button key="back" onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : role === 'supervisor' ? '/admin/supervisor-hall' : '/admin/projects' })}>
                 返回
               </Button>
-            ].filter(Boolean)}
+            ]}
           />
           <Alert
             type="info"
             showIcon
             closable={false}
-            title="口径说明：公开招标、邀请招标、公开询比价、邀请询比价四种采购方式环节一致，唯邀请询比价不用开标和评标（2026-07-17 需求确认清单 20）。"
+            title="口径说明：开标大厅服务招标族（公开招标、邀请招标），比价大厅服务询比族（公开询比价、邀请询比价），评标大厅对所有项目开放（2026-07-21 需求，废止 2026-07-17 清单 20 旧口径）。"
           />
         </Card>
       </div>

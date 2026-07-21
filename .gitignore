@@ -28,6 +28,9 @@ review-assets/
 # Worktrees
 .worktrees/
 
+# TanStack Router 插件缓存
+.tanstack/
+
 # playwright-cli session artifacts
 .playwright-cli/
 test-downloads/

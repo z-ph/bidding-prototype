@@ -4,25 +4,15 @@ import { Alert, Button, Card, Form, Input, Select, Steps, Tag, message, Modal } 
 import { CheckOutlined, LockOutlined } from '@ant-design/icons'
 import { projectStore } from '../data/projects.js'
 import { evaluationStore } from '../data/evaluationStore.js'
+import { STAGE_LABELS, stageIndex, resolveAwardStage as resolveAwardStageBase } from '../utils/awardFlow.js'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 import { useRole } from '../hooks/useRole.js'
 
-const AWARD_STAGES = ['evaluating', 'evaluation-done', 'winner-confirmed', 'notice-sent']
-const STAGE_LABELS = {
-  evaluating: '评标中',
-  'evaluation-done': '评标完成',
-  'winner-confirmed': '已确认中标人',
-  'notice-sent': '中标通知书已发出'
-}
-
-function resolveAwardStage(projectId, project) {
-  if (project?.awardStage) return project.awardStage
-  const evalStatus = evaluationStore.getEval(projectId).status
-  if (evalStatus === 'submitted' || evalStatus === 'confirmed') return 'evaluation-done'
-  return 'evaluating'
-}
-
-const stageIndex = (stage) => AWARD_STAGES.indexOf(stage)
+// 定标阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
+// 与 AwardConfirm 同一口径，避免重复实现漂移导致步骤回退。
+// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评标，不再传询比短路分支
+const resolveAwardStage = (projectId, project) =>
+  resolveAwardStageBase(projectId, project, evaluationStore, null)
 
 export default function AwardNotice() {
   const navigate = useNavigate()
@@ -56,6 +46,8 @@ export default function AwardNotice() {
 
   const stage = resolveAwardStage(projectId, project)
   const sent = stage === 'notice-sent'
+  // 中标人是否已确认：早于 winner-confirmed 阶段时通知书不可编辑/发送（fix-award-step-regression-20260721）
+  const confirmed = stageIndex(stage) >= stageIndex('winner-confirmed')
 
   // 切换/刷新项目时按所选项目渲染
   useEffect(() => {
@@ -150,7 +142,7 @@ export default function AwardNotice() {
             { title: '发送通知书' }
           ]}
         />
-        {sent && (
+        {!confirmed && (
           <Alert
             title={`当前项目阶段：${STAGE_LABELS[stage]}。需先在「确认中标人」页面完成中标人确认后，才能发送中标通知书。`}
             type="warning"
@@ -160,7 +152,7 @@ export default function AwardNotice() {
             style={{ marginBottom: 20 }}
           />
         )}
-        {!sent && !sent && (
+        {confirmed && !sent && (
           <Alert
             title="根据模板生成中标通知书，支持在线编辑、签章后发送给中标人。发送后中标人可在工作台查看。"
             type="info"
@@ -182,7 +174,7 @@ export default function AwardNotice() {
           <Form.Item label="通知书标题" required>
             <Input
               value={form.title}
-              disabled={sent || sent}
+              disabled={sent || !confirmed}
               onChange={(e) => updateField('title', e.target.value)}
             />
           </Form.Item>
@@ -192,7 +184,7 @@ export default function AwardNotice() {
           <Form.Item label="中标金额" required>
             <Input
               value={form.amount}
-              disabled={sent || sent}
+              disabled={sent || !confirmed}
               onChange={(e) => updateField('amount', e.target.value)}
             />
           </Form.Item>
@@ -200,12 +192,12 @@ export default function AwardNotice() {
             <Input.TextArea
               rows={10}
               value={form.content}
-              disabled={sent || sent}
+              disabled={sent || !confirmed}
               onChange={(e) => updateField('content', e.target.value)}
             />
           </Form.Item>
           <Form.Item label="电子签章">
-            <Button type="primary" ghost disabled={sent || sent} onClick={sign}>
+            <Button type="primary" ghost disabled={sent || !confirmed} onClick={sign}>
               点击进行电子签章
             </Button>
             {form.signed && (
@@ -220,7 +212,7 @@ export default function AwardNotice() {
             <Alert type="info" message="您以投标人身份查看中标通知书，发送操作仅限招标人/招标代理。" showIcon />
           ) : (
             <>
-              {!sent && (
+              {confirmed && !sent && (
                 <Button type="primary" size="large" onClick={send}>
                   发送中标通知书
                 </Button>

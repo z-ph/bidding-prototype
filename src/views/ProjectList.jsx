@@ -36,7 +36,7 @@ export const PROJECT_STATUS_MAP = {
   done: { text: '已完成', color: 'default' }
 }
 
-// 当前状态 → 下一步动作（默认口径，操作列与详情页共用；邀请询比价见 INVITED_RFQ_NEXT_STEP_MAP / getNextStepInfo）
+// 当前状态 → 下一步动作（默认口径，操作列与详情页共用；询比族见 INQUIRY_FAMILY_NEXT_STEP_MAP / getNextStepInfo）
 export const NEXT_STEP_MAP = {
   draft: { label: '继续编辑', description: '草稿待完善，继续编辑后可提交审核' },
   pending: { label: '查看进度', description: '已提交审核，等待管理员审核' },
@@ -74,11 +74,10 @@ export function getPurchaseModeText(project) {
     .join('、')
 }
 
-// ── 采购方式 → 流程节点映射（add-purchase-method-flow-20260717，任务 purchase-method-flow-map）──
-// 口径：2026-07-17 需求确认清单 20——四种采购方式环节一样，唯邀请询比价（invitation_inquiry）
-// 不用开标和评标，报价截止后可直接进入采购结果。
-// 2026-07-17 新口径（清单 10/11/26/33）：无报名环节、不缴纳费用、无合同归档，
-// 流程节点不含「投标报名与缴费」「合同归档」，定标公示后流程结束。
+// ── 采购方式 → 流程节点映射（hall-purchase-method-mapping-20260721，两族两模板）──
+// 口径：2026-07-21 需求——开标大厅服务招标族（公开招标 open/邀请招标 invitation），
+// 比价大厅服务询比族（公开询比价 inquiry/邀请询比价 invitation_inquiry），
+// 评标大厅对所有项目开放。废止 2026-07-17 清单 20「唯邀请询比价不用开标和评标」旧口径。
 // 方式取值与 ProjectCreate 的 PURCHASE_MODE_OPTIONS 一致：open / invitation / inquiry / invitation_inquiry
 export const FLOW_NODES = [
   { key: 'requirement', label: '创建采购需求' },
@@ -86,21 +85,19 @@ export const FLOW_NODES = [
   { key: 'notice', label: '发布招标公告' },
   { key: 'bid', label: '上传投标文件/报价' },
   { key: 'opening', label: '线上开标' },
+  { key: 'comparison', label: '线上比价' },
   { key: 'evaluation', label: '线上评标' },
   { key: 'award', label: '定标公示' }
 ]
 
-// 开标/评标节点 key，邀请询比价剔除这两项
-export const OPENING_EVALUATION_NODE_KEYS = ['opening', 'evaluation']
+const BASE_FLOW_NODE_KEYS = ['requirement', 'doc', 'notice', 'bid']
 
-const FULL_FLOW_NODE_KEYS = FLOW_NODES.map((n) => n.key)
-
-// 四种采购方式的节点序列：仅邀请询比价不含开标、评标，报价后直接为定标/采购结果
+// 两族模板：招标族 = 开标 + 评标；询比族 = 比价 + 评标（评标对所有项目开放）
 export const PURCHASE_METHOD_FLOW_MAP = {
-  open: [...FULL_FLOW_NODE_KEYS],
-  invitation: [...FULL_FLOW_NODE_KEYS],
-  inquiry: [...FULL_FLOW_NODE_KEYS],
-  invitation_inquiry: FULL_FLOW_NODE_KEYS.filter((k) => !OPENING_EVALUATION_NODE_KEYS.includes(k))
+  open: [...BASE_FLOW_NODE_KEYS, 'opening', 'evaluation', 'award'],
+  invitation: [...BASE_FLOW_NODE_KEYS, 'opening', 'evaluation', 'award'],
+  inquiry: [...BASE_FLOW_NODE_KEYS, 'comparison', 'evaluation', 'award'],
+  invitation_inquiry: [...BASE_FLOW_NODE_KEYS, 'comparison', 'evaluation', 'award']
 }
 
 // 按采购方式查询节点序列（未知方式回退公开招标全链路）
@@ -113,23 +110,28 @@ export function isFlowNodeEnabled(purchaseMode, nodeKey) {
   return getFlowNodeKeys(purchaseMode).includes(nodeKey)
 }
 
-// 纯邀请询比价项目判定：全部标段均为 invitation_inquiry（混合标段项目仍走开标/评标链路）
+// 询比族判定：全部标段均为询比类（inquiry/invitation_inquiry）→ 走比价大厅
+export function isInquiryFamily(project) {
+  const values = getPurchaseModeValues(project)
+  return values.length > 0 && values.every((v) => v === 'inquiry' || v === 'invitation_inquiry')
+}
+
+// 纯邀请询比价项目判定：全部标段均为 invitation_inquiry（定标阶段兼容口径沿用，见 utils/awardFlow.js）
 export function isInvitedRfqProject(project) {
   const values = getPurchaseModeValues(project)
   return values.length > 0 && values.every((v) => v === 'invitation_inquiry')
 }
 
-// 邀请询比价下一步口径（任务 invited-rfq-direct-award）：报价相关状态直达定标/采购结果，不出现开标/评标入口
-export const INVITED_RFQ_NEXT_STEP_MAP = {
+// 询比族下一步口径（hall-purchase-method-mapping-20260721）：报价相关状态进入比价大厅，评标中进入评标大厅
+export const INQUIRY_FAMILY_NEXT_STEP_MAP = {
   ...NEXT_STEP_MAP,
-  registering: { label: '前往定标', description: '邀请询比价无开标/评标环节，报价截止后直接进入定标/采购结果' },
-  pending_open: { label: '前往定标', description: '邀请询比价无开标环节，报价截止后直接进入定标/采购结果' },
-  evaluating: { label: '前往定标', description: '邀请询比价无评标环节，直接进入定标/采购结果' }
+  registering: { label: '进入比价', description: '询比族项目报价截止后进入比价大厅比较报价' },
+  pending_open: { label: '比价大厅', description: '询比族项目进入比价大厅完成报价比较' }
 }
 
-// 当前状态 → 下一步动作（按采购方式分流；操作列与详情页共用同一口径）
+// 当前状态 → 下一步动作（按采购方式族分流；操作列与详情页共用同一口径）
 export function getNextStepInfo(project) {
-  const map = isInvitedRfqProject(project) ? INVITED_RFQ_NEXT_STEP_MAP : NEXT_STEP_MAP
+  const map = isInquiryFamily(project) ? INQUIRY_FAMILY_NEXT_STEP_MAP : NEXT_STEP_MAP
   return map[project?.status] || { label: '详情', description: '暂无后续操作' }
 }
 
@@ -206,7 +208,7 @@ export default function ProjectList() {
   const statusColor = (s) => PROJECT_STATUS_MAP[s]?.color || 'default'
 
   const nextLabel = (row) => {
-    // 代理无项目创建/编辑权限（zip-014），草稿阶段下一步为编制招标文件
+    // 代理草稿项目下一步为编制招标文件（代理已有创建权限但无编辑权限，agent-project-requirement-management-20260721）
     if (role === 'agent' && row.status === 'draft') return '编制文件'
     return getNextStepInfo(row).label
   }
@@ -273,7 +275,7 @@ export default function ProjectList() {
   const nextStep = (row) => {
     const isAgentRole = role === 'agent'
     if (row.status === 'draft') {
-      // 代理草稿阶段进入招标文件编制（无项目创建/编辑权限，与驾驶舱 getAgentActions 一致）
+      // 代理草稿项目进入招标文件编制（代理无编辑权限，编辑仍限招标人，与驾驶舱 getAgentActions 一致）
       if (isAgentRole) {
         navigate({ to: '/admin/tender-doc', search: { projectId: row.id } })
         return
@@ -299,15 +301,13 @@ export default function ProjectList() {
       viewDetail(row)
       return
     }
-    // 邀请询比价（清单 20）：无开标/评标环节，报价相关状态直达定标/采购结果（代理直达定标审批）
-    if (isInvitedRfqProject(row) && ['registering', 'pending_open', 'evaluating'].includes(row.status)) {
-      navigate({ to: isAgentRole ? '/admin/approval-center' : '/admin/award-confirm', search: { projectId: row.id } })
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：招标族→开标大厅，询比族→比价大厅；评标对所有项目开放
+    if (row.status === 'registering' || row.status === 'pending_open') {
+      navigate({ to: isInquiryFamily(row) ? '/admin/comparison-hall' : '/admin/opening-hall', search: { projectId: row.id } })
       return
     }
     const to = {
       tendering: '/admin/notice-publish',
-      registering: '/admin/opening-hall',
-      pending_open: '/admin/opening-hall',
       evaluating: '/admin/evaluation-hall'
     }[row.status]
     navigate({ to: to || '/admin/projects', search: { projectId: row.id } })
@@ -421,7 +421,7 @@ export default function ProjectList() {
               <Button type="primary" onClick={loadProjects}>查询</Button>
               <Button onClick={reset}>重置</Button>
             </div>
-            {role === 'tenderee' && (
+            {['tenderee', 'agent'].includes(role) && (
               <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate({ to: '/admin/projects/create' })}>
                 创建项目
               </Button>
@@ -441,7 +441,7 @@ export default function ProjectList() {
             ) : (
               <EmptyState
                 description="暂无项目数据"
-                reason={role === 'tenderee' ? '可点击右上角「创建项目」发起新项目' : ''}
+                reason={['tenderee', 'agent'].includes(role) ? '可点击右上角「创建项目」发起新项目' : ''}
               />
             )
           }}

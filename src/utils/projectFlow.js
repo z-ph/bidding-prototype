@@ -4,11 +4,11 @@
 import {
   FLOW_NODES,
   getFlowNodeKeys,
-  isInvitedRfqProject
+  isInquiryFamily
 } from '../views/ProjectList.jsx'
 
 // 项目状态 → 流程节点 key 映射（用于 Timeline 高亮当前阶段）
-// 2026-07-17 新口径：无报名/缴费节点（registering 公告期归入 bid 节点），无合同归档节点（定标后流程结束）
+// 2026-07-17 口径：无报名/缴费节点（registering 公告期归入 bid 节点），无合同归档节点（定标后流程结束）
 export const STATUS_TO_NODE_KEY = {
   draft: 'requirement',
   pending: 'requirement',
@@ -25,17 +25,16 @@ export const STATUS_TO_NODE_KEY = {
   done: 'award'
 }
 
-// 邀请询比价项目：报价相关状态直接定位到定标节点
-export const INVITED_RFQ_STATUS_TO_NODE_KEY = {
-  registering: 'award',
-  pending_open: 'award',
-  evaluating: 'award'
+// 询比族项目：待开标状态定位到比价节点（hall-purchase-method-mapping-20260721）；
+// 其余状态与默认映射一致（registering→bid、evaluating→evaluation）
+export const INQUIRY_FAMILY_STATUS_TO_NODE_KEY = {
+  pending_open: 'comparison'
 }
 
 export function getProjectStatusNodeKey(project) {
   const status = project?.status
-  if (isInvitedRfqProject(project)) {
-    return INVITED_RFQ_STATUS_TO_NODE_KEY[status] || STATUS_TO_NODE_KEY[status] || 'requirement'
+  if (isInquiryFamily(project)) {
+    return INQUIRY_FAMILY_STATUS_TO_NODE_KEY[status] || STATUS_TO_NODE_KEY[status] || 'requirement'
   }
   return STATUS_TO_NODE_KEY[status] || 'requirement'
 }
@@ -77,18 +76,9 @@ export function getTendereeActions(project) {
 
   const commonView = (target) => go(target, { projectId })
 
-  // 邀请询比价（清单 20）：报价相关状态跳过开标/评标，直达定标/采购结果
-  // 与 ProjectList.INVITED_RFQ_NEXT_STEP_MAP / INVITED_RFQ_STATUS_TO_NODE_KEY 同一口径
-  if (isInvitedRfqProject(project) && ['registering', 'pending_open', 'evaluating'].includes(status)) {
-    return [
-      {
-        title: '前往定标',
-        desc: '邀请询比价无开标/评标环节，报价截止后直接进入定标/采购结果',
-        buttonText: '确认采购结果',
-        action: go('/admin/award-confirm')
-      }
-    ]
-  }
+  // 大厅族分流（hall-purchase-method-mapping-20260721）：招标族→开标大厅，询比族→比价大厅
+  const inquiryFamily = isInquiryFamily(project)
+  const hallTarget = inquiryFamily ? '/admin/comparison-hall' : '/admin/opening-hall'
 
   switch (status) {
     case 'draft':
@@ -148,21 +138,35 @@ export function getTendereeActions(project) {
           buttonText: '项目跟踪',
           action: commonView('/admin/projects/track')
         },
-        {
-          title: '准备开标',
-          desc: '投标截止后进入开标大厅完成签到、解密、唱标',
-          buttonText: '进入开标大厅',
-          action: commonView('/admin/opening-hall')
-        }
+        inquiryFamily
+          ? {
+              title: '准备比价',
+              desc: '报价截止后进入比价大厅比较各供应商报价',
+              buttonText: '进入比价大厅',
+              action: commonView(hallTarget)
+            }
+          : {
+              title: '准备开标',
+              desc: '投标截止后进入开标大厅完成签到、解密、唱标',
+              buttonText: '进入开标大厅',
+              action: commonView(hallTarget)
+            }
       ]
     case 'pending_open':
       return [
-        {
-          title: '进入开标大厅',
-          desc: '组织投标人完成签到、解密、唱标',
-          buttonText: '开标大厅',
-          action: commonView('/admin/opening-hall')
-        }
+        inquiryFamily
+          ? {
+              title: '进入比价大厅',
+              desc: '比较各供应商报价，生成比价结果',
+              buttonText: '比价大厅',
+              action: commonView(hallTarget)
+            }
+          : {
+              title: '进入开标大厅',
+              desc: '组织投标人完成签到、解密、唱标',
+              buttonText: '开标大厅',
+              action: commonView(hallTarget)
+            }
       ]
     case 'evaluating':
       return [
@@ -224,18 +228,9 @@ export function getAgentActions(project) {
 
   const commonView = (target) => go(target, { projectId })
 
-  // 邀请询比价（清单 20）：报价相关状态跳过开标/评标，报价截止后代理汇总结果直接提交定标审批
-  // 与 getTendereeActions / ProjectList.INVITED_RFQ_NEXT_STEP_MAP 同一口径
-  if (isInvitedRfqProject(project) && ['registering', 'pending_open', 'evaluating'].includes(status)) {
-    return [
-      {
-        title: '提交定标审批',
-        desc: '邀请询比价无开标/评标环节，报价截止后汇总报价结果提交定标审批',
-        buttonText: '定标审批',
-        action: go('/admin/approval-center')
-      }
-    ]
-  }
+  // 大厅族分流（hall-purchase-method-mapping-20260721）：招标族→开标大厅，询比族→比价大厅
+  const inquiryFamily = isInquiryFamily(project)
+  const hallTarget = inquiryFamily ? '/admin/comparison-hall' : '/admin/opening-hall'
 
   switch (status) {
     case 'draft':
@@ -285,21 +280,35 @@ export function getAgentActions(project) {
           buttonText: '项目跟踪',
           action: commonView('/admin/projects/track')
         },
-        {
-          title: '准备开标',
-          desc: '投标截止后进入开标大厅组织签到、解密、唱标',
-          buttonText: '进入开标大厅',
-          action: commonView('/admin/opening-hall')
-        }
+        inquiryFamily
+          ? {
+              title: '准备比价',
+              desc: '报价截止后进入比价大厅汇总并比较各供应商报价',
+              buttonText: '进入比价大厅',
+              action: commonView(hallTarget)
+            }
+          : {
+              title: '准备开标',
+              desc: '投标截止后进入开标大厅组织签到、解密、唱标',
+              buttonText: '进入开标大厅',
+              action: commonView(hallTarget)
+            }
       ]
     case 'pending_open':
       return [
-        {
-          title: '进入开标大厅',
-          desc: '组织投标人完成签到、解密、唱标',
-          buttonText: '开标大厅',
-          action: commonView('/admin/opening-hall')
-        }
+        inquiryFamily
+          ? {
+              title: '进入比价大厅',
+              desc: '汇总并比较各供应商报价，生成比价结果',
+              buttonText: '比价大厅',
+              action: commonView(hallTarget)
+            }
+          : {
+              title: '进入开标大厅',
+              desc: '组织投标人完成签到、解密、唱标',
+              buttonText: '开标大厅',
+              action: commonView(hallTarget)
+            }
       ]
     case 'evaluating':
       return [

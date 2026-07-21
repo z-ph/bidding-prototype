@@ -11,6 +11,30 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.10.0',
+    date: '2026-07-21',
+    title: '大厅归属重定义 + 定标步骤修复 + 代理项目/需求管理',
+    changes: [
+      { type: 'feat', text: '新增比价大厅（/admin/comparison-hall）：询比族项目（公开询比价/邀请询比价）的大厅，报价汇总→报价比较→比价完成三段，数据源 quoteStore（预置项目 6/10 报价种子），招标人/代理可操作、投标人只读本人报价、监督只读；比价完成携带 projectId 进入评标大厅' },
+      { type: 'feat', text: '大厅归属新口径（废止清单 20）：开标大厅收窄为招标族（公开招标/邀请招标），询比族进入开标大厅引导至比价大厅、招标族进入比价大厅反向引导；评标大厅移除邀请询比价门禁，对所有项目开放；FLOW_NODES 新增「线上比价」节点，流程映射改招标族/询比族两模板' },
+      { type: 'feat', text: '导航入口按族分流：projectFlow 两动作集删除邀请询比价直达定标分支（registering/pending_open 按族跳开标或比价大厅）、ProjectList 下一步、工作台继续项目与快捷入口（新增比价大厅卡片）、待办中心项目待办、投标人项目中心按钮、项目跟踪投标人时间线' },
+      { type: 'fix', text: '定标步骤回退第一步修复：抽取共享 utils/awardFlow.js（resolveAwardStage/阶段常量），确认中标人页与中标通知书页统一引用，消除两页面重复实现漂移（项目 6 原为第 3 步→通知书页第 1 步，现两页一致）；顺带修复 AwardNotice 三处复制粘贴残留（警示条件反了、重复条件、disabled 表达式），三态（未确认/已确认未发/已发送）展示正确' },
+      { type: 'feat', text: '招标代理接入项目管理与采购需求（部分推翻 zip-014）：代理菜单「委托项目」组新增「创建项目」、新增「采购需求库」入口；permissions 放开 projects/create 与 procurement-requirements* 对 agent 的访问；项目列表创建按钮对代理渲染；创建项目页代理角色默认「委托代理」组织方式。未放开：编辑/发标权限、受托项目数据范围（列为后续）' },
+      { type: 'docs', text: '种子数据新增项目 10（办公设备询价采购，公开询比价、待开标）；权限矩阵文档更新代理章节与比价大厅行；三份提案（spec/changes/2026-07-21-*）状态置已完成。Playwright 实测：比价大厅三段与进评标、双向门禁、招标族正常开标、定标两页步骤一致、代理菜单/创建/需求库全部通过' }
+    ]
+  },
+  {
+    version: '0.9.3',
+    date: '2026-07-21',
+    title: '0721 需求三项提案登记（待确认后实施）',
+    changes: [
+      { type: 'docs', text: '提案 hall-purchase-method-mapping-20260721：大厅与采购方式归属重定义——开标大厅收窄为招标族（公开招标/邀请招标），新增「比价大厅」服务询比族（公开询比价/邀请询比价），评标大厅对所有项目开放；含流程节点两族化、导航入口分流、权限/种子配套。废止清单 20 旧口径。代码未实施，待比价大厅环节构成等 5 项确认' },
+      { type: 'docs', text: '提案 fix-award-step-regression-20260721：修复「前往定标第三步、确认中标人后页面回到第一步」——根因为 AwardConfirm/AwardNotice 两页面 resolveAwardStage 重复实现且漂移（通知书页缺邀请询比价分支→evaluating→第 1 步）；方案为抽取共享 awardFlow.js 统一口径并修复 AwardNotice 三处展示条件残留。代码未实施，待确认后实施' },
+      { type: 'docs', text: '提案 agent-project-requirement-management-20260721：招标代理接入采购需求管理与项目管理（含创建项目）——代理菜单补「创建项目」「采购需求库」，permissions 三路径放开 agent，ProjectList 创建按钮对代理渲染；页面本身已代理就绪。部分推翻 zip-014 口径。代码未实施，待编辑/发标权限等 4 项确认' },
+      { type: 'docs', text: '三份提案落于 spec/changes/（各含 proposal.md + tasks.json）；评审变更列表登记 0721-001~003（状态：待确认）。本次仅提案与台账登记，无业务代码变更，版本号递增以区分评审基线' }
+    ]
+  },
+  {
     version: '0.9.2',
     date: '2026-07-18',
     title: '移除门户头部「评审变更」过渡入口',

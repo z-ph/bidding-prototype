@@ -8,6 +8,7 @@ import StatusTag from '../components/StatusTag.jsx'
 import EmptyState from '../components/EmptyState.jsx'
 import { useRole } from '../hooks/useRole.js'
 import { projectStore } from '../data/projects.js'
+import { isInquiryFamily } from './ProjectList.jsx'
 import { authorizationStore } from '../data/authorizationStore.js'
 
 // 投标邀请响应持久化（localStorage，key 前缀 bidding-）
@@ -271,6 +272,11 @@ export default function BidderProjects() {
           进入开标大厅
         </Button>
       ),
+      comparison: (
+        <Button key="comparison" type="primary" size="small" onClick={go('/admin/comparison-hall')}>
+          进入比价大厅
+        </Button>
+      ),
       award: (
         <Button key="award" type="primary" size="small" onClick={go('/admin/award-notice')}>
           查看中标通知
@@ -288,7 +294,10 @@ export default function BidderProjects() {
       已中标: ['award'],
       已完成: ['award']
     }
-    const keys = statusEntries[project.status] || []
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开标入口替换为比价大厅
+    const keys = (statusEntries[project.status] || []).map((k) =>
+      k === 'opening' && isInquiryFamily(project) ? 'comparison' : k
+    )
     if (keys.length === 0) {
       return [
         <Button key="track" size="small" onClick={go('/admin/projects/track')}>

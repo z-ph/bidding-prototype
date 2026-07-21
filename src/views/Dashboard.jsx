@@ -26,7 +26,8 @@ import {
   WalletOutlined,
   SearchOutlined,
   FileProtectOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  BarChartOutlined
 } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
 import StatusTag from '../components/StatusTag.jsx'
@@ -34,7 +35,7 @@ import AdminDashboard from './AdminDashboard.jsx'
 import { projectStore } from '../data/projects.js'
 import { evaluationStore } from '../data/evaluationStore.js'
 import { supervisorStore } from '../data/supervisorStore.js'
-import { PROJECT_STATUS_MAP, PURCHASE_MODE_OPTIONS } from './ProjectList.jsx'
+import { PROJECT_STATUS_MAP, PURCHASE_MODE_OPTIONS, isInquiryFamily } from './ProjectList.jsx'
 
 // 快捷入口使用种子项目中对应状态的演示项目 id
 const DEMO_ENTRY_PROJECT = {
@@ -42,6 +43,7 @@ const DEMO_ENTRY_PROJECT = {
   '确认中标': '5',    // 5=评标中(评标已提交),可演示确认中标
   '发布公告': '1',    // 1=招标中,可演示发布公告
   '开标大厅': '3',    // 3=待开标,今日15:00开标
+  '比价大厅': '10',   // 10=待开标(公开询比价),演示比价大厅
   '评标大厅': '5',    // 5=评标中,有完整评标数据
 }
 
@@ -144,6 +146,7 @@ export default function Dashboard() {
     { title: '创建项目', icon: PlusOutlined, color: '#409EFF', path: '/admin/projects/create' },
     { title: '发布公告', icon: BellOutlined, color: '#E6A23C', path: '/admin/notice-publish' },
     { title: '开标大厅', icon: PlayCircleOutlined, color: '#67C23A', path: '/admin/opening-hall' },
+    { title: '比价大厅', icon: BarChartOutlined, color: '#722ED1', path: '/admin/comparison-hall' },
     { title: '评标大厅', icon: StarOutlined, color: '#F56C6C', path: '/admin/evaluation-hall' }
   ]
 
@@ -174,7 +177,11 @@ export default function Dashboard() {
   }
   const continueProject = (row) => {
     const statusText = PROJECT_STATUS_MAP[row.status]?.text || row.status
-    const path = STAGE_PATH_MAP[statusText] || '/admin/projects'
+    let path = STAGE_PATH_MAP[statusText] || '/admin/projects'
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：公告中/待开标的询比族项目进入比价大厅
+    if ((statusText === '公告中' || statusText === '待开标') && isInquiryFamily(row)) {
+      path = '/admin/comparison-hall'
+    }
     // 所有阶段跳转一律带 projectId
     navigate({ to: path, search: { projectId: String(row.id) } })
   }

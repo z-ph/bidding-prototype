@@ -4,6 +4,7 @@ import { Alert, Button, Card, Empty, Table, Tabs, Tag } from 'antd'
 import { useRole } from '../hooks/useRole.js'
 import { approvalStore, APPROVAL_TYPES } from '../data/approvalStore.js'
 import { projectStore } from '../data/projects.js'
+import { isInquiryFamily } from './ProjectList.jsx'
 
 // 待办中心（cal-008）：按当前角色聚合审批待办、项目状态待办、系统待办
 // 口径：需求确认清单 47（§1.15）——各角色面板均含「系统待办」
@@ -115,15 +116,20 @@ export default function TodoCenter() {
     return projectStore
       .getProjects()
       .filter((p) => map[p.status])
-      .map((p) => ({
-        id: `project-${p.id}`,
-        kind: 'project',
-        title: `项目「${p.name || p.code || p.id}」${map[p.status].text}`,
-        source: `项目编号：${p.code || '-'}`,
-        time: formatTime(p.submitTime || p.createTime),
-        path: map[p.status].path,
-        projectId: p.id
-      }))
+      .map((p) => {
+        const todo = map[p.status]
+        // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开标大厅入口改为比价大厅
+        const toComparison = todo.path === '/admin/opening-hall' && isInquiryFamily(p)
+        return {
+          id: `project-${p.id}`,
+          kind: 'project',
+          title: `项目「${p.name || p.code || p.id}」${toComparison ? '待开标，报价截止后请进入比价大厅' : todo.text}`,
+          source: `项目编号：${p.code || '-'}`,
+          time: formatTime(p.submitTime || p.createTime),
+          path: toComparison ? '/admin/comparison-hall' : todo.path,
+          projectId: p.id
+        }
+      })
   }, [role])
 
   // 系统待办 mock（清单 47：各角色面板均含系统待办）

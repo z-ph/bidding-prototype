@@ -1,0 +1,30 @@
+{
+  "proposal": "fix-award-step-regression-20260721",
+  "note": "根因已定位（两页面 resolveAwardStage 重复且漂移），待确认事项 1 拍板后实施",
+  "tasks": [
+    {
+      "id": "shared-award-stage",
+      "title": "抽取共享定标阶段推导函数",
+      "description": "新建 src/utils/awardFlow.js，迁移 AwardConfirm 的 resolveAwardStage 与 AWARD_STAGES/STAGE_LABELS；AwardConfirm.jsx、AwardNotice.jsx 删除各自重复定义并统一引用。",
+      "files": ["src/utils/awardFlow.js", "src/views/AwardConfirm.jsx", "src/views/AwardNotice.jsx"],
+      "acceptance": [
+        "项目 6 确认中标人后进入中标通知书页，Steps 不再回退第 1 步（显示第 3 步「确认中标人」）",
+        "项目 9 两页面 Steps 均显示 winner-confirmed 对应步，口径一致",
+        "src/views 下不再有重复的 resolveAwardStage 定义"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "award-notice-conditions",
+      "title": "修复中标通知书页展示条件",
+      "description": "AwardNotice.jsx：「需先确认中标人」警示条件改为阶段早于 winner-confirmed；去重 !sent && !sent；disabled={sent || sent} 改为正确禁用语义。",
+      "files": ["src/views/AwardNotice.jsx"],
+      "acceptance": [
+        "未确认中标人的项目进入通知书页显示「需先确认」警示且字段禁用",
+        "已发出通知书的项目（项目 4）字段禁用且显示已发送成功提示",
+        "无重复条件表达式"
+      ],
+      "status": "已完成"
+    }
+  ]
+}

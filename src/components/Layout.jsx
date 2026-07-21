@@ -85,9 +85,9 @@ function useMenuItems(role) {
     }
   ]
 
-  // 招标代理菜单（refactor-agent-menu-workflow-20260718）：阶段操作（招标文件编制/公告发布/
-  // 专家抽取/中标通知书）全部下沉到项目驾驶舱携带 projectId 进入，菜单只保留跨项目台账入口；
-  // 三个跨项目业务台账聚合为「业务台账」分组，控制顶层项数量
+  // 招标代理菜单（refactor-agent-menu-workflow-20260718；agent-project-requirement-management-20260721：
+  // 代理可管理项目含创建项目、管理采购需求）：阶段操作（招标文件编制/公告发布/专家抽取/中标通知书）
+  // 全部下沉到项目驾驶舱携带 projectId 进入，菜单只保留跨项目台账入口
   const agentMenus = [
     {
       key: '/admin/projects-group',
@@ -95,9 +95,11 @@ function useMenuItems(role) {
       icon: FolderOutlined,
       children: [
         { key: '/admin/projects', label: '项目列表' },
+        { key: '/admin/projects/create', label: '创建项目' },
         { key: '/admin/projects/track', label: '项目跟踪' }
       ]
     },
+    { key: '/admin/procurement-requirements', label: '采购需求库', icon: FileTextOutlined },
     {
       key: '/admin/biz-records-group',
       label: '业务台账',

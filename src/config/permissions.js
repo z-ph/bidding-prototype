@@ -32,7 +32,8 @@ export const PAGE_PERMISSIONS = {
 
   // 招标人/招标代理共用页面
   '/admin/projects': ['tenderee', 'agent'],
-  '/admin/projects/create': ['tenderee'],
+  // 创建项目：招标人 + 招标代理（agent-project-requirement-management-20260721，部分推翻 zip-014 口径）
+  '/admin/projects/create': ['tenderee', 'agent'],
   '/admin/projects/track': ['tenderee', 'agent'],
   '/admin/projects/detail/:id': ['tenderee', 'agent', 'bidder'],
   '/admin/tender-doc': ['tenderee', 'agent'],
@@ -41,17 +42,21 @@ export const PAGE_PERMISSIONS = {
   '/admin/supplier-authorization': ['tenderee', 'agent'],
   '/admin/approval-center': ['tenderee', 'agent'],
   '/admin/approval-flow-config': ['tenderee', 'admin'],
-  '/admin/procurement-requirements': ['tenderee'],
-  '/admin/procurement-requirements/edit': ['tenderee'],
+  // 采购需求库：招标人 + 招标代理（agent-project-requirement-management-20260721）
+  '/admin/procurement-requirements': ['tenderee', 'agent'],
+  '/admin/procurement-requirements/edit': ['tenderee', 'agent'],
   '/admin/fee-manage': ['tenderee', 'agent'],
   '/admin/expert-extraction': ['tenderee', 'agent', 'admin'],
   '/admin/award-confirm': ['tenderee', 'agent'],
   '/admin/award-notice': ['tenderee', 'agent', 'bidder'],
 
-  // 开标大厅：仅招标人/招标代理/投标人可进入，但操作权限不同
+  // 开标大厅：仅服务招标族（公开招标/邀请招标）；招标人/招标代理/投标人可进入，监督只读，操作权限各异
   '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
 
-  // 评标大厅：招标人/招标代理/评标专家/监督人员
+  // 比价大厅：服务询比族（公开询比价/邀请询比价），角色口径同开标大厅（hall-purchase-method-mapping-20260721）
+  '/admin/comparison-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
+
+  // 评标大厅：对所有采购项目开放；招标人/招标代理/评标专家/监督人员
   '/admin/evaluation-hall': ['tenderee', 'agent', 'expert', 'supervisor'],
 
   // 投标人页面
@@ -122,6 +127,7 @@ export const BREADCRUMB_NAMES = {
   TenderDoc: '招标文件',
   BidUpload: '上传投标文件',
   OpeningHall: '开标大厅',
+  ComparisonHall: '比价大厅',
   EvaluationHall: '评标大厅',
   NoticePublish: '发布公告',
   NoticeList: '公告列表',

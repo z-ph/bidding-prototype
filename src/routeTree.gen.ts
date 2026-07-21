@@ -49,6 +49,7 @@ import { Route as AdminExpertExtractionRouteImport } from './routes/admin.expert
 import { Route as AdminEvaluationHallRouteImport } from './routes/admin.evaluation-hall'
 import { Route as AdminDevLedgerRouteImport } from './routes/admin.dev-ledger'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminComparisonHallRouteImport } from './routes/admin.comparison-hall'
 import { Route as AdminChangelogRouteImport } from './routes/admin.changelog'
 import { Route as AdminBidderProjectsRouteImport } from './routes/admin.bidder-projects'
 import { Route as AdminBidUploadRouteImport } from './routes/admin.bid-upload'
@@ -322,6 +323,13 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.dashboard.lazy').then((d) => d.Route),
 )
+const AdminComparisonHallRoute = AdminComparisonHallRouteImport.update({
+  id: '/comparison-hall',
+  path: '/comparison-hall',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.comparison-hall.lazy').then((d) => d.Route),
+)
 const AdminChangelogRoute = AdminChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
@@ -506,6 +514,7 @@ export interface FileRoutesByFullPath {
   '/admin/bid-upload': typeof AdminBidUploadRoute
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
   '/admin/changelog': typeof AdminChangelogRoute
+  '/admin/comparison-hall': typeof AdminComparisonHallRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dev-ledger': typeof AdminDevLedgerRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
@@ -569,6 +578,7 @@ export interface FileRoutesByTo {
   '/admin/bid-upload': typeof AdminBidUploadRoute
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
   '/admin/changelog': typeof AdminChangelogRoute
+  '/admin/comparison-hall': typeof AdminComparisonHallRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dev-ledger': typeof AdminDevLedgerRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
@@ -632,6 +642,7 @@ export interface FileRoutesById {
   '/admin/bid-upload': typeof AdminBidUploadRoute
   '/admin/bidder-projects': typeof AdminBidderProjectsRoute
   '/admin/changelog': typeof AdminChangelogRoute
+  '/admin/comparison-hall': typeof AdminComparisonHallRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/dev-ledger': typeof AdminDevLedgerRoute
   '/admin/evaluation-hall': typeof AdminEvaluationHallRoute
@@ -698,6 +709,7 @@ export interface FileRouteTypes {
     | '/admin/bid-upload'
     | '/admin/bidder-projects'
     | '/admin/changelog'
+    | '/admin/comparison-hall'
     | '/admin/dashboard'
     | '/admin/dev-ledger'
     | '/admin/evaluation-hall'
@@ -761,6 +773,7 @@ export interface FileRouteTypes {
     | '/admin/bid-upload'
     | '/admin/bidder-projects'
     | '/admin/changelog'
+    | '/admin/comparison-hall'
     | '/admin/dashboard'
     | '/admin/dev-ledger'
     | '/admin/evaluation-hall'
@@ -823,6 +836,7 @@ export interface FileRouteTypes {
     | '/admin/bid-upload'
     | '/admin/bidder-projects'
     | '/admin/changelog'
+    | '/admin/comparison-hall'
     | '/admin/dashboard'
     | '/admin/dev-ledger'
     | '/admin/evaluation-hall'
@@ -1157,6 +1171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/comparison-hall': {
+      id: '/admin/comparison-hall'
+      path: '/comparison-hall'
+      fullPath: '/admin/comparison-hall'
+      preLoaderRoute: typeof AdminComparisonHallRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/changelog': {
       id: '/admin/changelog'
       path: '/changelog'
@@ -1367,6 +1388,7 @@ interface AdminRouteChildren {
   AdminBidUploadRoute: typeof AdminBidUploadRoute
   AdminBidderProjectsRoute: typeof AdminBidderProjectsRoute
   AdminChangelogRoute: typeof AdminChangelogRoute
+  AdminComparisonHallRoute: typeof AdminComparisonHallRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminDevLedgerRoute: typeof AdminDevLedgerRoute
   AdminEvaluationHallRoute: typeof AdminEvaluationHallRoute
@@ -1415,6 +1437,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBidUploadRoute: AdminBidUploadRoute,
   AdminBidderProjectsRoute: AdminBidderProjectsRoute,
   AdminChangelogRoute: AdminChangelogRoute,
+  AdminComparisonHallRoute: AdminComparisonHallRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminDevLedgerRoute: AdminDevLedgerRoute,
   AdminEvaluationHallRoute: AdminEvaluationHallRoute,

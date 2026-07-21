@@ -1,0 +1,50 @@
+{
+  "proposal": "agent-project-requirement-management-20260721",
+  "note": "提案待确认：编辑/发标权限、分组命名、数据范围、创建默认值 4 项待拍板",
+  "tasks": [
+    {
+      "id": "agent-menu-entries",
+      "title": "代理菜单补齐创建项目与采购需求库",
+      "description": "Layout.jsx agentMenus：委托项目组新增「创建项目」（/admin/projects/create）；新增顶层「采购需求库」（/admin/procurement-requirements）入口。",
+      "files": ["src/components/Layout.jsx"],
+      "acceptance": [
+        "代理登录后主导航可见「创建项目」与「采购需求库」",
+        "其他角色菜单不受影响"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "agent-route-permissions",
+      "title": "放开代理路由权限",
+      "description": "permissions.js：/admin/projects/create、/admin/procurement-requirements、/admin/procurement-requirements/edit 三个路径追加 'agent'。",
+      "files": ["src/config/permissions.js"],
+      "acceptance": [
+        "代理访问三个路径不再被 /admin 守卫拦截到 Forbidden",
+        "投标人/专家/监督等角色仍被拦截"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "project-list-create-gate",
+      "title": "项目列表创建按钮对代理放开",
+      "description": "ProjectList.jsx：「创建项目」按钮与空态引导对 ['tenderee','agent'] 渲染；zip-014 口径注释更新。草稿下一步对代理是否保持「编制文件」按确认结果处理。",
+      "files": ["src/views/ProjectList.jsx"],
+      "acceptance": [
+        "代理在项目列表右上角可见「创建项目」按钮并可进入创建页",
+        "招标人行为不变"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "docs-and-ledger",
+      "title": "权限矩阵文档与台账登记",
+      "description": "docs/role-permission-matrix.md 代理章节更新菜单项与权限矩阵；实施完成后登记 ReviewChangeList/changelog 并递增 version。",
+      "files": ["docs/role-permission-matrix.md", "src/views/ReviewChangeList.jsx", "src/data/changelog.js", "package.json"],
+      "acceptance": [
+        "权限矩阵文档与实现一致",
+        "台账注明 zip-014 口径变更"
+      ],
+      "status": "已完成"
+    }
+  ]
+}

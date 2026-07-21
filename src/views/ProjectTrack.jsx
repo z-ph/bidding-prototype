@@ -6,7 +6,7 @@ import { useRole } from '../hooks/useRole.js'
 import {
   BASELINE_PROJECTS,
   getPurchaseModeText,
-  isInvitedRfqProject,
+  isInquiryFamily,
   PROJECT_STATUS_MAP
 } from './ProjectList.jsx'
 import {
@@ -62,7 +62,7 @@ export default function ProjectTrack() {
     }
   }, [projectId, projectOptions])
 
-  const invitedRfq = isInvitedRfqProject(currentProject)
+  const inquiryFamily = isInquiryFamily(currentProject)
 
   const deadline = currentProject.deadline || (currentProject.packages?.[0]?.bidEnd)
   const isDeadlinePassed = deadline ? new Date() > new Date(deadline) : false
@@ -98,43 +98,27 @@ export default function ProjectTrack() {
     ? { label: '去下载', path: `/admin/bid-download?projectId=${projectId}` }
     : null
 
-  // 投标人视角时间线（新口径：无报名/缴费/合同归档节点）
-  const bidderNodes = (invitedRfq
-    ? [
-        { key: 'requirement', title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
-        { key: 'doc', title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
-        { key: 'notice', title: '发布招标公告', desc: '招标公告已发布至门户，供应商可下载招标文件', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
-        {
-          key: 'bid',
-          title: '上传投标文件/报价',
-          desc: '供应商下载招标文件后上传加密投标文件并报价',
-          time: '进行中',
-          color: 'blue',
-          icon: 'UploadOutlined',
-          action: '去上传',
-          path: `/admin/bid-upload?projectId=${projectId}`
-        },
-        { key: 'award', title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' }
-      ]
-    : [
-        { key: 'requirement', title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
-        { key: 'doc', title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
-        { key: 'notice', title: '发布招标公告', desc: '招标公告已发布至门户，供应商可下载招标文件', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
-        {
-          key: 'bid',
-          title: '上传投标文件',
-          desc: '供应商下载招标文件后上传加密投标文件并报价',
-          time: '进行中',
-          color: 'blue',
-          icon: 'UploadOutlined',
-          action: '去上传',
-          path: `/admin/bid-upload?projectId=${projectId}`
-        },
-        { key: 'opening', title: '线上开标', desc: '开标大厅完成签到、解密、唱标', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' },
-        { key: 'evaluation', title: '线上评标', desc: '专家评分、生成评标报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
-        { key: 'award', title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' }
-      ]
-  )
+  // 投标人视角时间线（hall-purchase-method-mapping-20260721：招标族含线上开标，询比族含线上比价；评标对所有项目开放）
+  const bidderNodes = [
+    { key: 'requirement', title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
+    { key: 'doc', title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
+    { key: 'notice', title: '发布招标公告', desc: '招标公告已发布至门户，供应商可下载招标文件', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
+    {
+      key: 'bid',
+      title: inquiryFamily ? '上传投标文件/报价' : '上传投标文件',
+      desc: '供应商下载招标文件后上传加密投标文件并报价',
+      time: '进行中',
+      color: 'blue',
+      icon: 'UploadOutlined',
+      action: '去上传',
+      path: `/admin/bid-upload?projectId=${projectId}`
+    },
+    ...(inquiryFamily
+      ? [{ key: 'comparison', title: '线上比价', desc: '比价大厅比较各供应商报价', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' }]
+      : [{ key: 'opening', title: '线上开标', desc: '开标大厅完成签到、解密、唱标', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' }]),
+    { key: 'evaluation', title: '线上评标', desc: '专家评分、生成评标报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
+    { key: 'award', title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' }
+  ]
 
   const renderTimelineItems = (nodes) =>
     nodes.map((node, idx) => {
@@ -165,7 +149,7 @@ export default function ProjectTrack() {
           <div className="card-header">
             <span>项目跟踪</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Tag color={invitedRfq ? 'purple' : 'default'} style={{ marginInlineEnd: 0 }}>
+              <Tag color={inquiryFamily ? 'purple' : 'default'} style={{ marginInlineEnd: 0 }}>
                 采购方式：{getPurchaseModeText(currentProject)}
               </Tag>
               <Select
@@ -260,9 +244,9 @@ export default function ProjectTrack() {
           style={{ marginBottom: 20 }}
         />
 
-        {invitedRfq && (
+        {inquiryFamily && (
           <Alert
-            title="邀请询比价项目：无开标、评标环节，报价截止后直接进入采购结果，时间线已隐藏开标/评标节点。"
+            title="询比族项目（公开询比价/邀请询比价）：报价截止后进入比价大厅比较报价，再进入评标大厅评审（2026-07-21 新口径，无开标环节）。"
             type="info"
             showIcon
             closable={false}

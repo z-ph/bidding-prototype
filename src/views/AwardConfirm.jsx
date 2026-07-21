@@ -6,31 +6,15 @@ import { projectStore } from '../data/projects.js'
 import { evaluationStore } from '../data/evaluationStore.js'
 import { approvalStore } from '../data/approvalStore.js'
 import { useRole } from '../hooks/useRole.js'
-import { BASELINE_PROJECTS, isInvitedRfqProject } from './ProjectList.jsx'
+import { BASELINE_PROJECTS } from './ProjectList.jsx'
+import { AWARD_STAGES, STAGE_LABELS, stageIndex, resolveAwardStage as resolveAwardStageBase } from '../utils/awardFlow.js'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
-// 定标阶段（按推进顺序）：评标中 → 评标完成 → 已确认中标人 → 中标通知书已发出
-const AWARD_STAGES = ['evaluating', 'evaluation-done', 'winner-confirmed', 'notice-sent']
-const STAGE_LABELS = {
-  evaluating: '评标中',
-  'evaluation-done': '评标完成',
-  'winner-confirmed': '已确认中标人',
-  'notice-sent': '中标通知书已发出'
-}
-
-// 现状可用的阶段判定（按优先级）：
-// 1. 项目记录上的 awardStage —— 定标侧操作回写，最优先；
-// 2. 邀请询比价（RFQ）项目无开标/评标环节，直接视为「评标完成」；
-// 3. evaluationStore 评标状态 submitted/confirmed —— 评标环节已提交评标报告，视为「评标完成」。
-function resolveAwardStage(projectId, project) {
-  if (project?.awardStage) return project.awardStage
-  if (isInvitedRfqProject(project)) return 'evaluation-done'
-  const evalStatus = evaluationStore.getEval(projectId).status
-  if (evalStatus === 'submitted' || evalStatus === 'confirmed') return 'evaluation-done'
-  return 'evaluating'
-}
-
-const stageIndex = (stage) => AWARD_STAGES.indexOf(stage)
+// 定标阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
+// 与 AwardNotice 同一口径，避免重复实现漂移导致步骤回退。
+// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评标，不再传询比短路分支
+const resolveAwardStage = (projectId, project) =>
+  resolveAwardStageBase(projectId, project, evaluationStore, null)
 
 export default function AwardConfirm() {
   const navigate = useNavigate()

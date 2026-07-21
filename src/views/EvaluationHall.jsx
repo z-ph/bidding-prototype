@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { Alert, Button, Card, Descriptions, Empty, Form, Input, Modal, Radio, Result, Table, Tabs, Tag, Timeline, message } from 'antd'
+import { Alert, Button, Card, Descriptions, Empty, Form, Input, Modal, Radio, Table, Tabs, Tag, Timeline, message } from 'antd'
 import { useRole } from '../hooks/useRole.js'
 import { evaluationStore } from '../data/evaluationStore.js'
 import { expertStore } from '../data/expertStore.js'
 import { projectStore } from '../data/projects.js'
-import { BASELINE_PROJECTS, getPurchaseModeText, isInvitedRfqProject } from './ProjectList.jsx'
+import { BASELINE_PROJECTS } from './ProjectList.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 // 演示回退数据：evaluationStore / expertStore 均无记录时兜底，真实数据优先
@@ -33,7 +33,7 @@ export default function EvaluationHall() {
   const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
 
-  // 采购方式门禁（add-purchase-method-flow-20260717）：项目/标段均为邀请询比价时无评标环节
+  // 评标大厅对所有采购项目开放（hall-purchase-method-mapping-20260721，废止邀请询比价无评标旧口径）
   const project = useMemo(
     () =>
       projectStore.getProjectById(projectId) ||
@@ -41,7 +41,6 @@ export default function EvaluationHall() {
       null,
     [projectId]
   )
-  const invitedRfq = isInvitedRfqProject(project)
 
   // evaluationStore 无订阅机制：本地保存快照，操作后/手动刷新时重读
   const [evalData, setEvalData] = useState(() => evaluationStore.getEval(projectId))
@@ -499,50 +498,6 @@ export default function EvaluationHall() {
   // 同路由无参→有参导航复用组件实例，hooks 数量必须保持不变
   if (!projectId) {
     return <ProjectEntryGuard />
-  }
-
-  // 页面级门禁（清单 20）：邀请询比价项目无评标环节，阻断评标操作区并引导前往定标/采购结果
-  if (invitedRfq) {
-    return (
-      <div className="evaluation-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <Card>
-          <Result
-            status="info"
-            title="邀请询比价项目无需评标"
-            subTitle={
-              <>
-                <p style={{ margin: 0 }}>
-                  {project?.name || `项目ID：${projectId}`}（采购方式：{getPurchaseModeText(project)}）
-                </p>
-                <p style={{ margin: '8px 0 0' }}>
-                  邀请询比价项目无需开标/评标，报价截止后直接进入采购结果。
-                </p>
-              </>
-            }
-            extra={[
-              (role === 'tenderee' || role === 'agent') && (
-                <Button
-                  key="award"
-                  type="primary"
-                  onClick={() => navigate({ to: '/admin/award-confirm', search: { projectId } })}
-                >
-                  前往定标
-                </Button>
-              ),
-              <Button key="back" onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : role === 'supervisor' ? '/admin/supervisor-hall' : '/admin/projects' })}>
-                返回
-              </Button>
-            ].filter(Boolean)}
-          />
-          <Alert
-            type="info"
-            showIcon
-            closable={false}
-            title="口径说明：公开招标、邀请招标、公开询比价、邀请询比价四种采购方式环节一致，唯邀请询比价不用开标和评标（2026-07-17 需求确认清单 20）。"
-          />
-        </Card>
-      </div>
-    )
   }
 
   return (

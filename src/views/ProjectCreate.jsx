@@ -28,6 +28,7 @@ import EmptyState from '../components/EmptyState.jsx'
 import { requirementStore, REQUIREMENT_STATUS_MAP } from '../data/requirements.js'
 import { projectStore } from '../data/projects.js'
 import { BASELINE_PROJECTS } from './ProjectList.jsx'
+import { useRole } from '../hooks/useRole.js'
 import { validateAndScrollToError, scrollToElement, formRules, validateRequiredFields } from '../utils/formValidation.js'
 
 const PURCHASE_MODE_OPTIONS = [
@@ -57,6 +58,9 @@ export default function ProjectCreate() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
   const editId = searchParams.editId ? String(searchParams.editId) : ''
+  const { role } = useRole()
+  // 代理创建项目默认「委托代理」组织方式（agent-project-requirement-management-20260721）
+  const defaultOrgMode = role === 'agent' ? 'agent' : 'self'
   const [activeStep, setActiveStep] = useState(0)
   const [form] = Form.useForm()
   const uploadRef = useRef(null)
@@ -71,7 +75,7 @@ export default function ProjectCreate() {
     demandSource: '',
     demandCode: '',
     linkedRequirementIds: [],
-    orgMode: 'self',
+    orgMode: defaultOrgMode,
     agentId: '',
     agentContractConfirmed: false,
     members: [],
@@ -396,7 +400,7 @@ export default function ProjectCreate() {
         {activeStep === 0 && (
           <>
             <h3>项目基本信息</h3>
-            <Form form={form} initialValues={{ orgMode: 'self' }} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
+            <Form form={form} initialValues={{ orgMode: defaultOrgMode }} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} className="project-form">
               <Row gutter={20}>
                 <Col span={12}>
                   <Form.Item label="项目名称" name="name" rules={basicRules.name}>

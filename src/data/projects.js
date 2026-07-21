@@ -2,8 +2,9 @@
 // 刷新即恢复初始演示数据；全部页面共享同一数据源，保证跳转后数据连贯。
 //
 // 演示主线（status 为唯一事实源，全部阶段页面读取本 store）：
-//   2 草稿 → 8 待审核 → 1 招标中 → 6 公告中(邀请询比价) → 3 待开标(今日开标)
+//   2 草稿 → 8 待审核 → 1 招标中 → 6 公告中(邀请询比价) → 10 待开标(公开询比价) → 3 待开标(今日开标)
 //   → 5 评标中 → 9 已确认中标人 → 4 通知书已发 → 7 已完成
+// 大厅归属（hall-purchase-method-mapping-20260721）：招标族（3 等）→开标大厅；询比族（6/10）→比价大厅；评标对所有项目开放
 
 export const SEED_PROJECTS = [
   {
@@ -135,8 +136,29 @@ export const SEED_PROJECTS = [
       { name: '第一标段：办公耗材', code: 'B1', budget: 90, content: '办公耗材年度框架协议', purchaseMode: 'invitation_inquiry', bidStart: '2026-07-16 09:00', bidEnd: '2026-07-24 17:00' }
     ],
     qualifications: ['营业执照'],
-    intro: '邀请询比价项目：无开标/评标环节，报价截止后直接确认采购结果。',
+    intro: '邀请询比价项目：报价截止后在比价大厅比较报价，再进入评标（2026-07-21 新口径）。',
     createTime: '2026-07-14 09:00'
+  },
+  {
+    id: '10',
+    name: '办公设备询价采购项目',
+    code: 'XJ20260718010',
+    orgMode: 'self',
+    budget: 140,
+    status: 'pending_open',
+    publishTime: '2026-07-16',
+    deadline: '2026-07-21',
+    openTime: '',
+    demandSource: '部门申报',
+    demandCode: 'XQ-2026-019',
+    linkedRequirementId: '',
+    agentId: '',
+    packages: [
+      { name: '第一标段：办公设备', code: 'B1', budget: 140, content: '台式计算机与激光打印机', purchaseMode: 'inquiry', bidStart: '2026-07-17 09:00', bidEnd: '2026-07-21 17:00' }
+    ],
+    qualifications: ['营业执照'],
+    intro: '公开询比价项目：报价截止后在比价大厅比较报价，再进入评标（2026-07-21 新口径）。',
+    createTime: '2026-07-15 09:00'
   },
   {
     id: '7',
