@@ -1,0 +1,1 @@
+import{n as e}from"./fileRoute-uDG0Xyjp.js";import{t}from"./Dashboard-Kz2E9Uib.js";var n=e(`/admin/`)({component:t});export{n as Route};
