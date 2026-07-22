@@ -1,0 +1,1 @@
+import{n as e}from"./fileRoute-uDG0Xyjp.js";import{t}from"./BidderProjects-CsEZkqk3.js";var n=e(`/admin/bidder-projects`)({component:t});export{n as Route};

@@ -1,1 +1,0 @@
-import{n as e}from"./fileRoute-uDG0Xyjp.js";import{a as t}from"./ProjectList-BpMt2v-l.js";var n=e(`/admin/projects/`)({component:t});export{n as Route};
