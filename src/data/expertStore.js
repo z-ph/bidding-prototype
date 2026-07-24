@@ -13,7 +13,7 @@ export const DEFAULT_EXPERTS = [
   { id: 'e8', name: '专家辛', field: '软件工程', org: '华为研究院', avoidOrgs: ['A科技有限公司'], phone: '138****0008' }
 ]
 
-// 抽取结果种子：项目 5（评标中）已抽取并确认通知，3 名正式专家全部确认参加，1 名备选
+// 抽取结果种子：项目 5（评审中）已抽取并确认通知，3 名正式专家全部确认参加，1 名备选
 const SEED_RESULTS = {
   '5': {
     projectId: '5',

@@ -41,7 +41,7 @@ const defaultTree = [
     dataScope: 'enterprise',
     children: [
       { name: '采购部', code: 'CG', leader: '张三', members: 8, dataScope: 'department' },
-      { name: '招标代理部', code: 'ZB', leader: '李四', members: 12, dataScope: 'department' },
+      { name: '采购代理部', code: 'ZB', leader: '李四', members: 12, dataScope: 'department' },
       { name: '法务部', code: 'FW', leader: '王五', members: 5, dataScope: 'department' }
     ]
   }

@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { Alert, Button, Card, Form, Input, Modal, Select, Table, Tag, message } from 'antd'
 
-// 模板管理（cal-010）：招标文件目录模板/投标邀请书/中标通知书的元数据维护与启停用
+// 模板管理（cal-010）：采购文件目录模板/响应邀请书/中选通知书的元数据维护与启停用
 // 口径：模板内容（正文条款）维护「与采购管理部联系」（需求确认清单 21/24）；
-// 投标邀请书由系统自动生成、模板由采购管理部维护（清单 24）
+// 响应邀请书由系统自动生成、模板由采购管理部维护（清单 24）
 // 本文件内自行持久化（任务约束只允许新建 4 个视图文件，不新增 store 文件）
 
 const TEMPLATES_KEY = 'bidding-templates'
 
 const TEMPLATE_TYPES = [
-  { value: 'catalog', label: '招标文件目录模板' },
-  { value: 'invitation', label: '投标邀请书' },
-  { value: 'award', label: '中标通知书' }
+  { value: 'catalog', label: '采购文件目录模板' },
+  { value: 'invitation', label: '响应邀请书' },
+  { value: 'award', label: '中选通知书' }
 ]
 
 const typeLabel = (value) => TEMPLATE_TYPES.find((t) => t.value === value)?.label || value
@@ -20,42 +20,42 @@ const defaultTemplates = [
   {
     id: 'tpl-1',
     type: 'catalog',
-    name: '招标文件目录模板（货物类）',
+    name: '采购文件目录模板（货物类）',
     version: 'V1.2',
     maintainer: '采购管理部',
     updatedAt: '2026-07-10 14:00',
     status: '启用',
-    remark: '货物类招标文件标准目录结构，供 TenderDoc「导入模板」引用'
+    remark: '货物类采购文件标准目录结构，供 TenderDoc「导入模板」引用'
   },
   {
     id: 'tpl-2',
     type: 'catalog',
-    name: '招标文件目录模板（服务类）',
+    name: '采购文件目录模板（服务类）',
     version: 'V1.0',
     maintainer: '采购管理部',
     updatedAt: '2026-07-05 10:30',
     status: '启用',
-    remark: '服务类招标文件标准目录结构'
+    remark: '服务类采购文件标准目录结构'
   },
   {
     id: 'tpl-3',
     type: 'invitation',
-    name: '投标邀请书模板',
+    name: '响应邀请书模板',
     version: 'V1.0',
     maintainer: '采购管理部',
     updatedAt: '2026-07-08 10:00',
     status: '启用',
-    remark: '邀请招标项目自动生成投标邀请书（清单 24）'
+    remark: '邀请采购项目自动生成响应邀请书（清单 24）'
   },
   {
     id: 'tpl-4',
     type: 'award',
-    name: '中标通知书模板',
+    name: '中选通知书模板',
     version: 'V1.1',
     maintainer: '采购管理部',
     updatedAt: '2026-06-30 16:00',
     status: '停用',
-    remark: '定标后向中标人发出，待采购管理部确认新版正文后启用'
+    remark: '成交确认后向中选人发出，待采购管理部确认新版正文后启用'
   }
 ]
 

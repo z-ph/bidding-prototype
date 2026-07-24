@@ -6,14 +6,14 @@ import { projectStore } from '../data/projects.js'
 import { authorizationStore, AUTHORIZATION_STATUS_MAP } from '../data/authorizationStore.js'
 import { INVITATION_RESPONSES_KEY } from './BidderProjects.jsx'
 
-// 供应商授权管理（招标人/代理）：按项目维护授权名单（授权/撤销/重新授权），
+// 供应商授权管理（采购单位/代理）：按项目维护授权名单（授权/撤销/重新授权），
 // 授权为年度周期（授权日起 1 年），过期自动标记「需重新授权」并视同未授权（概要三）；
-// 投标邀请书在授权时按项目+供应商自动生成（清单 24，genInvitation 幂等）。
+// 响应邀请书在授权时按项目+供应商自动生成（清单 24，genInvitation 幂等）。
 const PURCHASE_MODE_LABELS = {
-  open: '公开招标',
-  invitation: '邀请招标',
-  inquiry: '公开询比价',
-  invitation_inquiry: '邀请询比价'
+  open: '公开采购',
+  invitation: '邀请采购',
+  inquiry: '公开询比',
+  invitation_inquiry: '邀请询比'
 }
 
 // 与 ProjectCreate 注册企业一致的平台供应商名册（mock）
@@ -43,27 +43,27 @@ function loadInvitationResponses() {
   }
 }
 
-// 投标邀请书 mock 文本：项目信息/标段/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
+// 响应邀请书 mock 文本：项目信息/采购包/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
 function buildInvitationLetter(project, invitation, supplierName) {
   const packages = (project?.packages || [])
     .map((p) => p.name || p.code)
     .filter(Boolean)
-    .join('、') || '详见招标文件'
-  const deadline = project?.deadline || project?.packages?.[0]?.bidEnd || '详见招标公告'
-  const openTime = project?.openTime || '详见招标公告'
+    .join('、') || '详见采购文件'
+  const deadline = project?.deadline || project?.packages?.[0]?.bidEnd || '详见采购公告'
+  const openTime = project?.openTime || '详见采购公告'
   return [
     '投 标 邀 请 书',
     '',
     `编号：${invitation.code}`,
     `致：${supplierName || invitation.supplierName || invitation.supplierId}`,
     '',
-    `贵单位已被邀请参加「${project?.name || invitation.projectId}」（项目编号：${project?.code || project?.id || invitation.projectId}）的投标活动。`,
-    `采购方式：${PURCHASE_MODE_LABELS[project?.purchaseMode] || project?.purchaseMode || '邀请招标'}`,
-    `标段：${packages}`,
-    `投标截止时间：${deadline}`,
-    `开标时间：${openTime}`,
+    `贵单位已被邀请参加「${project?.name || invitation.projectId}」（项目编号：${project?.code || project?.id || invitation.projectId}）的响应活动。`,
+    `采购方式：${PURCHASE_MODE_LABELS[project?.purchaseMode] || project?.purchaseMode || '邀请采购'}`,
+    `采购包：${packages}`,
+    `采购截止时间：${deadline}`,
+    `开启时间：${openTime}`,
     '',
-    '请登录招投标采购平台下载招标文件，并按文件要求编制、上传投标文件。',
+    '请登录采购平台下载采购文件，并按文件要求编制、上传响应文件。',
     '',
     `生成时间：${invitation.generatedAt}`,
     '（本邀请书由系统自动生成，内容为原型占位模板；真实模板维护请联系采购管理部。）'
@@ -128,9 +128,9 @@ export default function SupplierAuthorization() {
       supplierName: values.supplierName,
       grantedBy: values.grantedBy
     })
-    // 授权同时自动生成投标邀请书（幂等，已生成则复用原编号）
+    // 授权同时自动生成响应邀请书（幂等，已生成则复用原编号）
     authorizationStore.genInvitation(record.projectId, record.supplierId)
-    message.success(`已授权 ${record.supplierName}，有效期 ${record.grantedAt} 至 ${record.expiresAt}，投标邀请书已自动生成`)
+    message.success(`已授权 ${record.supplierName}，有效期 ${record.grantedAt} 至 ${record.expiresAt}，响应邀请书已自动生成`)
     setGrantOpen(false)
     form.resetFields()
     refresh()
@@ -162,7 +162,7 @@ export default function SupplierAuthorization() {
     })
   }
 
-  // 邀请状态跟踪（招标人/代理侧）：读取 ProjectCreate 持久化的 invitedBidders + 供应商接受状态
+  // 邀请状态跟踪（采购单位/代理侧）：读取 ProjectCreate 持久化的 invitedBidders + 供应商接受状态
   const inviteTrackRows = useMemo(() => {
     const rows = []
     projectOptions
@@ -217,7 +217,7 @@ export default function SupplierAuthorization() {
           {record.status === 'authorized' && (
             <Popconfirm
               title="确认撤销该授权？"
-              description="撤销后该供应商将无法下载该项目招标文件。"
+              description="撤销后该供应商将无法下载该项目采购文件。"
               okText="撤销"
               cancelText="取消"
               onConfirm={() => revoke(record)}
@@ -250,7 +250,7 @@ export default function SupplierAuthorization() {
         }
       >
         <Alert
-          title="授权按年度周期生效（授权日起 1 年），过期自动标记「需重新授权」并视同未授权；公开项目供应商可自行下载招标文件，非公开项目仅授权名单内供应商可下载。授权时系统自动生成投标邀请书。"
+          title="授权按年度周期生效（授权日起 1 年），过期自动标记「需重新授权」并视同未授权；公开项目供应商可自行下载采购文件，非公开项目仅授权名单内供应商可下载。授权时系统自动生成响应邀请书。"
           type="info"
           showIcon
           closable={false}
@@ -352,7 +352,7 @@ export default function SupplierAuthorization() {
       </Modal>
 
       <Modal
-        title={`投标邀请书（${letterModal.invitation?.code || ''}）`}
+        title={`响应邀请书（${letterModal.invitation?.code || ''}）`}
         open={letterModal.open}
         width={640}
         onCancel={() => setLetterModal((prev) => ({ ...prev, open: false }))}
@@ -364,7 +364,7 @@ export default function SupplierAuthorization() {
             key="download"
             type="primary"
             onClick={() =>
-              downloadTextFile(`投标邀请书-${letterModal.invitation?.code || 'letter'}.txt`, letterModal.text)
+              downloadTextFile(`响应邀请书-${letterModal.invitation?.code || 'letter'}.txt`, letterModal.text)
             }
           >
             下载邀请书

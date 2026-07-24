@@ -48,7 +48,7 @@ function saveJSON(key, value) {
 
 export default function SupplierProfile() {
   const { role, userName } = useRole()
-  // 非本企业（非投标人/供应商）只读
+  // 非本企业（非响应单位/供应商）只读
   const readOnly = role !== 'bidder'
 
   const [form, setForm] = useState(() => {
@@ -203,7 +203,7 @@ export default function SupplierProfile() {
           <Form.Item label="资质文件">
             <div style={{ marginBottom: 12 }}>
               <Tag color="blue">按资质类型上传</Tag>
-              <span style={{ color: '#666', marginLeft: 8 }}>投标时将按项目要求自动检测是否齐全，带有效期资质到期前 30 天预警</span>
+              <span style={{ color: '#666', marginLeft: 8 }}>响应时将按项目要求自动检测是否齐全，带有效期资质到期前 30 天预警</span>
             </div>
             <Row gutter={[20, 20]}>
               {qualificationTypes.map((q) => (

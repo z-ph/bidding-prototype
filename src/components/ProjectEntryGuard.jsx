@@ -8,7 +8,7 @@ const ROLE_BACK_MAP = {
   tenderee: ['/admin/projects', '返回项目列表'],
   agent: ['/admin/projects', '返回项目列表'],
   bidder: ['/admin/bidder-projects', '返回项目中心'],
-  expert: ['/admin/expert-tasks', '返回我的评标任务'],
+  expert: ['/admin/expert-tasks', '返回我的评审任务'],
   supervisor: ['/admin/supervisor-hall', '返回监督大厅'],
   admin: ['/admin/dashboard', '返回工作台']
 }

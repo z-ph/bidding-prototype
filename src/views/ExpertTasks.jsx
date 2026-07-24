@@ -33,13 +33,13 @@ export default function ExpertTasks() {
 
   const confirmJoin = (row) => {
     Modal.confirm({
-      title: '确认参加评标',
-      content: `确认参加「${PROJECT_NAMES[row.projectId] || `项目 ${row.projectId}`}」的评标工作吗？确认后请在截止时间前提交评分。`,
+      title: '确认参加评审',
+      content: `确认参加「${PROJECT_NAMES[row.projectId] || `项目 ${row.projectId}`}」的评审工作吗？确认后请在截止时间前提交评分。`,
       okText: '确认参加',
       cancelText: '取消',
       onOk: () => {
         expertStore.respondToTask(row.projectId, userName, 'confirm')
-        message.success('已确认参加，可进入评标')
+        message.success('已确认参加，可进入评审')
         refresh()
       }
     })
@@ -58,16 +58,16 @@ export default function ExpertTasks() {
     if (row.expired) {
       Modal.warning({
         title: '任务已过期',
-        content: `该项目评标已于 ${formatDeadline(row.deadline)} 截止，过期任务不可进入评标。`
+        content: `该项目评审已于 ${formatDeadline(row.deadline)} 截止，过期任务不可进入评审。`
       })
       return
     }
     if (row.confirmStatus === 'declined') {
-      message.warning('您已拒绝参加该项目评标')
+      message.warning('您已拒绝参加该项目评审')
       return
     }
     if (row.confirmStatus !== 'confirmed') {
-      message.warning('请先在列表中「确认参加」后再进入评标')
+      message.warning('请先在列表中「确认参加」后再进入评审')
       return
     }
     navigate({ to: '/admin/expert-project', search: { projectId: row.projectId } })
@@ -94,7 +94,7 @@ export default function ExpertTasks() {
       render: (id) => PROJECT_NAMES[id] || `项目 ${id}`
     },
     {
-      title: '评标截止时间',
+      title: '评审截止时间',
       dataIndex: 'deadline',
       width: 190,
       render: (deadline, row) => (
@@ -118,7 +118,7 @@ export default function ExpertTasks() {
       render: (_, row) =>
         row.expired
           ? <StatusTag label="已过期" status="completed" />
-          : <StatusTag label="待评标" status="processing" />
+          : <StatusTag label="待评审" status="processing" />
     },
     {
       title: '操作',
@@ -144,7 +144,7 @@ export default function ExpertTasks() {
             style={row.expired ? { color: '#999', borderColor: '#d9d9d9', background: '#f5f5f5' } : undefined}
             onClick={() => enterEvaluation(row)}
           >
-            进入评标
+            进入评审
           </Button>
         </span>
       )
@@ -153,9 +153,9 @@ export default function ExpertTasks() {
 
   return (
     <div className="expert-tasks">
-      <Card title={<span><StarOutlined /> 我的评标任务</span>}>
+      <Card title={<span><StarOutlined /> 我的评审任务</span>}>
         <Alert
-          title="此处展示您被抽取并授权参与评标的任务，任务来源于招标人/代理在“专家抽取”中的确认结果。评标为限时提交制：在评标截止时间前可随时进入并提交评分，无需全程在线（流程性质按评审条目 1415-003 的口径落地，待产品最终确认）；过期任务不可进入评标。被抽中后请先“确认参加”，无法参加可拒绝，系统将从备选名单递补专家。"
+          title="此处展示您被抽取并授权参与评审的任务，任务来源于采购单位/代理在“专家抽取”中的确认结果。评审为限时提交制：在评审截止时间前可随时进入并提交评分，无需全程在线（流程性质按评审条目 1415-003 的口径落地，待产品最终确认）；过期任务不可进入评审。被抽中后请先“确认参加”，无法参加可拒绝，系统将从备选名单递补专家。"
           type="info"
           showIcon
           closable={false}
@@ -170,19 +170,19 @@ export default function ExpertTasks() {
             rowClassName={(row) => (row.expired ? 'task-row-expired' : '')}
           />
         ) : (
-          <Empty description="暂无评标任务，任务分配后将在此显示" />
+          <Empty description="暂无评审任务，任务分配后将在此显示" />
         )}
       </Card>
 
       <Modal
-        title="拒绝参加评标"
+        title="拒绝参加评审"
         open={!!declineTarget}
         okText="确认拒绝"
         cancelText="取消"
         onOk={submitDecline}
         onCancel={() => setDeclineTarget(null)}
       >
-        <p>拒绝后系统将从备选名单中递补专家，该操作会反馈给招标人/代理。</p>
+        <p>拒绝后系统将从备选名单中递补专家，该操作会反馈给采购单位/代理。</p>
         <Input.TextArea
           rows={3}
           placeholder="请填写拒绝原因（选填）"

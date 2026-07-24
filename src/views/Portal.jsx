@@ -28,10 +28,10 @@ export default function Portal() {
 
   const typeMap = {
     all: null,
-    tender: '招标公告',
+    tender: '采购公告',
     change: '变更公告',
-    candidate: '候选人公示',
-    result: '中标公告'
+    candidate: '采购结果公告',
+    result: '中选通知'
   }
 
   const tagColorMap = {
@@ -48,9 +48,9 @@ export default function Portal() {
 
   const quickLinks = [
     { title: '供应商注册', desc: '成为平台认证供应商', icon: UserOutlined, color: '#409EFF', path: '/register' },
-    { title: '下载中心', desc: 'CA驱动、投标工具', icon: DownloadOutlined, color: '#67C23A', path: '/downloads' },
+    { title: '下载中心', desc: 'CA驱动、响应工具', icon: DownloadOutlined, color: '#67C23A', path: '/downloads' },
     { title: '帮助中心', desc: '操作教程与常见问题', icon: QuestionOutlined, color: '#E6A23C', path: '/help' },
-    { title: '招标人入口', desc: '发布需求、管理项目', icon: BankOutlined, color: '#F56C6C', path: '/login' }
+    { title: '采购单位入口', desc: '发布需求、管理项目', icon: BankOutlined, color: '#F56C6C', path: '/login' }
   ]
 
   const handleRowClick = (row) => {
@@ -74,26 +74,26 @@ export default function Portal() {
     },
     { title: '采购方式', dataIndex: 'purchaseMode', key: 'purchaseMode', width: 120 },
     { title: '发布时间', dataIndex: 'publishTime', key: 'publishTime', width: 150 },
-    { title: '投标截止', dataIndex: 'deadline', key: 'deadline', width: 150 }
+    { title: '采购截止', dataIndex: 'deadline', key: 'deadline', width: 150 }
   ]
 
   const carouselSlides = [
     {
       key: 1,
-      title: '全流程电子化招投标采购平台',
+      title: '全流程电子化采购平台',
       subtitle: '公开、公平、公正、高效、安全',
       color: 'linear-gradient(135deg, #001529 0%, #003366 100%)'
     },
     {
       key: 2,
       title: '多角色协同工作',
-      subtitle: '招标人、投标人、评标专家、监督人员一体化协同',
+      subtitle: '采购单位、响应单位、评审专家、监督人员一体化协同',
       color: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)'
     },
     {
       key: 3,
       title: '安全合规的CA认证',
-      subtitle: '支持数字证书签章，保障投标文件安全与法律效力',
+      subtitle: '支持数字证书签章，保障响应文件安全与法律效力',
       color: 'linear-gradient(135deg, #001529 0%, #004080 100%)'
     }
   ]
@@ -127,20 +127,20 @@ export default function Portal() {
           </div>
           <div className="stat-item">
             <div className="stat-num">{stats.monthlyOpenings.toLocaleString()}</div>
-            <div className="stat-label">本月开标</div>
+            <div className="stat-label">本月开启</div>
           </div>
         </div>
       </div>
 
       <div id="portal-notice-section" className="section">
         <div className="section-title">
-          <h2>招标公告</h2>
+          <h2>采购公告</h2>
           <RadioGroup value={noticeType} onChange={(e) => setNoticeType(e.target.value)}>
             <Radio.Button value="all">全部</Radio.Button>
-            <Radio.Button value="tender">招标公告</Radio.Button>
+            <Radio.Button value="tender">采购公告</Radio.Button>
             <Radio.Button value="change">变更公告</Radio.Button>
-            <Radio.Button value="candidate">候选人公示</Radio.Button>
-            <Radio.Button value="result">中标公告</Radio.Button>
+            <Radio.Button value="candidate">采购结果公告</Radio.Button>
+            <Radio.Button value="result">中选通知</Radio.Button>
           </RadioGroup>
         </div>
         <Table

@@ -52,13 +52,13 @@ const ACTION_COLORS = {
 
 // 原型账号目录（加签/转办候选人）；正式环境应来自用户体系
 const APPROVER_CANDIDATES = [
-  { value: '张三', label: '张三（招标人·采购管理部）' },
-  { value: '王五', label: '王五（招标人·需求部门）' },
-  { value: '赵六', label: '赵六（招标人·采购管理部）' },
-  { value: '李四', label: '李四（招标代理）' }
+  { value: '张三', label: '张三（采购单位·采购管理部）' },
+  { value: '王五', label: '王五（采购单位·需求部门）' },
+  { value: '赵六', label: '赵六（采购单位·采购管理部）' },
+  { value: '李四', label: '李四（采购代理）' }
 ]
 
-// 招标人侧两个语义审批节点（清单 14/22），原型中共用同一演示账号，可在页面顶部切换身份
+// 采购单位侧两个语义审批节点（清单 14/22），原型中共用同一演示账号，可在页面顶部切换身份
 const TENDEREE_NODES = [
   { value: '采购管理部', label: '采购管理部' },
   { value: '需求部门', label: '需求部门' }
@@ -81,7 +81,7 @@ export default function ApprovalCenter() {
   const { role, userName } = useRole()
   const [activeTab, setActiveTab] = useState('todo')
   const [refresh, setRefresh] = useState(0)
-  // 招标人（tenderee）可在「采购管理部 / 需求部门」两个审批身份间切换；其他角色按本人姓名匹配待办
+  // 采购单位（tenderee）可在「采购管理部 / 需求部门」两个审批身份间切换；其他角色按本人姓名匹配待办
   const [tendereeNode, setTendereeNode] = useState('采购管理部')
   const [detail, setDetail] = useState(null)
   const [actionModal, setActionModal] = useState({ type: null, record: null })
@@ -128,7 +128,7 @@ export default function ApprovalCenter() {
   // 审批操作后的站内信通知（清单 54）：通过/驳回通知经办人，流转通知下一节点，加签/转办通知到人
   const notifyAfterAction = (item, action, opinion, actionTarget) => {
     const label = typeLabel(item.type)
-    const submitterRole = item.publisherKind === 'agent' ? '招标代理' : '招标人'
+    const submitterRole = item.publisherKind === 'agent' ? '采购代理' : '采购单位'
     if (action === 'approve') {
       if (item.status === 'approved') {
         messageStore.add({
@@ -362,7 +362,7 @@ export default function ApprovalCenter() {
           <div>
             <h3>审批中心</h3>
             <p className="tip">
-              采购需求 / 招标文件 / 中标结果三类单据的审批处理（清单 48）；支持通过、驳回、加签、转办、退回（清单 52）。
+              采购需求 / 采购文件 / 中选结果三类单据的审批处理（清单 48）；支持通过、驳回、加签、转办、退回（清单 52）。
             </p>
           </div>
           {role === 'tenderee' && (

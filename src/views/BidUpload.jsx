@@ -34,21 +34,21 @@ export default function BidUpload() {
   const encryptMode = Form.useWatch('encryptMode', form)
   const selectedPackages = Form.useWatch('packages', form) || []
 
-  // 标段按所选项目动态拉取
+  // 采购包按所选项目动态拉取
   const packages = useMemo(() => {
     const project = projectStore.getProjectById(projectId)
     if (project?.packages?.length) {
       return project.packages.map((p) => ({ id: p.code || p.name, name: p.name, code: p.code }))
     }
     return [
-      { id: 'B1', name: '第一标段：主设备', code: 'B1' },
-      { id: 'B2', name: '第二标段：辅材', code: 'B2' }
+      { id: 'B1', name: '第一采购包：主设备', code: 'B1' },
+      { id: 'B2', name: '第二采购包：辅材', code: 'B2' }
     ]
   }, [projectId])
 
-  // 必传文件类型清单（按招标文件模板要求），用于齐全性校验与制作向导
+  // 必传文件类型清单（按采购文件模板要求），用于齐全性校验与制作向导
   const requiredFileTypes = [
-    { type: '商务标', desc: '投标函、授权委托书、营业执照等' },
+    { type: '商务标', desc: '响应函、授权委托书、营业执照等' },
     { type: '技术标', desc: '技术方案、项目实施方案、参数响应表等' },
     { type: '报价标', desc: '报价一览表、分项报价表等' }
   ]
@@ -56,7 +56,7 @@ export default function BidUpload() {
   const [uploadFiles, setUploadFiles] = useState([])
   const [fileList, setFileList] = useState([
     {
-      name: '投标函.pdf',
+      name: '响应函.pdf',
       type: '商务标',
       size: '1.2 MB',
       signed: true,
@@ -92,7 +92,7 @@ export default function BidUpload() {
     const project = projectStore.getProjectById(projectId)
     if (project?.quoteFields?.length) return project.quoteFields
     return [
-      { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
+      { key: 'totalPrice', label: '响应报价', unit: '万元', required: true },
       { key: 'delivery', label: '交货期', unit: '', required: true },
       { key: 'quality', label: '质保期', unit: '', required: true },
       { key: 'payment', label: '付款方式', unit: '', required: true }
@@ -119,7 +119,7 @@ export default function BidUpload() {
     { name: '辅材 B 型', spec: '详见技术参数', quantity: 50, unit: '套', price: '' }
   ])
 
-  // 评审条款关联：将上传的投标文件逐条挂接到招标文件评审条款（按生效项目隔离）
+  // 评审条款关联：将上传的响应文件逐条挂接到采购文件评审条款（按生效项目隔离）
   const [clauseLinks, setClauseLinks] = useState(() => clauseStore.getLinks(projectId || '1'))
   useEffect(() => {
     setClauseLinks(clauseStore.getLinks(projectId || '1'))
@@ -151,16 +151,16 @@ export default function BidUpload() {
 
   const submitBtnText = (() => {
     if (encryptMode === 'password') {
-      if (!quoteFilled) return '请填写开标一览表'
+      if (!quoteFilled) return '请填写开启一览表'
       if (fileList.length === 0) return '请先上传文件'
-      if (!projectId || selectedPackages.length === 0) return '请完善投标信息'
+      if (!projectId || selectedPackages.length === 0) return '请完善响应信息'
       return '保存草稿'
     }
-    if (!quoteFilled) return '请填写开标一览表'
+    if (!quoteFilled) return '请填写开启一览表'
     if (fileList.length === 0) return '请先上传文件'
     if (!allEncrypted) return '存在未加密文件'
-    if (!projectId || selectedPackages.length === 0) return '请完善投标信息'
-    return '正式提交投标文件'
+    if (!projectId || selectedPackages.length === 0) return '请完善响应信息'
+    return '正式提交响应文件'
   })()
 
   const handleUploadChange = ({ fileList: next }) => {
@@ -250,7 +250,7 @@ export default function BidUpload() {
     setReceiptNo('BID20260720DEMO')
     setSubmitTime(new Date().toLocaleString())
     setReceiptVisible(true)
-    message.success('演示环境 · 投标文件提交仅作展示')
+    message.success('演示环境 · 响应文件提交仅作展示')
   }
 
   const saveDraft = () => {
@@ -367,13 +367,13 @@ export default function BidUpload() {
       <Card
         title={
           <div className="card-header">
-            <span>投标文件上传</span>
+            <span>响应文件上传</span>
             <Tag color="warning">距截止时间：2 天 5 小时</Tag>
           </div>
         }
       >
         <Alert
-          title="正式提交必须使用 CA 证书加密投标文件。上传后请依次完成签章、加密，再进行正式提交；密码加密仅作为草稿/演示，不能生成正式回执。"
+          title="正式提交必须使用 CA 证书加密响应文件。上传后请依次完成签章、加密，再进行正式提交；密码加密仅作为草稿/演示，不能生成正式回执。"
           type="info"
           showIcon
           closable={false}
@@ -389,14 +389,14 @@ export default function BidUpload() {
         >
           <Form.Item label="选择项目">
             <Select
-              placeholder="请选择投标项目"
+              placeholder="请选择响应项目"
               style={{ width: '100%' }}
               value={projectId ? String(projectId) : undefined}
               disabled
               options={(projectStore.getProjects() || []).map((p) => ({ label: p.name, value: String(p.id) }))}
             />
           </Form.Item>
-          <Form.Item label="投标标段" name="packages">
+          <Form.Item label="响应采购包" name="packages">
             <Checkbox.Group>
               {packages.map((pkg) => (
                 <Checkbox key={pkg.id} value={pkg.id}>{pkg.name}</Checkbox>
@@ -423,7 +423,7 @@ export default function BidUpload() {
         <Divider />
 
         <div className="quote-section">
-          <h3>开标一览表 / 报价</h3>
+          <h3>开启一览表 / 报价</h3>
           <Form labelCol={{ flex: '0 0 140px' }} wrapperCol={{ flex: 'auto' }} className="quote-form">
             <Row gutter={20}>
               {quoteFields.map((field) => (
@@ -452,11 +452,11 @@ export default function BidUpload() {
         <Divider />
 
         <div className="file-section">
-          <h4>投标文件组成</h4>
+          <h4>响应文件组成</h4>
           <Card size="small" className="wizard-card" style={{ marginBottom: 16, background: '#f6f8fa' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-              <strong style={{ marginRight: 8 }}>投标文件制作向导</strong>
-              <span style={{ color: '#666', fontSize: 12 }}>按招标文件模板，商务标/技术标/报价标三类缺一不可，避免废标</span>
+              <strong style={{ marginRight: 8 }}>响应文件制作向导</strong>
+              <span style={{ color: '#666', fontSize: 12 }}>按采购文件模板，商务标/技术标/报价标三类缺一不可，避免废标</span>
             </div>
             <Space wrap>
               {requiredFileTypes.map((r) => {
@@ -478,7 +478,7 @@ export default function BidUpload() {
             <p className="ant-upload-drag-icon">
               <UploadOutlined style={{ fontSize: 48, color: '#409EFF' }} />
             </p>
-            <p className="ant-upload-text">将投标文件拖拽到此处，或 <em>点击上传</em></p>
+            <p className="ant-upload-text">将响应文件拖拽到此处，或 <em>点击上传</em></p>
             <p className="ant-upload-hint">支持 PDF、ZIP、DOCX 格式，单个文件不超过 500MB</p>
           </Upload.Dragger>
 
@@ -503,7 +503,7 @@ export default function BidUpload() {
 
           {!allTypesComplete && (
             <Alert
-              title={`投标文件不完整，缺少：${missingTypes.join('、')}。请按制作向导补齐各类文件，否则无法正式提交。`}
+              title={`响应文件不完整，缺少：${missingTypes.join('、')}。请按制作向导补齐各类文件，否则无法正式提交。`}
               type="warning"
               showIcon
               closable={false}
@@ -515,7 +515,7 @@ export default function BidUpload() {
 
           <div className="clause-section" style={{ marginTop: 16 }}>
             <h4 style={{ marginBottom: 8 }}>评审条款关联</h4>
-            <p style={{ color: '#666', marginBottom: 12 }}>将上传的投标文件逐项挂接到招标文件评审条款，确保响应完整、便于评标查阅。</p>
+            <p style={{ color: '#666', marginBottom: 12 }}>将上传的响应文件逐项挂接到采购文件评审条款，确保响应完整、便于评审查阅。</p>
             <Table
               rowKey="id"
               dataSource={defaultClauses}
@@ -525,18 +525,18 @@ export default function BidUpload() {
                 { title: '评审条款', dataIndex: 'name' },
                 { title: '分类', dataIndex: 'category', width: 100, render: (c) => <Tag>{c}</Tag> },
                 {
-                  title: '关联投标文件',
+                  title: '关联响应文件',
                   key: 'link',
                   width: 300,
                   render: (_, row) => (
                     <Select
                       style={{ width: '100%' }}
-                      placeholder="选择已上传的投标文件"
+                      placeholder="选择已上传的响应文件"
                       value={clauseLinks[row.id] || undefined}
                       onChange={(value) => setClauseLink(row.id, value)}
                       allowClear
                       options={fileList.map((f) => ({ label: f.name, value: f.name }))}
-                      notFoundContent="请先上传投标文件"
+                      notFoundContent="请先上传响应文件"
                     />
                   )
                 }
@@ -562,7 +562,7 @@ export default function BidUpload() {
       </Card>
 
       <Modal
-        title="投标回执"
+        title="响应回执"
         open={receiptVisible}
         width={520}
         closable={false}
@@ -574,7 +574,7 @@ export default function BidUpload() {
       >
         <Descriptions column={1} bordered>
           <Descriptions.Item label="项目名称">{projectName}</Descriptions.Item>
-          <Descriptions.Item label="投标标段">{packageNames}</Descriptions.Item>
+          <Descriptions.Item label="响应采购包">{packageNames}</Descriptions.Item>
           <Descriptions.Item label="文件数量">{fileList.length} 份</Descriptions.Item>
           <Descriptions.Item label="文件清单">
             <ul style={{ margin: 0, paddingLeft: 16 }}>
@@ -591,7 +591,7 @@ export default function BidUpload() {
 
       {projectId && (
         <Alert
-          title={`当前为项目 ID: ${projectId} 上传投标文件`}
+          title={`当前为项目 ID: ${projectId} 上传响应文件`}
           type="info"
           showIcon
           closable={false}

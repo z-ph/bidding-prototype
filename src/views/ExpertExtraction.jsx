@@ -94,17 +94,17 @@ export default function ExpertExtraction() {
       return
     }
     if (!deadline) {
-      message.warning('请设置评标截止时间')
+      message.warning('请设置评审截止时间')
       return
     }
     Modal.confirm({
       title: '确认专家名单',
-      content: `确认后将通知相关专家参与评标，评标截止时间为 ${deadline.format('YYYY-MM-DD HH:mm')}。是否继续？`,
+      content: `确认后将通知相关专家参与评审，评审截止时间为 ${deadline.format('YYYY-MM-DD HH:mm')}。是否继续？`,
       okText: '确认并通知',
       cancelText: '取消',
       onOk: () => {
         const r = expertStore.confirmResult(projectId)
-        // 写入评标截止时间，供 ExpertTasks 过期阻断与 ExpertProject 限时提交使用
+        // 写入评审截止时间，供 ExpertTasks 过期阻断与 ExpertProject 限时提交使用
         evaluationStore.updateEval(projectId, (d) => {
           d.deadline = deadline.toISOString()
         })
@@ -164,7 +164,7 @@ export default function ExpertExtraction() {
     <div className="expert-extraction">
       <Card title={<span><TeamOutlined /> 专家随机抽取</span>}>
         <Alert
-          title="按项目所需专业领域随机抽取评标专家。回避规则仅按单位执行（需求确认清单 40，不做地区/黑名单条件）；评分人员可指定也可抽取（清单 41），本页为随机抽取模式；候选专家账号由后台提前创建（清单 43）。支持备选名单：正式专家拒绝后自动按序递补；抽取结果可导出 CSV。"
+          title="按项目所需专业领域随机抽取评审专家。回避规则仅按单位执行（需求确认清单 40，不做地区/黑名单条件）；评分人员可指定也可抽取（清单 41），本页为随机抽取模式；候选专家账号由后台提前创建（清单 43）。支持备选名单：正式专家拒绝后自动按序递补；抽取结果可导出 CSV。"
           type="info"
           showIcon
           closable={false}
@@ -207,10 +207,10 @@ export default function ExpertExtraction() {
               value={avoidOrgs}
               onChange={setAvoidOrgs}
               options={BIDDER_ORGS.map((o) => ({ label: o, value: o }))}
-              placeholder="选择需回避的投标人单位，关联单位专家将被排除"
+              placeholder="选择需回避的响应单位单位，关联单位专家将被排除"
             />
           </Form.Item>
-          <Form.Item label="评标截止时间">
+          <Form.Item label="评审截止时间">
             <DatePicker
               showTime
               value={deadline}

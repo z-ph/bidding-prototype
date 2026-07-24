@@ -23,10 +23,10 @@ const SUB_ACCOUNTS_KEY = 'bidding-sub-accounts'
 const ORG_KEY = 'bidding-organization'
 
 const ROLE_OPTIONS = [
-  { label: '招标人', value: 'tenderee' },
-  { label: '招标代理', value: 'agent' },
-  { label: '投标人', value: 'bidder' },
-  { label: '评标专家', value: 'expert' },
+  { label: '采购单位', value: 'tenderee' },
+  { label: '采购代理', value: 'agent' },
+  { label: '响应单位', value: 'bidder' },
+  { label: '评审专家', value: 'expert' },
   { label: '监督人员', value: 'supervisor' },
   { label: '管理员', value: 'admin' }
 ]
@@ -54,7 +54,7 @@ function flattenOrg(nodes, result = []) {
 
 const defaultSubAccounts = [
   { id: '1', name: '子账号A', phone: '13800000001', department: 'CG', departmentName: '采购部', role: 'tenderee', status: 'active', contactInfo: '负责采购业务' },
-  { id: '2', name: '子账号B', phone: '13800000002', department: 'ZB', departmentName: '招标代理部', role: 'agent', status: 'inactive', contactInfo: '代理业务联系人' }
+  { id: '2', name: '子账号B', phone: '13800000002', department: 'ZB', departmentName: '采购代理部', role: 'agent', status: 'inactive', contactInfo: '代理业务联系人' }
 ]
 
 export default function SubAccounts() {

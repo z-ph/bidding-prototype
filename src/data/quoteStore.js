@@ -1,10 +1,10 @@
-// 投标人报价 mock 存储（纯内存静态种子，无任何持久化）
+// 响应单位报价 mock 存储（纯内存静态种子，无任何持久化）
 // 结构：{ "<projectId>::<supplierName>": { quote, items, savedAt } }
-//   quote: { [fieldKey]: value } 开标一览表填报值
+//   quote: { [fieldKey]: value } 开启一览表填报值
 //   items: [{ name, spec, quantity, unit, price }] 分项报价表
 //
-// 种子口径：项目 3（待开标，招标族）三家投标人均已报价，总价与开标大厅唱标一致（万元）；
-// 项目 6（邀请询比价）/ 项目 10（公开询比价）三家供应商均已报价，供比价大厅演示（hall-purchase-method-mapping-20260721）
+// 种子口径：项目 3（待开启，采购族）三家响应单位均已报价，总价与开启大厅唱价一致（万元）；
+// 项目 6（邀请询比）/ 项目 10（公开询比）三家供应商均已报价，供比价大厅演示（hall-purchase-method-mapping-20260721）
 
 const SEED_QUOTES = {
   '3::A科技有限公司': {
@@ -13,7 +13,7 @@ const SEED_QUOTES = {
       currency: '人民币（元）',
       deliveryPeriod: '合同签订后 60 个日历日',
       warrantyPeriod: '3 年',
-      paymentTerms: '按招标文件要求响应',
+      paymentTerms: '按采购文件要求响应',
       bidValidity: '90 天'
     },
     items: [
@@ -28,7 +28,7 @@ const SEED_QUOTES = {
       currency: '人民币（元）',
       deliveryPeriod: '合同签订后 75 个日历日',
       warrantyPeriod: '2 年',
-      paymentTerms: '按招标文件要求响应',
+      paymentTerms: '按采购文件要求响应',
       bidValidity: '90 天'
     },
     items: [
@@ -43,7 +43,7 @@ const SEED_QUOTES = {
       currency: '人民币（元）',
       deliveryPeriod: '合同签订后 60 个日历日',
       warrantyPeriod: '3 年',
-      paymentTerms: '按招标文件要求响应',
+      paymentTerms: '按采购文件要求响应',
       bidValidity: '90 天'
     },
     items: [

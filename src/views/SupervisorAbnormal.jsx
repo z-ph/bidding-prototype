@@ -7,7 +7,7 @@ import { supervisorStore } from '../data/supervisorStore.js'
 
 // 首次 store 为空时种入的演示记录（只种一次）
 const SEED_RECORDS = [
-  { id: 'YC20260708001', projectId: '', project: 'XX市轨道交通设备采购项目', type: '开标异常', desc: '投标人 A 公司 CA 证书检测失败，已要求重新插拔。', status: '已处理', time: '2026-07-08 15:10', source: 'abnormal' }
+  { id: 'YC20260708001', projectId: '', project: 'XX市轨道交通设备采购项目', type: '开启异常', desc: '响应单位 A 公司 CA 证书检测失败，已要求重新插拔。', status: '已处理', time: '2026-07-08 15:10', source: 'abnormal' }
 ]
 
 export default function SupervisorAbnormal() {
@@ -35,7 +35,7 @@ export default function SupervisorAbnormal() {
   const [dialogVisible, setDialogVisible] = useState(false)
   const [form, setForm] = useState({
     project: '',
-    type: '开标异常',
+    type: '开启异常',
     desc: ''
   })
 
@@ -125,8 +125,8 @@ export default function SupervisorAbnormal() {
               value={form.type}
               onChange={(value) => updateField('type', value)}
               options={[
-                { label: '开标异常', value: '开标异常' },
-                { label: '评标异常', value: '评标异常' },
+                { label: '开启异常', value: '开启异常' },
+                { label: '评审异常', value: '评审异常' },
                 { label: '专家违规', value: '专家违规' },
                 { label: '其他', value: '其他' }
               ]}

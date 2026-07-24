@@ -17,7 +17,7 @@ const SESSION_KEYS = [
 ]
 
 const DEFAULT_SETTINGS = {
-  platformName: '招投标采购平台',
+  platformName: '采购平台',
   contactPhone: '0000-00000000',
   contactEmail: 'support@example.com',
   caSandbox: true,
@@ -135,7 +135,7 @@ export default function SystemSettings() {
           <Form.Item label="短信模拟" extra="短信（天翼云）为预留接口，一期不实现；开启后短信相关动作仅模拟提示。">
             <Switch checked={form.smsMock} onChange={(checked) => updateField('smsMock', checked)} />
           </Form.Item>
-          <Form.Item label="开标提醒（提前天数）">
+          <Form.Item label="开启提醒（提前天数）">
             <InputNumber
               min={0}
               max={30}

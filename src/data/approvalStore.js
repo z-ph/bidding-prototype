@@ -1,14 +1,14 @@
 // 审批流 mock 数据存储（纯内存静态种子，无任何持久化）
 // 供 ApprovalCenter（待办/已办/我发起的）、ApprovalFlowConfig（审批流配置）、
-// 采购需求/招标文件发布接入审批、审批归档视图、站内信审批通知共享。
+// 采购需求/采购文件发布接入审批、审批归档视图、站内信审批通知共享。
 // 本文件为共享契约：导出名、参数与返回结构固定。
 
-// 审批节点类型：项目立项/采购需求/招标文件/中标结果
+// 审批节点类型：项目立项/采购需求/采购文件/中选结果
 export const APPROVAL_TYPES = [
   { value: 'project', label: '项目立项' },
   { value: 'requirement', label: '采购需求' },
-  { value: 'tender-doc', label: '招标文件' },
-  { value: 'award-result', label: '中标结果' }
+  { value: 'tender-doc', label: '采购文件' },
+  { value: 'award-result', label: '中选结果' }
 ]
 
 export const APPROVAL_STATUS_MAP = {
@@ -33,24 +33,24 @@ const SEED_FLOW_CONFIGS = [
     publisherKind: 'agent',
     chain: ['采购管理部'],
     status: 'published',
-    remark: '招标代理发布的需求/招标文件，由招标人（采购管理部）审核',
+    remark: '采购代理发布的需求/采购文件，由采购单位（采购管理部）审核',
     updatedAt: '2026-07-10 09:00',
     publishedAt: '2026-07-10 09:30'
   },
   {
     id: 'flow-2',
-    name: '招标人发布审批流',
+    name: '采购单位发布审批流',
     publisherKind: 'self',
     chain: ['需求部门', '采购管理部'],
     status: 'published',
-    remark: '招标人自行发布，依次经需求部门、采购管理部审核',
+    remark: '采购单位自行发布，依次经需求部门、采购管理部审核',
     updatedAt: '2026-07-10 09:00',
     publishedAt: '2026-07-10 09:30'
   }
 ]
 
-// 审批单实例 seed：项目 8 立项审批中、项目 2 需求审批中（代理发起）、项目 1 招标文件审批中（第二节点）、
-// 项目 1 立项已通过、项目 4 中标结果已通过
+// 审批单实例 seed：项目 8 立项审批中、项目 2 需求审批中（代理发起）、项目 1 采购文件审批中（第二节点）、
+// 项目 1 立项已通过、项目 4 中选结果已通过
 const SEED_APPROVALS = [
   {
     id: 'ap-4',
@@ -107,7 +107,7 @@ const SEED_APPROVALS = [
     id: 'ap-2',
     type: 'tender-doc',
     refId: 'td-1-1',
-    title: 'XX市轨道交通设备采购项目 招标文件 V1.0 发布',
+    title: 'XX市轨道交通设备采购项目 采购文件 V1.0 发布',
     projectId: '1',
     submittedBy: '张三',
     publisherKind: 'self',
@@ -125,7 +125,7 @@ const SEED_APPROVALS = [
     id: 'ap-3',
     type: 'award-result',
     refId: 'award-4',
-    title: '物业服务采购项目 中标结果审批登记',
+    title: '物业服务采购项目 中选结果审批登记',
     projectId: '4',
     submittedBy: '赵工',
     publisherKind: 'agent',
@@ -136,7 +136,7 @@ const SEED_APPROVALS = [
     submittedAt: '2026-07-03 11:00',
     finishedAt: '2026-07-04 09:30',
     records: [
-      { node: '采购管理部', action: 'approve', actor: '张三', comment: '中标结果审批通过，准予发布。', at: '2026-07-04 09:30' }
+      { node: '采购管理部', action: 'approve', actor: '张三', comment: '中选结果审批通过，准予发布。', at: '2026-07-04 09:30' }
     ]
   }
 ]

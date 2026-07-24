@@ -1,11 +1,11 @@
-// 评标状态共享存储（纯内存静态种子，无任何持久化）
+// 评审状态共享存储（纯内存静态种子，无任何持久化）
 // 由 ExpertProject（专家评分/签名/报告）、ExpertTasks（任务/过期）、EvaluationHall（汇总/提交控制）共同消费。
 // 本文件为共享契约：导出名、参数与返回结构固定。
 //
 // 数据结构（按 projectId 存一份）：
 // {
-//   leader: string | null,              // 评标组长姓名
-//   deadline: string | null,            // 'YYYY-MM-DD HH:mm'，评标截止时间
+//   leader: string | null,              // 评审组长姓名
+//   deadline: string | null,            // 'YYYY-MM-DD HH:mm'，评审截止时间
 //   experts: {
 //     [expertName]: {
 //       scores: { [bidderName]: { [scoreItem]: number } },
@@ -22,7 +22,7 @@
 
 const SCORE_ITEMS = ['business', 'tech', 'price']
 
-// 项目 5（轨道交通电缆材料采购）评标种子：3 名专家全部评分/签名/提交，组长已提交评标结果并生成报告
+// 项目 5（轨道交通电缆材料采购）评审种子：3 名专家全部评分/签名/提交，组长已提交评审结果并生成报告
 const expertEntry = (name, opinion, submittedAt) => ({
   scores: {
     'A科技有限公司': { business: 27, tech: 36, price: 27 },
@@ -50,13 +50,13 @@ const SEED_EVALS = {
     deadline: '2026-07-25 17:00',
     experts: {
       专家甲: expertEntry('专家甲', 'A科技有限公司综合表现最优，推荐为第一候选人。', '2026-07-18 15:20'),
-      专家乙: expertEntry('专家乙', '三家投标人均通过符合性审查，A科技有限公司技术与商务得分领先。', '2026-07-18 16:05'),
-      专家丙: expertEntry('专家丙', '评标过程规范，推荐候选人排序合理。', '2026-07-18 16:40')
+      专家乙: expertEntry('专家乙', '三家响应单位均通过符合性审查，A科技有限公司技术与商务得分领先。', '2026-07-18 16:05'),
+      专家丙: expertEntry('专家丙', '评审过程规范，推荐候选人排序合理。', '2026-07-18 16:40')
     },
     report: {
       id: 'RPT-5-001',
       version: 'V1.0',
-      content: '轨道交通电缆材料采购项目评标报告\n\n一、项目概况：本项目共 2 个标段，3 家投标人参与投标。\n二、评标过程：评标委员会由 3 名专家组成，按招标文件规定的综合评分法进行评审。\n三、评审结果：经综合评分，推荐候选人如下：第一候选人 A科技有限公司，第二候选人 B实业有限公司，第三候选人 C股份有限公司。\n四、评标结论：评标委员会一致同意上述推荐结果。',
+      content: '轨道交通电缆材料采购项目评审报告\n\n一、项目概况：本项目共 2 个采购包，3 家响应单位参与响应。\n二、评审过程：评审委员会由 3 名专家组成，按采购文件规定的综合评分法进行评审。\n三、评审结果：经综合评分，推荐候选人如下：第一候选人 A科技有限公司，第二候选人 B实业有限公司，第三候选人 C股份有限公司。\n四、评审结论：评审委员会一致同意上述推荐结果。',
       candidates: ['A科技有限公司', 'B实业有限公司', 'C股份有限公司'],
       createdAt: '2026-07-18 16:50',
       createdBy: '专家乙',
@@ -73,8 +73,8 @@ const SEED_EVALS = {
       ],
       opinions: [
         { expert: '专家甲', opinion: 'A科技有限公司综合表现最优，推荐为第一候选人。' },
-        { expert: '专家乙', opinion: '三家投标人均通过符合性审查，A科技有限公司技术与商务得分领先。' },
-        { expert: '专家丙', opinion: '评标过程规范，推荐候选人排序合理。' }
+        { expert: '专家乙', opinion: '三家响应单位均通过符合性审查，A科技有限公司技术与商务得分领先。' },
+        { expert: '专家丙', opinion: '评审过程规范，推荐候选人排序合理。' }
       ],
       archiveLog: []
     },
@@ -95,14 +95,14 @@ const emptyEval = () => ({
 })
 
 export const evaluationStore = {
-  // 返回全部项目的评标状态 map
+  // 返回全部项目的评审状态 map
   getAll() {
     return clone(SEED_EVALS) || {}
   },
   saveAll() {
     return null
   },
-  // 返回单个项目评标状态（无记录时返回默认结构）
+  // 返回单个项目评审状态（无记录时返回默认结构）
   getEval(projectId) {
     return clone(SEED_EVALS[String(projectId)]) || emptyEval()
   },

@@ -1,4 +1,4 @@
-// 审批流配置（清单 55）：仅招标人（采购管理部）可新建/修改/启停/发布；
+// 审批流配置（清单 55）：仅采购单位（采购管理部）可新建/修改/启停/发布；
 // 其他角色进入为只读并给出提示。发布后新提交的单据按新链流转；
 // 停用或未发布的流程不作用于新发起的审批单；不按采购方式区分审批流（清单 51）。
 import { useMemo, useState } from 'react'
@@ -35,18 +35,18 @@ const FLOW_STATUS_MAP = {
 }
 
 const PUBLISHER_KIND_OPTIONS = [
-  { value: 'agent', label: '代理发布（招标代理提交 → 招标人侧审核）' },
-  { value: 'self', label: '招标人发布（招标人提交 → 需求部门 → 采购管理部）' }
+  { value: 'agent', label: '代理发布（采购代理提交 → 采购单位侧审核）' },
+  { value: 'self', label: '采购单位发布（采购单位提交 → 需求部门 → 采购管理部）' }
 ]
 
-const publisherKindLabel = (kind) => (kind === 'self' ? '招标人发布' : '代理发布')
+const publisherKindLabel = (kind) => (kind === 'self' ? '采购单位发布' : '代理发布')
 
 // 常用审批节点预设，可自由输入其他节点名
 const NODE_PRESETS = ['需求部门', '采购管理部', '财务部', '分管领导']
 
 export default function ApprovalFlowConfig() {
   const { role, userName } = useRole()
-  // 页面级角色门禁：仅招标人（采购管理部语义）可维护；其余角色只读
+  // 页面级角色门禁：仅采购单位（采购管理部语义）可维护；其余角色只读
   const canManage = role === 'tenderee'
 
   const [refresh, setRefresh] = useState(0)
@@ -212,7 +212,7 @@ export default function ApprovalFlowConfig() {
           <div>
             <h3>审批流配置</h3>
             <p className="tip">
-              审批流由招标人（采购管理部）新建、修改、启停和发布（清单 55）；不同采购方式共用同一审批流（清单 51）。
+              审批流由采购单位（采购管理部）新建、修改、启停和发布（清单 55）；不同采购方式共用同一审批流（清单 51）。
             </p>
           </div>
           {canManage && (
@@ -224,7 +224,7 @@ export default function ApprovalFlowConfig() {
 
         {!canManage && (
           <Alert
-            title={`审批流配置仅招标人（采购管理部）可维护，当前角色（${userName}）为只读查看。`}
+            title={`审批流配置仅采购单位（采购管理部）可维护，当前角色（${userName}）为只读查看。`}
             type="warning"
             showIcon
             closable={false}
@@ -232,7 +232,7 @@ export default function ApprovalFlowConfig() {
           />
         )}
         <Alert
-          title="审批链按发布者类型区分：代理发布 → 采购管理部；招标人发布 → 需求部门 → 采购管理部。流程发布后，新提交的单据按新链流转；未发布或停用的流程不作用于新发起的审批单。"
+          title="审批链按发布者类型区分：代理发布 → 采购管理部；采购单位发布 → 需求部门 → 采购管理部。流程发布后，新提交的单据按新链流转；未发布或停用的流程不作用于新发起的审批单。"
           type="info"
           showIcon
           closable={false}

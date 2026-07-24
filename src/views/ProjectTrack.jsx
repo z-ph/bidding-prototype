@@ -56,8 +56,8 @@ export default function ProjectTrack() {
       name: projectOptions.find((p) => p.value === projectId)?.label || '-',
       deadline: '2026-07-20 17:00',
       packages: [
-        { name: '第一标段：主设备', code: 'B1', bidEnd: '2026-07-20 17:00' },
-        { name: '第二标段：辅材', code: 'B2', bidEnd: '2026-07-20 17:00' }
+        { name: '第一采购包：主设备', code: 'B1', bidEnd: '2026-07-20 17:00' },
+        { name: '第二采购包：辅材', code: 'B2', bidEnd: '2026-07-20 17:00' }
       ]
     }
   }, [projectId, projectOptions])
@@ -69,7 +69,7 @@ export default function ProjectTrack() {
 
   const go = (path) => navigate({ to: path })
 
-  // 招标方/监督方：基于项目真实状态的流程节点
+  // 采购方/监督方：基于项目真实状态的流程节点
   const tenderFlowNodes = useMemo(() => getProjectFlowNodes(currentProject), [currentProject])
   const tendereeSummary = useMemo(
     () => getTendereeStatusSummary(currentProject),
@@ -79,7 +79,7 @@ export default function ProjectTrack() {
   const handleTendereeAction = (action) => {
     if (!action) return
     if (action.type === 'publish') {
-      // 招标方在项目跟踪页不直接发标，引导到项目详情
+      // 采购方在项目跟踪页不直接发布采购，引导到项目详情
       navigate({ to: `/admin/projects/detail/${currentProject.id}` })
       return
     }
@@ -88,25 +88,25 @@ export default function ProjectTrack() {
     }
   }
 
-  // 投标人视角：公告期从下载招标文件开始（新口径无报名/缴费环节）
-  const currentNode = isDeadlinePassed ? '待开标' : '下载招标文件'
+  // 响应单位视角：公告期从下载采购文件开始（新口径无报名/缴费环节）
+  const currentNode = isDeadlinePassed ? '待开启' : '下载采购文件'
   const currentStatus = isDeadlinePassed
-    ? '投标已截止，等待开标'
-    : '公告中，可下载招标文件并编制投标文件'
-  const nextStepLabel = isDeadlinePassed ? '下一步：准时参加在线开标' : '下一步：下载招标文件'
+    ? '响应已截止，等待开启'
+    : '公告中，可下载采购文件并编制响应文件'
+  const nextStepLabel = isDeadlinePassed ? '下一步：准时参加在线开启' : '下一步：下载采购文件'
   const nextStepAction = isBidder && !isDeadlinePassed
     ? { label: '去下载', path: `/admin/bid-download?projectId=${projectId}` }
     : null
 
-  // 投标人视角时间线（hall-purchase-method-mapping-20260721：招标族含线上开标，询比族含线上比价；评标对所有项目开放）
+  // 响应单位视角时间线（hall-purchase-method-mapping-20260721：采购族含线上开启，询比族含线上比价；评审对所有项目开放）
   const bidderNodes = [
-    { key: 'requirement', title: '创建采购需求', desc: '招标人创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
-    { key: 'doc', title: '编制招标文件', desc: '代理机构编制招标文件、配置评标办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
-    { key: 'notice', title: '发布招标公告', desc: '招标公告已发布至门户，供应商可下载招标文件', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
+    { key: 'requirement', title: '创建采购需求', desc: '采购单位创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
+    { key: 'doc', title: '编制采购文件', desc: '代理机构编制采购文件、配置评审办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
+    { key: 'notice', title: '发布采购公告', desc: '采购公告已发布至门户，供应商可下载采购文件', time: '2026-07-03 09:00', color: 'green', icon: 'CheckCircleOutlined' },
     {
       key: 'bid',
-      title: inquiryFamily ? '上传投标文件/报价' : '上传投标文件',
-      desc: '供应商下载招标文件后上传加密投标文件并报价',
+      title: inquiryFamily ? '上传响应文件/报价' : '上传响应文件',
+      desc: '供应商下载采购文件后上传加密响应文件并报价',
       time: '进行中',
       color: 'blue',
       icon: 'UploadOutlined',
@@ -115,9 +115,9 @@ export default function ProjectTrack() {
     },
     ...(inquiryFamily
       ? [{ key: 'comparison', title: '线上比价', desc: '比价大厅比较各供应商报价', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' }]
-      : [{ key: 'opening', title: '线上开标', desc: '开标大厅完成签到、解密、唱标', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' }]),
-    { key: 'evaluation', title: '线上评标', desc: '专家评分、生成评标报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
-    { key: 'award', title: '定标公示', desc: '确认中标人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' }
+      : [{ key: 'opening', title: '线上开启', desc: '开启大厅完成签到、解密、唱价', time: '待进行', color: 'gray', icon: 'PlayCircleOutlined' }]),
+    { key: 'evaluation', title: '线上评审', desc: '专家评分、生成评审报告', time: '待进行', color: 'gray', icon: 'StarOutlined' },
+    { key: 'award', title: '成交确认公示', desc: '确认中选人并发布结果公示', time: '待进行', color: 'gray', icon: 'TrophyOutlined' }
   ]
 
   const renderTimelineItems = (nodes) =>
@@ -207,7 +207,7 @@ export default function ProjectTrack() {
               </Descriptions.Item>
               <Descriptions.Item label="下一步">
                 {isDeadlinePassed ? (
-                  <span>投标已截止，等待开标</span>
+                  <span>响应已截止，等待开启</span>
                 ) : (
                   <>
                     <span style={{ marginRight: 12 }}>{nextStepLabel}</span>
@@ -222,7 +222,7 @@ export default function ProjectTrack() {
             </Descriptions>
             {isDeadlinePassed && (
               <Alert
-                title="提示：投标截止时间已过，当前项目不再接受新的投标文件。"
+                title="提示：采购截止时间已过，当前项目不再接受新的响应文件。"
                 type="warning"
                 showIcon
                 closable={false}
@@ -236,8 +236,8 @@ export default function ProjectTrack() {
           title={isSupervisor
             ? '当前为监督视角，仅可查看项目进度，不可执行操作。'
             : isBidder
-              ? '当前为投标人视角：公告期从下载招标文件开始（新口径无报名/缴费环节），请在投标截止前完成投标文件上传。'
-              : '当前为招标方视角，下载招标文件、上传投标文件等投标人动作由供应商在其工作台完成。'}
+              ? '当前为响应单位视角：公告期从下载采购文件开始（新口径无报名/缴费环节），请在采购截止前完成响应文件上传。'
+              : '当前为采购方视角，下载采购文件、上传响应文件等响应单位动作由供应商在其工作台完成。'}
           type="info"
           showIcon
           closable={false}
@@ -246,7 +246,7 @@ export default function ProjectTrack() {
 
         {inquiryFamily && (
           <Alert
-            title="询比族项目（公开询比价/邀请询比价）：报价截止后进入比价大厅比较报价，再进入评标大厅评审（2026-07-21 新口径，无开标环节）。"
+            title="询比族项目（公开询比/邀请询比）：报价截止后进入比价大厅比较报价，再进入评审大厅评审（2026-07-21 新口径，无开启环节）。"
             type="info"
             showIcon
             closable={false}
@@ -254,16 +254,16 @@ export default function ProjectTrack() {
           />
         )}
 
-        <Card size="small" title="标段投标截止时间" style={{ marginBottom: 20 }}>
+        <Card size="small" title="采购包采购截止时间" style={{ marginBottom: 20 }}>
           <Table
             rowKey="code"
             size="small"
             pagination={false}
             dataSource={currentProject.packages || []}
             columns={[
-              { title: '标段名称', dataIndex: 'name' },
-              { title: '标段编号', dataIndex: 'code', width: 120 },
-              { title: '投标截止时间', dataIndex: 'bidEnd', width: 180, render: (v) => v || '-' }
+              { title: '采购包名称', dataIndex: 'name' },
+              { title: '采购包编号', dataIndex: 'code', width: 120 },
+              { title: '采购截止时间', dataIndex: 'bidEnd', width: 180, render: (v) => v || '-' }
             ]}
           />
         </Card>

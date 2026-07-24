@@ -1,9 +1,9 @@
-// 招标文件版本链 mock 数据存储（纯内存静态种子，无任何持久化）
-// 支持按项目读取多版本招标文件，供 TenderDoc、BidDownload、ExpertProject 共享同一文件对象
+// 采购文件版本链 mock 数据存储（纯内存静态种子，无任何持久化）
+// 支持按项目读取多版本采购文件，供 TenderDoc、BidDownload、ExpertProject 共享同一文件对象
 //
 // 版本业务状态口径：
 // - editing / previewing：编制中
-// - pendingConfirm：待确认（招标人确认）
+// - pendingConfirm：待确认（采购单位确认）
 // - published：已发布（当前生效版本）
 // - archived：已归档（历史版本）
 
@@ -14,7 +14,7 @@ const defaultFileList = [
   { uid: '-2', name: '技术参数表.xlsx', size: 256000 }
 ]
 
-// 评标办法默认评分项（名称 + 权重），权重合计 100，驱动 ExpertProject 评分页
+// 评审办法默认评分项（名称 + 权重），权重合计 100，驱动 ExpertProject 评分页
 const defaultScoreItems = [
   { id: 'business', name: '商务标', weight: 30 },
   { id: 'tech', name: '技术标', weight: 40 },
@@ -26,11 +26,11 @@ export function getDefaultScoreItems() {
 }
 
 const defaultHistory = (versionNo, creator) => [
-  { id: 1, content: `${creator} 创建了招标文件 ${versionNo}`, time: '2026-07-08 09:00', type: 'primary' },
-  { id: 2, content: `${creator} 编辑了"招标公告"章节`, time: '2026-07-08 10:30', type: 'info' }
+  { id: 1, content: `${creator} 创建了采购文件 ${versionNo}`, time: '2026-07-08 09:00', type: 'primary' },
+  { id: 2, content: `${creator} 编辑了"采购公告"章节`, time: '2026-07-08 10:30', type: 'info' }
 ]
 
-// 种子：项目 1（招标中）/ 3（待开标）/ 5（评标中）均已发布 V1.0；项目 6（公告中）编制中待确认
+// 种子：项目 1（采购中）/ 3（待开启）/ 5（评审中）均已发布 V1.0；项目 6（公告中）编制中待确认
 const SEED_DOCS = {
   '1': [
     {
@@ -90,7 +90,7 @@ const SEED_DOCS = {
       fileList: JSON.parse(JSON.stringify(defaultFileList)),
       scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
       history: [
-        { id: 1, content: '张三 创建了招标文件 V1.0', time: '2026-07-15 09:00', type: 'primary' }
+        { id: 1, content: '张三 创建了采购文件 V1.0', time: '2026-07-15 09:00', type: 'primary' }
       ],
       creator: '张三',
       confirmer: '',
@@ -145,7 +145,7 @@ export const tenderDocStore = {
       fileList: [],
       scoreItems: JSON.parse(JSON.stringify(defaultScoreItems)),
       history: [
-        { id: 1, content: '新建招标文件 V1.0', time: '（演示）', type: 'primary' }
+        { id: 1, content: '新建采购文件 V1.0', time: '（演示）', type: 'primary' }
       ],
       creator: '',
       confirmer: '',

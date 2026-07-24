@@ -1,6 +1,6 @@
 // 供应商授权 mock 数据存储（纯内存静态种子，无任何持久化）
-// 供 SupplierAuthorization（招标人/代理维护授权名单）、BidDownload（招标文件下载门控）、
-// BidderProjects（投标邀请书查看）共享。
+// 供 SupplierAuthorization（采购单位/代理维护授权名单）、BidDownload（采购文件下载门控）、
+// BidderProjects（响应邀请书查看）共享。
 // 授权为年度周期：grantedAt +1 年为 expiresAt，过期自动判定为 expired，视同未授权。
 // 本文件为共享契约：导出名、参数与返回结构固定。
 
@@ -11,7 +11,7 @@ export const AUTHORIZATION_STATUS_MAP = {
 }
 
 // 授权：{ id, projectId, supplierId, supplierName, status, grantedBy, grantedAt, expiresAt }
-// 种子：项目 3（待开标）授权 A科技/ C股份，B实业 已过期（下载门控演示）
+// 种子：项目 3（待开启）授权 A科技/ C股份，B实业 已过期（下载门控演示）
 const SEED_AUTHORIZATIONS = [
   {
     id: 'auth-1',
@@ -55,7 +55,7 @@ const SEED_AUTHORIZATIONS = [
   }
 ]
 
-// 投标邀请书种子（模板 mock，项目信息由页面填充）
+// 响应邀请书种子（模板 mock，项目信息由页面填充）
 const SEED_INVITATIONS = [
   {
     id: 'inv-1',
@@ -145,7 +145,7 @@ export const authorizationStore = {
     )
   },
 
-  // ---------- 投标邀请书 ----------
+  // ---------- 响应邀请书 ----------
   getInvitations(filter) {
     const all = clone(SEED_INVITATIONS)
     if (!filter) return all

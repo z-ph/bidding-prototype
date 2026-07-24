@@ -9,7 +9,7 @@ import { isInquiryFamily } from './ProjectList.jsx'
 // 待办中心（cal-008）：按当前角色聚合审批待办、项目状态待办、系统待办
 // 口径：需求确认清单 47（§1.15）——各角色面板均含「系统待办」
 
-// 审批链节点（部门名）与平台角色的映射：采购管理部/需求部门为招标人侧审批节点（approvalStore 契约）
+// 审批链节点（部门名）与平台角色的映射：采购管理部/需求部门为采购单位侧审批节点（approvalStore 契约）
 const ROLE_APPROVAL_NODES = {
   tenderee: ['需求部门', '采购管理部']
 }
@@ -24,29 +24,29 @@ const APPROVAL_TYPE_PATH = {
 // 项目状态 → 各角色需处理的待办（目标路径须在 permissions 中对对应角色放行）
 const PROJECT_STATUS_TODOS = {
   tenderee: {
-    draft: { text: '为草稿，待发标', path: '/admin/projects' },
+    draft: { text: '为草稿，待发布采购', path: '/admin/projects' },
     pending: { text: '已提交，待确认发布', path: '/admin/projects' },
     registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
-    pending_open: { text: '待开标，请确认开标安排', path: '/admin/opening-hall' },
-    evaluating: { text: '评标中，待确认评标结果', path: '/admin/award-confirm' }
+    pending_open: { text: '待开启，请确认开启安排', path: '/admin/opening-hall' },
+    evaluating: { text: '评审中，待确认评审结果', path: '/admin/award-confirm' }
   },
   agent: {
-    draft: { text: '为草稿，招标文件待编制', path: '/admin/tender-doc' },
+    draft: { text: '为草稿，采购文件待编制', path: '/admin/tender-doc' },
     pending: { text: '已提交，待确认发布', path: '/admin/projects' },
     registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
-    pending_open: { text: '待开标，请完成开标准备', path: '/admin/opening-hall' },
-    evaluating: { text: '评标中，待汇总提交评标报告', path: '/admin/evaluation-hall' }
+    pending_open: { text: '待开启，请完成开启准备', path: '/admin/opening-hall' },
+    evaluating: { text: '评审中，待汇总提交评审报告', path: '/admin/evaluation-hall' }
   },
   bidder: {
-    registering: { text: '公告中，可下载招标文件', path: '/admin/bid-download' },
-    pending_open: { text: '待开标，请准时参加在线开标', path: '/admin/opening-hall' }
+    registering: { text: '公告中，可下载采购文件', path: '/admin/bid-download' },
+    pending_open: { text: '待开启，请准时参加在线开启', path: '/admin/opening-hall' }
   }
 }
 
 // 系统待办 mock：目标路径均为已存在且角色可访问的页面
 const SYSTEM_TODOS = {
   tenderee: [
-    { title: '采购结果已发布，中标人投标费用待登记', source: '费用台账', time: '2026-07-17 09:00', path: '/admin/fee-manage' }
+    { title: '采购结果已发布，中选人响应费用待登记', source: '费用台账', time: '2026-07-17 09:00', path: '/admin/fee-manage' }
   ],
   agent: [
     { title: '委托代理合同待确认后开展代理业务', source: '委托代理', time: '2026-07-17 09:00', path: '/admin/projects' }
@@ -55,11 +55,11 @@ const SYSTEM_TODOS = {
     { title: '企业档案信息待完善（资质证书待补充）', source: '企业信息维护', time: '2026-07-17 09:00', path: '/admin/supplier-profile' }
   ],
   expert: [
-    { title: '有评标任务待签收确认', source: '评标任务', time: '2026-07-17 09:00', path: '/admin/expert-tasks' },
+    { title: '有评审任务待签收确认', source: '评审任务', time: '2026-07-17 09:00', path: '/admin/expert-tasks' },
     { title: '专家信息待完善（专业领域/回避单位）', source: '专家信息', time: '2026-07-16 15:00', path: '/admin/expert-profile' }
   ],
   supervisor: [
-    { title: '有开标异常登记待跟进处理', source: '异常登记', time: '2026-07-17 09:00', path: '/admin/supervisor-abnormal' }
+    { title: '有开启异常登记待跟进处理', source: '异常登记', time: '2026-07-17 09:00', path: '/admin/supervisor-abnormal' }
   ],
   admin: [
     { title: '新进注册用户待分配角色与权限', source: '用户权限管理', time: '2026-07-17 09:00', path: '/admin/admin-users' },
@@ -118,12 +118,12 @@ export default function TodoCenter() {
       .filter((p) => map[p.status])
       .map((p) => {
         const todo = map[p.status]
-        // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开标大厅入口改为比价大厅
+        // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开启大厅入口改为比价大厅
         const toComparison = todo.path === '/admin/opening-hall' && isInquiryFamily(p)
         return {
           id: `project-${p.id}`,
           kind: 'project',
-          title: `项目「${p.name || p.code || p.id}」${toComparison ? '待开标，报价截止后请进入比价大厅' : todo.text}`,
+          title: `项目「${p.name || p.code || p.id}」${toComparison ? '待开启，报价截止后请进入比价大厅' : todo.text}`,
           source: `项目编号：${p.code || '-'}`,
           time: formatTime(p.submitTime || p.createTime),
           path: toComparison ? '/admin/comparison-hall' : todo.path,

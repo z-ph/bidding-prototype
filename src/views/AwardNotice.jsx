@@ -8,9 +8,9 @@ import { STAGE_LABELS, stageIndex, resolveAwardStage as resolveAwardStageBase } 
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 import { useRole } from '../hooks/useRole.js'
 
-// 定标阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
+// 成交确认阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
 // 与 AwardConfirm 同一口径，避免重复实现漂移导致步骤回退。
-// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评标，不再传询比短路分支
+// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评审，不再传询比短路分支
 const resolveAwardStage = (projectId, project) =>
   resolveAwardStageBase(projectId, project, evaluationStore, null)
 
@@ -46,7 +46,7 @@ export default function AwardNotice() {
 
   const stage = resolveAwardStage(projectId, project)
   const sent = stage === 'notice-sent'
-  // 中标人是否已确认：早于 winner-confirmed 阶段时通知书不可编辑/发送（fix-award-step-regression-20260721）
+  // 中选人是否已确认：早于 winner-confirmed 阶段时通知书不可编辑/发送（fix-award-step-regression-20260721）
   const confirmed = stageIndex(stage) >= stageIndex('winner-confirmed')
 
   // 切换/刷新项目时按所选项目渲染
@@ -59,10 +59,10 @@ export default function AwardNotice() {
       setForm({ ...notice })
     } else {
       setForm({
-        title: `${name}中标通知书`,
+        title: `${name}中选通知书`,
         bidder: winner?.name || '',
         amount: winner?.price ? `${winner.price} 万元` : '',
-        content: `贵司参与的 ${name} 经评标委员会评审、招标人确认，被确定为中标人。请于收到通知书后 30 日内与招标人签订合同。`,
+        content: `贵司参与的 ${name} 经评审委员会评审、采购单位确认，被确定为中选人。请于收到通知书后 30 日内与采购单位签订合同。`,
         signed: false
       })
     }
@@ -78,17 +78,17 @@ export default function AwardNotice() {
   }
 
   const preview = () => {
-    message.success('演示环境 · 打开中标通知书预览')
+    message.success('演示环境 · 打开中选通知书预览')
   }
 
   const send = () => {
     Modal.confirm({
-      title: '发送中标通知书',
-      content: `确定将「${projectName}」的中标通知书发送给中标人 ${form.bidder} 吗？`,
+      title: '发送中选通知书',
+      content: `确定将「${projectName}」的中选通知书发送给中选人 ${form.bidder} 吗？`,
       okText: '确认发送',
       cancelText: '取消',
       onOk: () => {
-        message.success('演示环境 · 中标通知书已发送')
+        message.success('演示环境 · 中选通知书已发送')
       }
     })
   }
@@ -113,11 +113,11 @@ export default function AwardNotice() {
       <Card
         title={
           <div className="card-header">
-            <span>发送中标通知书</span>
+            <span>发送中选通知书</span>
             <span>
               <Tag color="warning">项目：{projectName}</Tag>
               <Tag color={!sent ? 'processing' : 'default'}>{STAGE_LABELS[stage]}</Tag>
-              {form.bidder && <Tag color="success">中标人：{form.bidder}</Tag>}
+              {form.bidder && <Tag color="success">中选人：{form.bidder}</Tag>}
             </span>
           </div>
         }
@@ -135,16 +135,16 @@ export default function AwardNotice() {
           current={stepsCurrent}
           style={{ marginBottom: 24 }}
           items={[
-            { title: '评标结束' },
-            { title: '候选人公示' },
-            { title: '确认中标人' },
+            { title: '评审结束' },
+            { title: '采购结果公告' },
+            { title: '确认中选人' },
             { title: '结果公示' },
             { title: '发送通知书' }
           ]}
         />
         {!confirmed && (
           <Alert
-            title={`当前项目阶段：${STAGE_LABELS[stage]}。需先在「确认中标人」页面完成中标人确认后，才能发送中标通知书。`}
+            title={`当前项目阶段：${STAGE_LABELS[stage]}。需先在「确认中选人」页面完成中选人确认后，才能发送中选通知书。`}
             type="warning"
             showIcon
             icon={<LockOutlined />}
@@ -154,7 +154,7 @@ export default function AwardNotice() {
         )}
         {confirmed && !sent && (
           <Alert
-            title="根据模板生成中标通知书，支持在线编辑、签章后发送给中标人。发送后中标人可在工作台查看。"
+            title="根据模板生成中选通知书，支持在线编辑、签章后发送给中选人。发送后中选人可在工作台查看。"
             type="info"
             showIcon
             closable={false}
@@ -163,7 +163,7 @@ export default function AwardNotice() {
         )}
         {sent && (
           <Alert
-            title={`中标通知书已于 ${project?.notice?.sentAt ? new Date(project.notice.sentAt).toLocaleString() : '-'} 发送给中标人 ${form.bidder}，项目定标流程已完成。`}
+            title={`中选通知书已于 ${project?.notice?.sentAt ? new Date(project.notice.sentAt).toLocaleString() : '-'} 发送给中选人 ${form.bidder}，项目成交流程已完成。`}
             type="success"
             showIcon
             closable={false}
@@ -178,10 +178,10 @@ export default function AwardNotice() {
               onChange={(e) => updateField('title', e.target.value)}
             />
           </Form.Item>
-          <Form.Item label="中标人" required>
-            <Input value={form.bidder || '（待确认中标人）'} disabled />
+          <Form.Item label="中选人" required>
+            <Input value={form.bidder || '（待确认中选人）'} disabled />
           </Form.Item>
-          <Form.Item label="中标金额" required>
+          <Form.Item label="中选金额" required>
             <Input
               value={form.amount}
               disabled={sent || !confirmed}
@@ -209,12 +209,12 @@ export default function AwardNotice() {
         </Form>
         <div className="actions">
           {isBidder ? (
-            <Alert type="info" message="您以投标人身份查看中标通知书，发送操作仅限招标人/招标代理。" showIcon />
+            <Alert type="info" message="您以响应单位身份查看中选通知书，发送操作仅限采购单位/采购代理。" showIcon />
           ) : (
             <>
               {confirmed && !sent && (
                 <Button type="primary" size="large" onClick={send}>
-                  发送中标通知书
+                  发送中选通知书
                 </Button>
               )}
               <Button size="large" onClick={preview}>预览</Button>

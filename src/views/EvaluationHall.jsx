@@ -12,19 +12,19 @@ import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 const FALLBACK_EXPERTS = ['专家甲', '专家乙', '专家丙']
 
 const FALLBACK_SUMMARY = [
-  { rank: 1, name: 'C股份有限公司', business: 28, tech: 36, price: 29, total: 93, recommend: '推荐中标' },
+  { rank: 1, name: 'C股份有限公司', business: 28, tech: 36, price: 29, total: 93, recommend: '推荐中选' },
   { rank: 2, name: 'A科技有限公司', business: 27, tech: 34, price: 28, total: 89, recommend: '备选' },
   { rank: 3, name: 'B实业有限公司', business: 26, tech: 31, price: 27, total: 84, recommend: '备选' }
 ]
 
 const FALLBACK_REJECTED = [
-  { name: 'D有限公司', reason: '未按要求加盖电子签章，投标文件无效。' }
+  { name: 'D有限公司', reason: '未按要求加盖电子签章，响应文件无效。' }
 ]
 
 const STATUS_MAP = {
-  evaluating: { label: '评标中', color: 'processing' },
-  submitted: { label: '评标结果已提交', color: 'success' },
-  confirmed: { label: '评标结果已确认', color: 'success' }
+  evaluating: { label: '评审中', color: 'processing' },
+  submitted: { label: '评审结果已提交', color: 'success' },
+  confirmed: { label: '评审结果已确认', color: 'success' }
 }
 
 export default function EvaluationHall() {
@@ -33,7 +33,7 @@ export default function EvaluationHall() {
   const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
 
-  // 评标大厅对所有采购项目开放（hall-purchase-method-mapping-20260721，废止邀请询比价无评标旧口径）
+  // 评审大厅对所有采购项目开放（hall-purchase-method-mapping-20260721，废止邀请询比无评审旧口径）
   const project = useMemo(
     () =>
       projectStore.getProjectById(projectId) ||
@@ -50,7 +50,7 @@ export default function EvaluationHall() {
     setSubmitInfo(evaluationStore.getSubmittedInfo(projectId))
   }
 
-  // 评标委员会名单：专家抽取结果 ∪ evaluationStore 已有记录，空则回退演示名单（口径与 ExpertProject 一致）
+  // 评审委员会名单：专家抽取结果 ∪ evaluationStore 已有记录，空则回退演示名单（口径与 ExpertProject 一致）
   const roster = useMemo(() => {
     const names = []
     const extracted = expertStore.getResult(projectId)?.experts || []
@@ -80,7 +80,7 @@ export default function EvaluationHall() {
   const [activeTab, setActiveTab] = useState(isLeader ? 'summary' : 'progress')
   const [operationRecords, setOperationRecords] = useState([])
   const [reportForm, setReportForm] = useState(() => ({
-    opinion: evalData.report?.content || '经评标委员会评审，C股份有限公司综合得分最高，技术方案满足招标文件要求，报价合理，推荐为中标候选人。',
+    opinion: evalData.report?.content || '经评审委员会评审，C股份有限公司综合得分最高，技术方案满足采购文件要求，报价合理，推荐为中选候选人。',
     recommend: evalData.report?.candidates?.[0] || 'C股份有限公司'
   }))
 
@@ -132,7 +132,7 @@ export default function EvaluationHall() {
     rows.sort((a, b) => b.total - a.total)
     rows.forEach((row, idx) => {
       row.rank = idx + 1
-      row.recommend = idx === 0 ? '推荐中标' : '备选'
+      row.recommend = idx === 0 ? '推荐中选' : '备选'
     })
     return { real: true, items: itemKeys.map((key) => ({ key, title: `${key}（均值）` })), rows }
   }, [evalData])
@@ -149,7 +149,7 @@ export default function EvaluationHall() {
     ])
   }
 
-  // 评标报告持久化到 evaluationStore.report（契约结构：id/version/content/candidates/createdAt/createdBy/archived）
+  // 评审报告持久化到 evaluationStore.report（契约结构：id/version/content/candidates/createdAt/createdBy/archived）
   const saveReport = () => {
     evaluationStore.updateEval(projectId, (draft) => {
       draft.report = {
@@ -163,16 +163,16 @@ export default function EvaluationHall() {
       }
     })
     reload()
-    addOperationRecord('保存报告', '评标委员会意见及推荐中标候选人已保存')
-    message.success('评标报告已保存')
+    addOperationRecord('保存报告', '评审委员会意见及推荐中选候选人已保存')
+    message.success('评审报告已保存')
   }
 
   // 2052-003/2052-009：提交仅组长可用，需全部专家提交（evaluationStore.getSubmittedInfo 真实数据），Modal 二次确认
   const submitResult = () => {
     if (!submitInfo.allSubmitted) return
     Modal.confirm({
-      title: '提交评标结果确认',
-      content: `共 ${submitInfo.total} 名专家均已提交评分。提交后评标结果将进入中标公示流程，确认提交吗？`,
+      title: '提交评审结果确认',
+      content: `共 ${submitInfo.total} 名专家均已提交评分。提交后评审结果将进入中选公示流程，确认提交吗？`,
       okText: '确认提交',
       cancelText: '取消',
       onOk: () => {
@@ -180,8 +180,8 @@ export default function EvaluationHall() {
           draft.status = 'submitted'
         })
         reload()
-        addOperationRecord('提交评标结果', '评标结果已提交，进入中标公示流程')
-        message.success('评标结果已提交，进入中标公示流程')
+        addOperationRecord('提交评审结果', '评审结果已提交，进入中选公示流程')
+        message.success('评审结果已提交，进入中选公示流程')
       }
     })
   }
@@ -192,7 +192,7 @@ export default function EvaluationHall() {
 
   const summaryColumns = [
     { title: '排名', dataIndex: 'rank', width: 80 },
-    { title: '投标人', dataIndex: 'name', minWidth: 200 },
+    { title: '响应单位', dataIndex: 'name', minWidth: 200 },
     ...summaryData.items.map((item) => ({ title: item.title, dataIndex: item.key, width: 130 })),
     {
       title: '总分',
@@ -205,7 +205,7 @@ export default function EvaluationHall() {
       dataIndex: 'recommend',
       width: 120,
       render: (recommend) => (
-        <Tag color={recommend === '推荐中标' ? 'success' : 'default'}>{recommend}</Tag>
+        <Tag color={recommend === '推荐中选' ? 'success' : 'default'}>{recommend}</Tag>
       )
     }
   ]
@@ -285,7 +285,7 @@ export default function EvaluationHall() {
     children: (
       <>
         <Descriptions column={3} style={{ marginBottom: 16 }}>
-          <Descriptions.Item label="评标组长">{leaderName}</Descriptions.Item>
+          <Descriptions.Item label="评审组长">{leaderName}</Descriptions.Item>
           <Descriptions.Item label="专家人数">{roster.length}</Descriptions.Item>
           <Descriptions.Item label="已提交">
             {submitInfo.submitted}/{submitInfo.total || roster.length}
@@ -305,10 +305,10 @@ export default function EvaluationHall() {
 
   const rejectTab = {
     key: 'reject',
-    label: '否决投标',
+    label: '否决响应',
     children:
       FALLBACK_REJECTED.length === 0 ? (
-        <Empty description="暂无否决投标" />
+        <Empty description="暂无否决响应" />
       ) : (
         FALLBACK_REJECTED.map((item, idx) => (
           <Alert
@@ -324,18 +324,18 @@ export default function EvaluationHall() {
 
   const reportEditTab = {
     key: 'report',
-    label: '评标报告',
+    label: '评审报告',
     children: (
       <Form layout="vertical">
-        <Form.Item label="评标委员会意见">
+        <Form.Item label="评审委员会意见">
           <Input.TextArea
             rows={6}
-            placeholder="汇总评标委员会整体意见..."
+            placeholder="汇总评审委员会整体意见..."
             value={reportForm.opinion}
             onChange={(e) => setReportForm((prev) => ({ ...prev, opinion: e.target.value }))}
           />
         </Form.Item>
-        <Form.Item label="推荐中标候选人">
+        <Form.Item label="推荐中选候选人">
           <Radio.Group
             value={reportForm.recommend}
             onChange={(e) => setReportForm((prev) => ({ ...prev, recommend: e.target.value }))}
@@ -358,13 +358,13 @@ export default function EvaluationHall() {
 
   const reportReadonlyTab = {
     key: 'report',
-    label: '评标报告',
+    label: '评审报告',
     children: evalData.report ? (
       <Descriptions column={1} bordered>
         <Descriptions.Item label="报告编号">{evalData.report.id}</Descriptions.Item>
         <Descriptions.Item label="版本">{evalData.report.version}</Descriptions.Item>
-        <Descriptions.Item label="评标委员会意见">{evalData.report.content}</Descriptions.Item>
-        <Descriptions.Item label="推荐中标候选人">
+        <Descriptions.Item label="评审委员会意见">{evalData.report.content}</Descriptions.Item>
+        <Descriptions.Item label="推荐中选候选人">
           {(evalData.report.candidates || []).join('、') || '—'}
         </Descriptions.Item>
         <Descriptions.Item label="生成信息">
@@ -372,11 +372,11 @@ export default function EvaluationHall() {
         </Descriptions.Item>
       </Descriptions>
     ) : (
-      <Empty description="评标报告尚未生成" />
+      <Empty description="评审报告尚未生成" />
     )
   }
 
-  // 角色视图拆分（2052-008）：组长可编辑报告；专家成员仅进度+汇总；招标人/代理/监督全只读
+  // 角色视图拆分（2052-008）：组长可编辑报告；专家成员仅进度+汇总；采购单位/代理/监督全只读
   const tabItems = isLeader
     ? [summaryTab, progressTab, rejectTab, reportEditTab]
     : isExpert
@@ -391,7 +391,7 @@ export default function EvaluationHall() {
           type="success"
           showIcon
           closable={false}
-          title={`全部 ${submitInfo.total} 名专家已提交评分，可提交评标结果。`}
+          title={`全部 ${submitInfo.total} 名专家已提交评分，可提交评审结果。`}
           style={{ marginBottom: 20 }}
         />
       ) : (
@@ -399,7 +399,7 @@ export default function EvaluationHall() {
           type="warning"
           showIcon
           closable={false}
-          title="您是评标组长，可在全部专家提交后提交评标结果"
+          title="您是评审组长，可在全部专家提交后提交评审结果"
           description={`未提交专家：${pendingNames.join('、') || '—'}。`}
           style={{ marginBottom: 20 }}
         />
@@ -411,10 +411,10 @@ export default function EvaluationHall() {
           type="info"
           showIcon
           closable={false}
-          title="您是评标委员会成员，本页仅可查看评标进度与本人提交状态"
+          title="您是评审委员会成员，本页仅可查看评审进度与本人提交状态"
           description={
             <>
-              <span style={{ marginRight: 12 }}>评分与签名请在「评标项目」中完成。</span>
+              <span style={{ marginRight: 12 }}>评分与签名请在「评审项目」中完成。</span>
               <Button type="primary" size="small" onClick={goExpertProject}>
                 前往评分
               </Button>
@@ -430,7 +430,7 @@ export default function EvaluationHall() {
           type="info"
           showIcon
           closable={false}
-          title="招标人只读视图：可查看评标进度、评分汇总与评标报告，无操作权限。"
+          title="采购单位只读视图：可查看评审进度、评分汇总与评审报告，无操作权限。"
           style={{ marginBottom: 20 }}
         />
       )
@@ -441,7 +441,7 @@ export default function EvaluationHall() {
           type="info"
           showIcon
           closable={false}
-          title="招标代理只读视图：可查看评标进度与评分汇总；提交评标结果由评标组长完成。"
+          title="采购代理只读视图：可查看评审进度与评分汇总；提交评审结果由评审组长完成。"
           style={{ marginBottom: 20 }}
         />
       )
@@ -452,7 +452,7 @@ export default function EvaluationHall() {
           type="info"
           showIcon
           closable={false}
-          title="监督人员只读视图：全程监督评标过程，不参与评分与提交。"
+          title="监督人员只读视图：全程监督评审过程，不参与评分与提交。"
           style={{ marginBottom: 20 }}
         />
       )
@@ -464,12 +464,12 @@ export default function EvaluationHall() {
   const renderNextStep = () => {
     if (isLeader) {
       if (evalData.status === 'submitted' || evalData.status === 'confirmed') {
-        return <span>评标结果已提交，进入中标公示流程</span>
+        return <span>评审结果已提交，进入中选公示流程</span>
       }
       if (submitInfo.allSubmitted) {
         return (
           <>
-            <span style={{ marginRight: 12 }}>提交评标结果</span>
+            <span style={{ marginRight: 12 }}>提交评审结果</span>
             <Button type="primary" size="small" onClick={submitResult}>
               提交结果
             </Button>
@@ -481,7 +481,7 @@ export default function EvaluationHall() {
     if (isExpert) {
       return (
         <>
-          <span style={{ marginRight: 12 }}>前往「评标项目」完成本人评分</span>
+          <span style={{ marginRight: 12 }}>前往「评审项目」完成本人评分</span>
           <Button type="primary" size="small" onClick={goExpertProject}>
             去评分
           </Button>
@@ -489,9 +489,9 @@ export default function EvaluationHall() {
       )
     }
     if (evalData.status === 'submitted' || evalData.status === 'confirmed') {
-      return <span>评标结果已提交，进入中标公示流程</span>
+      return <span>评审结果已提交，进入中选公示流程</span>
     }
-    return <span>等待评标委员会完成评审（只读）</span>
+    return <span>等待评审委员会完成评审（只读）</span>
   }
 
   // 入口守卫（所有 hooks 之后）：无 projectId 时阻断并引导从项目进入；
@@ -506,8 +506,8 @@ export default function EvaluationHall() {
         title={
           <div className="hall-header">
             <div>
-              <h2>评标大厅</h2>
-              <p className="subtitle">XX市轨道交通设备采购项目 · 标段一：主设备 · 项目ID：{projectId}</p>
+              <h2>评审大厅</h2>
+              <p className="subtitle">XX市轨道交通设备采购项目 · 采购包一：主设备 · 项目ID：{projectId}</p>
             </div>
             <div className="hall-meta">
               <Tag color={statusInfo.color} style={{ fontSize: 14, padding: '4px 12px' }}>
@@ -521,7 +521,7 @@ export default function EvaluationHall() {
               {/* 2052-009：提交按钮仅组长渲染；2052-003：未全部提交时禁用 */}
               {isLeader && evalData.status !== 'submitted' && evalData.status !== 'confirmed' && (
                 <Button type="primary" disabled={!submitInfo.allSubmitted} onClick={submitResult}>
-                  提交评标结果
+                  提交评审结果
                 </Button>
               )}
             </div>
@@ -533,7 +533,7 @@ export default function EvaluationHall() {
         <Card size="small" title="当前状态与下一步" style={{ marginBottom: 20, background: '#f6ffed' }}>
           <Descriptions column={2}>
             <Descriptions.Item label="当前阶段">{statusInfo.label}</Descriptions.Item>
-            <Descriptions.Item label="评标截止">{deadline}</Descriptions.Item>
+            <Descriptions.Item label="评审截止">{deadline}</Descriptions.Item>
             <Descriptions.Item label="专家提交进度">
               {submitInfo.submitted}/{submitInfo.total || roster.length} 已提交
             </Descriptions.Item>
@@ -541,7 +541,7 @@ export default function EvaluationHall() {
           </Descriptions>
           {!submitInfo.allSubmitted && (
             <Alert
-              title={`阻断原因：尚有 ${pendingNames.length} 名专家评分未提交（${pendingNames.join('、')}），需所有专家提交后方可发布评标结果。`}
+              title={`阻断原因：尚有 ${pendingNames.length} 名专家评分未提交（${pendingNames.join('、')}），需所有专家提交后方可发布评审结果。`}
               type="warning"
               showIcon
               closable={false}

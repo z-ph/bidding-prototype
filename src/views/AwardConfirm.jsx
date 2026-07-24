@@ -10,9 +10,9 @@ import { BASELINE_PROJECTS } from './ProjectList.jsx'
 import { AWARD_STAGES, STAGE_LABELS, stageIndex, resolveAwardStage as resolveAwardStageBase } from '../utils/awardFlow.js'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
-// 定标阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
+// 成交确认阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
 // 与 AwardNotice 同一口径，避免重复实现漂移导致步骤回退。
-// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评标，不再传询比短路分支
+// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评审，不再传询比短路分支
 const resolveAwardStage = (projectId, project) =>
   resolveAwardStageBase(projectId, project, evaluationStore, null)
 
@@ -27,7 +27,7 @@ export default function AwardConfirm() {
   const [form, setForm] = useState({ opinion: '' })
   // localStorage 无订阅机制：操作后递增 refreshTick 触发重读
   const [refreshTick, setRefreshTick] = useState(0)
-  // 中标结果审批登记（清单 31：审批不在本系统完成，仅登记外部审批结果）
+  // 中选结果审批登记（清单 31：审批不在本系统完成，仅登记外部审批结果）
   const [regForm, setRegForm] = useState({ docNo: '', docDate: null, result: '通过', remark: '', files: [] })
   const [reRegistering, setReRegistering] = useState(false)
 
@@ -38,7 +38,7 @@ export default function AwardConfirm() {
     return Array.from(map.entries()).map(([value, label]) => ({ value, label }))
   }, [])
 
-  // 与项目列表同一数据源：projectStore 优先，基线 mock 兜底（邀请询比价演示项目来自基线）
+  // 与项目列表同一数据源：projectStore 优先，基线 mock 兜底（邀请询比演示项目来自基线）
   const project = useMemo(
     () =>
       projectStore.getProjectById(projectId) ||
@@ -50,7 +50,7 @@ export default function AwardConfirm() {
     project?.name || projectOptions.find((p) => p.value === projectId)?.label || '-'
 
   const stage = resolveAwardStage(projectId, project)
-  // 阶段门禁：确认中标人需项目到达「评标完成」
+  // 阶段门禁：确认中选人需项目到达「评审完成」
   const canConfirm = stageIndex(stage) >= stageIndex('evaluation-done')
   const confirmed = stageIndex(stage) >= stageIndex('winner-confirmed')
 
@@ -63,7 +63,7 @@ export default function AwardConfirm() {
     setReRegistering(false)
   }, [projectId, refreshTick])
 
-  // 本项目的中标结果审批登记记录（approvalStore type=award-result，按 refId=award-{projectId} 匹配，取最新一条）
+  // 本项目的中选结果审批登记记录（approvalStore type=award-result，按 refId=award-{projectId} 匹配，取最新一条）
   const registration = useMemo(
     () =>
       approvalStore
@@ -87,7 +87,7 @@ export default function AwardConfirm() {
     const instance = approvalStore.create({
       type: 'award-result',
       refId: `award-${projectId}`,
-      title: `${projectName} 中标结果审批登记`,
+      title: `${projectName} 中选结果审批登记`,
       publisherKind: role === 'agent' ? 'agent' : 'self',
       submittedBy: userName,
       projectId
@@ -131,30 +131,30 @@ export default function AwardConfirm() {
   }
 
   const candidates = [
-    { rank: 1, name: 'C股份有限公司', total: 93, price: 798, recommend: '综合得分最高，推荐为第一中标候选人' },
-    { rank: 2, name: 'A科技有限公司', total: 89, price: 820, recommend: '推荐为第二中标候选人' },
-    { rank: 3, name: 'B实业有限公司', total: 84, price: 845, recommend: '推荐为第三中标候选人' }
+    { rank: 1, name: 'C股份有限公司', total: 93, price: 798, recommend: '综合得分最高，推荐为第一中选候选人' },
+    { rank: 2, name: 'A科技有限公司', total: 89, price: 820, recommend: '推荐为第二中选候选人' },
+    { rank: 3, name: 'B实业有限公司', total: 84, price: 845, recommend: '推荐为第三中选候选人' }
   ]
 
   const rankText = (rank) => ['一', '二', '三'][rank - 1] || rank
 
   const choose = (row) => {
     setSelected(row.name)
-    setForm({ opinion: `经公示无异议，确定第${rankText(row.rank)}中标候选人 ${row.name} 为中标人。` })
+    setForm({ opinion: `经公示无异议，确定第${rankText(row.rank)}中选候选人 ${row.name} 为中选人。` })
   }
 
   const confirm = () => {
     if (!selected) {
-      message.warning('请先选择中标人')
+      message.warning('请先选择中选人')
       return
     }
     Modal.confirm({
-      title: '确认中标人',
-      content: `确定将 ${selected} 确认为「${projectName}」的中标人吗？确认后项目进入中标结果公示环节，并解锁中标通知书发送。`,
-      okText: '确认中标',
+      title: '确认中选人',
+      content: `确定将 ${selected} 确认为「${projectName}」的中选人吗？确认后项目进入中选结果公示环节，并解锁中选通知书发送。`,
+      okText: '确认中选',
       cancelText: '取消',
       onOk: () => {
-        message.success(`演示环境 · 已确认中标人：${selected}`)
+        message.success(`演示环境 · 已确认中选人：${selected}`)
         navigate({ to: '/admin/award-notice', search: { projectId } })
       }
     })
@@ -162,10 +162,10 @@ export default function AwardConfirm() {
 
   const columns = [
     { title: '排名', dataIndex: 'rank', width: 80 },
-    { title: '投标人', dataIndex: 'name', minWidth: 200 },
+    { title: '响应单位', dataIndex: 'name', minWidth: 200 },
     { title: '综合得分', dataIndex: 'total', width: 120 },
-    { title: '投标报价（万元）', dataIndex: 'price', width: 160 },
-    { title: '评标委员会推荐意见', dataIndex: 'recommend', minWidth: 200 },
+    { title: '响应报价（万元）', dataIndex: 'price', width: 160 },
+    { title: '评审委员会推荐意见', dataIndex: 'recommend', minWidth: 200 },
     {
       title: '选择',
       width: 120,
@@ -199,7 +199,7 @@ export default function AwardConfirm() {
       <Card
         title={
           <div className="card-header">
-            <span>确认中标人</span>
+            <span>确认中选人</span>
             <span>
               <Tag color="warning">项目：{projectName}</Tag>
               <Tag color={canConfirm ? 'processing' : 'default'}>{STAGE_LABELS[stage]}</Tag>
@@ -220,16 +220,16 @@ export default function AwardConfirm() {
           current={stepsCurrent}
           style={{ marginBottom: 24 }}
           items={[
-            { title: '评标结束' },
-            { title: '候选人公示' },
-            { title: '确认中标人' },
+            { title: '评审结束' },
+            { title: '采购结果公告' },
+            { title: '确认中选人' },
             { title: '结果公示' },
             { title: '发送通知书' }
           ]}
         />
         {!canConfirm && (
           <Alert
-            title={`当前项目阶段：${STAGE_LABELS[stage]}。需项目到达「评标完成」阶段后才能确认中标人，请先在评标环节完成评审并提交评标报告。`}
+            title={`当前项目阶段：${STAGE_LABELS[stage]}。需项目到达「评审完成」阶段后才能确认中选人，请先在评审环节完成评审并提交评审报告。`}
             type="warning"
             showIcon
             icon={<LockOutlined />}
@@ -239,7 +239,7 @@ export default function AwardConfirm() {
         )}
         {canConfirm && !confirmed && (
           <Alert
-            title="公示期结束后，招标人在此处确认最终中标人。确认后将进入中标结果公示和中标通知书发送环节。"
+            title="公示期结束后，采购单位在此处确认最终中选人。确认后将进入中选结果公示和中选通知书发送环节。"
             type="info"
             showIcon
             closable={false}
@@ -248,14 +248,14 @@ export default function AwardConfirm() {
         )}
         {confirmed && (
           <Alert
-            title={`本项目已确认中标人：${project?.winner?.name || selected}（${project?.winner?.confirmedAt ? new Date(project.winner.confirmedAt).toLocaleString() : '-'}），当前阶段：${STAGE_LABELS[stage]}。`}
+            title={`本项目已确认中选人：${project?.winner?.name || selected}（${project?.winner?.confirmedAt ? new Date(project.winner.confirmedAt).toLocaleString() : '-'}），当前阶段：${STAGE_LABELS[stage]}。`}
             type="success"
             showIcon
             closable={false}
             style={{ marginBottom: 20 }}
           />
         )}
-        <h3>中标候选人排名</h3>
+        <h3>中选候选人排名</h3>
         <Table
           columns={columns}
           dataSource={candidates}
@@ -265,10 +265,10 @@ export default function AwardConfirm() {
           style={{ width: '100%' }}
         />
         <Form layout="vertical" style={{ marginTop: 20 }}>
-          <Form.Item label="定标意见">
+          <Form.Item label="成交确认意见">
             <Input.TextArea
               rows={4}
-              placeholder="请填写定标意见..."
+              placeholder="请填写成交确认意见..."
               value={form.opinion}
               disabled={!canConfirm || confirmed}
               onChange={(e) => setForm((prev) => ({ ...prev, opinion: e.target.value }))}
@@ -282,20 +282,20 @@ export default function AwardConfirm() {
             disabled={!canConfirm || confirmed}
             onClick={confirm}
           >
-            确认中标人
+            确认中选人
           </Button>
           <Button
             size="large"
             disabled={!confirmed}
             onClick={() => navigate({ to: '/admin/award-notice', search: { projectId } })}
           >
-            下一步：发送中标通知书
+            下一步：发送中选通知书
           </Button>
         </div>
       </Card>
 
       {confirmed && (
-        <Card title="中标结果审批结果登记" size="small" style={{ marginTop: 20 }}>
+        <Card title="中选结果审批结果登记" size="small" style={{ marginTop: 20 }}>
           {registration && !reRegistering ? (
             <>
               <Descriptions column={2} bordered size="small">
@@ -320,8 +320,8 @@ export default function AwardConfirm() {
               <Alert
                 title={
                   registration.result === '不通过'
-                    ? '登记结果为不通过，中标结果不可发布。'
-                    : '审批结果已登记（外部审批，清单 31），中标结果可进入发布环节；登记记录已进入项目归档。'
+                    ? '登记结果为不通过，中选结果不可发布。'
+                    : '审批结果已登记（外部审批，清单 31），中选结果可进入发布环节；登记记录已进入项目归档。'
                 }
                 type={registration.result === '不通过' ? 'error' : 'success'}
                 showIcon
@@ -337,7 +337,7 @@ export default function AwardConfirm() {
           ) : (
             <>
               <Alert
-                title="中标结果需经外部审批后登记（清单 31：审批不在本系统完成，系统内仅登记审批结果）；未登记前中标结果不可发布。"
+                title="中选结果需经外部审批后登记（清单 31：审批不在本系统完成，系统内仅登记审批结果）；未登记前中选结果不可发布。"
                 type="warning"
                 showIcon
                 closable={false}

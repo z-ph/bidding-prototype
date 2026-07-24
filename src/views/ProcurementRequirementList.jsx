@@ -59,7 +59,7 @@ export default function ProcurementRequirementList() {
 
   const requirementTypes = requirementStore.getTypes()
 
-  // 发布者类型（清单 14）：招标代理发布 → 采购管理部审核；招标人发布 → 需求部门 → 采购管理部
+  // 发布者类型（清单 14）：采购代理发布 → 采购管理部审核；采购单位发布 → 需求部门 → 采购管理部
   const publisherKind = role === 'agent' ? 'agent' : 'self'
 
   // 页面加载时同步在途审批单结果：通过 → 已发布；驳回 → 已驳回（清单 49/50）
@@ -270,7 +270,7 @@ export default function ProcurementRequirementList() {
         <div className="header-actions">
           <div>
             <h3>采购需求管理</h3>
-            <p className="tip">采购需求提交审批通过后方可发布（清单 48）；代理发布由采购管理部审核，招标人发布经需求部门、采购管理部审核（清单 14/22）。</p>
+            <p className="tip">采购需求提交审批通过后方可发布（清单 48）；代理发布由采购管理部审核，采购单位发布经需求部门、采购管理部审核（清单 14/22）。</p>
           </div>
           <Space>
             <Button icon={<SettingOutlined />} onClick={() => setTypesOpen(true)}>

@@ -7,8 +7,8 @@ const SEED_RECORDS = [
     id: 'YC20260718001',
     projectId: '3',
     project: 'XX大学实验室设备采购项目',
-    type: '开标异常',
-    desc: '开标前发现 B实业有限公司 授权已过期，已要求招标人在开标前完成重新授权确认。',
+    type: '开启异常',
+    desc: '开启前发现 B实业有限公司 授权已过期，已要求采购单位在开启前完成重新授权确认。',
     status: '待处理',
     time: '2026-07-18 16:40',
     source: 'hall'
@@ -18,7 +18,7 @@ const SEED_RECORDS = [
     projectId: '7',
     project: '市政养护材料采购项目',
     type: '监督意见',
-    desc: '评标过程符合法定程序，评标委员会组建及抽取记录完整，无异议。',
+    desc: '评审过程符合法定程序，评审委员会组建及抽取记录完整，无异议。',
     status: '已处理',
     time: '2026-07-01 11:20',
     source: 'abnormal'

@@ -6,8 +6,8 @@ export default function AdminLogs() {
   const [logs] = useState([
     { time: '2026-07-08 10:00:00', type: '系统操作', operator: 'admin', action: '登录系统', ip: '192.168.1.1', result: '成功' },
     { time: '2026-07-08 10:05:22', type: '关键业务', operator: '张三', action: '创建采购需求', ip: '192.168.1.10', result: '成功' },
-    { time: '2026-07-08 10:30:11', type: '短信发送', operator: '系统', action: '向专家甲发送评标通知短信', ip: '-', result: '成功' },
-    { time: '2026-07-08 11:00:45', type: '关键业务', operator: '李四', action: '发布招标公告', ip: '192.168.1.11', result: '成功' }
+    { time: '2026-07-08 10:30:11', type: '短信发送', operator: '系统', action: '向专家甲发送评审通知短信', ip: '-', result: '成功' },
+    { time: '2026-07-08 11:00:45', type: '关键业务', operator: '李四', action: '发布采购公告', ip: '192.168.1.11', result: '成功' }
   ])
 
   const load = () => message.success('查询日志')

@@ -1,5 +1,5 @@
 // 消息中心：接入 messageStore（localStorage mock），修 cal-009 闭环缺口
-// 可见范围：toUser 指定本人 / toRole 命中当前角色（含「投标人」⊂「投标人/供应商」别名）/ 无接收方的系统广播
+// 可见范围：toUser 指定本人 / toRole 命中当前角色（含「响应单位」⊂「响应单位/供应商」别名）/ 无接收方的系统广播
 // 审批通知（type=approval）由审批中心及各业务页在 create/act 后写入（清单 54）
 import { useMemo, useState } from 'react'
 import { Button, Card, Empty, Tabs, Tag, Timeline, message } from 'antd'
@@ -21,7 +21,7 @@ export default function MessageCenter() {
   // localStorage 无订阅机制：操作后递增 refresh 触发重读
   const [refresh, setRefresh] = useState(0)
 
-  // 可接收的角色集合：当前角色名 + 招标人的审批节点身份（采购管理部/需求部门，
+  // 可接收的角色集合：当前角色名 + 采购单位的审批节点身份（采购管理部/需求部门，
   // 审批待办通知按节点名投递，与 ApprovalCenter 的审批身份口径一致）
   const acceptedRoles = useMemo(
     () => [roleName, ...(role === 'tenderee' ? ['采购管理部', '需求部门'] : [])],
@@ -33,7 +33,7 @@ export default function MessageCenter() {
       messageStore.list().filter((item) => {
         if (item.toUser) return item.toUser === userName
         if (!item.toRole) return true // 系统广播
-        // 角色别名兼容：roleName「投标人/供应商」与 toRole「投标人」互相包含即命中
+        // 角色别名兼容：roleName「响应单位/供应商」与 toRole「响应单位」互相包含即命中
         return acceptedRoles.some(
           (r) => item.toRole === r || r.includes(item.toRole) || item.toRole.includes(r)
         )

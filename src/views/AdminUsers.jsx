@@ -3,10 +3,10 @@ import { Alert, Button, Card, Col, Form, Input, Modal, Row, Select, Table, Tag, 
 import { loadUsers, saveUsers } from '../data/userStore'
 
 const roleOptions = [
-  { label: '招标人', value: 'tenderee' },
-  { label: '招标代理', value: 'agent' },
-  { label: '投标人', value: 'bidder' },
-  { label: '评标专家', value: 'expert' },
+  { label: '采购单位', value: 'tenderee' },
+  { label: '采购代理', value: 'agent' },
+  { label: '响应单位', value: 'bidder' },
+  { label: '评审专家', value: 'expert' },
   { label: '监督人员', value: 'supervisor' },
   { label: '平台管理员', value: 'admin' }
 ]

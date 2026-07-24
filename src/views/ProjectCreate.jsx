@@ -32,26 +32,26 @@ import { useRole } from '../hooks/useRole.js'
 import { validateAndScrollToError, scrollToElement, formRules, validateRequiredFields } from '../utils/formValidation.js'
 
 const PURCHASE_MODE_OPTIONS = [
-  { label: '公开招标', value: 'open' },
-  { label: '邀请招标', value: 'invitation' },
-  { label: '公开询比价', value: 'inquiry' },
-  { label: '邀请询比价', value: 'invitation_inquiry' }
+  { label: '公开采购', value: 'open' },
+  { label: '邀请采购', value: 'invitation' },
+  { label: '公开询比', value: 'inquiry' },
+  { label: '邀请询比', value: 'invitation_inquiry' }
 ]
 
 const TENDEREE_MEMBERS = [
-  { label: '张三（招标人）', value: 'zhangsan' },
+  { label: '张三（采购单位）', value: 'zhangsan' },
   { label: '王五（法务）', value: 'wangwu' },
   { label: '赵六（财务）', value: 'zhaoliu' }
 ]
 
 const AGENT_MEMBERS = [
-  { label: '李四（招标代理）', value: 'lisi' }
+  { label: '李四（采购代理）', value: 'lisi' }
 ]
 
 const AGENT_OPTIONS = [
-  { label: '诚信招标代理有限公司', value: 'agent_01' },
-  { label: '国信招标代理股份有限公司', value: 'agent_02' },
-  { label: '中机国际招标有限公司', value: 'agent_03' }
+  { label: '诚信采购代理有限公司', value: 'agent_01' },
+  { label: '国信采购代理股份有限公司', value: 'agent_02' },
+  { label: '中机国际采购有限公司', value: 'agent_03' }
 ]
 
 export default function ProjectCreate() {
@@ -70,7 +70,7 @@ export default function ProjectCreate() {
     code: 'ZB20260708001',
     budget: '',
     openTime: null,
-    evalLocation: '线上评标大厅',
+    evalLocation: '线上评审大厅',
     intro: '',
     demandSource: '',
     demandCode: '',
@@ -88,7 +88,7 @@ export default function ProjectCreate() {
     allowConsortium: false,
     invitedBidders: [],
     quoteFields: [
-      { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
+      { key: 'totalPrice', label: '响应报价', unit: '万元', required: true },
       { key: 'delivery', label: '交货期', unit: '', required: true },
       { key: 'quality', label: '质保期', unit: '', required: true },
       { key: 'payment', label: '付款方式', unit: '', required: true }
@@ -145,33 +145,33 @@ export default function ProjectCreate() {
     Number(formData.budget) > 0 && packageBudgetTotal > Number(formData.budget)
 
   const PACKAGE_REQUIRED_FIELDS = [
-    { key: 'name', label: '标段名称' },
-    { key: 'code', label: '标段编号' },
+    { key: 'name', label: '采购包名称' },
+    { key: 'code', label: '采购包编号' },
     { key: 'budget', label: '预算金额' },
-    { key: 'content', label: '标段内容' },
+    { key: 'content', label: '采购包内容' },
     { key: 'purchaseMode', label: '采购方式' },
-    { key: 'bidStart', label: '投标开始时间' },
-    { key: 'bidEnd', label: '投标截止时间' }
+    { key: 'bidStart', label: '响应开始时间' },
+    { key: 'bidEnd', label: '采购截止时间' }
   ]
 
   const validatePackages = () => {
     if (formData.packages.length === 0) {
-      return '请至少添加一个标段'
+      return '请至少添加一个采购包'
     }
     for (let i = 0; i < formData.packages.length; i++) {
       const pkg = formData.packages[i]
       for (const field of PACKAGE_REQUIRED_FIELDS) {
         const value = pkg[field.key]
         if (value === '' || value === null || value === undefined) {
-          return `标段 ${i + 1} 缺少${field.label}`
+          return `采购包 ${i + 1} 缺少${field.label}`
         }
       }
       if (pkg.bidStart && pkg.bidEnd && new Date(pkg.bidEnd) <= new Date(pkg.bidStart)) {
-        return `标段 ${i + 1} 的投标截止时间必须晚于投标开始时间`
+        return `采购包 ${i + 1} 的采购截止时间必须晚于响应开始时间`
       }
     }
     if (budgetExceeded) {
-      return '标段预算合计超过项目预算，请调整后再继续'
+      return '采购包预算合计超过项目预算，请调整后再继续'
     }
     return null
   }
@@ -232,7 +232,7 @@ export default function ProjectCreate() {
           code: `B${prev.packages.length + 1}`,
           budget: '',
           content: '',
-          // 标段级采购方式默认「公开招标」（cxy-016：项目级采购方式已移除）
+          // 采购包级采购方式默认「公开采购」（cxy-016：项目级采购方式已移除）
           purchaseMode: 'open',
           bidStart: null,
           bidEnd: null
@@ -306,7 +306,7 @@ export default function ProjectCreate() {
     const basicCheck = validateRequiredFields([
       { key: 'name', value: formData.name, label: '项目名称' },
       { key: 'budget', value: formData.budget, label: '项目预算' },
-      { key: 'openTime', value: formData.openTime, label: '开标时间' },
+      { key: 'openTime', value: formData.openTime, label: '开启时间' },
       { key: 'intro', value: formData.intro, label: '项目简介' }
     ])
     if (!basicCheck.valid) {
@@ -329,7 +329,7 @@ export default function ProjectCreate() {
       return
     }
 
-    // 校验标段设置
+    // 校验采购包设置
     const pkgError = validatePackages()
     if (pkgError) {
       message.error(pkgError)
@@ -339,7 +339,7 @@ export default function ProjectCreate() {
     }
 
     try {
-      // 编辑非草稿项目时保持原状态，避免「提交审核」把招标中项目退回待审核
+      // 编辑非草稿项目时保持原状态，避免「提交审核」把采购中项目退回待审核
       const nextStatus = formData.status && formData.status !== 'draft' ? formData.status : 'pending'
       const saved = projectStore.saveProject({
         ...formData,
@@ -361,7 +361,7 @@ export default function ProjectCreate() {
   const basicRules = {
     name: [formRules.required('请输入项目名称'), formRules.maxLength(100)],
     budget: [formRules.required('请输入预算金额'), formRules.positiveNumber('请输入有效的预算金额')],
-    openTime: [formRules.required('请选择开标时间')],
+    openTime: [formRules.required('请选择开启时间')],
     intro: [formRules.required('请输入项目简介'), formRules.maxLength(500)]
   }
 
@@ -372,7 +372,7 @@ export default function ProjectCreate() {
     { key: 'D集团有限公司', title: 'D集团有限公司', description: '已注册供应商' }
   ]
 
-  const steps = ['基本信息', '需求与成员', '标段设置', '供应商要求', '提交审核']
+  const steps = ['基本信息', '需求与成员', '采购包设置', '供应商要求', '提交审核']
 
   const memberOptions = useMemo(() => {
     if (formData.orgMode === 'self') return TENDEREE_MEMBERS
@@ -380,7 +380,7 @@ export default function ProjectCreate() {
   }, [formData.orgMode])
 
   const orgModeLabel = {
-    self: '自行招标',
+    self: '自行采购',
     agent: '委托代理'
   }
 
@@ -388,7 +388,7 @@ export default function ProjectCreate() {
     <div className="project-create">
       <Alert
         title="当前办理阶段：项目立项"
-        description="请完善项目来源、基本信息、标段与供应商要求，所有必填项完成后方可提交审核。"
+        description="请完善项目来源、基本信息、采购包与供应商要求，所有必填项完成后方可提交审核。"
         type="info"
         showIcon
         closable={false}
@@ -433,7 +433,7 @@ export default function ProjectCreate() {
               </Row>
               <Row gutter={20}>
                 <Col span={12}>
-                  <Form.Item label="开标时间" name="openTime" rules={basicRules.openTime}>
+                  <Form.Item label="开启时间" name="openTime" rules={basicRules.openTime}>
                     <DatePicker
                       showTime
                       style={{ width: '100%' }}
@@ -443,9 +443,9 @@ export default function ProjectCreate() {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="评标地点">
+                  <Form.Item label="评审地点">
                     <Input
-                      placeholder="线上评标/线下地点"
+                      placeholder="线上评审/线下地点"
                       value={formData.evalLocation}
                       onChange={(e) => updateField('evalLocation', e.target.value)}
                     />
@@ -468,7 +468,7 @@ export default function ProjectCreate() {
                     }))
                   }}
                 >
-                  <Radio value="self">自行招标</Radio>
+                  <Radio value="self">自行采购</Radio>
                   <Radio value="agent">委托代理</Radio>
                 </Radio.Group>
               </Form.Item>
@@ -670,40 +670,40 @@ export default function ProjectCreate() {
           <>
             <div className="section-header">
               <div>
-                <h3>标段/包件设置</h3>
+                <h3>采购包/包件设置</h3>
                 <p className="section-tip">
-                  项目预算：{formData.budget || 0} 万元 · 标段预算合计：{packageBudgetTotal} 万元
+                  项目预算：{formData.budget || 0} 万元 · 采购包预算合计：{packageBudgetTotal} 万元
                   {budgetExceeded && (
                     <span style={{ color: '#ff4d4f', marginLeft: 12 }}>
-                      标段预算合计超过项目预算
+                      采购包预算合计超过项目预算
                     </span>
                   )}
                 </p>
               </div>
-              <Button type="primary" icon={<PlusOutlined />} onClick={addPackage}>添加标段</Button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={addPackage}>添加采购包</Button>
             </div>
             {formData.packages.length === 0 && (
-              <EmptyState description="暂无标段，请添加" icon="Folder" />
+              <EmptyState description="暂无采购包，请添加" icon="Folder" />
             )}
             {formData.packages.map((pkg, idx) => (
               <Card
                 key={idx}
-                title={<div className="package-header"><span>标段 {idx + 1}：{pkg.name || '未命名标段'}</span></div>}
+                title={<div className="package-header"><span>采购包 {idx + 1}：{pkg.name || '未命名采购包'}</span></div>}
                 extra={<Button type="link" danger onClick={() => removePackage(idx)}>删除</Button>}
                 className="package-card"
               >
                 <Row gutter={20}>
                   <Col span={8}>
-                    <Form.Item label="标段名称">
+                    <Form.Item label="采购包名称">
                       <Input
-                        placeholder="例如：第一标段"
+                        placeholder="例如：第一采购包"
                         value={pkg.name}
                         onChange={(e) => updatePackage(idx, 'name', e.target.value)}
                       />
                     </Form.Item>
                   </Col>
                   <Col span={8}>
-                    <Form.Item label="标段编号">
+                    <Form.Item label="采购包编号">
                       <Input
                         placeholder="例如：B1"
                         value={pkg.code}
@@ -735,32 +735,32 @@ export default function ProjectCreate() {
                 </Row>
                 <Row gutter={20}>
                   <Col span={12}>
-                    <Form.Item label="投标开始时间">
+                    <Form.Item label="响应开始时间">
                       <DatePicker
                         showTime
                         style={{ width: '100%' }}
-                        placeholder="投标开始时间"
+                        placeholder="响应开始时间"
                         value={pkg.bidStart}
                         onChange={(value) => updatePackage(idx, 'bidStart', value)}
                       />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item label="投标截止时间">
+                    <Form.Item label="采购截止时间">
                       <DatePicker
                         showTime
                         style={{ width: '100%' }}
-                        placeholder="投标截止时间"
+                        placeholder="采购截止时间"
                         value={pkg.bidEnd}
                         onChange={(value) => updatePackage(idx, 'bidEnd', value)}
                       />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Form.Item label="标段内容">
+                <Form.Item label="采购包内容">
                   <Input.TextArea
                     rows={2}
-                    placeholder="描述本标段采购内容"
+                    placeholder="描述本采购包采购内容"
                     value={pkg.content}
                     onChange={(e) => updatePackage(idx, 'content', e.target.value)}
                   />
@@ -769,7 +769,7 @@ export default function ProjectCreate() {
             ))}
 
             <Card title="报价字段模板" size="small" style={{ marginTop: 16 }}>
-              <p className="section-tip">配置本项目在线报价页所需的报价字段，投标人填写报价时按此模板渲染。</p>
+              <p className="section-tip">配置本项目在线报价页所需的报价字段，响应单位填写报价时按此模板渲染。</p>
               <Table
                 rowKey="key"
                 dataSource={formData.quoteFields}
@@ -830,8 +830,8 @@ export default function ProjectCreate() {
             </Card>
 
             {formData.packages.some((pkg) => pkg.purchaseMode === 'invitation') && (
-              <Card title="邀请投标人" size="small" className="invite-card" style={{ marginTop: 16 }}>
-                <p className="section-tip">存在「邀请招标」标段，请从平台已注册企业中选择被邀请人，或输入邀请码邀请外部企业。</p>
+              <Card title="邀请响应单位" size="small" className="invite-card" style={{ marginTop: 16 }}>
+                <p className="section-tip">存在「邀请采购」采购包，请从平台已注册企业中选择被邀请人，或输入邀请码邀请外部企业。</p>
                 <Transfer
                   dataSource={registeredBidders}
                   titles={['平台注册企业', '已邀请企业']}
@@ -927,9 +927,9 @@ export default function ProjectCreate() {
                   <Descriptions.Item label="项目名称">{formData.name || '-'}</Descriptions.Item>
                   <Descriptions.Item label="组织方式">{orgModeLabel[formData.orgMode] || '-'}</Descriptions.Item>
                   <Descriptions.Item label="项目预算">{formData.budget || '-'} 万元</Descriptions.Item>
-                  <Descriptions.Item label="标段预算合计">{packageBudgetTotal} 万元</Descriptions.Item>
-                  <Descriptions.Item label="开标时间">{formatTime(formData.openTime)}</Descriptions.Item>
-                  <Descriptions.Item label="标段数量">{formData.packages.length} 个</Descriptions.Item>
+                  <Descriptions.Item label="采购包预算合计">{packageBudgetTotal} 万元</Descriptions.Item>
+                  <Descriptions.Item label="开启时间">{formatTime(formData.openTime)}</Descriptions.Item>
+                  <Descriptions.Item label="采购包数量">{formData.packages.length} 个</Descriptions.Item>
                   <Descriptions.Item label="关联采购需求">
                     {linkedRequirements.length > 0
                       ? linkedRequirements.map((r) => `${r.id} ${r.title}`).join('；')
@@ -941,13 +941,13 @@ export default function ProjectCreate() {
                   <Descriptions.Item label="资质要求">{formData.qualifications.join('、') || '-'}</Descriptions.Item>
                 </Descriptions>
                 {formData.packages.length > 0 && (
-                  <Card size="small" title="标段采购方式与时间" style={{ marginTop: 16, textAlign: 'left' }}>
+                  <Card size="small" title="采购包采购方式与时间" style={{ marginTop: 16, textAlign: 'left' }}>
                     {formData.packages.map((pkg, idx) => (
                       <div key={idx} className="package-review-row">
-                        <strong>标段 {idx + 1} {pkg.name || pkg.code}</strong>
+                        <strong>采购包 {idx + 1} {pkg.name || pkg.code}</strong>
                         <span>采购方式：{PURCHASE_MODE_OPTIONS.find((o) => o.value === pkg.purchaseMode)?.label || '-'}</span>
-                        <span>投标开始：{formatTime(pkg.bidStart)}</span>
-                        <span>投标截止：{formatTime(pkg.bidEnd)}</span>
+                        <span>响应开始：{formatTime(pkg.bidStart)}</span>
+                        <span>采购截止：{formatTime(pkg.bidEnd)}</span>
                       </div>
                     ))}
                   </Card>

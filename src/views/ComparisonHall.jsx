@@ -8,9 +8,9 @@ import { BASELINE_PROJECTS, getPurchaseModeText, isInquiryFamily } from './Proje
 import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
-// 比价大厅（hall-purchase-method-mapping-20260721）：询比族项目（公开询比价/邀请询比价）的大厅。
-// 询比族供应商提交的是报价（quoteStore），无 CA 解密/唱标仪式，环节简化为：报价汇总 → 报价比较 → 比价完成。
-// 评标对所有项目开放：比价完成后携带 projectId 进入评标大厅。
+// 比价大厅（hall-purchase-method-mapping-20260721）：询比族项目（公开询比/邀请询比）的大厅。
+// 询比族供应商提交的是报价（quoteStore），无 CA 解密/唱价仪式，环节简化为：报价汇总 → 报价比较 → 比价完成。
+// 评审对所有项目开放：比价完成后携带 projectId 进入评审大厅。
 
 // 无报价种子时的演示兜底（与 EvaluationHall FALLBACK 同口径：真实数据优先）
 const FALLBACK_QUOTES = [
@@ -32,13 +32,13 @@ export default function ComparisonHall() {
       null,
     [projectId]
   )
-  // 大厅归属门禁：比价大厅仅服务询比族；招标族项目引导至开标大厅
+  // 大厅归属门禁：比价大厅仅服务询比族；采购族项目引导至开启大厅
   const inquiryFamily = isInquiryFamily(project)
 
   const [currentStage, setCurrentStage] = useState(0)
   const [operationRecords, setOperationRecords] = useState([])
 
-  // 招标人/招标代理可主持比价；监督人员只读；投标人只能查看自己的报价
+  // 采购单位/采购代理可主持比价；监督人员只读；响应单位只能查看自己的报价
   const isHost = ['tenderee', 'agent'].includes(role)
   const isBidder = role === 'bidder'
   const roleTagColor = isHost ? 'warning' : 'default'
@@ -69,7 +69,7 @@ export default function ComparisonHall() {
     })
   }, [quotes])
 
-  // 投标人视角：仅展示本人报价行
+  // 响应单位视角：仅展示本人报价行
   const visibleQuotes = useMemo(() => {
     if (isBidder) return rankedQuotes.filter((q) => q.name === userName)
     return rankedQuotes
@@ -106,8 +106,8 @@ export default function ComparisonHall() {
 
   const finishComparison = () => {
     setCurrentStage(2)
-    addOperationRecord('比价完成', `比价结果已生成（推荐：${lowest?.name || '-'}，报价 ${lowest?.totalPrice ?? '-'} 万元），可进入评标大厅`)
-    message.success('比价完成，比价结果已生成，请进入评标大厅')
+    addOperationRecord('比价完成', `比价结果已生成（推荐：${lowest?.name || '-'}，报价 ${lowest?.totalPrice ?? '-'} 万元），可进入评审大厅`)
+    message.success('比价完成，比价结果已生成，请进入评审大厅')
   }
 
   const goEvaluate = () => {
@@ -144,21 +144,21 @@ export default function ComparisonHall() {
     return <ProjectEntryGuard />
   }
 
-  // 大厅归属门禁：招标族项目（公开招标/邀请招标）请在开标大厅操作
+  // 大厅归属门禁：采购族项目（公开采购/邀请采购）请在开启大厅操作
   if (!inquiryFamily) {
     return (
       <div className="comparison-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <Card>
           <Result
             status="info"
-            title="招标族项目请在开标大厅操作"
+            title="采购族项目请在开启大厅操作"
             subTitle={
               <>
                 <p style={{ margin: 0 }}>
                   {project?.name || `项目ID：${projectId}`}（采购方式：{getPurchaseModeText(project)}）
                 </p>
                 <p style={{ margin: '8px 0 0' }}>
-                  公开招标、邀请招标项目需在开标大厅完成签到、解密、唱标。
+                  公开采购、邀请采购项目需在开启大厅完成签到、解密、唱价。
                 </p>
               </>
             }
@@ -168,7 +168,7 @@ export default function ComparisonHall() {
                 type="primary"
                 onClick={() => navigate({ to: '/admin/opening-hall', search: { projectId } })}
               >
-                前往开标大厅
+                前往开启大厅
               </Button>,
               <Button key="back" onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : role === 'supervisor' ? '/admin/supervisor-hall' : '/admin/projects' })}>
                 返回
@@ -179,7 +179,7 @@ export default function ComparisonHall() {
             type="info"
             showIcon
             closable={false}
-            title="口径说明：开标大厅服务招标族（公开招标、邀请招标），比价大厅服务询比族（公开询比价、邀请询比价），评标大厅对所有项目开放（2026-07-21 需求）。"
+            title="口径说明：开启大厅服务采购族（公开采购、邀请采购），比价大厅服务询比族（公开询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求）。"
           />
         </Card>
       </div>
@@ -211,7 +211,7 @@ export default function ComparisonHall() {
           items={[
             { title: '报价汇总', description: '确认各供应商报价响应' },
             { title: '报价比较', description: '按总价/交货期/质保期比较' },
-            { title: '比价完成', description: '生成比价结果，进入评标' }
+            { title: '比价完成', description: '生成比价结果，进入评审' }
           ]}
         />
 
@@ -227,8 +227,8 @@ export default function ComparisonHall() {
             <Descriptions.Item label="下一步">
               {currentStage === 2 ? (
                 <>
-                  <span style={{ marginRight: 12 }}>进入评标大厅</span>
-                  <Button type="primary" size="small" onClick={goEvaluate}>去评标</Button>
+                  <span style={{ marginRight: 12 }}>进入评审大厅</span>
+                  <Button type="primary" size="small" onClick={goEvaluate}>去评审</Button>
                 </>
               ) : currentStage === 0 ? (
                 <span>确认各供应商报价已汇总</span>
@@ -300,10 +300,10 @@ export default function ComparisonHall() {
               <Result
                 status="success"
                 title="比价完成"
-                subTitle={`比价结果已生成：${lowest?.name || '-'} 报价最低（${lowest?.totalPrice ?? '-'} 万元）。评标对所有项目开放，请进入评标大厅完成评审。`}
+                subTitle={`比价结果已生成：${lowest?.name || '-'} 报价最低（${lowest?.totalPrice ?? '-'} 万元）。评审对所有项目开放，请进入评审大厅完成评审。`}
                 extra={[
                   <Button key="evaluate" type="primary" onClick={goEvaluate}>
-                    进入评标大厅
+                    进入评审大厅
                   </Button>,
                   isHost && (
                     <Button key="replay" onClick={() => setCurrentStage(0)}>

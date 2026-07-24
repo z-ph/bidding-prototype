@@ -39,23 +39,23 @@ import { PROJECT_STATUS_MAP, PURCHASE_MODE_OPTIONS, isInquiryFamily } from './Pr
 
 // 快捷入口使用种子项目中对应状态的演示项目 id
 const DEMO_ENTRY_PROJECT = {
-  '审批文件': '1',    // 1=招标中,有已发布招标文件
-  '确认中标': '5',    // 5=评标中(评标已提交),可演示确认中标
-  '发布公告': '1',    // 1=招标中,可演示发布公告
-  '开标大厅': '3',    // 3=待开标,今日15:00开标
-  '比价大厅': '10',   // 10=待开标(公开询比价),演示比价大厅
-  '评标大厅': '5',    // 5=评标中,有完整评标数据
+  '审批文件': '1',    // 1=采购中,有已发布采购文件
+  '确认中选': '5',    // 5=评审中(评审已提交),可演示确认中选
+  '发布公告': '1',    // 1=采购中,可演示发布公告
+  '开启大厅': '3',    // 3=待开启,今日15:00开启
+  '比价大厅': '10',   // 10=待开启(公开询比),演示比价大厅
+  '评审大厅': '5',    // 5=评审中,有完整评审数据
 }
 
 // 阶段中文 → 跳转路径
 const STAGE_PATH_MAP = {
   '草稿': '/admin/tender-doc',
-  '招标中': '/admin/tender-doc',
+  '采购中': '/admin/tender-doc',
   '公告中': '/admin/opening-hall',
-  '待开标': '/admin/opening-hall',
-  '评标中': '/admin/evaluation-hall',
-  '评标完成': '/admin/award-confirm',
-  '已确认中标人': '/admin/award-notice',
+  '待开启': '/admin/opening-hall',
+  '评审中': '/admin/evaluation-hall',
+  '评审完成': '/admin/award-confirm',
+  '已确认中选人': '/admin/award-notice',
   '通知书已发': '/admin/projects',
   '已完成': '/admin/projects'
 }
@@ -65,27 +65,27 @@ export default function Dashboard() {
   const { role } = useRole()
 
   const roleMap = {
-    tenderee: '招标人工作台',
-    agent: '招标代理工作台',
-    bidder: '投标人工作台',
-    expert: '评标专家工作台',
+    tenderee: '采购单位工作台',
+    agent: '采购代理工作台',
+    bidder: '响应单位工作台',
+    expert: '评审专家工作台',
     supervisor: '监督工作台',
     admin: '平台管理控制台'
   }
   const roleTitle = roleMap[role] || '工作台'
   const roleSubtitle = useMemo(() => {
     const map = {
-      tenderee: '发起采购需求、管理项目、确认评标和定标结果',
-      agent: '受委托执行招标流程，编制文件、发公告、组织开评标',
-      bidder: '下载文件、上传投标文件、报价',
-      expert: '参与评标、独立评分、签署评标报告',
-      supervisor: '查看并监督开标、评标、定标全过程',
+      tenderee: '发起采购需求、管理项目、确认评审和成交确认结果',
+      agent: '受委托执行采购流程，编制文件、发公告、组织开启/评审',
+      bidder: '下载文件、上传响应文件、报价',
+      expert: '参与评审、独立评分、签署评审报告',
+      supervisor: '查看并监督开启、评审、成交确认全过程',
       admin: '维护系统基础数据、用户权限、日志审计'
     }
     return map[role] || ''
   }, [role])
 
-  // 监督概览三项计数：今日开标/今日评标来自项目与评标 store，异常预警来自 supervisorStore 待处理记录
+  // 监督概览三项计数：今日开启/今日评审来自项目与评审 store，异常预警来自 supervisorStore 待处理记录
   const supervisorStats = useMemo(() => {
     if (role !== 'supervisor') return null
     const projects = projectStore.getProjects()
@@ -98,56 +98,56 @@ export default function Dashboard() {
 
   const stats = [
     { title: '进行中项目', value: 12, icon: FolderOutlined, bg: '#409EFF' },
-    { title: '待开标项目', value: 3, icon: PlayCircleOutlined, bg: '#67C23A' },
-    { title: '待评标项目', value: 2, icon: StarOutlined, bg: '#E6A23C' },
+    { title: '待开启项目', value: 3, icon: PlayCircleOutlined, bg: '#67C23A' },
+    { title: '待评审项目', value: 2, icon: StarOutlined, bg: '#E6A23C' },
     { title: '今日截止', value: 1, icon: ClockCircleOutlined, bg: '#F56C6C' }
   ]
 
   const bidderStats = [
     { title: '可参与项目', value: 5, icon: SearchOutlined, bg: '#409EFF' },
     { title: '我参与的项目', value: 3, icon: FileProtectOutlined, bg: '#67C23A' },
-    { title: '待上传标书', value: 2, icon: UploadOutlined, bg: '#F56C6C' },
-    { title: '待开标', value: 1, icon: PlayCircleOutlined, bg: '#E6A23C' }
+    { title: '待上传采购文件', value: 2, icon: UploadOutlined, bg: '#F56C6C' },
+    { title: '待开启', value: 1, icon: PlayCircleOutlined, bg: '#E6A23C' }
   ]
 
   const tendereeTodos = [
-    { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请确认开标安排', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall', projectId: '1' },
-    { id: 2, content: '办公桌椅采购项目有 2 家供应商已获取招标文件，请关注投标进展', type: 'primary', time: '2026-07-08 09:30', path: '/admin/projects', projectId: '2' },
-    { id: 3, content: '软件开发服务项目评标报告待审批', type: 'danger', time: '2026-07-07 16:00', path: '/admin/award-confirm', projectId: '3' },
-    { id: 4, content: '物业服务采购项目中标公告待发布', type: 'success', time: '2026-07-07 11:20', path: '/admin/notice-publish', projectId: '4' }
+    { id: 1, content: 'XX市轨道交通设备采购项目即将开启，请确认开启安排', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall', projectId: '1' },
+    { id: 2, content: '办公桌椅采购项目有 2 家供应商已获取采购文件，请关注响应进展', type: 'primary', time: '2026-07-08 09:30', path: '/admin/projects', projectId: '2' },
+    { id: 3, content: '软件开发服务项目评审报告待审批', type: 'danger', time: '2026-07-07 16:00', path: '/admin/award-confirm', projectId: '3' },
+    { id: 4, content: '物业服务采购项目中选通知待发布', type: 'success', time: '2026-07-07 11:20', path: '/admin/notice-publish', projectId: '4' }
   ]
 
   const agentTodos = [
-    { id: 1, content: 'XX市轨道交通设备采购项目即将开标，请完成开标前准备', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall', projectId: '1' },
-    { id: 2, content: '办公桌椅采购项目招标文件需复核后发布', type: 'primary', time: '2026-07-08 09:30', path: '/admin/tender-doc', projectId: '2' },
-    { id: 3, content: '软件开发服务项目评标报告待汇总提交', type: 'danger', time: '2026-07-07 16:00', path: '/admin/evaluation-hall', projectId: '3' },
-    { id: 4, content: '物业服务采购项目中标通知书待发送', type: 'success', time: '2026-07-07 11:20', path: '/admin/award-notice', projectId: '4' }
+    { id: 1, content: 'XX市轨道交通设备采购项目即将开启，请完成开启前准备', type: 'warning', time: '2026-07-08 10:00', path: '/admin/opening-hall', projectId: '1' },
+    { id: 2, content: '办公桌椅采购项目采购文件需复核后发布', type: 'primary', time: '2026-07-08 09:30', path: '/admin/tender-doc', projectId: '2' },
+    { id: 3, content: '软件开发服务项目评审报告待汇总提交', type: 'danger', time: '2026-07-07 16:00', path: '/admin/evaluation-hall', projectId: '3' },
+    { id: 4, content: '物业服务采购项目中选通知书待发送', type: 'success', time: '2026-07-07 11:20', path: '/admin/award-notice', projectId: '4' }
   ]
 
   const todos = role === 'agent' ? agentTodos : tendereeTodos
 
   const bidderTodos = [
-    { id: 1, content: 'XX市轨道交通设备采购项目招标文件已发布，请下载并编制投标文件', type: 'warning', time: '2026-07-08', path: '/admin/bid-download', projectId: '1' },
-    { id: 2, content: '软件开发服务项目待上传投标文件并报价', type: 'danger', time: '2026-07-07', path: '/admin/bid-upload', projectId: '3' }
+    { id: 1, content: 'XX市轨道交通设备采购项目采购文件已发布，请下载并编制响应文件', type: 'warning', time: '2026-07-08', path: '/admin/bid-download', projectId: '1' },
+    { id: 2, content: '软件开发服务项目待上传响应文件并报价', type: 'danger', time: '2026-07-07', path: '/admin/bid-upload', projectId: '3' }
   ]
 
   const expertTasks = [
-    { project: 'XX市轨道交通设备采购项目', stage: '评标中', deadline: '2026-07-10 17:00' }
+    { project: 'XX市轨道交通设备采购项目', stage: '评审中', deadline: '2026-07-10 17:00' }
   ]
 
   const tendereeQuickEntries = [
     { title: '创建项目', icon: PlusOutlined, color: '#409EFF', path: '/admin/projects/create' },
     { title: '审批文件', icon: FileTextOutlined, color: '#909399', path: '/admin/tender-doc' },
-    { title: '确认中标', icon: BellOutlined, color: '#E6A23C', path: '/admin/award-confirm' },
+    { title: '确认中选', icon: BellOutlined, color: '#E6A23C', path: '/admin/award-confirm' },
     { title: '费用台账', icon: WalletOutlined, color: '#67C23A', path: '/admin/fee-manage' }
   ]
 
   const agentQuickEntries = [
     { title: '创建项目', icon: PlusOutlined, color: '#409EFF', path: '/admin/projects/create' },
     { title: '发布公告', icon: BellOutlined, color: '#E6A23C', path: '/admin/notice-publish' },
-    { title: '开标大厅', icon: PlayCircleOutlined, color: '#67C23A', path: '/admin/opening-hall' },
+    { title: '开启大厅', icon: PlayCircleOutlined, color: '#67C23A', path: '/admin/opening-hall' },
     { title: '比价大厅', icon: BarChartOutlined, color: '#722ED1', path: '/admin/comparison-hall' },
-    { title: '评标大厅', icon: StarOutlined, color: '#F56C6C', path: '/admin/evaluation-hall' }
+    { title: '评审大厅', icon: StarOutlined, color: '#F56C6C', path: '/admin/evaluation-hall' }
   ]
 
   const quickEntries = role === 'agent' ? agentQuickEntries : tendereeQuickEntries
@@ -178,8 +178,8 @@ export default function Dashboard() {
   const continueProject = (row) => {
     const statusText = PROJECT_STATUS_MAP[row.status]?.text || row.status
     let path = STAGE_PATH_MAP[statusText] || '/admin/projects'
-    // 大厅族分流（hall-purchase-method-mapping-20260721）：公告中/待开标的询比族项目进入比价大厅
-    if ((statusText === '公告中' || statusText === '待开标') && isInquiryFamily(row)) {
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：公告中/待开启的询比族项目进入比价大厅
+    if ((statusText === '公告中' || statusText === '待开启') && isInquiryFamily(row)) {
       path = '/admin/comparison-hall'
     }
     // 所有阶段跳转一律带 projectId
@@ -228,7 +228,7 @@ export default function Dashboard() {
       width: 150,
       render: () => (
         <Button type="primary" size="small" onClick={() => navigate({ to: '/admin/expert-tasks' })}>
-          开始评标
+          开始评审
         </Button>
       )
     }
@@ -253,7 +253,7 @@ export default function Dashboard() {
           element: '.stat-row',
           popover: {
             title: '数据概览',
-            description: '快速了解进行中项目、待开标、待评标和今日截止等核心数据。',
+            description: '快速了解进行中项目、待开启、待评审和今日截止等核心数据。',
             side: 'bottom',
             align: 'start'
           }
@@ -271,7 +271,7 @@ export default function Dashboard() {
           element: '#dashboard-quick',
           popover: {
             title: '快捷入口',
-            description: '创建项目、发布公告、上传文件、编辑招标文件，一键进入常用功能。',
+            description: '创建项目、发布公告、上传文件、编辑采购文件，一键进入常用功能。',
             side: 'left',
             align: 'start'
           }
@@ -282,7 +282,7 @@ export default function Dashboard() {
           element: '.stat-row',
           popover: {
             title: '数据概览',
-            description: '快速了解进行中项目、待开标、待评标和今日截止等核心数据。',
+            description: '快速了解进行中项目、待开启、待评审和今日截止等核心数据。',
             side: 'bottom',
             align: 'start'
           }
@@ -291,7 +291,7 @@ export default function Dashboard() {
           element: '#dashboard-todos',
           popover: {
             title: '待办事项',
-            description: '公告发布、评标报告确认等需要您处理的待办。',
+            description: '公告发布、评审报告确认等需要您处理的待办。',
             side: 'right',
             align: 'start'
           }
@@ -300,7 +300,7 @@ export default function Dashboard() {
           element: '#dashboard-quick',
           popover: {
             title: '快捷入口',
-            description: '创建项目、发布公告、上传文件、编辑招标文件，一键进入常用功能。',
+            description: '创建项目、发布公告、上传文件、编辑采购文件，一键进入常用功能。',
             side: 'left',
             align: 'start'
           }
@@ -310,8 +310,8 @@ export default function Dashboard() {
         {
           element: '.stat-row',
           popover: {
-            title: '我的投标看板',
-            description: '可参与项目、我参与的项目、待上传标书一目了然。',
+            title: '我的响应看板',
+            description: '可参与项目、我参与的项目、待上传采购文件一目了然。',
             side: 'bottom',
             align: 'start'
           }
@@ -319,7 +319,7 @@ export default function Dashboard() {
         {
           element: '.todo-card',
           popover: {
-            title: '投标待办',
+            title: '响应待办',
             description: '系统会按项目进度提醒您接下来该做什么，点击“去处理”即可继续。',
             side: 'right',
             align: 'start'
@@ -330,8 +330,8 @@ export default function Dashboard() {
         {
           element: '.ant-card',
           popover: {
-            title: '评标任务',
-            description: '这里显示分配给您评标的项目，点击“开始评标”进入评标大厅。',
+            title: '评审任务',
+            description: '这里显示分配给您评审的项目，点击“开始评审”进入评审大厅。',
             side: 'bottom',
             align: 'start'
           }
@@ -342,7 +342,7 @@ export default function Dashboard() {
           element: '.ant-card',
           popover: {
             title: '监督概览',
-            description: '查看今日开标、评标场次和异常预警，进入监督大厅可查看详细过程。',
+            description: '查看今日开启、评审场次和异常预警，进入监督大厅可查看详细过程。',
             side: 'bottom',
             align: 'start'
           }
@@ -486,7 +486,7 @@ export default function Dashboard() {
           <Card
             title={
               <div className="card-header">
-                <span>我的投标待办</span>
+                <span>我的响应待办</span>
                 <Button type="link" onClick={() => navigate({ to: '/admin/bidder-projects' })}>查看全部项目</Button>
               </div>
             }
@@ -514,8 +514,8 @@ export default function Dashboard() {
         <Card
           title={
             <div className="card-header">
-              <span>我的评标任务</span>
-              <Button type="link" onClick={() => navigate({ to: '/admin/expert-tasks' })}>进入评标大厅</Button>
+              <span>我的评审任务</span>
+              <Button type="link" onClick={() => navigate({ to: '/admin/expert-tasks' })}>进入评审大厅</Button>
             </div>
           }
         >
@@ -533,8 +533,8 @@ export default function Dashboard() {
           }
         >
           <Descriptions column={3} bordered>
-            <Descriptions.Item label="今日开标">{supervisorStats?.todayOpening ?? 0} 场</Descriptions.Item>
-            <Descriptions.Item label="今日评标">{supervisorStats?.todayEvaluating ?? 0} 场</Descriptions.Item>
+            <Descriptions.Item label="今日开启">{supervisorStats?.todayOpening ?? 0} 场</Descriptions.Item>
+            <Descriptions.Item label="今日评审">{supervisorStats?.todayEvaluating ?? 0} 场</Descriptions.Item>
             <Descriptions.Item label="异常预警">{supervisorStats?.abnormalPending ?? 0} 条</Descriptions.Item>
           </Descriptions>
         </Card>

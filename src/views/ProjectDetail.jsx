@@ -48,11 +48,11 @@ const FALLBACK_PROJECT = {
   linkedRequirementId: '',
   agentId: '',
   packages: [
-    { name: '第一标段：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
-    { name: '第二标段：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
+    { name: '第一采购包：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
+    { name: '第二采购包：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
   ],
   qualifications: ['营业执照', 'ISO9001认证'],
-  intro: '本项目为轨道交通设备采购，包含主设备及辅材两个标段。'
+  intro: '本项目为轨道交通设备采购，包含主设备及辅材两个采购包。'
 }
 
 const formatDate = (v) => {
@@ -105,19 +105,19 @@ export default function ProjectDetail() {
     ? requirementStore.getRequirementById(project.linkedRequirementId)
     : null
 
-  // 本项目的全部审批记录（含中标结果审批登记），只读归档视图，不可在此修改
+  // 本项目的全部审批记录（含中选结果审批登记），只读归档视图，不可在此修改
   const projectApprovals = approvalStore
     .list({ projectId: String(project.id) })
     .slice()
     .sort((a, b) => String(b.submittedAt).localeCompare(String(a.submittedAt)))
 
-  const orgModeText = { self: '自行招标', agent: '委托代理' }[project.orgMode] || project.orgMode || '-'
+  const orgModeText = { self: '自行采购', agent: '委托代理' }[project.orgMode] || project.orgMode || '-'
   const agentOption = project.agentId
-    ? [{ label: '诚信招标代理有限公司', value: 'agent_01' }, { label: '国信招标代理股份有限公司', value: 'agent_02' }, { label: '中机国际招标有限公司', value: 'agent_03' }].find((a) => a.value === project.agentId)
+    ? [{ label: '诚信采购代理有限公司', value: 'agent_01' }, { label: '国信采购代理股份有限公司', value: 'agent_02' }, { label: '中机国际采购有限公司', value: 'agent_03' }].find((a) => a.value === project.agentId)
     : null
 
   const purchaseModeText = getPurchaseModeText(project)
-  // 下一步口径与项目列表一致（含邀请询比价直达定标），统一走 getNextStepInfo
+  // 下一步口径与项目列表一致（含邀请询比直达成交确认），统一走 getNextStepInfo
   const nextStepInfo = getNextStepInfo(project)
 
   const beforeOpen = ['draft', 'tendering', 'registering'].includes(project.status)
@@ -126,7 +126,7 @@ export default function ProjectDetail() {
   const flowNodes = useMemo(() => getProjectFlowNodes(project), [project])
 
   // 「当前阶段操作」按角色分发（refactor-agent-menu-workflow-20260718）：
-  // agent → 代理动作集，tenderee → 招标人动作集，其他角色（bidder 等）不渲染操作卡片
+  // agent → 代理动作集，tenderee → 采购单位动作集，其他角色（bidder 等）不渲染操作卡片
   const stageActions = useMemo(() => {
     if (role === 'agent') return getAgentActions(project)
     if (role === 'tenderee') return getTendereeActions(project)
@@ -135,9 +135,9 @@ export default function ProjectDetail() {
 
   const publish = () => {
     Modal.confirm({
-      title: '发标确认',
-      content: `确认发布项目“${project.name}”？发布后将进入招标中状态并生成公告。`,
-      okText: '确认发标',
+      title: '发布采购确认',
+      content: `确认发布项目“${project.name}”？发布后将进入采购中状态并生成公告。`,
+      okText: '确认发布采购',
       cancelText: '取消',
       onOk: () => {
         try {
@@ -147,9 +147,9 @@ export default function ProjectDetail() {
             publishTime: new Date().toISOString().slice(0, 10)
           })
           setProject(saved)
-          message.success('项目已发标，状态更新为「招标中」；下一步可前往「公告发布」发布招标公告')
+          message.success('项目已发布采购，状态更新为「采购中」；下一步可前往「公告发布」发布采购公告')
         } catch {
-          message.error('发标失败，请重试')
+          message.error('发布采购失败，请重试')
         }
       }
     })
@@ -181,12 +181,12 @@ export default function ProjectDetail() {
   }
 
   const packageColumns = [
-    { title: '标段名称', dataIndex: 'name', width: 200 },
-    { title: '标段编号', dataIndex: 'code', width: 100 },
-    { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '公开招标', invitation: '邀请招标', inquiry: '公开询比价', invitation_inquiry: '邀请询比价' }[v] || v || '-') },
+    { title: '采购包名称', dataIndex: 'name', width: 200 },
+    { title: '采购包编号', dataIndex: 'code', width: 100 },
+    { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '公开采购', invitation: '邀请采购', inquiry: '公开询比', invitation_inquiry: '邀请询比' }[v] || v || '-') },
     { title: '预算金额', dataIndex: 'budget', width: 120, render: (v) => (v ? `${v} 万元` : '-') },
-    { title: '投标开始', dataIndex: 'bidStart', width: 160, render: (v) => formatTime(v) },
-    { title: '投标截止', dataIndex: 'bidEnd', width: 160, render: (v) => formatTime(v) },
+    { title: '响应开始', dataIndex: 'bidStart', width: 160, render: (v) => formatTime(v) },
+    { title: '采购截止', dataIndex: 'bidEnd', width: 160, render: (v) => formatTime(v) },
     { title: '采购内容', dataIndex: 'content', ellipsis: true }
   ]
 
@@ -209,7 +209,7 @@ export default function ProjectDetail() {
                 </Button>
               )}
               {role === 'tenderee' && project.status === 'draft' && (
-                <Button type="primary" onClick={publish}>发标</Button>
+                <Button type="primary" onClick={publish}>发布采购</Button>
               )}
               <Button onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : '/admin/projects' })}>返回列表</Button>
             </div>
@@ -259,8 +259,8 @@ export default function ProjectDetail() {
           <Descriptions.Item label="组织方式">{orgModeText}</Descriptions.Item>
           <Descriptions.Item label="项目预算">{project.budget ? `${project.budget} 万元` : '-'}</Descriptions.Item>
           <Descriptions.Item label="发布时间">{formatDate(project.publishTime || project.submitTime)}</Descriptions.Item>
-          <Descriptions.Item label="投标截止">{formatDate(project.deadline || project.packages?.[0]?.bidEnd)}</Descriptions.Item>
-          <Descriptions.Item label="开标时间">{formatTime(project.openTime)}</Descriptions.Item>
+          <Descriptions.Item label="采购截止">{formatDate(project.deadline || project.packages?.[0]?.bidEnd)}</Descriptions.Item>
+          <Descriptions.Item label="开启时间">{formatTime(project.openTime)}</Descriptions.Item>
           <Descriptions.Item label="代理机构">{agentOption ? agentOption.label : '-'}</Descriptions.Item>
           <Descriptions.Item label="资质要求">{(project.qualifications || []).join('、') || '-'}</Descriptions.Item>
           <Descriptions.Item label="需求来源">{project.demandSource || '-'}</Descriptions.Item>
@@ -270,23 +270,23 @@ export default function ProjectDetail() {
           </Descriptions.Item>
         </Descriptions>
 
-        <Card title="标段信息" size="small" style={{ marginBottom: 20 }}>
+        <Card title="采购包信息" size="small" style={{ marginBottom: 20 }}>
           <Table
             rowKey="code"
             dataSource={project.packages || []}
             columns={packageColumns}
             pagination={false}
-            locale={{ emptyText: <EmptyState description="暂无标段，可在编辑项目中添加" /> }}
+            locale={{ emptyText: <EmptyState description="暂无采购包，可在编辑项目中添加" /> }}
           />
         </Card>
 
         <Card
-          title="招标文件"
+          title="采购文件"
           size="small"
-          extra={(role === 'tenderee' || role === 'agent') && <Button type="link" onClick={goTenderDoc}>查看/编辑招标文件</Button>}
+          extra={(role === 'tenderee' || role === 'agent') && <Button type="link" onClick={goTenderDoc}>查看/编辑采购文件</Button>}
           style={{ marginBottom: 20 }}
         >
-          <p>招标公告、投标人须知、评标办法、合同条款、采购需求、投标文件格式等章节。</p>
+          <p>采购公告、响应单位须知、评审办法、合同条款、采购需求、响应文件格式等章节。</p>
         </Card>
 
         <Card

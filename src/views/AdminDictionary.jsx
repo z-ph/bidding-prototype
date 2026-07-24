@@ -6,10 +6,10 @@ export default function AdminDictionary() {
     {
       id: 1, name: '采购方式', code: 'purchase_mode', type: '分类', status: '启用',
       children: [
-        { id: 11, name: '公开招标', code: 'open', type: '选项', status: '启用' },
-        { id: 12, name: '邀请招标', code: 'invitation', type: '选项', status: '启用' },
-        { id: 13, name: '公开询比价', code: 'inquiry', type: '选项', status: '启用' },
-        { id: 14, name: '邀请询比价', code: 'invitation_inquiry', type: '选项', status: '启用' }
+        { id: 11, name: '公开采购', code: 'open', type: '选项', status: '启用' },
+        { id: 12, name: '邀请采购', code: 'invitation', type: '选项', status: '启用' },
+        { id: 13, name: '公开询比', code: 'inquiry', type: '选项', status: '启用' },
+        { id: 14, name: '邀请询比', code: 'invitation_inquiry', type: '选项', status: '启用' }
       ]
     },
     {
@@ -79,7 +79,7 @@ export default function AdminDictionary() {
         }
       >
         <Alert
-          title="维护项目类型、采购方式、资质类别、标段分类等系统选项，供业务表单统一引用。"
+          title="维护项目类型、采购方式、资质类别、采购包分类等系统选项，供业务表单统一引用。"
           type="info"
           showIcon
           closable={false}

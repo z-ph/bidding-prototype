@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Alert, Button, Card, Form, Input, Modal, Table, Tag, message } from 'antd'
 
 // 2026-07-17 新口径（清单 26、概要七）：保证金/文件费不要求缴纳、不实现支付功能；
-// 采购结果发布后由中标人线下缴纳投标费用，本页仅作登记台账（登记凭证），无在线缴费与缴费审核。
-const FEE_TYPE = '投标费用'
+// 采购结果发布后由中选单位线下缴纳响应费用，本页仅作登记台账（登记凭证），无在线缴费与缴费审核。
+const FEE_TYPE = '响应费用'
 
 export default function FeeManage() {
   const [records, setRecords] = useState([
@@ -77,7 +77,7 @@ export default function FeeManage() {
         },
         ...prev
       ])
-      message.success('已登记中标人投标费用（待线下收缴）')
+      message.success('已登记中选单位响应费用（待线下收缴）')
     }
     setRegisterVisible(false)
     setPayTarget(null)
@@ -86,7 +86,7 @@ export default function FeeManage() {
 
   const columns = [
     { title: '关联项目', dataIndex: 'project', minWidth: 220 },
-    { title: '中标人', dataIndex: 'winner', width: 180 },
+    { title: '中选单位', dataIndex: 'winner', width: 180 },
     { title: '费用类型', dataIndex: 'type', width: 110 },
     { title: '金额（元）', dataIndex: 'amount', width: 110 },
     {
@@ -113,13 +113,13 @@ export default function FeeManage() {
       <Card
         title={
           <div className="card-header">
-            <span>费用台账（中标人投标费用登记）</span>
+            <span>费用台账（中选单位响应费用登记）</span>
             <Button type="primary" onClick={openRegister}>登记</Button>
           </div>
         }
       >
         <Alert
-          title="按 2026-07-17 新口径（清单 26、概要七）：保证金、文件费不要求缴纳，平台不实现在线支付。采购结果发布后，由中标人线下缴纳投标费用，本页仅登记台账与缴费凭证。"
+          title="按 2026-07-17 新口径（清单 26、概要七）：保证金、文件费不要求缴纳，平台不实现在线支付。采购结果发布后，由中选单位线下缴纳响应费用，本页仅登记台账与缴费凭证。"
           type="info"
           showIcon
           closable={false}
@@ -135,7 +135,7 @@ export default function FeeManage() {
       </Card>
 
       <Modal
-        title={payTarget ? '登记缴费凭证' : '登记中标人投标费用'}
+        title={payTarget ? '登记缴费凭证' : '登记中选单位响应费用'}
         open={registerVisible}
         width={520}
         onOk={submitRegister}
@@ -155,11 +155,11 @@ export default function FeeManage() {
             <Input placeholder="采购结果已发布的项目" disabled={Boolean(payTarget)} />
           </Form.Item>
           <Form.Item
-            label="中标人"
+            label="中选单位"
             name="winner"
-            rules={[{ required: true, message: '请输入中标人名称' }]}
+            rules={[{ required: true, message: '请输入中选单位名称' }]}
           >
-            <Input placeholder="中标人（供应商）名称" disabled={Boolean(payTarget)} />
+            <Input placeholder="中选单位（供应商）名称" disabled={Boolean(payTarget)} />
           </Form.Item>
           <Form.Item label="费用类型">
             <Input value={FEE_TYPE} disabled />
@@ -169,7 +169,7 @@ export default function FeeManage() {
             name="amount"
             rules={[{ required: true, message: '请输入金额' }]}
           >
-            <Input placeholder="投标费用金额" disabled={Boolean(payTarget)} />
+            <Input placeholder="响应费用金额" disabled={Boolean(payTarget)} />
           </Form.Item>
           {payTarget && (
             <Form.Item

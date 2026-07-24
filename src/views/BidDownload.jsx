@@ -53,7 +53,7 @@ export default function BidDownload() {
   const files = useMemo(() => {
     if (!tenderDocVersion) return []
     const docFile = {
-      name: `${tenderDocVersion.projectId}-招标文件-${tenderDocVersion.versionNo}.pdf`,
+      name: `${tenderDocVersion.projectId}-采购文件-${tenderDocVersion.versionNo}.pdf`,
       version: tenderDocVersion.versionNo,
       updateTime: tenderDocVersion.publishedAt || tenderDocVersion.updatedAt,
       size: '5.2 MB',
@@ -112,9 +112,9 @@ export default function BidDownload() {
   ]
 
   const blockedSubTitle = {
-    expired: '您的授权已过年度有效期，需招标人/代理重新授权后方可下载。请联系项目招标人/代理办理重新授权。',
-    revoked: '您的授权已被撤销，暂无法下载。如有疑问请联系项目招标人/代理。',
-    none: '该项目为邀请/非公开项目，仅经招标人/代理授权的供应商可下载招标文件。请联系项目招标人/代理开通授权。'
+    expired: '您的授权已过年度有效期，需采购单位/代理重新授权后方可下载。请联系项目采购单位/代理办理重新授权。',
+    revoked: '您的授权已被撤销，暂无法下载。如有疑问请联系项目采购单位/代理。',
+    none: '该项目为邀请/非公开项目，仅经采购单位/代理授权的供应商可下载采购文件。请联系项目采购单位/代理开通授权。'
   }
 
   if (!projectId) return <ProjectEntryGuard />
@@ -124,7 +124,7 @@ export default function BidDownload() {
       <Card
         title={
           <div className="card-header">
-            <span>招标文件下载</span>
+            <span>采购文件下载</span>
             <span>
               <Tag color={isPublicProject ? 'success' : 'warning'}>
                 {isPublicProject ? '公开项目·可自行下载' : '非公开项目·需授权'}
@@ -138,7 +138,7 @@ export default function BidDownload() {
           size="small"
           current={1}
           style={{ marginBottom: 24 }}
-          items={['确认下载权限', '下载招标文件', '编制投标文件', '上传投标文件'].map((title) => ({ title }))}
+          items={['确认下载权限', '下载采购文件', '编制响应文件', '上传响应文件'].map((title) => ({ title }))}
         />
 
         {!canDownload ? (
@@ -151,7 +151,7 @@ export default function BidDownload() {
                 返回项目中心
               </Button>,
               <Button key="message" onClick={() => navigate({ to: '/admin/message-center' })}>
-                联系招标人/代理
+                联系采购单位/代理
               </Button>
             ]}
           />
@@ -159,7 +159,7 @@ export default function BidDownload() {
           <>
             {versionChanged && (
               <Alert
-                title={`招标文件已更新，当前有效版本为 ${tenderDocVersion.versionNo}，请重新下载。`}
+                title={`采购文件已更新，当前有效版本为 ${tenderDocVersion.versionNo}，请重新下载。`}
                 type="warning"
                 showIcon
                 closable={false}
@@ -168,8 +168,8 @@ export default function BidDownload() {
             )}
             <Alert
               title={tenderDocVersion
-                ? `当前有效招标文件版本：${tenderDocVersion.versionNo}，发布时间：${tenderDocVersion.publishedAt || tenderDocVersion.updatedAt}。下载后请使用投标文件制作工具离线编制，开标前务必完成签章和加密。`
-                : '暂无已发布的招标文件，请稍后刷新。'}
+                ? `当前有效采购文件版本：${tenderDocVersion.versionNo}，发布时间：${tenderDocVersion.publishedAt || tenderDocVersion.updatedAt}。下载后请使用响应文件制作工具离线编制，开启前务必完成签章和加密。`
+                : '暂无已发布的采购文件，请稍后刷新。'}
               type="info"
               showIcon
               closable={false}
@@ -194,7 +194,7 @@ export default function BidDownload() {
             <div className="next-step">
               <span>文件已获取？</span>
               <Button type="primary" onClick={() => navigate({ to: '/admin/bid-quote', search: { projectId } })}>去填写报价</Button>
-              <Button onClick={() => navigate({ to: '/admin/bid-upload', search: { projectId } })}>去上传投标文件</Button>
+              <Button onClick={() => navigate({ to: '/admin/bid-upload', search: { projectId } })}>去上传响应文件</Button>
             </div>
           </>
         )}

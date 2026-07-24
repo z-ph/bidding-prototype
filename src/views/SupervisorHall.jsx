@@ -11,7 +11,7 @@ import { quoteStore } from '../data/quoteStore.js'
 import { supervisorStore } from '../data/supervisorStore.js'
 import { PROJECT_STATUS_MAP } from './ProjectList.jsx'
 
-// 开标时间兼容 ISO 串与 'YYYY-MM-DD HH:mm'
+// 开启时间兼容 ISO 串与 'YYYY-MM-DD HH:mm'
 const fmtTime = (v) => {
   if (!v) return '-'
   const d = dayjs(v)
@@ -32,7 +32,7 @@ export default function SupervisorHall() {
   const [activeTab, setActiveTab] = useState('opening')
   const [comment, setComment] = useState('')
 
-  // 无 projectId：今日开标/评标场次列表（真实项目数据）
+  // 无 projectId：今日开启/评审场次列表（真实项目数据）
   const projects = useMemo(() => projectStore.getProjects(), [])
 
   // 有 projectId：项目监督视图数据（均无记录时 Empty，不回退演示假数据）
@@ -40,7 +40,7 @@ export default function SupervisorHall() {
   const projectName = project?.name || (projectId ? `项目 ${projectId}` : '')
   const projectCode = project?.code || '-'
 
-  // 唱标结果：quoteStore 按 projectId 前缀匹配
+  // 唱价结果：quoteStore 按 projectId 前缀匹配
   const bids = useMemo(() => {
     if (!projectId) return []
     return Object.entries(quoteStore.getQuotes())
@@ -53,7 +53,7 @@ export default function SupervisorHall() {
       }))
   }, [projectId])
 
-  // 评标委员会：expertStore 抽取结果
+  // 评审委员会：expertStore 抽取结果
   const committee = useMemo(
     () => (projectId ? expertStore.getResult(projectId) : null),
     [projectId]
@@ -124,9 +124,9 @@ export default function SupervisorHall() {
   const sessionColumns = [
     { title: '项目名称', dataIndex: 'name', minWidth: 220 },
     { title: '项目编号', dataIndex: 'code', width: 160 },
-    { title: '开标时间', dataIndex: 'openTime', width: 160, render: (v) => fmtTime(v) },
+    { title: '开启时间', dataIndex: 'openTime', width: 160, render: (v) => fmtTime(v) },
     {
-      title: '评标截止时间',
+      title: '评审截止时间',
       key: 'evalDeadline',
       width: 160,
       render: (_, row) => formatDeadline(evaluationStore.getEval(row.id).deadline)
@@ -156,8 +156,8 @@ export default function SupervisorHall() {
   ]
 
   const bidColumns = [
-    { title: '投标人', dataIndex: 'name' },
-    { title: '投标报价（万元）', dataIndex: 'price' },
+    { title: '响应单位', dataIndex: 'name' },
+    { title: '响应报价（万元）', dataIndex: 'price' },
     { title: '交货期', dataIndex: 'delivery' },
     { title: '质保期', dataIndex: 'quality' }
   ]
@@ -182,7 +182,7 @@ export default function SupervisorHall() {
   ]
 
   const scoreColumns = [
-    { title: '投标人', dataIndex: 'bidder' },
+    { title: '响应单位', dataIndex: 'bidder' },
     ...scoreSummary.experts.map((expert, idx) => ({
       title: (
         <>
@@ -209,12 +209,12 @@ export default function SupervisorHall() {
   const tabItems = [
     {
       key: 'opening',
-      label: '开标监督',
+      label: '开启监督',
       children: (
         <>
           <h3>签到情况</h3>
-          <Empty description="该项目暂无开标签到记录" />
-          <h3>唱标结果</h3>
+          <Empty description="该项目暂无开启签到记录" />
+          <h3>唱价结果</h3>
           {bids.length > 0 ? (
             <Table
               columns={bidColumns}
@@ -225,17 +225,17 @@ export default function SupervisorHall() {
               style={{ width: '100%' }}
             />
           ) : (
-            <Empty description="该项目暂无唱标报价记录" />
+            <Empty description="该项目暂无唱价报价记录" />
           )}
         </>
       )
     },
     {
       key: 'evaluation',
-      label: '评标监督',
+      label: '评审监督',
       children: (
         <>
-          <h3>评标委员会</h3>
+          <h3>评审委员会</h3>
           {committeeExperts.length > 0 ? (
             <Table
               columns={expertColumns}
@@ -246,7 +246,7 @@ export default function SupervisorHall() {
               style={{ width: '100%' }}
             />
           ) : (
-            <Empty description="该项目暂未抽取评标专家" />
+            <Empty description="该项目暂未抽取评审专家" />
           )}
           <h3>评分汇总</h3>
           {scoreSummary.rows.length > 0 ? (
@@ -286,7 +286,7 @@ export default function SupervisorHall() {
         }
       >
         <Alert
-          title="您当前以监督人员身份进入，可查看开标、评标全过程及操作日志，但不可修改任何业务数据。"
+          title="您当前以监督人员身份进入，可查看开启、评审全过程及操作日志，但不可修改任何业务数据。"
           type="info"
           showIcon
           closable={false}
@@ -304,7 +304,7 @@ export default function SupervisorHall() {
               style={{ width: '100%' }}
             />
           ) : (
-            <Empty description="暂无项目，待招标人创建项目后可监督" />
+            <Empty description="暂无项目，待采购单位创建项目后可监督" />
           )
         )}
 

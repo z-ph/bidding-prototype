@@ -38,7 +38,7 @@ const PROJECT_INFO = {
   '3': { id: '3', name: '软件开发服务项目', code: 'ZB20260703003' }
 }
 
-// 演示投标人名单（开标结果 mock）
+// 演示响应单位名单（开启结果 mock）
 const BIDDERS = ['A科技有限公司', 'B实业有限公司', 'C股份有限公司']
 
 export default function ExpertProject() {
@@ -47,7 +47,7 @@ export default function ExpertProject() {
   const projectId = searchParams.projectId
   const { userName } = useRole()
 
-  // 统一入口：无 projectId 空载进入时重定向到真实任务列表「我的评标任务」，
+  // 统一入口：无 projectId 空载进入时重定向到真实任务列表「我的评审任务」，
   // 评分详情只能从任务列表携带 projectId 进入（0718-ux-006）
   if (!projectId) {
     return <Navigate to="/admin/expert-tasks" replace />
@@ -65,13 +65,13 @@ function bumpVersion(v) {
 
 function EvaluationDetail({ projectId, userName, onBack }) {
   const tenderDocVersion = tenderDocStore.getCurrentPublishedVersion(projectId)
-  // 评标办法评分项由招标文件配置驱动，不再固定商务30/技术40/价格30
+  // 评审办法评分项由采购文件配置驱动，不再固定商务30/技术40/价格30
   const scoreItems = tenderDocStore.getPublishedScoreItems(projectId)
   const scoreWeightTotal = scoreItems.reduce((sum, item) => sum + (Number(item.weight) || 0), 0)
   const scoreColSpan = Math.max(4, Math.floor(24 / scoreItems.length))
   const projectInfo = PROJECT_INFO[projectId] || { name: 'XX市轨道交通设备采购项目', code: '-' }
 
-  // 评标状态持久化：评分/意见/签名/提交/组长/报告全部落在 evaluationStore（localStorage），
+  // 评审状态持久化：评分/意见/签名/提交/组长/报告全部落在 evaluationStore（localStorage），
   // 页面刷新后从 store 恢复（test-003）
   const [evalData, setEvalData] = useState(() => evaluationStore.getEval(projectId))
   const persist = (updater) => {
@@ -137,8 +137,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
         } else {
           d.experts[name] = {
             scores,
-            comments: Object.fromEntries(BIDDERS.map((b) => [b, '（演示数据）方案满足招标文件要求。'])),
-            opinion: '（演示数据）同意按汇总得分推荐中标候选人。',
+            comments: Object.fromEntries(BIDDERS.map((b) => [b, '（演示数据）方案满足采购文件要求。'])),
+            opinion: '（演示数据）同意按汇总得分推荐中选候选人。',
             submitted: true,
             submittedAt: now,
             signed: true,
@@ -231,13 +231,13 @@ function EvaluationDetail({ projectId, userName, onBack }) {
 
   const voteLeader = (row) => {
     if (report) {
-      message.warning('评标报告已生成，组长不可再改选')
+      message.warning('评审报告已生成，组长不可再改选')
       return
     }
     persist((d) => {
       d.leader = row.name
     })
-    message.success(`已推选 ${row.name} 为评标组长，可再次点击其他成员改选`)
+    message.success(`已推选 ${row.name} 为评审组长，可再次点击其他成员改选`)
   }
 
   const openEvidence = (tab) => {
@@ -248,11 +248,11 @@ function EvaluationDetail({ projectId, userName, onBack }) {
   const doSign = () => {
     if (signed || submitLocked) return
     if (expired) {
-      message.warning('已超过评标截止时间，无法签名')
+      message.warning('已超过评审截止时间，无法签名')
       return
     }
     if (!allScored) {
-      message.warning('请先完成所有投标人的评分和评审意见再签名')
+      message.warning('请先完成所有响应单位的评分和评审意见再签名')
       return
     }
     persist((d) => {
@@ -290,11 +290,11 @@ function EvaluationDetail({ projectId, userName, onBack }) {
 
   const submitAll = () => {
     if (expired) {
-      message.warning('已超过评标截止时间，无法提交评分')
+      message.warning('已超过评审截止时间，无法提交评分')
       return
     }
     if (!allScored) {
-      message.warning('请完成所有投标人的评分和评审意见')
+      message.warning('请完成所有响应单位的评分和评审意见')
       return
     }
     if (!signed) {
@@ -325,8 +325,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
     lines.push('评 标 报 告')
     lines.push(`报告编号：${id}    版本：${version}`)
     lines.push(`项目名称：${projectInfo.name}    项目编号：${projectInfo.code}    项目ID：${projectId}`)
-    lines.push(`生成时间：${now}    生成人：${userName}（评标组长）`)
-    lines.push('流程说明：本项目评标采用限时提交制，专家在评标截止时间前随时提交评分，无需全程在线（评审条目 1415-003 口径，待产品最终确认）。')
+    lines.push(`生成时间：${now}    生成人：${userName}（评审组长）`)
+    lines.push('流程说明：本项目评审采用限时提交制，专家在评审截止时间前随时提交评分，无需全程在线（评审条目 1415-003 口径，待产品最终确认）。')
     lines.push('')
     lines.push('一、评分汇总（各专家已提交评分的算术平均）')
     summaryRows.forEach((r) => lines.push(`  第 ${r.rank} 名  ${r.bidder}：${r.average} 分`))
@@ -334,19 +334,19 @@ function EvaluationDetail({ projectId, userName, onBack }) {
     lines.push('二、各专家评审意见')
     opinions.forEach((o) => lines.push(`  ${o.expert}：${o.opinion || '（未填写）'}`))
     lines.push('')
-    lines.push('三、推荐中标候选人')
+    lines.push('三、推荐中选候选人')
     candidates.forEach((c) => lines.push(`  ${c}`))
     lines.push('')
-    lines.push('四、评标委员会签名状态')
+    lines.push('四、评审委员会签名状态')
     signatures.forEach((s) => lines.push(`  ${s.name}：${s.signed ? `已签名（${s.signedAt}）` : '未签名'}`))
     return lines.join('\n')
   }
 
-  // 生成评标报告：真实报告实体，含编号/版本/内容/签名状态/归档记录，
-  // 生成后项目状态联动为「评标完成」（test-004）
+  // 生成评审报告：真实报告实体，含编号/版本/内容/签名状态/归档记录，
+  // 生成后项目状态联动为「评审完成」（test-004）
   const generateReport = () => {
     if (!isLeader) {
-      message.warning('仅评标组长可生成评标报告')
+      message.warning('仅评审组长可生成评审报告')
       return
     }
     if (!allExpertsSubmitted) {
@@ -354,10 +354,10 @@ function EvaluationDetail({ projectId, userName, onBack }) {
       return
     }
     Modal.confirm({
-      title: report ? '重新生成评标报告' : '生成评标报告',
+      title: report ? '重新生成评审报告' : '生成评审报告',
       content: report
         ? '重新生成将递增版本号并保留全部归档记录，是否继续？'
-        : '生成后项目状态将推进为「评标完成」并进入定标流程，是否继续？',
+        : '生成后项目状态将推进为「评审完成」并进入成交流程，是否继续？',
       okText: '确认生成',
       cancelText: '取消',
       onOk: () => {
@@ -387,21 +387,21 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             opinions,
             archiveLog: [
               ...(existing?.archiveLog || []),
-              { action: existing ? '重新生成报告' : '生成评标报告并归档', time: now, operator: userName, version }
+              { action: existing ? '重新生成报告' : '生成评审报告并归档', time: now, operator: userName, version }
             ]
           }
           d.status = 'confirmed'
         })
         setEvalData({ ...next })
-        // 项目状态联动：推进为「评标完成」
+        // 项目状态联动：推进为「评审完成」
         const proj = projectStore.getProjectById(projectId)
         projectStore.saveProject({
           ...(proj || { id: projectId, name: projectInfo.name, code: projectInfo.code }),
-          status: '评标完成',
+          status: '评审完成',
           evaluationReportId: next.report.id,
           evalCompletedAt: now
         })
-        message.success(`评标报告已生成（${next.report.id} ${next.report.version}），项目状态已推进为「评标完成」`)
+        message.success(`评审报告已生成（${next.report.id} ${next.report.version}），项目状态已推进为「评审完成」`)
       }
     })
   }
@@ -411,19 +411,19 @@ function EvaluationDetail({ projectId, userName, onBack }) {
     const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     const html = [
       '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">',
-      `<title>评标报告 ${escape(report.id)}</title>`,
+      `<title>评审报告 ${escape(report.id)}</title>`,
       '<style>body{font-family:"Microsoft YaHei",sans-serif;max-width:820px;margin:40px auto;line-height:1.9;color:#222}',
       'h1{text-align:center;letter-spacing:8px}pre{white-space:pre-wrap;font-family:inherit;font-size:14px}</style></head>',
-      `<body><h1>评标报告</h1><pre>${escape(report.content)}</pre></body></html>`
+      `<body><h1>评审报告</h1><pre>${escape(report.content)}</pre></body></html>`
     ].join('')
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `评标报告-${report.id}-${report.version}.html`
+    a.download = `评审报告-${report.id}-${report.version}.html`
     a.click()
     URL.revokeObjectURL(url)
-    message.success('评标报告已下载')
+    message.success('评审报告已下载')
   }
 
   const startTour = () => {
@@ -435,8 +435,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
         {
           element: '#expert-steps',
           popover: {
-            title: '评标流程',
-            description: '评标共分为 6 步：回避声明 → 专家签到 → 推选组长 → 查阅资料 → 在线评分 → 电子签名。限时提交制：截止时间前可随时提交。',
+            title: '评审流程',
+            description: '评审共分为 6 步：回避声明 → 专家签到 → 推选组长 → 查阅资料 → 在线评分 → 电子签名。限时提交制：截止时间前可随时提交。',
             side: 'bottom',
             align: 'center'
           }
@@ -445,7 +445,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           element: '.step-content',
           popover: {
             title: '当前步骤',
-            description: '按提示完成当前步骤操作，完成后点击底部按钮进入下一步。评分时可随时通过「查阅资料」对照招标/投标文件。',
+            description: '按提示完成当前步骤操作，完成后点击底部按钮进入下一步。评分时可随时通过「查阅资料」对照采购/响应文件。',
             side: 'right',
             align: 'start'
           }
@@ -454,7 +454,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           element: '#expert-submit-btn',
           popover: {
             title: '提交评分',
-            description: '完成评分与电子签名后，点击此处提交评标结果；提交后结果锁定。',
+            description: '完成评分与电子签名后，点击此处提交评审结果；提交后结果锁定。',
             side: 'bottom',
             align: 'center'
           }
@@ -495,9 +495,9 @@ function EvaluationDetail({ projectId, userName, onBack }) {
   ]
 
   const docs = [
-    { key: 'tender', name: tenderDocVersion ? `招标文件（${tenderDocVersion.versionNo}）` : '招标文件', color: '#409EFF' },
-    { key: 'bid', name: '投标文件', color: '#67C23A' },
-    { key: 'opening', name: '开标记录', color: '#E6A23C' }
+    { key: 'tender', name: tenderDocVersion ? `采购文件（${tenderDocVersion.versionNo}）` : '采购文件', color: '#409EFF' },
+    { key: 'bid', name: '响应文件', color: '#67C23A' },
+    { key: 'opening', name: '开启记录', color: '#E6A23C' }
   ]
 
   const bidderTabItems = BIDDERS.map((bidder) => ({
@@ -535,7 +535,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
 
   const summaryColumns = [
     { title: '排名', dataIndex: 'rank', width: 70 },
-    { title: '投标人', dataIndex: 'bidder' },
+    { title: '响应单位', dataIndex: 'bidder' },
     ...scoringNames.map((n) => ({
       title: n,
       key: n,
@@ -554,7 +554,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             <div className="catalog-content">
               {n.content?.trim()
                 ? n.content
-                : '（本章节正文为演示占位内容，正式环境展示招标文件真实文本。）'}
+                : '（本章节正文为演示占位内容，正式环境展示采购文件真实文本。）'}
             </div>
           )}
           {n.children && renderCatalog(n.children)}
@@ -566,7 +566,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
   const evidenceItems = [
     {
       key: 'tender',
-      label: '招标文件',
+      label: '采购文件',
       children: (
         <div>
           <Descriptions column={1} size="small" bordered style={{ marginBottom: 16 }}>
@@ -585,14 +585,14 @@ function EvaluationDetail({ projectId, userName, onBack }) {
               { title: '大小', dataIndex: 'size', width: 110, render: (s) => `${(Number(s || 0) / 1024).toFixed(0)} KB` }
             ]}
           />
-          <h4 style={{ margin: '16px 0 8px' }}>招标文件正文（章节目录）</h4>
+          <h4 style={{ margin: '16px 0 8px' }}>采购文件正文（章节目录）</h4>
           {renderCatalog(tenderDocVersion?.catalog)}
         </div>
       )
     },
     {
       key: 'bid',
-      label: '投标文件',
+      label: '响应文件',
       children: (
         <div>
           {BIDDERS.map((b) => (
@@ -602,8 +602,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                 size="small"
                 pagination={false}
                 dataSource={[
-                  { name: '投标文件-商务册.pdf', size: '2.4 MB', time: '2026-07-08 10:12' },
-                  { name: '投标文件-技术册.pdf', size: '5.1 MB', time: '2026-07-08 10:15' },
+                  { name: '响应文件-商务册.pdf', size: '2.4 MB', time: '2026-07-08 10:12' },
+                  { name: '响应文件-技术册.pdf', size: '5.1 MB', time: '2026-07-08 10:15' },
                   { name: '报价一览表.xlsx', size: '68 KB', time: '2026-07-08 10:18' }
                 ]}
                 columns={[
@@ -613,7 +613,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                 ]}
               />
               <div className="catalog-content" style={{ marginTop: 8 }}>
-                （投标文件正文为演示占位内容，正式环境按文件格式在线预览真实文本。）
+                （响应文件正文为演示占位内容，正式环境按文件格式在线预览真实文本。）
               </div>
             </Card>
           ))}
@@ -622,7 +622,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
     },
     {
       key: 'opening',
-      label: '开标记录',
+      label: '开启记录',
       children: (
         <Table
           rowKey="name"
@@ -634,10 +634,10 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             { name: 'C股份有限公司', price: '785.20', decrypt: '已解密', time: '2026-07-10 09:35' }
           ]}
           columns={[
-            { title: '投标人', dataIndex: 'name' },
-            { title: '投标报价（万元）', dataIndex: 'price', width: 130 },
+            { title: '响应单位', dataIndex: 'name' },
+            { title: '响应报价（万元）', dataIndex: 'price', width: 130 },
             { title: '解密状态', dataIndex: 'decrypt', width: 100 },
-            { title: '唱标时间', dataIndex: 'time', width: 160 }
+            { title: '唱价时间', dataIndex: 'time', width: 160 }
           ]}
         />
       )
@@ -650,18 +650,18 @@ function EvaluationDetail({ projectId, userName, onBack }) {
         title={
           <div className="hall-header">
             <div>
-              <h2>评标项目</h2>
+              <h2>评审项目</h2>
               <p className="subtitle">{projectInfo.name} · 项目编号：{projectInfo.code} · 项目ID：{projectId}</p>
             </div>
             <div className="hall-meta">
               <StatusTag
-                label={report ? '评标完成' : submitLocked ? '已提交锁定' : expired ? '已截止' : '评标中'}
+                label={report ? '评审完成' : submitLocked ? '已提交锁定' : expired ? '已截止' : '评审中'}
                 status={report || submitLocked ? 'completed' : expired ? 'completed' : 'processing'}
               />
-              <Tag color={expired ? 'default' : 'blue'}>评标截止：{formatDeadline(evalData.deadline)}</Tag>
+              <Tag color={expired ? 'default' : 'blue'}>评审截止：{formatDeadline(evalData.deadline)}</Tag>
               {!submitLocked && !expired && (
                 <Button type="primary" ghost icon={<QuestionCircleOutlined />} onClick={startTour}>
-                  评标引导
+                  评审引导
                 </Button>
               )}
               <Button onClick={onBack}>返回列表</Button>
@@ -682,8 +682,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           style={{ marginBottom: 16 }}
           title={
             expired
-              ? `本项目评标已于 ${formatDeadline(evalData.deadline)} 截止，评分、签名与提交功能已封锁。`
-              : `限时提交制：评标截止时间为 ${formatDeadline(evalData.deadline)}，专家可在截止前随时进入并提交评分，无需全程在线。所有评分操作自动保存，刷新页面不丢失。`
+              ? `本项目评审已于 ${formatDeadline(evalData.deadline)} 截止，评分、签名与提交功能已封锁。`
+              : `限时提交制：评审截止时间为 ${formatDeadline(evalData.deadline)}，专家可在截止前随时进入并提交评分，无需全程在线。所有评分操作自动保存，刷新页面不丢失。`
           }
         />
 
@@ -705,19 +705,19 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           {/* 步骤0：回避声明 */}
           {activeStep === 0 && (
             <div className="step-content">
-              <h3>回避声明与评标纪律</h3>
-              <p className="tip">请确认与投标人不存在利害关系，并承诺遵守评标纪律。</p>
+              <h3>回避声明与评审纪律</h3>
+              <p className="tip">请确认与响应单位不存在利害关系，并承诺遵守评审纪律。</p>
               <Card className="declare-card" size="small">
-                <p>1. 本人与本次招标项目的投标人及其利害关系人不存在任何利害关系；</p>
-                <p>2. 本人将严格按照招标文件和评标办法独立、客观、公正地进行评审；</p>
-                <p>3. 本人不会泄露评标过程中的任何商业秘密和投标人的保密信息。</p>
+                <p>1. 本人与本次采购项目的响应单位及其利害关系人不存在任何利害关系；</p>
+                <p>2. 本人将严格按照采购文件和评审办法独立、客观、公正地进行评审；</p>
+                <p>3. 本人不会泄露评审过程中的任何商业秘密和响应单位的保密信息。</p>
               </Card>
               <Checkbox
                 checked={declared}
                 onChange={(e) => setDeclared(e.target.checked)}
                 style={{ marginTop: 16 }}
               >
-                我已阅读并遵守上述回避声明和评标纪律
+                我已阅读并遵守上述回避声明和评审纪律
               </Checkbox>
               <div className="stage-action">
                 <Button
@@ -736,12 +736,12 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           {activeStep === 1 && (
             <div className="step-content">
               <h3>专家签到</h3>
-              <p className="tip">请确认身份信息并完成在线签到，评标开始前需全部专家签到完毕。</p>
+              <p className="tip">请确认身份信息并完成在线签到，评审开始前需全部专家签到完毕。</p>
               <Descriptions column={2} bordered>
                 <Descriptions.Item label="项目名称">{projectInfo.name}</Descriptions.Item>
-                <Descriptions.Item label="评标地点">线上评标大厅</Descriptions.Item>
+                <Descriptions.Item label="评审地点">线上评审大厅</Descriptions.Item>
                 <Descriptions.Item label="专家姓名">{userName}</Descriptions.Item>
-                <Descriptions.Item label="评标截止时间">{formatDeadline(evalData.deadline)}</Descriptions.Item>
+                <Descriptions.Item label="评审截止时间">{formatDeadline(evalData.deadline)}</Descriptions.Item>
               </Descriptions>
               <div className="stage-action">
                 <Button onClick={() => setActiveStep((prev) => prev - 1)}>返回</Button>
@@ -753,9 +753,9 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           {/* 步骤2：推选组长 */}
           {activeStep === 2 && (
             <div className="step-content">
-              <h3>推选评标组长</h3>
+              <h3>推选评审组长</h3>
               <p className="tip">
-                组长不默认设定，由评标委员会成员实时推选产生，可点击其他成员改选；组长负责汇总评分和生成报告。
+                组长不默认设定，由评审委员会成员实时推选产生，可点击其他成员改选；组长负责汇总评分和生成报告。
                 未推选出组长前，后续评分汇总与报告生成功能保持锁定。
               </p>
               <Table
@@ -782,8 +782,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           {/* 步骤3：查阅资料 */}
           {activeStep === 3 && (
             <div className="step-content">
-              <h3>查阅投标资料</h3>
-              <p className="tip">请仔细查阅招标文件、投标文件、开标记录和报价一览表，为评分做准备。点击资料卡片可打开资料查阅侧栏。</p>
+              <h3>查阅响应资料</h3>
+              <p className="tip">请仔细查阅采购文件、响应文件、开启记录和报价一览表，为评分做准备。点击资料卡片可打开资料查阅侧栏。</p>
               <Row gutter={20}>
                 {docs.map((doc) => (
                   <Col span={8} key={doc.key}>
@@ -805,7 +805,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                   onChange={(e) => setDocsRead(e.target.checked)}
                   style={{ marginRight: 12 }}
                 >
-                  我已查阅全部投标资料
+                  我已查阅全部响应资料
                 </Checkbox>
                 <Button
                   type="primary"
@@ -829,8 +829,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                 </Button>
               </div>
               <p className="tip">
-                请按评分项独立打分，每个投标人满分 {scoreWeightTotal} 分（{scoreItems.map((i) => `${i.name} ${i.weight}`).join(' + ')}）。
-                评分过程中可随时点击「查阅资料」对照招标文件与投标文件；评分与意见自动保存。
+                请按评分项独立打分，每个响应单位满分 {scoreWeightTotal} 分（{scoreItems.map((i) => `${i.name} ${i.weight}`).join(' + ')}）。
+                评分过程中可随时点击「查阅资料」对照采购文件与响应文件；评分与意见自动保存。
                 {(signed || submitLocked) && ' 已完成电子签名，评分与意见已锁定；如需修改请先撤销签名。'}
               </p>
               <Tabs type="card" items={bidderTabItems} />
@@ -852,7 +852,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           {activeStep === 5 && (
             <div className="step-content">
               <h3>电子签名确认</h3>
-              <p className="tip">请使用 CA 证书对评分结果和评标报告进行电子签名，签名后不可修改；如需修改须先撤销签名并记录原因。</p>
+              <p className="tip">请使用 CA 证书对评分结果和评审报告进行电子签名，签名后不可修改；如需修改须先撤销签名并记录原因。</p>
               <Card className={`sign-area${signed ? ' signed' : ''}`} size="small">
                 <div className="sign-placeholder" onClick={doSign} style={signed ? { cursor: 'default' } : undefined}>
                   <EditOutlined style={{ fontSize: 48, color: signed ? '#67C23A' : '#409EFF' }} />
@@ -883,7 +883,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                   type="warning"
                   showIcon
                   style={{ marginTop: 20 }}
-                  title="尚未推选评标组长，评分汇总与报告生成功能已锁定，请先在「推选组长」步骤完成推选。"
+                  title="尚未推选评审组长，评分汇总与报告生成功能已锁定，请先在「推选组长」步骤完成推选。"
                 />
               )}
               {leaderElected && (
@@ -911,7 +911,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                           <Form.Item label="委员会报告意见">
                             <Input.TextArea
                               rows={3}
-                              placeholder="请填写评标委员会报告意见（将写入评标报告）"
+                              placeholder="请填写评审委员会报告意见（将写入评审报告）"
                               value={myEntry.opinion || ''}
                               onChange={(e) => updateOpinion(e.target.value)}
                             />
@@ -919,12 +919,12 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                         </Form>
                       )}
                       {!isLeader && !report && (
-                        <p className="tip" style={{ marginTop: 12 }}>仅组长可生成评标报告。</p>
+                        <p className="tip" style={{ marginTop: 12 }}>仅组长可生成评审报告。</p>
                       )}
                       {isLeader && (
                         <div className="stage-action">
                           <Button type="primary" onClick={generateReport}>
-                            {report ? '重新生成评标报告' : '生成评标报告'}
+                            {report ? '重新生成评审报告' : '生成评审报告'}
                           </Button>
                         </div>
                       )}
@@ -933,10 +933,10 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                 </Card>
               )}
 
-              {/* 评标报告实体预览 */}
+              {/* 评审报告实体预览 */}
               {report && (
                 <Card
-                  title="评标报告"
+                  title="评审报告"
                   size="small"
                   style={{ marginTop: 20 }}
                   extra={
@@ -953,7 +953,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                     <Descriptions.Item label="状态">
                       <Tag color="success">{report.archived ? '已归档' : '未归档'}</Tag>
                     </Descriptions.Item>
-                    <Descriptions.Item label="推荐中标候选人">
+                    <Descriptions.Item label="推荐中选候选人">
                         {(report.candidates || []).map((c) => <Tag color="gold" key={c}>{c}</Tag>)}
                     </Descriptions.Item>
                   </Descriptions>
@@ -966,7 +966,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                     dataSource={report.summary || []}
                     columns={[
                       { title: '排名', dataIndex: 'rank', width: 70 },
-                      { title: '投标人', dataIndex: 'bidder' },
+                      { title: '响应单位', dataIndex: 'bidder' },
                       { title: '平均得分', dataIndex: 'average', width: 110, render: (v) => <strong>{v}</strong> }
                     ]}
                   />

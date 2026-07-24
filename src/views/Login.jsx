@@ -78,7 +78,7 @@ export default function Login() {
     setCountdown(60)
   }
 
-  // 纯演示：手机号登录默认作为投标人
+  // 纯演示：手机号登录默认作为响应单位
   const phoneLogin = () => {
     const phone = phoneForm.getFieldValue('phone') || '13800138000'
     doLogin('bidder', phone, '手机验证码')
@@ -114,7 +114,7 @@ export default function Login() {
           element: '#login-role',
           popover: {
             title: '选择您的角色',
-            description: '平台支持招标人、招标代理、投标人、评标专家、监督人员、平台管理员六种角色，登录后进入对应工作台。',
+            description: '平台支持采购单位、采购代理、响应单位、评审专家、监督人员、平台管理员六种角色，登录后进入对应工作台。',
             side: 'right',
             align: 'center'
           },
@@ -166,10 +166,10 @@ export default function Login() {
   }
 
   const roleButtons = [
-    { key: 'tenderee', label: '招标人' },
-    { key: 'agent', label: '招标代理' },
-    { key: 'bidder', label: '投标人' },
-    { key: 'expert', label: '评标专家' },
+    { key: 'tenderee', label: '采购单位' },
+    { key: 'agent', label: '采购代理' },
+    { key: 'bidder', label: '响应单位' },
+    { key: 'expert', label: '评审专家' },
     { key: 'supervisor', label: '监督人员' },
     { key: 'admin', label: '管理员' }
   ]
@@ -203,8 +203,8 @@ export default function Login() {
             </Button>
           ))}
         </Space>
-        <p style={{ marginTop: 8 }}>tenderee → 招标人，agent → 招标代理，bidder → 投标人，</p>
-        <p>expert → 评标专家，supervisor → 监督人员，admin → 管理员</p>
+        <p style={{ marginTop: 8 }}>tenderee → 采购单位，agent → 采购代理，bidder → 响应单位，</p>
+        <p>expert → 评审专家，supervisor → 监督人员，admin → 管理员</p>
       </div>
     </>
   )
@@ -271,13 +271,13 @@ export default function Login() {
     <div className="login-page">
       <div className="login-container">
         <div className="login-left">
-          <h1>招投标采购平台</h1>
+          <h1>采购平台</h1>
           <p>全流程电子化 · 多角色协同 · 安全合规</p>
           <div className="features">
-            <div className="feature"><CheckOutlined /> 在线招标发标</div>
-            <div className="feature"><CheckOutlined /> 电子投标加密</div>
-            <div className="feature"><CheckOutlined /> 线上开标评标</div>
-            <div className="feature"><CheckOutlined /> 定标结果公示</div>
+            <div className="feature"><CheckOutlined /> 在线发布采购</div>
+            <div className="feature"><CheckOutlined /> 电子响应加密</div>
+            <div className="feature"><CheckOutlined /> 线上开启评审</div>
+            <div className="feature"><CheckOutlined /> 成交确认结果公示</div>
           </div>
         </div>
         <div className="login-right">

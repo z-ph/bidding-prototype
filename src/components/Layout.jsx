@@ -85,8 +85,8 @@ function useMenuItems(role) {
     }
   ]
 
-  // 招标代理菜单（refactor-agent-menu-workflow-20260718；agent-project-requirement-management-20260721：
-  // 代理可管理项目含创建项目、管理采购需求）：阶段操作（招标文件编制/公告发布/专家抽取/中标通知书）
+  // 采购代理菜单（refactor-agent-menu-workflow-20260718；agent-project-requirement-management-20260721：
+  // 代理可管理项目含创建项目、管理采购需求）：阶段操作（采购文件编制/公告发布/专家抽取/中选通知书）
   // 全部下沉到项目驾驶舱携带 projectId 进入，菜单只保留跨项目台账入口
   const agentMenus = [
     {
@@ -115,7 +115,7 @@ function useMenuItems(role) {
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 
-  // 投标人菜单（refactor-bidder-menu-workflow-20260718）：下载/报价/上传/开标/中标通知等阶段操作
+  // 响应单位菜单（refactor-bidder-menu-workflow-20260718）：下载/报价/上传/开启/中选通知等阶段操作
   // 全部在项目中心内按项目状态聚合携带 projectId 进入，主导航只保留跨项目入口
   const bidderMenus = [
     { key: '/admin/bidder-projects', label: '项目中心', icon: FolderOutlined },
@@ -123,10 +123,10 @@ function useMenuItems(role) {
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 
-  // 评标专家菜单（refactor-expert-menu-workflow-20260718）：双任务入口合并为单一
-  // 「我的评标任务」，评分详情页（/admin/expert-project）从任务列表携带 projectId 进入
+  // 评审专家菜单（refactor-expert-menu-workflow-20260718）：双任务入口合并为单一
+  // 「我的评审任务」，评分详情页（/admin/expert-project）从任务列表携带 projectId 进入
   const expertMenus = [
-    { key: '/admin/expert-tasks', label: '我的评标任务', icon: ScheduleOutlined },
+    { key: '/admin/expert-tasks', label: '我的评审任务', icon: ScheduleOutlined },
     { key: '/admin/expert-profile', label: '专家信息', icon: UserOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
@@ -226,7 +226,7 @@ export default function Layout() {
           title="返回门户首页"
         >
           <BookOutlined style={{ marginRight: 10, fontSize: 24 }} />
-          <span>招投标平台</span>
+          <span>采购平台</span>
         </div>
         <Menu
           theme="dark"

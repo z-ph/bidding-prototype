@@ -2,10 +2,10 @@
 // 解决：URL 改角色、越权访问、页面按钮权限边界等问题
 
 export const ROLE_NAMES = {
-  tenderee: '招标人',
-  agent: '招标代理',
-  bidder: '投标人/供应商',
-  expert: '评标专家',
+  tenderee: '采购单位',
+  agent: '采购代理',
+  bidder: '响应单位/供应商',
+  expert: '评审专家',
   supervisor: '监督人员',
   admin: '平台管理员'
 }
@@ -30,9 +30,9 @@ export const PAGE_PERMISSIONS = {
   // 采购数据分析（角色暂定，待甲方确认）
   '/admin/analytics': ['tenderee', 'agent', 'admin'],
 
-  // 招标人/招标代理共用页面
+  // 采购单位/采购代理共用页面
   '/admin/projects': ['tenderee', 'agent'],
-  // 创建项目：招标人 + 招标代理（agent-project-requirement-management-20260721，部分推翻 zip-014 口径）
+  // 创建项目：采购单位 + 采购代理（agent-project-requirement-management-20260721，部分推翻 zip-014 口径）
   '/admin/projects/create': ['tenderee', 'agent'],
   '/admin/projects/track': ['tenderee', 'agent'],
   '/admin/projects/detail/:id': ['tenderee', 'agent', 'bidder'],
@@ -42,7 +42,7 @@ export const PAGE_PERMISSIONS = {
   '/admin/supplier-authorization': ['tenderee', 'agent'],
   '/admin/approval-center': ['tenderee', 'agent'],
   '/admin/approval-flow-config': ['tenderee', 'admin'],
-  // 采购需求库：招标人 + 招标代理（agent-project-requirement-management-20260721）
+  // 采购需求库：采购单位 + 采购代理（agent-project-requirement-management-20260721）
   '/admin/procurement-requirements': ['tenderee', 'agent'],
   '/admin/procurement-requirements/edit': ['tenderee', 'agent'],
   '/admin/fee-manage': ['tenderee', 'agent'],
@@ -50,16 +50,16 @@ export const PAGE_PERMISSIONS = {
   '/admin/award-confirm': ['tenderee', 'agent'],
   '/admin/award-notice': ['tenderee', 'agent', 'bidder'],
 
-  // 开标大厅：仅服务招标族（公开招标/邀请招标）；招标人/招标代理/投标人可进入，监督只读，操作权限各异
+  // 开启大厅：仅服务采购族（公开采购/邀请采购）；采购单位/采购代理/响应单位可进入，监督只读，操作权限各异
   '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
 
-  // 比价大厅：服务询比族（公开询比价/邀请询比价），角色口径同开标大厅（hall-purchase-method-mapping-20260721）
+  // 比价大厅：服务询比族（公开询比/邀请询比），角色口径同开启大厅（hall-purchase-method-mapping-20260721）
   '/admin/comparison-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
 
-  // 评标大厅：对所有采购项目开放；招标人/招标代理/评标专家/监督人员
+  // 评审大厅：对所有采购项目开放；采购单位/采购代理/评审专家/监督人员
   '/admin/evaluation-hall': ['tenderee', 'agent', 'expert', 'supervisor'],
 
-  // 投标人页面
+  // 响应单位页面
   '/admin/bidder-projects': ['bidder'],
   '/admin/bid-download': ['bidder'],
   '/admin/bid-quote': ['bidder'],
@@ -124,11 +124,11 @@ export const BREADCRUMB_NAMES = {
   ProjectList: '项目列表',
   ProjectCreate: '创建项目',
   ProjectTrack: '项目跟踪',
-  TenderDoc: '招标文件',
-  BidUpload: '上传投标文件',
-  OpeningHall: '开标大厅',
+  TenderDoc: '采购文件',
+  BidUpload: '上传响应文件',
+  OpeningHall: '开启大厅',
   ComparisonHall: '比价大厅',
-  EvaluationHall: '评标大厅',
+  EvaluationHall: '评审大厅',
   NoticePublish: '发布公告',
   NoticeList: '公告列表',
   ProcurementRequirementList: '采购需求',
@@ -136,7 +136,7 @@ export const BREADCRUMB_NAMES = {
   BidderProjects: '我参与的项目',
   BidDownload: '下载文件',
   BidQuote: '在线报价',
-  ExpertProject: '评标任务',
+  ExpertProject: '评审任务',
   ExpertExtraction: '专家抽取',
   ExpertTasks: '我的任务',
   SupervisorHall: '监督大厅',
@@ -146,8 +146,8 @@ export const BREADCRUMB_NAMES = {
   AdminDictionary: '参数字典',
   AdminSupplierAudit: '准入审核',
   AdminLogs: '日志审计',
-  AwardConfirm: '确认中标人',
-  AwardNotice: '中标通知书',
+  AwardConfirm: '确认中选人',
+  AwardNotice: '中选通知书',
   FeeManage: '费用台账',
   Organization: '组织机构',
   SupplierProfile: '企业档案',
@@ -184,12 +184,12 @@ export const STATUS_COLORS = {
   待提交: 'info',
   待审核: 'warning',
   审核中: 'warning',
-  待开标: 'warning',
-  开标中: 'primary',
-  评标中: 'primary',
-  待定标: 'warning',
+  待开启: 'warning',
+  开启中: 'primary',
+  评审中: 'primary',
+  待成交确认: 'warning',
   已完成: 'success',
-  已中标: 'success',
+  已中选: 'success',
   已发布: 'success',
   已归档: 'success',
   已驳回: 'danger',

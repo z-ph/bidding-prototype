@@ -8,7 +8,7 @@ import { BASELINE_PROJECTS, getPurchaseModeText, isInquiryFamily } from './Proje
 import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
-// 开标准备配置（cal-003）：按项目持久化主持人/监督人指定结果
+// 开启准备配置（cal-003）：按项目持久化主持人/监督人指定结果
 // 未新建 src/data/openingPrepStore.js（本次仅允许改动两个视图文件），存储逻辑内联在此
 const PREP_STORAGE_KEY = 'bidding-opening-prep'
 
@@ -37,8 +37,8 @@ function savePrep(projectId, prep) {
 
 // 主持人/监督人候选（可选择也可手动输入）
 const HOST_OPTIONS = [
-  { value: '张三', label: '张三（招标人）' },
-  { value: '李四', label: '李四（招标代理）' }
+  { value: '张三', label: '张三（采购单位）' },
+  { value: '李四', label: '李四（采购代理）' }
 ]
 const SUPERVISOR_OPTIONS = [
   { value: '王监督', label: '王监督（监督办公室）' },
@@ -51,7 +51,7 @@ export default function OpeningHall() {
   const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
 
-  // 大厅归属门禁（hall-purchase-method-mapping-20260721）：开标大厅仅服务招标族，询比族项目引导至比价大厅
+  // 大厅归属门禁（hall-purchase-method-mapping-20260721）：开启大厅仅服务采购族，询比族项目引导至比价大厅
   const project = useMemo(
     () =>
       projectStore.getProjectById(projectId) ||
@@ -65,20 +65,20 @@ export default function OpeningHall() {
   const [operationRecords, setOperationRecords] = useState([])
   const [deadline] = useState('2026-07-08 15:00')
 
-  // 主持人：招标人/招标代理可操作开标流程；监督人员只读；投标人只能签到/解密自己
+  // 主持人：采购单位/采购代理可操作开启流程；监督人员只读；响应单位只能签到/解密自己
   const isHost = ['tenderee', 'agent'].includes(role)
   const isBidder = role === 'bidder'
   const roleTagColor = isHost ? 'warning' : 'default'
-  // 2052-010：招标人/代理/监督可进入评标大厅（tenderee 待基础设施在 permissions.js 放行后生效）
+  // 2052-010：采购单位/代理/监督可进入评审大厅（tenderee 待基础设施在 permissions.js 放行后生效）
   const canViewEvaluation = ['tenderee', 'agent', 'supervisor'].includes(role)
 
-  // cal-003：开标准备——指定主持人/监督人（localStorage 持久化，刷新保留）
+  // cal-003：开启准备——指定主持人/监督人（localStorage 持久化，刷新保留）
   const [prep, setPrep] = useState(() => loadPrep(projectId))
   const [hostInput, setHostInput] = useState(prep.host)
   const [supervisorInput, setSupervisorInput] = useState(prep.supervisor)
   const prepReady = !!(prep.host && prep.supervisor)
 
-  // 签到记录按「角色-姓名」键控，签到表人员名单与开标准备配置联动
+  // 签到记录按「角色-姓名」键控，签到表人员名单与开启准备配置联动
   const [checkins, setCheckins] = useState({})
 
   const [bidders, setBidders] = useState([
@@ -103,22 +103,22 @@ export default function OpeningHall() {
   function isSelfAttendee(a) {
     if (a.role === '主持人') return isHost && userName === a.name
     if (a.role === '监督人') return role === 'supervisor' && userName === a.name
-    if (a.role === '招标人') return role === 'tenderee' && userName === a.name
-    if (a.role === '招标代理') return role === 'agent' && userName === a.name
-    if (a.role === '投标人') return role === 'bidder' && userName === a.name
+    if (a.role === '采购单位') return role === 'tenderee' && userName === a.name
+    if (a.role === '采购代理') return role === 'agent' && userName === a.name
+    if (a.role === '响应单位') return role === 'bidder' && userName === a.name
     return false
   }
 
-  // 签到表（cal-003）：主持人/监督人来自开标准备配置，其余为项目参与方
+  // 签到表（cal-003）：主持人/监督人来自开启准备配置，其余为项目参与方
   const attendeeList = useMemo(() => {
     const base = [
       { role: '主持人', name: prep.host || '（待指定）' },
       { role: '监督人', name: prep.supervisor || '（待指定）' },
-      { role: '招标人', name: '张三' },
-      { role: '招标代理', name: '李四' },
-      { role: '投标人', name: 'A科技有限公司' },
-      { role: '投标人', name: 'B实业有限公司' },
-      { role: '投标人', name: 'C股份有限公司' }
+      { role: '采购单位', name: '张三' },
+      { role: '采购代理', name: '李四' },
+      { role: '响应单位', name: 'A科技有限公司' },
+      { role: '响应单位', name: 'B实业有限公司' },
+      { role: '响应单位', name: 'C股份有限公司' }
     ]
     return base.map((a) => {
       const key = `${a.role}-${a.name}`
@@ -139,21 +139,21 @@ export default function OpeningHall() {
   const allDecrypted = bidders.every((b) => b.status === '已解密')
 
   const stageLabels = [
-    '开标准备',
+    '开启准备',
     '身份核验',
-    '开标启动',
+    '开启启动',
     '文件解密',
-    '唱标公示',
-    '开标结束'
+    '唱价公示',
+    '开启结束'
   ]
 
   const stageActions = [
     '指定主持人与监督人',
     '完成在线签到',
-    '宣布开标纪律并启动开标',
-    '投标人解密投标文件',
-    '公开唱标并公示报价',
-    '生成开标记录，进入评标'
+    '宣布开启纪律并启动开启',
+    '响应单位解密响应文件',
+    '公开唱价并公示报价',
+    '生成开启记录，进入评审'
   ]
 
   const addOperationRecord = (action, detail) => {
@@ -182,12 +182,12 @@ export default function OpeningHall() {
     setPrep(next)
     setHostInput(host)
     setSupervisorInput(supervisor)
-    addOperationRecord('开标准备', `已指定主持人：${host}；监督人：${supervisor}`)
+    addOperationRecord('开启准备', `已指定主持人：${host}；监督人：${supervisor}`)
     message.success('主持人/监督人已指定')
   }
 
   function canDecrypt(row) {
-    // 投标人只能解密自己的投标文件；主持人/代理仅查看状态
+    // 响应单位只能解密自己的响应文件；主持人/代理仅查看状态
     if (isBidder) {
       return row.name === userName
     }
@@ -209,7 +209,7 @@ export default function OpeningHall() {
   const decrypt = (row) => {
     Modal.confirm({
       title: '解密确认',
-      content: `确定对 ${row.name} 的投标文件执行 CA 解密吗？`,
+      content: `确定对 ${row.name} 的响应文件执行 CA 解密吗？`,
       okText: '确认解密',
       cancelText: '取消',
       onOk: () => {
@@ -217,8 +217,8 @@ export default function OpeningHall() {
         setBidders((prev) =>
           prev.map((b) => (b.name === row.name ? { ...b, status: '已解密', time } : b))
         )
-        addOperationRecord('文件解密', `${row.name} 的投标文件已完成 CA 解密`)
-        message.success(`${row.name} 投标文件解密成功`)
+        addOperationRecord('文件解密', `${row.name} 的响应文件已完成 CA 解密`)
+        message.success(`${row.name} 响应文件解密成功`)
       }
     })
   }
@@ -227,7 +227,7 @@ export default function OpeningHall() {
     setCurrentStage((prev) => {
       const next = Math.min(prev + 1, 5)
       if (next !== prev) {
-        addOperationRecord('阶段推进', `开标流程进入：${stageLabels[next]}`)
+        addOperationRecord('阶段推进', `开启流程进入：${stageLabels[next]}`)
       }
       return next
     })
@@ -249,10 +249,10 @@ export default function OpeningHall() {
                 <li key={name}>{name}</li>
               ))}
             </ul>
-            <p>是否仍要继续进入开标？</p>
+            <p>是否仍要继续进入开启？</p>
           </>
         ),
-        okText: '强制进入开标',
+        okText: '强制进入开启',
         cancelText: '取消',
         onOk: nextStage
       })
@@ -264,8 +264,29 @@ export default function OpeningHall() {
   const startDecrypt = () => {
     Modal.confirm({
       title: '启动解密',
-      content: '即将进入投标文件解密阶段，请确认已宣读开标纪律。',
+      content: '即将进入响应文件解密阶段，请确认已宣读开启纪律。',
       okText: '确认启动',
+      cancelText: '取消',
+      onOk: nextStage
+    })
+  }
+
+  const forceEnterBidding = () => {
+    const undecrypted = bidders.filter((b) => b.status !== '已解密')
+    Modal.confirm({
+      title: '尚有响应文件未解密',
+      content: (
+        <>
+          <p>当前未解密响应单位：</p>
+          <ul>
+            {undecrypted.map((b) => (
+              <li key={b.name}>{b.name}</li>
+            ))}
+          </ul>
+          <p>所有文件解密后方可进入唱价公示阶段。是否仍要强制进入唱价？（演示模式）</p>
+        </>
+      ),
+      okText: '强制进入唱价',
       cancelText: '取消',
       onOk: nextStage
     })
@@ -273,8 +294,8 @@ export default function OpeningHall() {
 
   const finishOpening = () => {
     nextStage()
-    addOperationRecord('开标结束', `唱标结束，开标记录已生成（主持人：${prep.host}；监督人：${prep.supervisor}），可进入评标大厅`)
-    message.success('唱标结束，开标记录已生成，请进入评标大厅')
+    addOperationRecord('开启结束', `唱价结束，开启记录已生成（主持人：${prep.host}；监督人：${prep.supervisor}），可进入评审大厅`)
+    message.success('唱价结束，开启记录已生成，请进入评审大厅')
   }
 
   const refresh = () => {
@@ -317,7 +338,7 @@ export default function OpeningHall() {
   ]
 
   const bidderColumns = [
-    { title: '投标人', dataIndex: 'name' },
+    { title: '响应单位', dataIndex: 'name' },
     { title: '文件数量', dataIndex: 'files', width: 100 },
     {
       title: '解密状态',
@@ -349,8 +370,8 @@ export default function OpeningHall() {
 
   const bidColumns = [
     { title: '序号', dataIndex: 'rank', width: 80 },
-    { title: '投标人', dataIndex: 'name' },
-    { title: '投标报价（万元）', dataIndex: 'price', width: 160 },
+    { title: '响应单位', dataIndex: 'name' },
+    { title: '响应报价（万元）', dataIndex: 'price', width: 160 },
     { title: '交货期', dataIndex: 'delivery', width: 140 },
     { title: '质保期', dataIndex: 'quality', width: 120 }
   ]
@@ -361,8 +382,8 @@ export default function OpeningHall() {
     return <ProjectEntryGuard />
   }
 
-  // 页面级门禁（hall-purchase-method-mapping-20260721）：开标大厅仅服务招标族（公开招标/邀请招标），
-  // 询比族项目（公开询比价/邀请询比价）请在比价大厅操作
+  // 页面级门禁（hall-purchase-method-mapping-20260721）：开启大厅仅服务采购族（公开采购/邀请采购），
+  // 询比族项目（公开询比/邀请询比）请在比价大厅操作
   if (inquiryFamily) {
     return (
       <div className="opening-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -376,7 +397,7 @@ export default function OpeningHall() {
                   {project?.name || `项目ID：${projectId}`}（采购方式：{getPurchaseModeText(project)}）
                 </p>
                 <p style={{ margin: '8px 0 0' }}>
-                  公开询比价、邀请询比价项目无需开标，报价截止后在比价大厅比较各供应商报价。
+                  公开询比、邀请询比项目无需开启，报价截止后在比价大厅比较各供应商报价。
                 </p>
               </>
             }
@@ -397,7 +418,7 @@ export default function OpeningHall() {
             type="info"
             showIcon
             closable={false}
-            title="口径说明：开标大厅服务招标族（公开招标、邀请招标），比价大厅服务询比族（公开询比价、邀请询比价），评标大厅对所有项目开放（2026-07-21 需求，废止 2026-07-17 清单 20 旧口径）。"
+            title="口径说明：开启大厅服务采购族（公开采购、邀请采购），比价大厅服务询比族（公开询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求，废止 2026-07-17 清单 20 旧口径）。"
           />
         </Card>
       </div>
@@ -410,12 +431,12 @@ export default function OpeningHall() {
         title={
           <div className="hall-header">
             <div>
-              <h2>开标大厅</h2>
-              <p className="subtitle">XX市轨道交通设备采购项目 · 标段一：主设备 · 项目ID：{projectId}</p>
+              <h2>开启大厅</h2>
+              <p className="subtitle">XX市轨道交通设备采购项目 · 采购包一：主设备 · 项目ID：{projectId}</p>
             </div>
             <div className="hall-meta">
               <Tag color="error" style={{ fontSize: 14, padding: '4px 12px' }}>
-                开标倒计时：00:12:35
+                开启倒计时：00:12:35
               </Tag>
               <Tag color={roleTagColor} style={{ fontSize: 14, padding: '4px 12px' }}>
                 {roleName}
@@ -430,12 +451,12 @@ export default function OpeningHall() {
         <Steps
           current={currentStage}
           items={[
-            { title: '开标准备', description: '指定主持人/监督人' },
-            { title: '身份核验', description: '招标人/投标人/专家签到' },
-            { title: '开标启动', description: '招标人宣布开标' },
-            { title: '文件解密', description: '投标人CA解密投标文件' },
-            { title: '唱标公示', description: '公开报价与核心信息' },
-            { title: '开标结束', description: '生成开标记录' }
+            { title: '开启准备', description: '指定主持人/监督人' },
+            { title: '身份核验', description: '采购单位/响应单位/专家签到' },
+            { title: '开启启动', description: '采购单位宣布开启' },
+            { title: '文件解密', description: '响应单位CA解密响应文件' },
+            { title: '唱价公示', description: '公开报价与核心信息' },
+            { title: '开启结束', description: '生成开启记录' }
           ]}
         />
 
@@ -445,18 +466,18 @@ export default function OpeningHall() {
             <Descriptions.Item label="截止时间">{deadline}</Descriptions.Item>
             <Descriptions.Item label="当前状态">
               <Tag color={currentStage === 5 ? 'success' : 'processing'}>
-                {currentStage === 5 ? '开标结束' : '进行中'}
+                {currentStage === 5 ? '开启结束' : '进行中'}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="下一步">
               {currentStage === 5 ? (
                 canViewEvaluation ? (
                   <>
-                    <span style={{ marginRight: 12 }}>进入评标大厅</span>
-                    <Button type="primary" size="small" onClick={goEvaluate}>去评标</Button>
+                    <span style={{ marginRight: 12 }}>进入评审大厅</span>
+                    <Button type="primary" size="small" onClick={goEvaluate}>去评审</Button>
                   </>
                 ) : (
-                  <span>开标结束，评标环节仅招标人/代理/监督可查看</span>
+                  <span>开启结束，评审环节仅采购单位/代理/监督可查看</span>
                 )
               ) : (
                 <span>{stageActions[currentStage]}</span>
@@ -474,7 +495,7 @@ export default function OpeningHall() {
           )}
           {currentStage === 1 && !allCheckedIn && (
             <Alert
-              title={`阻断原因：尚有 ${missingAttendees.length} 人未签到，所有人签到后方可进入开标启动阶段。`}
+              title={`阻断原因：尚有 ${missingAttendees.length} 人未签到，所有人签到后方可进入开启启动阶段。`}
               type="warning"
               showIcon
               closable={false}
@@ -483,7 +504,7 @@ export default function OpeningHall() {
           )}
           {currentStage === 3 && !allDecrypted && (
             <Alert
-              title="阻断原因：尚有投标文件未解密，所有文件解密后方可进入唱标公示阶段。"
+              title="阻断原因：尚有响应文件未解密，所有文件解密后方可进入唱价公示阶段。"
               type="warning"
               showIcon
               closable={false}
@@ -493,11 +514,11 @@ export default function OpeningHall() {
         </Card>
 
         <div className="stage-panel">
-          {/* 阶段0：开标准备（cal-003，招标人/代理指定主持人与监督人） */}
+          {/* 阶段0：开启准备（cal-003，采购单位/代理指定主持人与监督人） */}
           {currentStage === 0 && (
             <div className="stage-content">
-              <h3>开标准备</h3>
-              <p className="tip">开标前由招标人/招标代理指定主持人与监督人，指定后签到表与唱标环节将使用该名单。</p>
+              <h3>开启准备</h3>
+              <p className="tip">开启前由采购单位/采购代理指定主持人与监督人，指定后签到表与唱价环节将使用该名单。</p>
               {isHost ? (
                 <>
                   <div className="prep-form">
@@ -541,7 +562,7 @@ export default function OpeningHall() {
                     type="info"
                     showIcon
                     closable={false}
-                    title={`您当前以 ${roleName} 身份进入，开标准备由招标人/招标代理完成。`}
+                    title={`您当前以 ${roleName} 身份进入，开启准备由采购单位/采购代理完成。`}
                     style={{ marginBottom: 16 }}
                   />
                   <Descriptions column={2} bordered>
@@ -570,7 +591,7 @@ export default function OpeningHall() {
                   type="info"
                   showIcon
                   closable={false}
-                  title={`您当前以 ${roleName} 身份进入，仅可签到自己并查看开标过程。`}
+                  title={`您当前以 ${roleName} 身份进入，仅可签到自己并查看开启过程。`}
                   style={{ marginBottom: 16 }}
                 />
               )}
@@ -594,25 +615,25 @@ export default function OpeningHall() {
                 {isHost && <Button onClick={prevStage}>返回</Button>}
                 {isHost && (
                   <Button type="primary" size="large" onClick={enterOpening}>
-                    {allCheckedIn ? '所有人签到完成，进入开标' : `尚有 ${missingAttendees.length} 人未签到，确认进入开标`}
+                    {allCheckedIn ? '所有人签到完成，进入开启' : `尚有 ${missingAttendees.length} 人未签到，确认进入开启`}
                   </Button>
                 )}
               </div>
             </div>
           )}
 
-          {/* 阶段2：开标启动 */}
+          {/* 阶段2：开启启动 */}
           {currentStage === 2 && (
             <div className="stage-content">
-              <h3>开标启动</h3>
-              <p className="tip">招标人宣读开标纪律并确认投标人名单</p>
+              <h3>开启启动</h3>
+              <p className="tip">采购单位宣读开启纪律并确认响应单位名单</p>
               <Descriptions column={2} bordered>
                 <Descriptions.Item label="项目名称">XX市轨道交通设备采购项目</Descriptions.Item>
-                <Descriptions.Item label="标段">标段一：主设备</Descriptions.Item>
+                <Descriptions.Item label="采购包">采购包一：主设备</Descriptions.Item>
                 <Descriptions.Item label="主持人">{prep.host}</Descriptions.Item>
                 <Descriptions.Item label="监督人">{prep.supervisor}</Descriptions.Item>
-                <Descriptions.Item label="投标人数量">3 家</Descriptions.Item>
-                <Descriptions.Item label="开标时间">2026-07-08 15:00</Descriptions.Item>
+                <Descriptions.Item label="响应单位数量">3 家</Descriptions.Item>
+                <Descriptions.Item label="开启时间">2026-07-08 15:00</Descriptions.Item>
               </Descriptions>
               <div className="stage-action">
                 {isHost && <Button onClick={prevStage}>返回</Button>}
@@ -628,8 +649,8 @@ export default function OpeningHall() {
           {/* 阶段3：文件解密 */}
           {currentStage === 3 && (
             <div className="stage-content">
-              <h3>投标文件解密</h3>
-              <p className="tip">各投标人使用各自 CA 私钥解密投标文件；主持人/代理仅可查看解密状态。</p>
+              <h3>响应文件解密</h3>
+              <p className="tip">各响应单位使用各自 CA 私钥解密响应文件；主持人/代理仅可查看解密状态。</p>
               <Table
                 columns={bidderColumns}
                 dataSource={bidders}
@@ -643,23 +664,22 @@ export default function OpeningHall() {
                   <Button
                     type="primary"
                     size="large"
-                    disabled={!allDecrypted}
-                    onClick={nextStage}
+                    onClick={allDecrypted ? nextStage : forceEnterBidding}
                   >
-                    {allDecrypted ? '解密完成，进入唱标' : '尚有投标文件未解密'}
+                    {allDecrypted ? '解密完成，进入唱价' : '尚有响应文件未解密，强制进入唱价'}
                   </Button>
                 )}
               </div>
             </div>
           )}
 
-          {/* 阶段4：唱标公示（唱标人/监督人使用开标准备配置名单） */}
+          {/* 阶段4：唱价公示（唱价人/监督人使用开启准备配置名单） */}
           {currentStage === 4 && (
             <div className="stage-content">
-              <h3>唱标公示</h3>
-              <p className="tip">按递交文件顺序公开投标报价与工期等核心信息</p>
+              <h3>唱价公示</h3>
+              <p className="tip">按递交文件顺序公开响应报价与工期等核心信息</p>
               <Descriptions column={2} style={{ marginBottom: 16 }}>
-                <Descriptions.Item label="唱标人（主持人）">{prep.host}</Descriptions.Item>
+                <Descriptions.Item label="唱价人（主持人）">{prep.host}</Descriptions.Item>
                 <Descriptions.Item label="监督人">{prep.supervisor}</Descriptions.Item>
               </Descriptions>
               <Table
@@ -673,24 +693,24 @@ export default function OpeningHall() {
                 {isHost && <Button onClick={prevStage}>返回</Button>}
                 {isHost && (
                   <Button type="primary" size="large" onClick={finishOpening}>
-                    唱标结束
+                    唱价结束
                   </Button>
                 )}
               </div>
             </div>
           )}
 
-          {/* 阶段5：开标结束 */}
+          {/* 阶段5：开启结束 */}
           {currentStage === 5 && (
             <div className="stage-content">
               <Result
                 status="success"
-                title="开标结束"
-                subTitle={`开标记录已生成（主持人：${prep.host}；监督人：${prep.supervisor}），可进入评标环节`}
+                title="开启结束"
+                subTitle={`开启记录已生成（主持人：${prep.host}；监督人：${prep.supervisor}），可进入评审环节`}
                 extra={[
                   canViewEvaluation && (
                     <Button key="evaluate" type="primary" onClick={goEvaluate}>
-                      进入评标大厅
+                      进入评审大厅
                     </Button>
                   ),
                   isHost && (
@@ -700,7 +720,7 @@ export default function OpeningHall() {
                   ),
                   isBidder && (
                     <span key="no-eval" className="text-muted">
-                      评标环节仅招标人/代理/监督可查看
+                      评审环节仅采购单位/代理/监督可查看
                     </span>
                   )
                 ].filter(Boolean)}

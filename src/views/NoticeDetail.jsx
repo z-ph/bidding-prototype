@@ -117,20 +117,20 @@ export default function NoticeDetail() {
             <Descriptions.Item label="项目编号">{notice.projectCode || '-'}</Descriptions.Item>
             <Descriptions.Item label="采购方式">{notice.purchaseMode || '-'}</Descriptions.Item>
             <Descriptions.Item label="发布时间">{notice.publishTime || '-'}</Descriptions.Item>
-            <Descriptions.Item label="开标时间">{notice.bidOpenTime || '-'}</Descriptions.Item>
-            <Descriptions.Item label="开标地点">{notice.bidOpenLocation || '-'}</Descriptions.Item>
-            <Descriptions.Item label="评标方法">{notice.evaluationMethod || '-'}</Descriptions.Item>
-            <Descriptions.Item label="开标一览表字段">
+            <Descriptions.Item label="开启时间">{notice.bidOpenTime || '-'}</Descriptions.Item>
+            <Descriptions.Item label="开启地点">{notice.bidOpenLocation || '-'}</Descriptions.Item>
+            <Descriptions.Item label="评审方法">{notice.evaluationMethod || '-'}</Descriptions.Item>
+            <Descriptions.Item label="开启一览表字段">
               {notice.bidSummaryFields?.length > 0
                 ? notice.bidSummaryFields.map((f) => <Tag key={f}>{f}</Tag>)
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label="联系人">{notice.contactName || '-'}</Descriptions.Item>
             <Descriptions.Item label="联系电话">{notice.contactPhone || '-'}</Descriptions.Item>
-            <Descriptions.Item label="关联标段">
+            <Descriptions.Item label="关联采购包">
               {notice.packages?.map((p) => p.name).join('、') || '-'}
             </Descriptions.Item>
-            <Descriptions.Item label="投标截止">{notice.deadline || '-'}</Descriptions.Item>
+            <Descriptions.Item label="采购截止">{notice.deadline || '-'}</Descriptions.Item>
           </Descriptions>
 
           <Card type="inner" title="公告正文" style={{ marginBottom: 24 }}>
@@ -164,7 +164,7 @@ export default function NoticeDetail() {
           </Card>
 
           <Alert
-            title="供应商参与投标请登录后进入工作台「项目中心」，从下载招标文件开始（新口径无报名环节）。"
+            title="供应商参与响应请登录后进入工作台「项目中心」，从下载采购文件开始（新口径无报名环节）。"
             type="info"
             showIcon
             closable={false}

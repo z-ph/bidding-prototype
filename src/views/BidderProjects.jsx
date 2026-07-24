@@ -11,16 +11,16 @@ import { projectStore } from '../data/projects.js'
 import { isInquiryFamily } from './ProjectList.jsx'
 import { authorizationStore } from '../data/authorizationStore.js'
 
-// 投标邀请响应持久化（localStorage，key 前缀 bidding-）
+// 响应邀请响应持久化（localStorage，key 前缀 bidding-）
 // 结构：{ "<projectId>::<supplierName>": { status: 'accepted' | 'rejected', respondedAt } }
-// 招标人/代理侧（SupplierAuthorization 邀请状态跟踪）读取同一 key。
+// 采购单位/代理侧（SupplierAuthorization 邀请状态跟踪）读取同一 key。
 export const INVITATION_RESPONSES_KEY = 'bidding-invitation-responses'
 
 const PURCHASE_MODE_LABELS = {
-  open: '公开招标',
-  invitation: '邀请招标',
-  inquiry: '公开询比价',
-  invitation_inquiry: '邀请询比价'
+  open: '公开采购',
+  invitation: '邀请采购',
+  inquiry: '公开询比',
+  invitation_inquiry: '邀请询比'
 }
 
 const INVITATION_STATUS = {
@@ -46,27 +46,27 @@ function saveInvitationResponses(data) {
   }
 }
 
-// 投标邀请书 mock 文本：项目信息/标段/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
+// 响应邀请书 mock 文本：项目信息/采购包/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
 function buildInvitationLetter(project, invitation, supplierName) {
   const packages = (project.packages || [])
     .map((p) => p.name || p.code)
     .filter(Boolean)
-    .join('、') || '详见招标文件'
-  const deadline = project.deadline || project.packages?.[0]?.bidEnd || '详见招标公告'
-  const openTime = project.openTime || '详见招标公告'
+    .join('、') || '详见采购文件'
+  const deadline = project.deadline || project.packages?.[0]?.bidEnd || '详见采购公告'
+  const openTime = project.openTime || '详见采购公告'
   return [
     '投 标 邀 请 书',
     '',
     `编号：${invitation.code}`,
     `致：${supplierName || invitation.supplierName || invitation.supplierId}`,
     '',
-    `贵单位已被邀请参加「${project.name}」（项目编号：${project.code || project.id}）的投标活动。`,
-    `采购方式：${project.type || PURCHASE_MODE_LABELS[project.purchaseMode] || '邀请招标'}`,
-    `标段：${packages}`,
-    `投标截止时间：${deadline}`,
-    `开标时间：${openTime}`,
+    `贵单位已被邀请参加「${project.name}」（项目编号：${project.code || project.id}）的响应活动。`,
+    `采购方式：${project.type || PURCHASE_MODE_LABELS[project.purchaseMode] || '邀请采购'}`,
+    `采购包：${packages}`,
+    `采购截止时间：${deadline}`,
+    `开启时间：${openTime}`,
     '',
-    '请登录招投标采购平台下载招标文件，并按文件要求编制、上传投标文件。',
+    '请登录采购平台下载采购文件，并按文件要求编制、上传响应文件。',
     '',
     `生成时间：${invitation.generatedAt}`,
     '（本邀请书由系统自动生成，内容为原型占位模板；真实模板维护请联系采购管理部。）'
@@ -106,7 +106,7 @@ export default function BidderProjects() {
   const [letterModal, setLetterModal] = useState({ open: false, project: null, invitation: null, text: '' })
 
   // 种子项目：2 个公开项目 + 1 个受邀邀请项目 + 1 个未受邀邀请项目（演示可见性过滤）
-  // 项目 3 与 authorizationStore 种子授权记录一致（A科技有限公司已授权，可下载招标文件）
+  // 项目 3 与 authorizationStore 种子授权记录一致（A科技有限公司已授权，可下载采购文件）
   const [seedProjects] = useState([
     { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', purchaseMode: 'open', deadline: '2026-07-20 17:00', openTime: '2026-07-21 09:30', owner: '张三', deptCode: 'CG' },
     { id: 2, name: '实验室设备采购项目', code: 'ZB20260705005', purchaseMode: 'inquiry', deadline: '2026-07-25 17:00', openTime: '2026-07-26 09:30', owner: '张三', deptCode: 'CG' },
@@ -130,7 +130,7 @@ export default function BidderProjects() {
       id: 1,
       name: 'XX市轨道交通设备采购项目',
       code: 'ZB20260701001',
-      status: '待开标',
+      status: '待开启',
       deadline: '2026-07-21 09:30',
       leftDays: 4,
       stepIndex: 3,
@@ -142,7 +142,7 @@ export default function BidderProjects() {
       id: 4,
       name: '实验室设备采购项目',
       code: 'ZB20260705005',
-      status: '待上传标书',
+      status: '待上传采购文件',
       deadline: '2026-07-25 17:00',
       leftDays: 8,
       stepIndex: 2,
@@ -154,7 +154,7 @@ export default function BidderProjects() {
       id: 3,
       name: '软件开发服务项目',
       code: 'ZB20260703003',
-      status: '已定标',
+      status: '已成交确认',
       deadline: '2026-07-15 09:00',
       leftDays: 0,
       stepIndex: 5,
@@ -204,10 +204,10 @@ export default function BidderProjects() {
     })
   }, [seedProjects, storeInvitationProjects, invitationResponses, supplierName])
 
-  // 新口径：非受邀供应商对邀请招标项目不可见、不可操作（无报名环节，阻断点为可见性与操作入口）
+  // 新口径：非受邀供应商对邀请采购项目不可见、不可操作（无报名环节，阻断点为可见性与操作入口）
   const visibleProjects = useMemo(() => availableProjects.filter((p) => p.invited), [availableProjects])
 
-  // 投标邀请书自动生成：受邀项目加载即为当前供应商生成邀请书记录（genInvitation 幂等）
+  // 响应邀请书自动生成：受邀项目加载即为当前供应商生成邀请书记录（genInvitation 幂等）
   useEffect(() => {
     if (!supplierName) return
     visibleProjects
@@ -232,9 +232,9 @@ export default function BidderProjects() {
     if (status === 'accepted') {
       // 接受邀请时确保邀请书已生成（幂等）
       authorizationStore.genInvitation(row.id, supplierName)
-      message.success(`已接受「${row.name}」的投标邀请，可下载招标文件并参与投标`)
+      message.success(`已接受「${row.name}」的响应邀请，可下载采购文件并参与响应`)
     } else {
-      message.info(`已拒绝「${row.name}」的投标邀请`)
+      message.info(`已拒绝「${row.name}」的响应邀请`)
     }
   }
 
@@ -248,7 +248,7 @@ export default function BidderProjects() {
     })
   }
 
-  // 按项目状态聚合操作入口（2052-006）：下载/报价/上传/开标大厅/中标通知
+  // 按项目状态聚合操作入口（2052-006）：下载/报价/上传/开启大厅/中选通知
   const renderActionButtons = (project) => {
     const go = (to) => () => navigate({ to, search: { projectId: project.id } })
     const entries = {
@@ -264,12 +264,12 @@ export default function BidderProjects() {
       ),
       upload: (
         <Button key="upload" type="primary" size="small" onClick={go('/admin/bid-upload')}>
-          上传投标文件
+          上传响应文件
         </Button>
       ),
       opening: (
         <Button key="opening" type="primary" size="small" onClick={go('/admin/opening-hall')}>
-          进入开标大厅
+          进入开启大厅
         </Button>
       ),
       comparison: (
@@ -279,22 +279,22 @@ export default function BidderProjects() {
       ),
       award: (
         <Button key="award" type="primary" size="small" onClick={go('/admin/award-notice')}>
-          查看中标通知
+          查看中选通知
         </Button>
       )
     }
     const statusEntries = {
       待下载文件: ['download'],
       待报价: ['quote', 'download'],
-      待上传标书: ['upload', 'quote', 'download'],
-      待开标: ['opening', 'download'],
-      开标中: ['opening'],
-      已开标: ['opening', 'quote'],
-      已定标: ['award'],
-      已中标: ['award'],
+      待上传采购文件: ['upload', 'quote', 'download'],
+      待开启: ['opening', 'download'],
+      开启中: ['opening'],
+      已开启: ['opening', 'quote'],
+      已成交确认: ['award'],
+      已中选: ['award'],
       已完成: ['award']
     }
-    // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开标入口替换为比价大厅
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开启入口替换为比价大厅
     const keys = (statusEntries[project.status] || []).map((k) =>
       k === 'opening' && isInquiryFamily(project) ? 'comparison' : k
     )
@@ -327,7 +327,7 @@ export default function BidderProjects() {
           element: '.bidder-projects .ant-table-tbody .ant-table-row:first-child .ant-btn-sm',
           popover: {
             title: '参与项目',
-            description: '公开项目可直接下载招标文件并报价；邀请项目需先接受邀请。不可操作时按钮会说明具体原因。',
+            description: '公开项目可直接下载采购文件并报价；邀请项目需先接受邀请。不可操作时按钮会说明具体原因。',
             side: 'left',
             align: 'center'
           }
@@ -352,7 +352,7 @@ export default function BidderProjects() {
         <>
           <Button type="link" onClick={() => viewDetail(row)}>详情</Button>
           <Button size="small" onClick={() => navigate({ to: '/admin/bid-download', search: { projectId: row.id } })}>
-            下载招标文件
+            下载采购文件
           </Button>
           <Button size="small" onClick={() => navigate({ to: '/admin/bid-quote', search: { projectId: row.id } })}>
             在线报价
@@ -379,10 +379,10 @@ export default function BidderProjects() {
         <>
           <Button type="link" onClick={() => viewDetail(row)}>详情</Button>
           <Button size="small" onClick={() => navigate({ to: '/admin/bid-download', search: { projectId: row.id } })}>
-            下载招标文件
+            下载采购文件
           </Button>
           <Button type="primary" size="small" onClick={() => navigate({ to: '/admin/bid-upload', search: { projectId: row.id } })}>
-            上传投标文件
+            上传响应文件
           </Button>
           <Button type="link" onClick={() => openInvitationLetter(row)}>邀请书</Button>
         </>
@@ -403,7 +403,7 @@ export default function BidderProjects() {
     { title: '项目名称', dataIndex: 'name', key: 'name', minWidth: 240 },
     { title: '项目编号', dataIndex: 'code', key: 'code', width: 150 },
     { title: '采购方式', dataIndex: 'type', key: 'type', width: 120 },
-    { title: '投标截止', dataIndex: 'deadline', key: 'deadline', width: 150 },
+    { title: '采购截止', dataIndex: 'deadline', key: 'deadline', width: 150 },
     {
       title: '参与状态',
       dataIndex: 'status',
@@ -433,7 +433,7 @@ export default function BidderProjects() {
       children: (
         <>
           <Alert
-            title="邀请招标/邀请询比价项目仅受邀供应商可见并可操作；接受邀请后即可下载招标文件、参与投标。"
+            title="邀请采购/邀请询比项目仅受邀供应商可见并可操作；接受邀请后即可下载采购文件、参与响应。"
             type="info"
             showIcon
             closable={false}
@@ -474,7 +474,7 @@ export default function BidderProjects() {
                     <Steps
                       size="small"
                       current={project.stepIndex}
-                      items={['下载文件', '填写报价', '上传标书', '开标', '评标', '定标'].map((title) => ({ title }))}
+                      items={['下载文件', '填写报价', '上传采购文件', '开启', '评审', '成交确认'].map((title) => ({ title }))}
                     />
                     {project.blockReason && (
                       <Alert
@@ -511,7 +511,7 @@ export default function BidderProjects() {
           <div className="card-header">
             <span>项目中心</span>
             <Button type="primary" ghost icon={<QuestionCircleOutlined />} onClick={startTour}>
-              投标引导
+              响应引导
             </Button>
           </div>
         }
@@ -527,7 +527,7 @@ export default function BidderProjects() {
       </Card>
 
       <Modal
-        title={`投标邀请书（${letterModal.invitation?.code || ''}）`}
+        title={`响应邀请书（${letterModal.invitation?.code || ''}）`}
         open={letterModal.open}
         width={640}
         onCancel={() => setLetterModal((prev) => ({ ...prev, open: false }))}
@@ -540,7 +540,7 @@ export default function BidderProjects() {
             type="primary"
             onClick={() =>
               downloadTextFile(
-                `投标邀请书-${letterModal.invitation?.code || letterModal.project?.id}.txt`,
+                `响应邀请书-${letterModal.invitation?.code || letterModal.project?.id}.txt`,
                 letterModal.text
               )
             }

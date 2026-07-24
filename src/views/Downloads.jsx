@@ -7,7 +7,7 @@ import { portalStore } from '../data/portalStore.js'
 
 const categoryColors = {
   驱动工具: 'blue',
-  投标工具: 'green',
+  响应工具: 'green',
   操作手册: 'orange'
 }
 

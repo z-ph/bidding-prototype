@@ -37,44 +37,44 @@ import { projectStore } from '../data/projects.js'
 import { approvalStore } from '../data/approvalStore.js'
 import { messageStore } from '../data/messageStore.js'
 
-// 模拟项目结构化招标数据：项目基本信息 + 标段/包件结构化字段
+// 模拟项目结构化采购数据：项目基本信息 + 采购包/包件结构化字段
 const projectMetaMap = {
   '1': {
     id: '1',
     name: 'XX市轨道交通设备采购项目',
     code: 'ZB20260701001',
-    purchaseMode: '公开招标',
+    purchaseMode: '公开采购',
     orgMode: 'agent',
     bidOpenTime: '2026-07-21 09:30',
     bidCloseTime: '2026-07-20 17:00',
-    evalLocation: '线上评标大厅',
+    evalLocation: '线上评审大厅',
     budget: 850,
     evaluationMethod: '综合评分法',
     quoteFields: [
-      { key: 'totalPrice', label: '投标总价', unit: '万元', required: true },
+      { key: 'totalPrice', label: '响应总价', unit: '万元', required: true },
       { key: 'unitPrice', label: '单价', unit: '元', required: true },
       { key: 'deliveryDays', label: '交货期', unit: '天', required: true },
       { key: 'warrantyYears', label: '质保期', unit: '年', required: false }
     ],
     bidSummaryColumns: [
       { title: '序号', dataIndex: 'seq', width: 80 },
-      { title: '标段', dataIndex: 'packageName', width: 200 },
-      { title: '投标单位', dataIndex: 'bidder', minWidth: 200 },
-      { title: '投标总价（万元）', dataIndex: 'totalPrice', width: 160 },
+      { title: '采购包', dataIndex: 'packageName', width: 200 },
+      { title: '响应单位', dataIndex: 'bidder', minWidth: 200 },
+      { title: '响应总价（万元）', dataIndex: 'totalPrice', width: 160 },
       { title: '交货期（天）', dataIndex: 'deliveryDays', width: 120 },
       { title: '备注', dataIndex: 'remark', minWidth: 160 }
     ],
     packages: [
       {
         code: 'B1',
-        name: '第一标段：主设备',
+        name: '第一采购包：主设备',
         budget: 600,
         content: '主设备采购',
         delivery: '合同签订后 90 天内'
       },
       {
         code: 'B2',
-        name: '第二标段：辅材',
+        name: '第二采购包：辅材',
         budget: 250,
         content: '辅助材料',
         delivery: '合同签订后 60 天内'
@@ -85,22 +85,22 @@ const projectMetaMap = {
     id: '3',
     name: '软件开发服务项目',
     code: 'ZB20260703003',
-    purchaseMode: '邀请招标',
+    purchaseMode: '邀请采购',
     bidOpenTime: '2026-07-15 09:00',
     bidCloseTime: '2026-07-14 17:00',
-    evalLocation: '线上评标大厅',
+    evalLocation: '线上评审大厅',
     budget: 120,
     evaluationMethod: '综合评分法',
     quoteFields: [
-      { key: 'totalPrice', label: '投标总价', unit: '万元', required: true },
+      { key: 'totalPrice', label: '响应总价', unit: '万元', required: true },
       { key: 'devCycle', label: '开发周期', unit: '月', required: true },
       { key: 'maintainYears', label: '运维期', unit: '年', required: true }
     ],
     bidSummaryColumns: [
       { title: '序号', dataIndex: 'seq', width: 80 },
-      { title: '标段', dataIndex: 'packageName', width: 200 },
-      { title: '投标单位', dataIndex: 'bidder', minWidth: 200 },
-      { title: '投标总价（万元）', dataIndex: 'totalPrice', width: 160 },
+      { title: '采购包', dataIndex: 'packageName', width: 200 },
+      { title: '响应单位', dataIndex: 'bidder', minWidth: 200 },
+      { title: '响应总价（万元）', dataIndex: 'totalPrice', width: 160 },
       { title: '开发周期（月）', dataIndex: 'devCycle', width: 140 },
       { title: '备注', dataIndex: 'remark', minWidth: 160 }
     ],
@@ -144,10 +144,10 @@ const FALLBACK_PROJECT_NAMES = {
 }
 
 const PURCHASE_MODE_LABELS = {
-  open: '公开招标',
-  invitation: '邀请招标',
-  inquiry: '公开询比价',
-  invitation_inquiry: '邀请询比价'
+  open: '公开采购',
+  invitation: '邀请采购',
+  inquiry: '公开询比',
+  invitation_inquiry: '邀请询比'
 }
 
 function fmtTime(v) {
@@ -159,8 +159,8 @@ function fmtTime(v) {
 function deriveBidSummaryColumns(quoteFields) {
   return [
     { title: '序号', dataIndex: 'seq', width: 80 },
-    { title: '标段', dataIndex: 'packageName', width: 200 },
-    { title: '投标单位', dataIndex: 'bidder', minWidth: 200 },
+    { title: '采购包', dataIndex: 'packageName', width: 200 },
+    { title: '响应单位', dataIndex: 'bidder', minWidth: 200 },
     ...(quoteFields || []).map((f) => ({
       title: f.unit ? `${f.label}（${f.unit}）` : f.label,
       dataIndex: f.key
@@ -181,13 +181,13 @@ function mapStoredProject(p) {
     orgMode: p.orgMode === 'agent' ? 'agent' : 'self',
     bidOpenTime: fmtTime(p.openTime),
     bidCloseTime: fmtTime(p.deadline || p.packages?.[0]?.bidEnd),
-    evalLocation: p.evalLocation || '线上评标大厅',
+    evalLocation: p.evalLocation || '线上评审大厅',
     budget: p.budget || 0,
     evaluationMethod: p.evaluationMethod || '综合评分法',
     quoteFields,
     packages: (p.packages || []).map((pkg, i) => ({
       code: pkg.code || `B${i + 1}`,
-      name: pkg.name || `标段 ${i + 1}`,
+      name: pkg.name || `采购包 ${i + 1}`,
       content: pkg.content || '-',
       budget: pkg.budget ?? 0,
       delivery: pkg.delivery || fmtTime(pkg.bidEnd)
@@ -284,7 +284,7 @@ export default function TenderDoc() {
   const projectId = searchParams.projectId != null ? String(searchParams.projectId) : ''
   const { role, userName } = useRole()
 
-  // T2：招标文件必须关联项目。项目选项 = 内置演示项目 + 项目库（projectStore）项目
+  // T2：采购文件必须关联项目。项目选项 = 内置演示项目 + 项目库（projectStore）项目
   const projectOptions = useMemo(() => {
     const map = new Map()
     Object.entries(FALLBACK_PROJECT_NAMES).forEach(([id, name]) => {
@@ -299,8 +299,8 @@ export default function TenderDoc() {
   const projectMeta = useMemo(() => resolveProjectMeta(projectId), [projectId])
 
   // 编制权限按「角色 + 项目组织方式」双维度控制（cal-001）：
-  // - 自行招标(self)：招标人/代理均可编制
-  // - 委托代理(agent)：仅代理可编制，招标人只读 + 确认
+  // - 自行采购(self)：采购单位/代理均可编制
+  // - 委托代理(agent)：仅代理可编制，采购单位只读 + 确认
   const orgMode = projectMeta?.orgMode || 'self'
   const tendereeRestricted = !!projectMeta && role === 'tenderee' && orgMode === 'agent'
   const canEdit = tendereeRestricted
@@ -308,7 +308,7 @@ export default function TenderDoc() {
     : role === 'tenderee' || role === 'agent'
   const creatorName = role === 'tenderee' ? '张三' : '李四'
 
-  // 审批链（2026-07-17 口径，清单 22）：代理发布 → 采购管理部；招标人发布 → 需求部门 → 采购管理部
+  // 审批链（2026-07-17 口径，清单 22）：代理发布 → 采购管理部；采购单位发布 → 需求部门 → 采购管理部
   // 与 approvalStore.resolveChain 口径一致；「确认并提交审批」会生成真实审批单，由审批中心流转
   const publisherKind = role === 'tenderee' ? 'self' : 'agent'
   const approvalChain = publisherKind === 'self' ? ['需求部门', '采购管理部'] : ['采购管理部']
@@ -322,8 +322,8 @@ export default function TenderDoc() {
     return list[list.length - 1]?.id
   })
   const [activeStep, setActiveStep] = useState(0)
-  const [selectedKeys, setSelectedKeys] = useState(['招标公告'])
-  const [currentNode, setCurrentNode] = useState({ label: '招标公告', content: '' })
+  const [selectedKeys, setSelectedKeys] = useState(['采购公告'])
+  const [currentNode, setCurrentNode] = useState({ label: '采购公告', content: '' })
   const [newNodeName, setNewNodeName] = useState('')
   const [importVisible, setImportVisible] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
@@ -342,7 +342,7 @@ export default function TenderDoc() {
         tenderDocStore.publishVersion(pid, v.id, {
           updatedAt: now,
           history: [
-            { id: Date.now(), content: `审批通过（审批单 ${approval.id}），招标文件 ${v.versionNo} 发布生效`, time: now, type: 'success' },
+            { id: Date.now(), content: `审批通过（审批单 ${approval.id}），采购文件 ${v.versionNo} 发布生效`, time: now, type: 'success' },
             ...(v.history || [])
           ]
         })
@@ -372,7 +372,7 @@ export default function TenderDoc() {
     setVersions(list)
     setSelectedVersionId(list[list.length - 1]?.id)
     setActiveStep(0)
-    setSelectedKeys(['招标公告'])
+    setSelectedKeys(['采购公告'])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
@@ -395,7 +395,7 @@ export default function TenderDoc() {
     [canEdit, selectedVersion, latestVersion]
   )
 
-  // 确认权限：待确认版本由招标人确认；自行招标下代理也可代确认（沿用 canEdit 双维度口径）
+  // 确认权限：待确认版本由采购单位确认；自行采购下代理也可代确认（沿用 canEdit 双维度口径）
   const canConfirm =
     !!selectedVersion &&
     selectedVersion.status === 'pendingConfirm' &&
@@ -403,7 +403,7 @@ export default function TenderDoc() {
     (role === 'tenderee' || orgMode === 'self')
 
   useEffect(() => {
-    const node = findNode(selectedVersion?.catalog || [], selectedKeys[0]) || findNode(selectedVersion?.catalog || [], '招标公告')
+    const node = findNode(selectedVersion?.catalog || [], selectedKeys[0]) || findNode(selectedVersion?.catalog || [], '采购公告')
     if (node) {
       setSelectedKeys([node.key])
       setCurrentNode({
@@ -417,7 +417,7 @@ export default function TenderDoc() {
     setSelectedVersionId(id)
     const version = versions.find((v) => v.id === id)
     if (version) {
-      const node = findNode(version.catalog, '招标公告')
+      const node = findNode(version.catalog, '采购公告')
       if (node) {
         setSelectedKeys([node.key])
         setCurrentNode({ label: node.title, content: node.content || `${node.title} 内容待编辑...` })
@@ -438,7 +438,7 @@ export default function TenderDoc() {
     return next
   }
 
-  // 评标办法评分项配置（名称 + 权重），存于招标文件版本，发布后驱动 ExpertProject 评分页
+  // 评审办法评分项配置（名称 + 权重），存于采购文件版本，发布后驱动 ExpertProject 评分页
   const scoreItems = selectedVersion?.scoreItems?.length
     ? selectedVersion.scoreItems
     : getDefaultScoreItems()
@@ -475,7 +475,7 @@ export default function TenderDoc() {
   const attachmentsReady = (selectedVersion?.fileList?.length || 0) > 0
   const scoreReady = scoreWeightTotal === 100
   const publishChecks = [
-    { key: 'project', label: `已关联招标项目（${projectMeta?.name || '-'}）`, pass: projectLinked },
+    { key: 'project', label: `已关联采购项目（${projectMeta?.name || '-'}）`, pass: projectLinked },
     { key: 'content', label: '至少一个章节正文超过 50 字', pass: contentReady },
     { key: 'attach', label: '附件清单至少 1 个文件', pass: attachmentsReady },
     { key: 'score', label: `评分项权重合计等于 100（当前 ${scoreWeightTotal}）`, pass: scoreReady }
@@ -526,8 +526,8 @@ export default function TenderDoc() {
         }))
         const newCatalog = remove(selectedVersion.catalog)
         updateSelectedVersion({ catalog: newCatalog })
-        setSelectedKeys(['招标公告'])
-        setCurrentNode({ label: '招标公告', content: '招标公告内容...' })
+        setSelectedKeys(['采购公告'])
+        setCurrentNode({ label: '采购公告', content: '采购公告内容...' })
         pushHistory(`删除目录节点“${key}”`, 'warning')
         message.success('目录节点已删除')
       }
@@ -621,14 +621,14 @@ export default function TenderDoc() {
     message.success('已提交确认')
   }
 
-  // 招标人确认并提交审批（待确认 → 待审批）：生成真实审批单，由审批中心流转（清单 22/48）
+  // 采购单位确认并提交审批（待确认 → 待审批）：生成真实审批单，由审批中心流转（清单 22/48）
   const confirmAndSubmitApproval = () => {
     const now = new Date().toLocaleString()
-    const chainDesc = `${publisherKind === 'agent' ? '代理发布' : '招标人发布'} → ${approvalChain.join(' → ')}`
+    const chainDesc = `${publisherKind === 'agent' ? '代理发布' : '采购单位发布'} → ${approvalChain.join(' → ')}`
     const instance = approvalStore.create({
       type: 'tender-doc',
       refId: selectedVersion.id,
-      title: `${projectMeta?.name || '招标文件'} ${selectedVersion.versionNo} 发布`,
+      title: `${projectMeta?.name || '采购文件'} ${selectedVersion.versionNo} 发布`,
       publisherKind,
       submittedBy: userName || creatorName,
       projectId
@@ -641,8 +641,8 @@ export default function TenderDoc() {
     })
     messageStore.add({
       toRole: instance.chain[0],
-      title: `【审批待办】招标文件 ${selectedVersion.versionNo} 发布`,
-      content: `${userName || creatorName} 提交了「${projectMeta?.name || projectId}」招标文件 ${selectedVersion.versionNo} 发布申请（${chainDesc}），请及时审批。`,
+      title: `【审批待办】采购文件 ${selectedVersion.versionNo} 发布`,
+      content: `${userName || creatorName} 提交了「${projectMeta?.name || projectId}」采购文件 ${selectedVersion.versionNo} 发布申请（${chainDesc}），请及时审批。`,
       type: 'approval'
     })
     pushHistory(`${userName || '张三'} 确认版本 ${selectedVersion.versionNo} 并提交审批（${chainDesc}，审批单 ${instance.id}）`, 'success')
@@ -672,8 +672,8 @@ export default function TenderDoc() {
     const tpl = tenderDocTemplates.find((t) => t.name === selectedTemplate)
     if (tpl) {
       updateSelectedVersion({ catalog: JSON.parse(JSON.stringify(tpl.catalog)) })
-      setSelectedKeys(['招标公告'])
-      setCurrentNode({ label: '招标公告', content: '招标公告内容...' })
+      setSelectedKeys(['采购公告'])
+      setCurrentNode({ label: '采购公告', content: '采购公告内容...' })
       pushHistory(`一键导入模板“${tpl.name}”`, 'success')
       message.success(`已导入模板：${tpl.name}`)
     }
@@ -682,8 +682,8 @@ export default function TenderDoc() {
   }
 
   const packageColumns = [
-    { title: '标段编号', dataIndex: 'code', width: 100 },
-    { title: '标段名称', dataIndex: 'name', minWidth: 200 },
+    { title: '采购包编号', dataIndex: 'code', width: 100 },
+    { title: '采购包名称', dataIndex: 'name', minWidth: 200 },
     { title: '采购内容', dataIndex: 'content', minWidth: 160 },
     { title: '预算（万元）', dataIndex: 'budget', width: 120, render: (v) => `${v} 万元` },
     { title: '交货/服务期', dataIndex: 'delivery', minWidth: 180 }
@@ -703,7 +703,7 @@ export default function TenderDoc() {
       actions.push(<Button key="confirm" type="primary" onClick={confirmAndSubmitApproval}>确认并提交审批</Button>)
     }
     if (status === 'pendingConfirm' && !isHistoryVersion && !canConfirm) {
-      actions.push(<span key="hint" className="flow-hint">待招标人确认（当前角色无确认权限）</span>)
+      actions.push(<span key="hint" className="flow-hint">待采购单位确认（当前角色无确认权限）</span>)
     }
     if (['confirmed', 'pendingApproval'].includes(status) && !isHistoryVersion) {
       actions.push(
@@ -728,13 +728,13 @@ export default function TenderDoc() {
             showSearch
             optionFilterProp="label"
             style={{ width: 300 }}
-            placeholder="请选择招标项目（必选）"
+            placeholder="请选择采购项目（必选）"
             value={projectId || undefined}
             onChange={handleProjectChange}
             options={projectOptions}
           />
           {projectMeta && <Tag color="blue">{projectMeta.name}</Tag>}
-          {projectMeta && <Tag>{orgMode === 'agent' ? '委托代理' : '自行招标'}</Tag>}
+          {projectMeta && <Tag>{orgMode === 'agent' ? '委托代理' : '自行采购'}</Tag>}
         </div>
         {projectMeta && selectedVersion && (
           <div className="header-group">
@@ -870,7 +870,7 @@ export default function TenderDoc() {
         <Result
           status="warning"
           title="需从项目进入"
-          subTitle="招标文件属于项目阶段操作，请先从「项目管理」选择一个项目。"
+          subTitle="采购文件属于项目阶段操作，请先从「项目管理」选择一个项目。"
           extra={
             <Button type="primary" onClick={() => navigate({ to: '/admin/projects' })}>
               返回项目列表
@@ -897,7 +897,7 @@ export default function TenderDoc() {
       )}
       {selectedVersion?.status === 'published' && !isHistoryVersion && (
         <Alert
-          title="当前招标文件已发布，如需修改请先创建新版本。"
+          title="当前采购文件已发布，如需修改请先创建新版本。"
           type="warning"
           showIcon
           closable={false}
@@ -924,7 +924,7 @@ export default function TenderDoc() {
       )}
       {tendereeRestricted && (
         <Alert
-          title="本项目为委托代理招标，招标文件由招标代理机构编制，招标人仅有查看和确认权限。"
+          title="本项目为委托代理采购，采购文件由采购代理机构编制，采购单位仅有查看和确认权限。"
           type="info"
           showIcon
           closable={false}
@@ -933,7 +933,7 @@ export default function TenderDoc() {
       )}
       {selectedVersion?.status === 'pendingApproval' && !isHistoryVersion && (
         <Alert
-          title={`版本 ${selectedVersion.versionNo} 已提交审批（${publisherKind === 'agent' ? '代理发布' : '招标人发布'} → ${approvalChain.join(' → ')}），请前往「审批中心」处理。审批通过后自动发布，驳回后退回经办人重新编制。`}
+          title={`版本 ${selectedVersion.versionNo} 已提交审批（${publisherKind === 'agent' ? '代理发布' : '采购单位发布'} → ${approvalChain.join(' → ')}），请前往「审批中心」处理。审批通过后自动发布，驳回后退回经办人重新编制。`}
           type="info"
           showIcon
           closable={false}
@@ -953,7 +953,7 @@ export default function TenderDoc() {
         {activeStep === 0 && projectMeta && (
           <>
             <Alert
-              title={`招标文件已关联项目「${projectMeta.name}」（编号：${projectMeta.code}）。请确认项目基本信息与标段设置无误；如需切换项目，请使用页面顶部的项目选择器。`}
+              title={`采购文件已关联项目「${projectMeta.name}」（编号：${projectMeta.code}）。请确认项目基本信息与采购包设置无误；如需切换项目，请使用页面顶部的项目选择器。`}
               type="info"
               showIcon
               closable={false}
@@ -963,15 +963,15 @@ export default function TenderDoc() {
               <Descriptions.Item label="项目名称">{projectMeta.name}</Descriptions.Item>
               <Descriptions.Item label="项目编号">{projectMeta.code}</Descriptions.Item>
               <Descriptions.Item label="采购方式">{projectMeta.purchaseMode}</Descriptions.Item>
-              <Descriptions.Item label="组织方式">{orgMode === 'agent' ? '委托代理' : '自行招标'}</Descriptions.Item>
+              <Descriptions.Item label="组织方式">{orgMode === 'agent' ? '委托代理' : '自行采购'}</Descriptions.Item>
               <Descriptions.Item label="项目预算">{projectMeta.budget ? `${projectMeta.budget} 万元` : '-'}</Descriptions.Item>
-              <Descriptions.Item label="开标时间">{projectMeta.bidOpenTime}</Descriptions.Item>
-              <Descriptions.Item label="投标截止">{projectMeta.bidCloseTime}</Descriptions.Item>
-              <Descriptions.Item label="评标地点">{projectMeta.evalLocation}</Descriptions.Item>
-              <Descriptions.Item label="评标方法">{projectMeta.evaluationMethod}</Descriptions.Item>
+              <Descriptions.Item label="开启时间">{projectMeta.bidOpenTime}</Descriptions.Item>
+              <Descriptions.Item label="采购截止">{projectMeta.bidCloseTime}</Descriptions.Item>
+              <Descriptions.Item label="评审地点">{projectMeta.evalLocation}</Descriptions.Item>
+              <Descriptions.Item label="评审方法">{projectMeta.evaluationMethod}</Descriptions.Item>
             </Descriptions>
 
-            <Divider titlePlacement="left" style={{ marginTop: 16 }}>标段/包件信息</Divider>
+            <Divider titlePlacement="left" style={{ marginTop: 16 }}>采购包/包件信息</Divider>
             <Table
               rowKey="code"
               dataSource={projectMeta.packages}
@@ -991,7 +991,7 @@ export default function TenderDoc() {
               <Card
                 className="catalog-card"
                 title={
-                  <div className="card-header"><span>招标文件目录</span></div>
+                  <div className="card-header"><span>采购文件目录</span></div>
                 }
                 extra={
                   editable && (
@@ -1037,7 +1037,7 @@ export default function TenderDoc() {
                 }
               >
                 <Alert
-                  title={`条款关联：${CLAUSE_AUTO_MATCH_NOTE}（清单 36，条款节点已预留 autoMatchedFile 字段）；未完成关联允许提交投标文件，现有手工挂接逻辑不受影响。`}
+                  title={`条款关联：${CLAUSE_AUTO_MATCH_NOTE}（清单 36，条款节点已预留 autoMatchedFile 字段）；未完成关联允许提交响应文件，现有手工挂接逻辑不受影响。`}
                   type="info"
                   showIcon
                   closable={false}
@@ -1063,7 +1063,7 @@ export default function TenderDoc() {
 
                 <Input.TextArea
                   rows={18}
-                  placeholder="在此编辑招标文件内容..."
+                  placeholder="在此编辑采购文件内容..."
                   className="doc-editor"
                   value={currentNode.content}
                   onChange={(e) => setCurrentNode((prev) => ({ ...prev, content: e.target.value }))}
@@ -1088,7 +1088,7 @@ export default function TenderDoc() {
                 {projectMeta.quoteFields.length === 0 && <span>-</span>}
               </div>
 
-              <Divider titlePlacement="left">开标一览表模板</Divider>
+              <Divider titlePlacement="left">开启一览表模板</Divider>
               <Table
                 rowKey="title"
                 dataSource={projectMeta.bidSummaryColumns}
@@ -1113,7 +1113,7 @@ export default function TenderDoc() {
                 style={{ width: '100%' }}
               >
                 <p className="ant-upload-drag-icon"><InboxOutlined /></p>
-                <p className="ant-upload-text">拖拽文件到此处或 <em>点击上传</em>（图纸、技术参数表等招标文件附件）</p>
+                <p className="ant-upload-text">拖拽文件到此处或 <em>点击上传</em>（图纸、技术参数表等采购文件附件）</p>
               </Upload.Dragger>
             </Card>
           </>
@@ -1121,9 +1121,9 @@ export default function TenderDoc() {
 
         {/* 第 4 步：评分项 */}
         {activeStep === 3 && (
-          <Card size="small" title="评标办法与评分项配置">
+          <Card size="small" title="评审办法与评分项配置">
             <Alert
-              title="评分项随招标文件版本发布，发布后驱动专家评审页评分表；权重合计需为 100。"
+              title="评分项随采购文件版本发布，发布后驱动专家评审页评分表；权重合计需为 100。"
               type="info"
               showIcon
               closable={false}
@@ -1211,7 +1211,7 @@ export default function TenderDoc() {
               <Descriptions.Item label="最近更新">{selectedVersion.updatedAt || '-'}</Descriptions.Item>
               <Descriptions.Item label="发布时间">{selectedVersion.publishedAt || '-'}</Descriptions.Item>
               <Descriptions.Item label="审批链" span={2}>
-                {publisherKind === 'agent' ? '代理发布' : '招标人发布'} → {approvalChain.join(' → ')}
+                {publisherKind === 'agent' ? '代理发布' : '采购单位发布'} → {approvalChain.join(' → ')}
               </Descriptions.Item>
             </Descriptions>
 
@@ -1228,7 +1228,7 @@ export default function TenderDoc() {
             </div>
 
             <Alert
-              title="按 2026-07-17 需求口径，招标文件需审批后发布（清单 22/48）：确认后生成审批单，由审批中心流转；通过后自动发布生效，驳回退回经办人重新编制。"
+              title="按 2026-07-17 需求口径，采购文件需审批后发布（清单 22/48）：确认后生成审批单，由审批中心流转；通过后自动发布生效，驳回退回经办人重新编制。"
               type="info"
               showIcon
               closable={false}
@@ -1274,7 +1274,7 @@ export default function TenderDoc() {
       </Card>
 
       <Modal
-        title="一键导入招标文件模板"
+        title="一键导入采购文件模板"
         open={importVisible}
         onOk={importTemplate}
         onCancel={() => { setImportVisible(false); setSelectedTemplate(null) }}

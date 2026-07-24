@@ -18,7 +18,7 @@ export default function PortalHeader({ activeKey }) {
           {
             element: '.logo',
             popover: {
-              title: '欢迎来到招投标采购平台',
+              title: '欢迎来到采购平台',
               description: '这里是平台门户，您可以浏览公告、注册账号或登录系统。',
               side: 'bottom',
               align: 'center'
@@ -27,8 +27,8 @@ export default function PortalHeader({ activeKey }) {
           {
             element: '#portal-notice-section',
             popover: {
-              title: '招标公告',
-              description: '这里展示所有招标公告、变更公告、候选人公示和中标公告，您可以按类型筛选。',
+              title: '采购公告',
+              description: '这里展示所有采购公告、变更公告、采购结果公告和中选通知，您可以按类型筛选。',
               side: 'top',
               align: 'start'
             }
@@ -37,7 +37,7 @@ export default function PortalHeader({ activeKey }) {
             element: '#portal-notice-table',
             popover: {
               title: '查看公告详情',
-              description: '点击公告标题查看详情与附件；供应商登录后进入工作台「项目中心」，从下载招标文件开始参与投标。',
+              description: '点击公告标题查看详情与附件；供应商登录后进入工作台「项目中心」，从下载采购文件开始参与响应。',
               side: 'top',
               align: 'center'
             }
@@ -46,7 +46,7 @@ export default function PortalHeader({ activeKey }) {
             element: '#portal-quick-links',
             popover: {
               title: '快速入口',
-              description: '供应商注册、下载中心、帮助中心、招标人入口，一键直达。',
+              description: '供应商注册、下载中心、帮助中心、采购单位入口，一键直达。',
               side: 'top',
               align: 'start'
             }
@@ -85,7 +85,7 @@ export default function PortalHeader({ activeKey }) {
       <Layout.Header className="portal-header">
         <div className="logo">
           <BookOutlined style={{ marginRight: 10, fontSize: 28 }} />
-          <span>招投标采购平台</span>
+          <span>采购平台</span>
         </div>
         <div className="nav">
           <Button type="link" className={navItemClass('home')} onClick={goHome}>首页</Button>

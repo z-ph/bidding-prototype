@@ -24,7 +24,7 @@ export default function BidQuote() {
     const project = projectStore.getProjectById(projectId)
     if (project?.quoteFields?.length) return project.quoteFields
     return [
-      { key: 'totalPrice', label: '投标报价', unit: '万元', required: true },
+      { key: 'totalPrice', label: '响应报价', unit: '万元', required: true },
       { key: 'delivery', label: '交货期', unit: '', required: true },
       { key: 'quality', label: '质保期', unit: '', required: true },
       { key: 'payment', label: '付款方式', unit: '', required: true }
@@ -107,7 +107,7 @@ export default function BidQuote() {
         title={
           <div className="card-header">
             <span>在线报价</span>
-            <Tag color="error">距投标截止：2 天 5 小时</Tag>
+            <Tag color="error">距采购截止：2 天 5 小时</Tag>
           </div>
         }
       >
@@ -116,13 +116,13 @@ export default function BidQuote() {
           current={isInquiryMode ? 3 : 2}
           style={{ marginBottom: 24 }}
           items={(isInquiryMode
-            ? ['下载文件', '编制标书', '上传并加密', '开标', '填写报价']
-            : ['下载文件', '编制标书', '填写报价', '上传并加密']
+            ? ['下载文件', '编制采购文件', '上传并加密', '开启', '填写报价']
+            : ['下载文件', '编制采购文件', '填写报价', '上传并加密']
           ).map((title) => ({ title }))}
         />
         {quoteLocked ? (
           <Alert
-            title="询比价项目的报价将在开标后启动，当前项目尚未开标，暂不可报价。请在项目中心等待开标完成后进入。"
+            title="询比价项目的报价将在开启后启动，当前项目尚未开启，暂不可报价。请在项目中心等待开启完成后进入。"
             type="info"
             showIcon
             closable={false}
@@ -131,8 +131,8 @@ export default function BidQuote() {
         ) : (
           <Alert
             title={isInquiryMode
-              ? '当前为询比价项目，已开标，请填写最终报价，提交后进入唱标。'
-              : '请按招标文件要求填写开标一览表和分项报价，提交后投标截止前可修改。'}
+              ? '当前为询比价项目，已开启，请填写最终报价，提交后进入唱价。'
+              : '请按采购文件要求填写开启一览表和分项报价，提交后采购截止前可修改。'}
             type="warning"
             showIcon
             closable={false}
@@ -140,7 +140,7 @@ export default function BidQuote() {
           />
         )}
 
-        <h3>开标一览表</h3>
+        <h3>开启一览表</h3>
         <Form labelCol={{ flex: '0 0 140px' }} wrapperCol={{ flex: 'auto' }} className="quote-form">
           <Row gutter={20}>
             {quoteFields.map((field) => (
@@ -168,7 +168,7 @@ export default function BidQuote() {
         />
 
         <div className="quote-tips">
-          <p><InfoCircleFilled /> 报价将用于开标唱标，请确保与上传的报价文件一致。</p>
+          <p><InfoCircleFilled /> 报价将用于开启唱价，请确保与上传的报价文件一致。</p>
         </div>
 
         <div className="actions">
@@ -176,7 +176,7 @@ export default function BidQuote() {
           {isInquiryMode ? (
             <Button size="large" onClick={() => navigate({ to: '/admin/bidder-projects' })}>返回项目中心</Button>
           ) : (
-            <Button size="large" onClick={() => navigate({ to: '/admin/bid-upload', search: { projectId } })}>下一步：上传投标文件</Button>
+            <Button size="large" onClick={() => navigate({ to: '/admin/bid-upload', search: { projectId } })}>下一步：上传响应文件</Button>
           )}
         </div>
       </Card>

@@ -31,7 +31,7 @@ export default function Register() {
 
   const submit = () => {
     form.validateFields().then(() => {
-      // 投标企业注册：营业执照为必传，缺失时阻断并提示
+      // 响应企业注册：营业执照为必传，缺失时阻断并提示
       if (role === 'bidder') {
         const missing = bidderQualifications.filter(
           (q) => !qualificationFiles[q.key] || qualificationFiles[q.key].length === 0
@@ -41,7 +41,7 @@ export default function Register() {
           return
         }
       }
-      // 招标人注册：营业执照等资质为必传
+      // 采购单位注册：营业执照等资质为必传
       if (role === 'tenderee' && fileList.length === 0) {
         message.error('请先上传营业执照等资质')
         return
@@ -179,7 +179,7 @@ export default function Register() {
   )
 
   const tabItems = [
-    { key: 'tenderee', label: '招标人注册', children: renderOrgForm(true) },
+    { key: 'tenderee', label: '采购单位注册', children: renderOrgForm(true) },
     { key: 'bidder', label: '供应商注册', children: renderOrgForm(false) },
     { key: 'expert', label: '专家注册', children: expertForm }
   ]
