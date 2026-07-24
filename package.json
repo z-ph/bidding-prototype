@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "quality-gate": "npx vite build && node scripts/quality-gate.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.2",
