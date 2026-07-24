@@ -26,6 +26,7 @@ import { Route as AdminTenderDocRouteImport } from './routes/admin.tender-doc'
 import { Route as AdminTemplateManageRouteImport } from './routes/admin.template-manage'
 import { Route as AdminSystemSettingsRouteImport } from './routes/admin.system-settings'
 import { Route as AdminSupplierProfileRouteImport } from './routes/admin.supplier-profile'
+import { Route as AdminSupplierLedgerRouteImport } from './routes/admin.supplier-ledger'
 import { Route as AdminSupplierAuthorizationRouteImport } from './routes/admin.supplier-authorization'
 import { Route as AdminSupervisorLogsRouteImport } from './routes/admin.supervisor-logs'
 import { Route as AdminSupervisorHallRouteImport } from './routes/admin.supervisor-hall'
@@ -64,6 +65,8 @@ import { Route as AdminAdminUsersRouteImport } from './routes/admin.admin-users'
 import { Route as AdminAdminSupplierAuditRouteImport } from './routes/admin.admin-supplier-audit'
 import { Route as AdminAdminNewsRouteImport } from './routes/admin.admin-news'
 import { Route as AdminAdminLogsRouteImport } from './routes/admin.admin-logs'
+import { Route as AdminAdminHelpRouteImport } from './routes/admin.admin-help'
+import { Route as AdminAdminDownloadsRouteImport } from './routes/admin.admin-downloads'
 import { Route as AdminAdminDictionaryRouteImport } from './routes/admin.admin-dictionary'
 import { Route as AdminAdminDashboardRouteImport } from './routes/admin.admin-dashboard'
 import { Route as AdminProjectsIndexRouteImport } from './routes/admin.projects.index'
@@ -167,6 +170,13 @@ const AdminSupplierProfileRoute = AdminSupplierProfileRouteImport.update({
   getParentRoute: () => AdminRoute,
 } as any).lazy(() =>
   import('./routes/admin.supplier-profile.lazy').then((d) => d.Route),
+)
+const AdminSupplierLedgerRoute = AdminSupplierLedgerRouteImport.update({
+  id: '/supplier-ledger',
+  path: '/supplier-ledger',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.supplier-ledger.lazy').then((d) => d.Route),
 )
 const AdminSupplierAuthorizationRoute =
   AdminSupplierAuthorizationRouteImport.update({
@@ -426,6 +436,20 @@ const AdminAdminLogsRoute = AdminAdminLogsRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.admin-logs.lazy').then((d) => d.Route),
 )
+const AdminAdminHelpRoute = AdminAdminHelpRouteImport.update({
+  id: '/admin-help',
+  path: '/admin-help',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.admin-help.lazy').then((d) => d.Route),
+)
+const AdminAdminDownloadsRoute = AdminAdminDownloadsRouteImport.update({
+  id: '/admin-downloads',
+  path: '/admin-downloads',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.admin-downloads.lazy').then((d) => d.Route),
+)
 const AdminAdminDictionaryRoute = AdminAdminDictionaryRouteImport.update({
   id: '/admin-dictionary',
   path: '/admin-dictionary',
@@ -500,6 +524,8 @@ export interface FileRoutesByFullPath {
   '/review-change-list': typeof ReviewChangeListRoute
   '/admin/admin-dashboard': typeof AdminAdminDashboardRoute
   '/admin/admin-dictionary': typeof AdminAdminDictionaryRoute
+  '/admin/admin-downloads': typeof AdminAdminDownloadsRoute
+  '/admin/admin-help': typeof AdminAdminHelpRoute
   '/admin/admin-logs': typeof AdminAdminLogsRoute
   '/admin/admin-news': typeof AdminAdminNewsRoute
   '/admin/admin-supplier-audit': typeof AdminAdminSupplierAuditRoute
@@ -538,6 +564,7 @@ export interface FileRoutesByFullPath {
   '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
   '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
   '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
+  '/admin/supplier-ledger': typeof AdminSupplierLedgerRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
   '/admin/system-settings': typeof AdminSystemSettingsRoute
   '/admin/template-manage': typeof AdminTemplateManageRoute
@@ -564,6 +591,8 @@ export interface FileRoutesByTo {
   '/review-change-list': typeof ReviewChangeListRoute
   '/admin/admin-dashboard': typeof AdminAdminDashboardRoute
   '/admin/admin-dictionary': typeof AdminAdminDictionaryRoute
+  '/admin/admin-downloads': typeof AdminAdminDownloadsRoute
+  '/admin/admin-help': typeof AdminAdminHelpRoute
   '/admin/admin-logs': typeof AdminAdminLogsRoute
   '/admin/admin-news': typeof AdminAdminNewsRoute
   '/admin/admin-supplier-audit': typeof AdminAdminSupplierAuditRoute
@@ -600,6 +629,7 @@ export interface FileRoutesByTo {
   '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
   '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
   '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
+  '/admin/supplier-ledger': typeof AdminSupplierLedgerRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
   '/admin/system-settings': typeof AdminSystemSettingsRoute
   '/admin/template-manage': typeof AdminTemplateManageRoute
@@ -628,6 +658,8 @@ export interface FileRoutesById {
   '/review-change-list': typeof ReviewChangeListRoute
   '/admin/admin-dashboard': typeof AdminAdminDashboardRoute
   '/admin/admin-dictionary': typeof AdminAdminDictionaryRoute
+  '/admin/admin-downloads': typeof AdminAdminDownloadsRoute
+  '/admin/admin-help': typeof AdminAdminHelpRoute
   '/admin/admin-logs': typeof AdminAdminLogsRoute
   '/admin/admin-news': typeof AdminAdminNewsRoute
   '/admin/admin-supplier-audit': typeof AdminAdminSupplierAuditRoute
@@ -666,6 +698,7 @@ export interface FileRoutesById {
   '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
   '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
   '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
+  '/admin/supplier-ledger': typeof AdminSupplierLedgerRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
   '/admin/system-settings': typeof AdminSystemSettingsRoute
   '/admin/template-manage': typeof AdminTemplateManageRoute
@@ -695,6 +728,8 @@ export interface FileRouteTypes {
     | '/review-change-list'
     | '/admin/admin-dashboard'
     | '/admin/admin-dictionary'
+    | '/admin/admin-downloads'
+    | '/admin/admin-help'
     | '/admin/admin-logs'
     | '/admin/admin-news'
     | '/admin/admin-supplier-audit'
@@ -733,6 +768,7 @@ export interface FileRouteTypes {
     | '/admin/supervisor-hall'
     | '/admin/supervisor-logs'
     | '/admin/supplier-authorization'
+    | '/admin/supplier-ledger'
     | '/admin/supplier-profile'
     | '/admin/system-settings'
     | '/admin/template-manage'
@@ -759,6 +795,8 @@ export interface FileRouteTypes {
     | '/review-change-list'
     | '/admin/admin-dashboard'
     | '/admin/admin-dictionary'
+    | '/admin/admin-downloads'
+    | '/admin/admin-help'
     | '/admin/admin-logs'
     | '/admin/admin-news'
     | '/admin/admin-supplier-audit'
@@ -795,6 +833,7 @@ export interface FileRouteTypes {
     | '/admin/supervisor-hall'
     | '/admin/supervisor-logs'
     | '/admin/supplier-authorization'
+    | '/admin/supplier-ledger'
     | '/admin/supplier-profile'
     | '/admin/system-settings'
     | '/admin/template-manage'
@@ -822,6 +861,8 @@ export interface FileRouteTypes {
     | '/review-change-list'
     | '/admin/admin-dashboard'
     | '/admin/admin-dictionary'
+    | '/admin/admin-downloads'
+    | '/admin/admin-help'
     | '/admin/admin-logs'
     | '/admin/admin-news'
     | '/admin/admin-supplier-audit'
@@ -860,6 +901,7 @@ export interface FileRouteTypes {
     | '/admin/supervisor-hall'
     | '/admin/supervisor-logs'
     | '/admin/supplier-authorization'
+    | '/admin/supplier-ledger'
     | '/admin/supplier-profile'
     | '/admin/system-settings'
     | '/admin/template-manage'
@@ -1008,6 +1050,13 @@ declare module '@tanstack/react-router' {
       path: '/supplier-profile'
       fullPath: '/admin/supplier-profile'
       preLoaderRoute: typeof AdminSupplierProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/supplier-ledger': {
+      id: '/admin/supplier-ledger'
+      path: '/supplier-ledger'
+      fullPath: '/admin/supplier-ledger'
+      preLoaderRoute: typeof AdminSupplierLedgerRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/supplier-authorization': {
@@ -1276,6 +1325,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminLogsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/admin-help': {
+      id: '/admin/admin-help'
+      path: '/admin-help'
+      fullPath: '/admin/admin-help'
+      preLoaderRoute: typeof AdminAdminHelpRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/admin-downloads': {
+      id: '/admin/admin-downloads'
+      path: '/admin-downloads'
+      fullPath: '/admin/admin-downloads'
+      preLoaderRoute: typeof AdminAdminDownloadsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/admin-dictionary': {
       id: '/admin/admin-dictionary'
       path: '/admin-dictionary'
@@ -1374,6 +1437,8 @@ const AdminProjectsRouteWithChildren = AdminProjectsRoute._addFileChildren(
 interface AdminRouteChildren {
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminAdminDictionaryRoute: typeof AdminAdminDictionaryRoute
+  AdminAdminDownloadsRoute: typeof AdminAdminDownloadsRoute
+  AdminAdminHelpRoute: typeof AdminAdminHelpRoute
   AdminAdminLogsRoute: typeof AdminAdminLogsRoute
   AdminAdminNewsRoute: typeof AdminAdminNewsRoute
   AdminAdminSupplierAuditRoute: typeof AdminAdminSupplierAuditRoute
@@ -1412,6 +1477,7 @@ interface AdminRouteChildren {
   AdminSupervisorHallRoute: typeof AdminSupervisorHallRoute
   AdminSupervisorLogsRoute: typeof AdminSupervisorLogsRoute
   AdminSupplierAuthorizationRoute: typeof AdminSupplierAuthorizationRoute
+  AdminSupplierLedgerRoute: typeof AdminSupplierLedgerRoute
   AdminSupplierProfileRoute: typeof AdminSupplierProfileRoute
   AdminSystemSettingsRoute: typeof AdminSystemSettingsRoute
   AdminTemplateManageRoute: typeof AdminTemplateManageRoute
@@ -1423,6 +1489,8 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminAdminDictionaryRoute: AdminAdminDictionaryRoute,
+  AdminAdminDownloadsRoute: AdminAdminDownloadsRoute,
+  AdminAdminHelpRoute: AdminAdminHelpRoute,
   AdminAdminLogsRoute: AdminAdminLogsRoute,
   AdminAdminNewsRoute: AdminAdminNewsRoute,
   AdminAdminSupplierAuditRoute: AdminAdminSupplierAuditRoute,
@@ -1462,6 +1530,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSupervisorHallRoute: AdminSupervisorHallRoute,
   AdminSupervisorLogsRoute: AdminSupervisorLogsRoute,
   AdminSupplierAuthorizationRoute: AdminSupplierAuthorizationRoute,
+  AdminSupplierLedgerRoute: AdminSupplierLedgerRoute,
   AdminSupplierProfileRoute: AdminSupplierProfileRoute,
   AdminSystemSettingsRoute: AdminSystemSettingsRoute,
   AdminTemplateManageRoute: AdminTemplateManageRoute,

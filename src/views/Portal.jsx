@@ -25,6 +25,7 @@ export default function Portal() {
 
   const notices = useMemo(() => portalStore.getNotices(), [])
   const stats = useMemo(() => portalStore.getStats(), [])
+  const banners = useMemo(() => portalStore.getPublishedBanners(), [])
 
   const typeMap = {
     all: null,
@@ -77,35 +78,14 @@ export default function Portal() {
     { title: '采购截止', dataIndex: 'deadline', key: 'deadline', width: 150 }
   ]
 
-  const carouselSlides = [
-    {
-      key: 1,
-      title: '全流程电子化采购平台',
-      subtitle: '公开、公平、公正、高效、安全',
-      color: 'linear-gradient(135deg, #001529 0%, #003366 100%)'
-    },
-    {
-      key: 2,
-      title: '多角色协同工作',
-      subtitle: '采购单位、响应单位、评审专家、监督人员一体化协同',
-      color: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)'
-    },
-    {
-      key: 3,
-      title: '安全合规的CA认证',
-      subtitle: '支持数字证书签章，保障响应文件安全与法律效力',
-      color: 'linear-gradient(135deg, #001529 0%, #004080 100%)'
-    }
-  ]
-
   return (
     <div className="portal">
       <PortalHeader activeKey="home" />
 
       <div className="banner">
         <Carousel autoplay autoplaySpeed={5000} dotPlacement="bottom" effect="fade">
-          {carouselSlides.map((slide) => (
-            <div key={slide.key}>
+          {banners.map((slide) => (
+            <div key={slide.id}>
               <div
                 className="carousel-slide"
                 style={{ background: slide.color }}

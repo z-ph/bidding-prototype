@@ -6,14 +6,15 @@ import PortalHeader from '../components/PortalHeader.jsx'
 import { portalStore } from '../data/portalStore.js'
 
 const categoryColors = {
+  操作手册: 'orange',
   驱动工具: 'blue',
-  响应工具: 'green',
-  操作手册: 'orange'
+  模板文件: 'green',
+  政策法规: 'purple'
 }
 
 export default function Downloads() {
   const navigate = useNavigate()
-  const downloadData = useMemo(() => portalStore.getDownloads(), [])
+  const downloadData = useMemo(() => portalStore.getPublishedDownloads(), [])
 
   const handleDownload = (row) => {
     const blob = new Blob([row.content || ''], { type: 'text/plain;charset=utf-8' })

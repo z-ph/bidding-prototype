@@ -11,6 +11,16 @@ const defaultSuppliers = [
   { id: 'sup-5', name: '鑫源建材有限公司', legalPerson: '陈鑫', parentId: '' }
 ]
 
+// IP 记录种子数据：{ supplierId, supplierName, ip, action, time, projectId }
+// 演示用，无法真正获取客户端公网 IP
+const defaultIpRecords = [
+  { supplierId: 'sup-1', supplierName: '华建钢材有限公司', ip: '192.168.1.21', action: '上传响应文件', time: '2026-07-08 14:30', projectId: '1' },
+  { supplierId: 'sup-2', supplierName: '宏远物资有限公司', ip: '192.168.1.21', action: '上传响应文件', time: '2026-07-08 14:45', projectId: '1' },
+  { supplierId: 'sup-3', supplierName: '中材供应链有限公司', ip: '192.168.1.33', action: '下载采购文件', time: '2026-07-08 10:00', projectId: '3' },
+  { supplierId: 'sup-4', supplierName: '中材华东分公司', ip: '192.168.1.33', action: '下载采购文件', time: '2026-07-08 10:05', projectId: '3' },
+  { supplierId: 'sup-5', supplierName: '鑫源建材有限公司', ip: '10.0.0.55', action: '提交报价', time: '2026-07-08 15:00', projectId: '5' }
+]
+
 // 价格记录：{ id, material, supplierId, supplierName, price, projectId, at }
 // 覆盖 3 种材料、5 家供应商、2026-01 ~ 2026-07，可画出趋势与比价
 const defaultPrices = [
@@ -35,13 +45,15 @@ const defaultWarningRules = {
   sameLegalPerson: true,
   parentChild: true,
   abnormalHighPrice: true,
-  abnormalHighPriceThreshold: 20
+  abnormalHighPriceThreshold: 20,
+  sameIpResponse: true
 }
 
 export const WARNING_RULE_LABELS = {
   sameLegalPerson: '法人相同',
   parentChild: '上下级关系',
-  abnormalHighPrice: '报价异常高'
+  abnormalHighPrice: '报价异常高',
+  sameIpResponse: '相同 IP 响应'
 }
 
 function clone(value) {
@@ -58,6 +70,9 @@ export const analyticsStore = {
   },
   getSuppliers() {
     return clone(defaultSuppliers)
+  },
+  getIpRecords() {
+    return clone(defaultIpRecords)
   },
   getWarningRules() {
     return { ...defaultWarningRules }
@@ -170,6 +185,26 @@ export const analyticsStore = {
               at: p.at
             })
           })
+      })
+    }
+    if (rules.sameIpResponse) {
+      const ipRecords = this.getIpRecords()
+      const byIp = new Map()
+      ipRecords.forEach((r) => {
+        byIp.set(r.ip, [...(byIp.get(r.ip) || []), r])
+      })
+      byIp.forEach((group, ip) => {
+        if (group.length < 2) return
+        const projectIds = [...new Set(group.map((r) => r.projectId))]
+        result.push({
+          id: `warn-ip-${ip.replace(/\./g, '-')}`,
+          rule: 'sameIpResponse',
+          ruleLabel: WARNING_RULE_LABELS.sameIpResponse,
+          message: `响应单位 ${group.map((r) => r.supplierName).join('、')} 使用相同 IP（${ip}）进行关键操作，可能存在串通风险`,
+          suppliers: group.map((r) => r.supplierName),
+          projectId: projectIds.length === 1 ? projectIds[0] : undefined,
+          at: group.map((r) => r.time).join(' / ')
+        })
       })
     }
     return result

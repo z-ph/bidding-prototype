@@ -9,7 +9,8 @@ import { evaluationStore, formatDeadline } from '../data/evaluationStore.js'
 import { expertStore } from '../data/expertStore.js'
 import { quoteStore } from '../data/quoteStore.js'
 import { supervisorStore } from '../data/supervisorStore.js'
-import { PROJECT_STATUS_MAP } from './ProjectList.jsx'
+import { noticeStore } from '../data/notices.js'
+import { PROJECT_STATUS_MAP, PURCHASE_MODE_OPTIONS } from './ProjectList.jsx'
 
 // 开启时间兼容 ISO 串与 'YYYY-MM-DD HH:mm'
 const fmtTime = (v) => {
@@ -88,6 +89,49 @@ export default function SupervisorHall() {
     })
     return { experts, rows }
   }, [projectId])
+
+  // 采购准备信息
+  const prepInfo = useMemo(() => {
+    if (!project) return null
+    const notices = noticeStore.getNotices().filter(n => String(n.projectId) === projectId && n.type === 'tender')
+    const publishedNotice = notices.find(n => n.status === 'published')
+    const purchaseMode = project.packages?.[0]?.purchaseMode || ''
+    const modeLabel = purchaseMode ? (PURCHASE_MODE_OPTIONS.find(o => o.value === purchaseMode)?.label || purchaseMode) : '-'
+    return {
+      name: project.name,
+      code: project.code || '-',
+      purchaseMode: modeLabel,
+      orgMode: project.orgMode === 'agent' ? '委托代理采购' : '自行采购',
+      budget: project.budget,
+      noticePublished: !!publishedNotice,
+      noticePublishTime: publishedNotice?.publishTime || '-',
+      projectStatus: project.status
+    }
+  }, [project, projectId])
+
+  // 响应监督数据：从 quoteStore 读取响应单位报价状态
+  const responseData = useMemo(() => {
+    if (!projectId) return []
+    const quotes = quoteStore.getQuotes()
+    return Object.entries(quotes)
+      .filter(([key]) => key.startsWith(`${projectId}::`))
+      .map(([key, value]) => ({
+        name: key.split('::')[1],
+        totalPrice: value?.quote?.totalPrice ?? '-',
+        deliveryPeriod: value?.quote?.deliveryPeriod ?? '-',
+        warrantyPeriod: value?.quote?.warrantyPeriod ?? '-',
+        savedAt: value?.savedAt ?? '-'
+      }))
+  }, [projectId])
+
+  // 成交确认监督数据
+  const awardInfo = useMemo(() => {
+    if (!project) return { winner: null, notice: null }
+    return {
+      winner: project.winner || null,
+      notice: project.notice || null
+    }
+  }, [project])
 
   const recordAbnormal = () => {
     if (!comment.trim()) {
@@ -206,7 +250,74 @@ export default function SupervisorHall() {
     { title: '排名', dataIndex: 'rank' }
   ]
 
+  const prepColumns = [
+    { title: '项目名称', dataIndex: 'name' },
+    { title: '项目编号', dataIndex: 'code' },
+    { title: '采购方式', dataIndex: 'purchaseMode' },
+    { title: '采购单位', dataIndex: 'orgMode' },
+    { title: '预算（万元）', dataIndex: 'budget', render: (v) => `${v} 万` },
+    {
+      title: '采购公告状态',
+      dataIndex: 'noticePublished',
+      render: (v, row) => v ? <Tag color="success">已发布（{row.noticePublishTime}）</Tag> : <Tag color="default">未发布</Tag>
+    }
+  ]
+
+  const responseColumns = [
+    { title: '响应单位', dataIndex: 'name' },
+    { title: '报价总金额（万元）', dataIndex: 'totalPrice' },
+    { title: '交货期', dataIndex: 'deliveryPeriod' },
+    { title: '质保期', dataIndex: 'warrantyPeriod' },
+    { title: '提交时间', dataIndex: 'savedAt' }
+  ]
+
+  const awardResultColumns = [
+    { title: '中选单位', dataIndex: 'name' },
+    { title: '综合评分', dataIndex: 'total' },
+    { title: '中选价格（万元）', dataIndex: 'price' },
+    { title: '确认时间', dataIndex: 'confirmedAt' },
+    { title: '中选理由', dataIndex: 'opinion' }
+  ]
+
+  const awardNoticeColumns = [
+    { title: '中选单位', dataIndex: 'bidder' },
+    { title: '发送时间', dataIndex: 'sentAt' },
+    { title: '通知书内容', dataIndex: 'content' }
+  ]
+
   const tabItems = [
+    {
+      key: 'preparation',
+      label: '采购准备',
+      children: prepInfo ? (
+        <Table
+          columns={prepColumns}
+          dataSource={[prepInfo]}
+          rowKey="code"
+          bordered
+          pagination={false}
+          style={{ width: '100%' }}
+        />
+      ) : (
+        <Empty description="暂无项目采购准备信息" />
+      )
+    },
+    {
+      key: 'response',
+      label: '响应监督',
+      children: responseData.length > 0 ? (
+        <Table
+          columns={responseColumns}
+          dataSource={responseData}
+          rowKey="name"
+          bordered
+          pagination={false}
+          style={{ width: '100%' }}
+        />
+      ) : (
+        <Empty description="暂无响应数据，请等待采购截止后系统自动汇总" />
+      )
+    },
     {
       key: 'opening',
       label: '开启监督',
@@ -263,6 +374,38 @@ export default function SupervisorHall() {
           )}
         </>
       )
+    },
+    {
+      key: 'award',
+      label: '成交确认',
+      children: awardInfo?.winner ? (
+        <>
+          <h3>中选结果</h3>
+          <Table
+            columns={awardResultColumns}
+            dataSource={[awardInfo.winner]}
+            rowKey="name"
+            bordered
+            pagination={false}
+            style={{ width: '100%' }}
+          />
+          <h3>中选通知书</h3>
+          {awardInfo.notice ? (
+            <Table
+              columns={awardNoticeColumns}
+              dataSource={[awardInfo.notice]}
+              rowKey="bidder"
+              bordered
+              pagination={false}
+              style={{ width: '100%' }}
+            />
+          ) : (
+            <Empty description="中选通知书尚未发送" />
+          )}
+        </>
+      ) : (
+        <Empty description="暂无成交确认数据，请完成评审后查看" />
+      )
     }
   ]
 
@@ -286,7 +429,7 @@ export default function SupervisorHall() {
         }
       >
         <Alert
-          title="您当前以监督人员身份进入，可查看开启、评审全过程及操作日志，但不可修改任何业务数据。"
+          title="您当前以监督人员身份进入，可查看采购准备、响应、开启、评审、成交确认全过程及操作日志，但不可修改任何业务数据。"
           type="info"
           showIcon
           closable={false}

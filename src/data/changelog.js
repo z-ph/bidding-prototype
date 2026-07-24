@@ -11,6 +11,19 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.12.0',
+    date: '2026-07-24',
+    title: 'P1/P2 需求实施：验证码防护、供应商台账、全过程监督、IP 预警、内容管理、流程优化',
+    changes: [
+      { type: 'feat', text: '登录/注册图形验证码：手机验证码发送前先弹 Canvas 数学验证码（a+b=?），防机器刷码；注册页新增短信验证码字段与获取按钮（演示环境验证码仍为 123456）' },
+      { type: 'feat', text: '供应商台账（SupplierLedger）：采购单位/代理可查看供应商列表与详情，管理员可审核认证状态并编辑信息；数据源 supplierStore，localStorage 持久化' },
+      { type: 'feat', text: '监督大厅全过程覆盖：新增采购准备、响应监督、成交确认三个 Tab，5 Tab 覆盖采购→响应→开启→评审→成交确认全流程；各 Tab 均无假数据（数据不足时 Empty）' },
+      { type: 'feat', text: 'IP 记录与风险预警：analyticsStore 新增 sameIpResponse 预警规则，种子 IP 数据模拟两家供应商使用相同 IP，预警自动生成；管理员/监督操作日志补充 IP 演示提示' },
+      { type: 'feat', text: '内容管理发布：新增 AdminDownloads（下载中心管理）、AdminHelp（帮助中心管理）两页面，支持 CRUD + 发布/下线；portalStore 扩展 banners/helpDocs 接口；首页轮播图从 store 加载' },
+      { type: 'feat', text: '流程/交互优化：BidQuote 默认关闭分项报价（仅总报价+文件上传）；BidUpload 按项目类型区分响应文件组成（询比族去重）；OpeningHall 专家门禁+bider 唱价确认+导出唱价一览表；EvaluationHall 导出报表组（6 项模拟导出）；专家品目分类多选过滤+档案品目字段；供应商注册新增供应商类型选择' }
+    ]
+  },
+  {
     version: '0.11.0',
     date: '2026-07-24',
     title: 'P0 全局用词整改：招标系统→内部采购平台',

@@ -64,10 +64,12 @@ export default function OpeningHall() {
   const [currentStage, setCurrentStage] = useState(0)
   const [operationRecords, setOperationRecords] = useState([])
   const [deadline] = useState('2026-07-08 15:00')
+  const [bidderConfirmed, setBidderConfirmed] = useState(false)
 
   // 主持人：采购单位/采购代理可操作开启流程；监督人员只读；响应单位只能签到/解密自己
   const isHost = ['tenderee', 'agent'].includes(role)
   const isBidder = role === 'bidder'
+  const isExpert = role === 'expert'
   const roleTagColor = isHost ? 'warning' : 'default'
   // 2052-010：采购单位/代理/监督可进入评审大厅（tenderee 待基础设施在 permissions.js 放行后生效）
   const canViewEvaluation = ['tenderee', 'agent', 'supervisor'].includes(role)
@@ -425,6 +427,26 @@ export default function OpeningHall() {
     )
   }
 
+  // 专家角色不参与开启流程
+  if (isExpert) {
+    return (
+      <div className="opening-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <Card>
+          <Result
+            status="info"
+            title="评审专家不参与开启流程"
+            subTitle="开启流程由采购单位、采购代理、响应单位和监督人员参与，评审专家无需参与开启环节。"
+            extra={[
+              <Button key="back" onClick={() => navigate({ to: '/admin/expert-tasks' })}>
+                返回我的任务
+              </Button>
+            ]}
+          />
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="opening-hall">
       <Card
@@ -689,7 +711,28 @@ export default function OpeningHall() {
                 pagination={false}
                 style={{ width: '100%' }}
               />
+
+              {isBidder && !bidderConfirmed && (
+                <div style={{ textAlign: 'center', marginTop: 16, marginBottom: 16 }}>
+                  <Alert
+                    type="info"
+                    showIcon
+                    closable={false}
+                    title="请确认以上唱价内容与您的响应文件一致，确认后不可修改。"
+                    style={{ marginBottom: 12 }}
+                  />
+                  <Button type="primary" size="large" onClick={() => {
+                    setBidderConfirmed(true)
+                    addOperationRecord('唱价确认', `${userName} 已确认唱价内容`)
+                    message.success('唱价内容已确认')
+                  }}>
+                    确认唱价内容
+                  </Button>
+                </div>
+              )}
+
               <div className="stage-action">
+                <Button onClick={() => message.success('正在导出唱价一览表...')}>导出唱价一览表</Button>
                 {isHost && <Button onClick={prevStage}>返回</Button>}
                 {isHost && (
                   <Button type="primary" size="large" onClick={finishOpening}>

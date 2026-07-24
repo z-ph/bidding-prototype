@@ -22,13 +22,29 @@ const defaultStats = {
   monthlyOpenings: 528
 }
 
+const defaultBanners = [
+  { id: 1, title: '全流程电子化采购平台', subtitle: '公开、公平、公正、高效、安全', image: '', color: 'linear-gradient(135deg, #001529 0%, #003366 100%)', status: 'published' },
+  { id: 2, title: '多角色协同工作', subtitle: '采购单位、响应单位、评审专家、监督人员一体化协同', image: '', color: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)', status: 'published' },
+  { id: 3, title: '安全合规的CA认证', subtitle: '支持数字证书签章，保障响应文件安全与法律效力', image: '', color: 'linear-gradient(135deg, #001529 0%, #004080 100%)', status: 'published' }
+]
+
 const defaultDownloads = [
-  { id: 1, name: 'CA数字证书驱动程序', version: 'V3.2.1', updateTime: '2026-07-10', desc: '支持主流CA机构USBKey，适配Windows 10/11', category: '驱动工具', content: 'CA驱动程序安装包（演示内容）\n版本：V3.2.1\n更新日期：2026-07-10' },
-  { id: 2, name: '响应文件编制工具', version: 'V2.5.0', updateTime: '2026-07-08', desc: '离线编制响应文件、自动生成清单与签章', category: '响应工具', content: '响应文件编制工具安装说明（演示内容）\n版本：V2.5.0\n更新日期：2026-07-08' },
-  { id: 3, name: '供应商操作手册', version: 'V2026.07', updateTime: '2026-07-06', desc: '供应商注册、响应、开启全流程图文说明', category: '操作手册', content: '供应商操作手册（演示内容）\n版本：V2026.07\n更新日期：2026-07-06' },
-  { id: 4, name: '采购单位操作手册', version: 'V2026.07', updateTime: '2026-07-06', desc: '项目创建、公告发布、评审成交确认说明', category: '操作手册', content: '采购单位操作手册（演示内容）\n版本：V2026.07\n更新日期：2026-07-06' },
-  { id: 5, name: '采购代理操作手册', version: 'V2026.06', updateTime: '2026-06-28', desc: '代理项目执行、专家抽取、异常处理指南', category: '操作手册', content: '采购代理操作手册（演示内容）\n版本：V2026.06\n更新日期：2026-06-28' },
-  { id: 6, name: '评审专家操作手册', version: 'V2026.06', updateTime: '2026-06-28', desc: '在线评审、打分、出具评审报告操作指南', category: '操作手册', content: '评审专家操作手册（演示内容）\n版本：V2026.06\n更新日期：2026-06-28' }
+  { id: 1, name: 'CA数字证书驱动程序', version: 'V3.2.1', updateTime: '2026-07-10', desc: '支持主流CA机构USBKey，适配Windows 10/11', category: '驱动工具', content: 'CA驱动程序安装包（演示内容）\n版本：V3.2.1\n更新日期：2026-07-10', status: 'published' },
+  { id: 2, name: '响应文件编制工具', version: 'V2.5.0', updateTime: '2026-07-08', desc: '离线编制响应文件、自动生成清单与签章', category: '模板文件', content: '响应文件编制工具安装说明（演示内容）\n版本：V2.5.0\n更新日期：2026-07-08', status: 'published' },
+  { id: 3, name: '供应商操作手册', version: 'V2026.07', updateTime: '2026-07-06', desc: '供应商注册、响应、开启全流程图文说明', category: '操作手册', content: '供应商操作手册（演示内容）\n版本：V2026.07\n更新日期：2026-07-06', status: 'published' },
+  { id: 4, name: '采购单位操作手册', version: 'V2026.07', updateTime: '2026-07-06', desc: '项目创建、公告发布、评审成交确认说明', category: '操作手册', content: '采购单位操作手册（演示内容）\n版本：V2026.07\n更新日期：2026-07-06', status: 'published' },
+  { id: 5, name: '采购代理操作手册', version: 'V2026.06', updateTime: '2026-06-28', desc: '代理项目执行、专家抽取、异常处理指南', category: '操作手册', content: '采购代理操作手册（演示内容）\n版本：V2026.06\n更新日期：2026-06-28', status: 'published' },
+  { id: 6, name: '评审专家操作手册', version: 'V2026.06', updateTime: '2026-06-28', desc: '在线评审、打分、出具评审报告操作指南', category: '操作手册', content: '评审专家操作手册（演示内容）\n版本：V2026.06\n更新日期：2026-06-28', status: 'published' }
+]
+
+const defaultHelpDocs = [
+  { id: 1, title: '如何注册成为平台供应商？', category: '操作指南', content: '点击首页右上角"注册"，选择"供应商"角色，填写企业基本信息并上传营业执照、资质证书等材料，提交后等待平台管理员审核。\n\n操作步骤：\n1. 访问平台首页，点击右上角"注册"按钮\n2. 选择"供应商"角色\n3. 填写企业基本信息（企业名称、统一社会信用代码、法人信息等）\n4. 上传营业执照、资质证书等材料\n5. 提交申请，等待平台管理员审核', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 2, title: '如何参与项目响应？', category: '操作指南', content: '供应商完成入库审核后无需报名。使用供应商账号登录，在"项目中心"找到目标项目，直接下载采购文件并编制响应文件；邀请采购项目需收到邀请后方可参与。', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 3, title: '响应文件如何上传？', category: '操作指南', content: '进入"我参与的项目"，选择对应项目点击"上传响应文件"，使用CA证书签章后提交。请确保在上传前已完成响应文件的编制和检查。', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 4, title: '忘记CA证书密码怎么办？', category: '常见问题', content: '请联系您的CA证书颁发机构进行密码重置，或拨打平台技术支持电话400-123-4567咨询。', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 5, title: 'CA证书插入后无法识别？', category: '常见问题', content: '请确认已安装最新版CA驱动（可在下载中心下载），并尝试更换USB接口或浏览器。如仍无法识别，请联系技术支持。', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 6, title: '中选后需要缴纳哪些费用？', category: '常见问题', content: '按平台口径，响应阶段不缴纳保证金和文件费；采购结果发布后，由中选人线下缴纳响应费用，采购单位/代理在"费用台账"登记凭证。', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 7, title: '平台技术支持联系方式', category: '联系方式', content: '电话：400-123-4567（工作日 9:00-18:00）\n邮箱：support@bidding-platform.example.com\n地址：XX市XX区公共资源交易中心 3 楼电子采购服务窗口', updateTime: '2026-07-10', status: 'published', attachments: [] }
 ]
 
 function clone(value) {
@@ -71,8 +87,32 @@ export const portalStore = {
   saveDownloads() {
     return null
   },
+  getPublishedDownloads() {
+    return this.getDownloads().filter((d) => d.status === 'published')
+  },
   getDownloadById(id) {
     return this.getDownloads().find((d) => d.id === id)
+  },
+  getBanners() {
+    return clone(defaultBanners)
+  },
+  saveBanners() {
+    return null
+  },
+  getPublishedBanners() {
+    return this.getBanners().filter((b) => b.status === 'published')
+  },
+  getHelpDocs() {
+    return clone(defaultHelpDocs)
+  },
+  saveHelpDocs() {
+    return null
+  },
+  getPublishedHelpDocs() {
+    return this.getHelpDocs().filter((h) => h.status === 'published')
+  },
+  getHelpDocById(id) {
+    return this.getHelpDocs().find((h) => String(h.id) === String(id))
   }
 }
 

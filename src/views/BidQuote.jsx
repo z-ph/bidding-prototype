@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { Alert, Button, Card, Col, Form, Input, Row, Steps, Table, Tag, message } from 'antd'
-import { InfoCircleFilled } from '@ant-design/icons'
+import { Alert, Button, Card, Col, Form, Input, Row, Steps, Switch, Table, Tag, Upload, message } from 'antd'
+import { InfoCircleFilled, UploadOutlined } from '@ant-design/icons'
 import { projectStore } from '../data/projects.js'
 import { quoteStore } from '../data/quoteStore.js'
 import { useRole } from '../hooks/useRole.js'
@@ -55,6 +55,8 @@ export default function BidQuote() {
   useEffect(() => {
     setItems(savedQuote?.items || DEFAULT_ITEMS)
   }, [savedQuote])
+
+  const [enableItemizedPricing, setEnableItemizedPricing] = useState(false)
 
   // 阶段页面守卫（位于所有 hooks 之后）：无 URL projectId 时阻断，引导返回项目中心
   if (!projectId) {
@@ -140,6 +142,12 @@ export default function BidQuote() {
           />
         )}
 
+        <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span>启用分项报价</span>
+          <Switch checked={enableItemizedPricing} onChange={setEnableItemizedPricing} />
+          <span style={{ color: '#999', fontSize: 13 }}>关闭后仅需填写总报价并上传报价文件</span>
+        </div>
+
         <h3>开启一览表</h3>
         <Form labelCol={{ flex: '0 0 140px' }} wrapperCol={{ flex: 'auto' }} className="quote-form">
           <Row gutter={20}>
@@ -158,14 +166,31 @@ export default function BidQuote() {
           </Row>
         </Form>
 
-        <h3>分项报价</h3>
-        <Table
-          columns={columns}
-          dataSource={items}
-          rowKey="name"
-          pagination={false}
-          style={{ width: '100%', marginBottom: 20 }}
-        />
+        {enableItemizedPricing && (
+          <>
+            <h3>分项报价</h3>
+            <Table
+              columns={columns}
+              dataSource={items}
+              rowKey="name"
+              pagination={false}
+              style={{ width: '100%', marginBottom: 20 }}
+            />
+          </>
+        )}
+
+        {!enableItemizedPricing && (
+          <>
+            <h3>报价文件</h3>
+            <div style={{ marginBottom: 20 }}>
+              <Upload.Dragger beforeUpload={() => false} multiple={false}>
+                <p className="ant-upload-drag-icon"><UploadOutlined style={{ fontSize: 48, color: '#409EFF' }} /></p>
+                <p className="ant-upload-text">将报价文件拖拽到此处，或 <em>点击上传</em></p>
+                <p className="ant-upload-hint">支持 PDF、ZIP、DOCX 格式</p>
+              </Upload.Dragger>
+            </div>
+          </>
+        )}
 
         <div className="quote-tips">
           <p><InfoCircleFilled /> 报价将用于开启唱价，请确保与上传的报价文件一致。</p>

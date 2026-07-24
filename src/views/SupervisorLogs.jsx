@@ -40,7 +40,7 @@ export default function SupervisorLogs() {
         }
       >
         <Alert
-          title="本页记录开启、评审过程中的关键操作，包括签到、解密、唱价、评分、签名等行为。"
+          title="本页记录开启、评审过程中的关键操作，包括签到、解密、唱价、评分、签名等行为。所有 IP 地址为演示数据。"
           type="info"
           showIcon
           closable={false}

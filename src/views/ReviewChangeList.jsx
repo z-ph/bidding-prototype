@@ -4,6 +4,9 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0724 P1/P2 需求实施
+  { id: '0724-002', source: '0724需求实施', module: '全站', page: 'Login/Register/SupplierLedger/SupervisorHall/analyticsStore/AdminDownloads/AdminHelp/BidQuote/BidUpload/OpeningHall/EvaluationHall/ExpertExtraction/ExpertProfile/Portal/Downloads/Help 等 30+ 文件', severity: '中', issue: '采购平台DEMO反馈整理.md 第二节 P1/P2 需求：验证码防护缺失、无供应商台账、监督覆盖不全（仅开启+评审）、IP 风险预警缺失、内容管理缺少下载/帮助发布、流程交互多处理想化设计（分项报价门槛高、响应文件上传重复、开启缺响应单位确认与导出、评审无报表导出、专家缺品目分类、供应商注册缺类型选择）', status: '已修复', fix: 'P1.1 图形验证码（Canvas 数学题 + Modal）→ 短信验证码 → 登录/注册；P1.2 供应商台账（supplierStore + SupplierLedger CRUD + 审核，74 个文件路由权限菜单）→ P1.3 监督大厅 5 Tab 全流程覆盖（采购准备/响应监督/开启监督/评审监督/成交确认）→ P1.4 IP 预警规则（analyticsStore sameIpResponse + 种子数据）→ P2.1 内容管理下载/帮助发布（AdminDownloads/AdminHelp，portalStore 扩展 banners/helpDocs）→ P2.2 分项报价默认关闭/BidUpload 询比族去重/OpeningHall 专家门禁+确认+导出/EvaluationHall 6项报表导出/专家品目分类/供应商注册类型选择。Playwright 抽查构建通过', commit: 'feat(p1p2)' },
+
   // 0724 P0 用词整改
   { id: '0724-001', source: '0724用词整改', module: '全站', page: '74 个 JSX/JS 文件 + index.html', severity: '高', issue: '平台定位为内部采购平台，全站大量使用"招标/投标/中标/开标/评标/定标/唱标"等敏感词，审计风险高。采购平台DEMO反馈整理.md 第一节要求 7 对核心映射 + 全局禁用"公开/招标/投标"', status: '已修复', fix: '全站 ~430 处文案替换：招标→采购、投标→响应、中标→中选、开标→开启、评标→评审、定标→成交确认、唱标→唱价、招标人→采购单位、投标人→响应单位、招标代理→采购代理、招标文件→采购文件、投标文件→响应文件、中标通知书→中选通知书、标段→采购包、标书→采购文件、发标→发布采购、公开招标→公开采购、邀请招标→邀请采购、公开询比价→公开询比、邀请询比价→邀请询比、候选人公示→采购结果公告、本月招标→本月采购事项、招投标平台→采购平台等。脚本化三轮替换 + 构建验证 + Playwright 页面抽查（门户/登录/工作台）无残留。changelog/ReviewChangeList 历史条目保留原样', commit: 'fix(p0-terminology)' },
 

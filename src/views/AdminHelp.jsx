@@ -28,13 +28,10 @@ const { Option } = Select
 const { TextArea } = Input
 
 const categories = [
-  '平台公告',
-  '培训通知',
-  '办事指南',
+  '操作指南',
+  '常见问题',
   '政策法规',
-  '产品更新',
-  '采购信息',
-  '常见问题'
+  '联系方式'
 ]
 
 const statusMap = {
@@ -43,22 +40,22 @@ const statusMap = {
   offline: '已下线'
 }
 
-export default function AdminNews() {
+export default function AdminHelp() {
   const navigate = useNavigate()
-  const [news, setNews] = useState(() => portalStore.getNews())
+  const [helpDocs, setHelpDocs] = useState(() => portalStore.getHelpDocs())
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form] = Form.useForm()
 
   const refresh = (next) => {
-    setNews(next)
-    portalStore.saveNews(next)
+    setHelpDocs(next)
+    portalStore.saveHelpDocs(next)
   }
 
   const openCreate = () => {
     setEditing(null)
     form.resetFields()
-    form.setFieldsValue({ status: 'published', category: '平台公告' })
+    form.setFieldsValue({ status: 'published', category: '操作指南' })
     setModalOpen(true)
   }
 
@@ -74,41 +71,41 @@ export default function AdminNews() {
   }
 
   const handleOffline = (record) => {
-    const next = news.map((n) =>
-      n.id === record.id ? { ...n, status: 'offline' } : n
+    const next = helpDocs.map((h) =>
+      h.id === record.id ? { ...h, status: 'offline' } : h
     )
     refresh(next)
-    message.success('新闻已下线')
+    message.success('文档已下线')
   }
 
   const handlePublish = (record) => {
-    const next = news.map((n) =>
-      n.id === record.id ? { ...n, status: 'published' } : n
+    const next = helpDocs.map((h) =>
+      h.id === record.id ? { ...h, status: 'published' } : h
     )
     refresh(next)
-    message.success('新闻已发布')
+    message.success('文档已发布')
   }
 
   const handleSave = () => {
     form.validateFields().then((values) => {
       const now = new Date().toISOString().slice(0, 10)
       if (editing) {
-        const next = news.map((n) =>
-          n.id === editing.id
-            ? { ...n, ...values, publishTime: values.status === 'published' && n.status !== 'published' ? now : n.publishTime }
-            : n
+        const next = helpDocs.map((h) =>
+          h.id === editing.id
+            ? { ...h, ...values, updateTime: values.status === 'published' && h.status !== 'published' ? now : h.updateTime }
+            : h
         )
         refresh(next)
-        message.success('新闻已更新')
+        message.success('文档已更新')
       } else {
         const newItem = {
           id: Date.now(),
           ...values,
-          publishTime: values.status === 'published' ? now : '-',
+          updateTime: values.status === 'published' ? now : '-',
           attachments: []
         }
-        refresh([newItem, ...news])
-        message.success('新闻已创建')
+        refresh([newItem, ...helpDocs])
+        message.success('文档已创建')
       }
       setModalOpen(false)
     })
@@ -128,7 +125,7 @@ export default function AdminNews() {
         </Tag>
       )
     },
-    { title: '发布时间', dataIndex: 'publishTime', key: 'publishTime', width: 120 },
+    { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 120 },
     {
       title: '操作',
       key: 'action',
@@ -153,40 +150,40 @@ export default function AdminNews() {
   ]
 
   return (
-    <div className="admin-news">
+    <div className="admin-help">
       <Card
         title={
-          <div className="admin-news-header">
+          <div className="admin-help-header">
             <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate({ to: '/admin/dashboard' })}>
               返回
             </Button>
-            <span>新闻公告维护</span>
+            <span>帮助中心管理</span>
           </div>
         }
         extra={
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            新增新闻
+            新增文档
           </Button>
         }
       >
-        <Table rowKey="id" dataSource={news} columns={columns} pagination={{ pageSize: 10 }} />
+        <Table rowKey="id" dataSource={helpDocs} columns={columns} pagination={{ pageSize: 10 }} />
       </Card>
 
       <Modal
-        title={editing ? '编辑新闻' : '新增新闻'}
+        title={editing ? '编辑文档' : '新增文档'}
         open={modalOpen}
         onOk={handleSave}
         onCancel={() => setModalOpen(false)}
         width={720}
         destroyOnClose
       >
-        <Form form={form} layout="vertical" initialValues={{ status: 'published', category: '平台公告' }}>
+        <Form form={form} layout="vertical" initialValues={{ status: 'published', category: '操作指南' }}>
           <Form.Item
             label="标题"
             name="title"
             rules={[{ required: true, message: '请输入标题' }]}
           >
-            <Input placeholder="请输入新闻标题" />
+            <Input placeholder="请输入文档标题" />
           </Form.Item>
           <Form.Item
             label="分类"
@@ -204,16 +201,11 @@ export default function AdminNews() {
             name="content"
             rules={[{ required: true, message: '请输入正文' }]}
           >
-            <TextArea rows={8} placeholder="请输入新闻正文" />
+            <TextArea rows={8} placeholder="请输入文档正文" />
           </Form.Item>
           <Form.Item label="附件">
             <Upload beforeUpload={() => false}>
               <Button icon={<UploadOutlined />}>上传附件</Button>
-            </Upload>
-          </Form.Item>
-          <Form.Item label="封面图片">
-            <Upload beforeUpload={() => false} listType="picture" maxCount={1}>
-              <Button icon={<UploadOutlined />}>上传封面图片</Button>
             </Upload>
           </Form.Item>
           <Form.Item
@@ -230,12 +222,12 @@ export default function AdminNews() {
       </Modal>
 
       <style>{`
-        .admin-news {
+        .admin-help {
           max-width: 1200px;
           margin: 0 auto;
           padding: 20px;
         }
-        .admin-news-header {
+        .admin-help-header {
           display: flex;
           align-items: center;
           gap: 12px;

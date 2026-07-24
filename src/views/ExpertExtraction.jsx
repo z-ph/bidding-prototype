@@ -19,6 +19,15 @@ const FIELD_OPTIONS = [
   { label: '软件工程', value: '软件工程' }
 ]
 
+const CATEGORY_OPTIONS = [
+  { label: '交通', value: '交通' },
+  { label: '建筑', value: '建筑' },
+  { label: '通信', value: '通信' },
+  { label: '水利', value: '水利' },
+  { label: '环保', value: '环保' },
+  { label: '市政', value: '市政' }
+]
+
 const BIDDER_ORGS = ['A科技有限公司', 'B实业有限公司', 'C股份有限公司', 'D集团有限公司']
 
 const CONFIRM_STATUS = {
@@ -52,6 +61,7 @@ export default function ExpertExtraction() {
   const initialProject = PROJECT_OPTIONS.find((p) => p.id === String(projectIdFromQuery))
   const [projectId, setProjectId] = useState(String(projectIdFromQuery))
   const [fields, setFields] = useState(initialProject?.fields || [])
+  const [categories, setCategories] = useState([])
   const [count, setCount] = useState(3)
   const [benchCount, setBenchCount] = useState(2)
   const [avoidOrgs, setAvoidOrgs] = useState([])
@@ -187,6 +197,16 @@ export default function ExpertExtraction() {
               onChange={setFields}
               options={FIELD_OPTIONS}
               placeholder="选择项目所需专业领域"
+            />
+          </Form.Item>
+          <Form.Item label="品目分类">
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              value={categories}
+              onChange={setCategories}
+              options={CATEGORY_OPTIONS}
+              placeholder="选择项目品目分类"
             />
           </Form.Item>
           <Form.Item label="抽取人数">

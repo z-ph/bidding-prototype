@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { Alert, Button, Card, Descriptions, Empty, Form, Input, Modal, Radio, Table, Tabs, Tag, Timeline, message } from 'antd'
+import { Alert, Button, Card, Descriptions, Empty, Form, Input, Modal, Radio, Space, Table, Tabs, Tag, Timeline, message } from 'antd'
 import { useRole } from '../hooks/useRole.js'
 import { evaluationStore } from '../data/evaluationStore.js'
 import { expertStore } from '../data/expertStore.js'
@@ -556,6 +556,20 @@ export default function EvaluationHall() {
           onChange={setActiveTab}
           items={tabItems}
         />
+
+        {/* 评审完成后导出报表 */}
+        {(evalData.status === 'submitted' || evalData.status === 'confirmed') && ['tenderee', 'agent', 'supervisor'].includes(role) && (
+          <Card size="small" title="导出报表" style={{ marginTop: 20 }}>
+            <Space wrap>
+              <Button onClick={() => message.success('正在导出响应单位签到表...')}>响应单位签到表</Button>
+              <Button onClick={() => message.success('正在导出开启一览表...')}>开启一览表</Button>
+              <Button onClick={() => message.success('正在导出专家签到表...')}>专家签到表</Button>
+              <Button onClick={() => message.success('正在导出评审报告...')}>评审报告</Button>
+              <Button onClick={() => message.success('正在导出成交报告...')}>成交报告</Button>
+              <Button onClick={() => message.success('正在导出响应文件...')}>响应文件下载</Button>
+            </Space>
+          </Card>
+        )}
 
         {operationRecords.length > 0 && (
           <Card size="small" title="操作记录" style={{ marginTop: 20 }}>

@@ -6,6 +6,7 @@ export default function ExpertProfile() {
     name: '专家甲',
     idCard: '11010119800101XXXX',
     field: '电子信息',
+    category: '交通',
     title: '高级工程师',
     company: 'XX研究院',
     avoidCompanies: []
@@ -59,6 +60,23 @@ export default function ExpertProfile() {
                     { label: '电子信息', value: '电子信息' },
                     { label: '机械设备', value: '机械设备' },
                     { label: '工程造价', value: '工程造价' }
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="品目分类">
+                <Select
+                  style={{ width: '100%' }}
+                  value={form.category}
+                  onChange={(value) => updateField('category', value)}
+                  options={[
+                    { label: '交通', value: '交通' },
+                    { label: '建筑', value: '建筑' },
+                    { label: '通信', value: '通信' },
+                    { label: '水利', value: '水利' },
+                    { label: '环保', value: '环保' },
+                    { label: '市政', value: '市政' }
                   ]}
                 />
               </Form.Item>

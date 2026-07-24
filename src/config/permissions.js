@@ -84,6 +84,8 @@ export const PAGE_PERMISSIONS = {
   '/admin/admin-supplier-audit': ['admin'],
   '/admin/admin-logs': ['admin'],
   '/admin/admin-news': ['admin'],
+  '/admin/admin-downloads': ['admin'],
+  '/admin/admin-help': ['admin'],
   '/admin/organization': ['admin'],
   '/admin/sub-accounts': ['admin'],
   '/admin/notification-manage': ['admin'],
@@ -92,6 +94,9 @@ export const PAGE_PERMISSIONS = {
 
   // 供应商档案
   '/admin/supplier-profile': ['bidder'],
+
+  // 供应商台账（采购单位、采购代理查看，管理员管理）
+  '/admin/supplier-ledger': ['tenderee', 'agent', 'admin'],
 
   // 专家信息
   '/admin/expert-profile': ['expert'],
@@ -155,6 +160,8 @@ export const BREADCRUMB_NAMES = {
   MessageCenter: '消息中心',
   SupervisorAbnormal: '异常登记',
   AdminNews: '新闻公告维护',
+  AdminDownloads: '下载中心管理',
+  AdminHelp: '帮助中心管理',
   NoticeDetail: '公告详情',
   Contact: '联系我们',
   ProjectDetail: '项目详情',
@@ -166,7 +173,8 @@ export const BREADCRUMB_NAMES = {
   SystemSettings: '系统设置',
   ProcurementAnalytics: '采购数据分析',
   ApprovalCenter: '审批中心',
-  ApprovalFlowConfig: '审批流配置'
+  ApprovalFlowConfig: '审批流配置',
+  SupplierLedger: '供应商台账'
 }
 
 // 统一业务状态颜色
@@ -191,6 +199,7 @@ export const STATUS_COLORS = {
   已完成: 'success',
   已中选: 'success',
   已发布: 'success',
+  已下线: 'default',
   已归档: 'success',
   已驳回: 'danger',
   已废标: 'danger',

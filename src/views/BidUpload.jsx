@@ -25,6 +25,7 @@ import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 import { projectStore } from '../data/projects.js'
 import { clauseStore, defaultClauses } from '../data/clauseStore.js'
+import { isInquiryFamily } from './ProjectList.jsx'
 
 export default function BidUpload() {
   const navigate = useNavigate()
@@ -46,12 +47,25 @@ export default function BidUpload() {
     ]
   }, [projectId])
 
-  // 必传文件类型清单（按采购文件模板要求），用于齐全性校验与制作向导
-  const requiredFileTypes = [
-    { type: '商务标', desc: '响应函、授权委托书、营业执照等' },
-    { type: '技术标', desc: '技术方案、项目实施方案、参数响应表等' },
-    { type: '报价标', desc: '报价一览表、分项报价表等' }
-  ]
+  // 项目对象与采购方式判断
+  const project = useMemo(() => projectStore.getProjectById(projectId), [projectId])
+  const inquiryFamily = useMemo(() => isInquiryFamily(project), [project])
+
+  // 必传文件类型清单按项目采购方式区分：招标族商务标/技术标/报价标，询比族证书/业绩/报价文件
+  const requiredFileTypes = useMemo(() => {
+    if (inquiryFamily) {
+      return [
+        { type: '证书', desc: '营业执照、资质证书等' },
+        { type: '业绩', desc: '类似项目业绩证明材料等' },
+        { type: '报价文件', desc: '报价一览表等' }
+      ]
+    }
+    return [
+      { type: '商务标', desc: '响应函、授权委托书、营业执照等' },
+      { type: '技术标', desc: '技术方案、项目实施方案、参数响应表等' },
+      { type: '报价标', desc: '报价一览表、分项报价表等' }
+    ]
+  }, [inquiryFamily])
 
   const [uploadFiles, setUploadFiles] = useState([])
   const [fileList, setFileList] = useState([
@@ -380,6 +394,14 @@ export default function BidUpload() {
           style={{ marginBottom: 20 }}
         />
 
+        <Alert
+          title={inquiryFamily ? '当前为询比项目，仅需上传证书、业绩和报价文件' : '当前为招标项目，需上传响应函、技术方案和报价单'}
+          type="info"
+          showIcon
+          closable={false}
+          style={{ marginBottom: 20 }}
+        />
+
         <Form
           form={form}
           initialValues={{ encryptMode: 'ca', packages: [], projectId: projectId ? String(projectId) : undefined }}
@@ -456,7 +478,11 @@ export default function BidUpload() {
           <Card size="small" className="wizard-card" style={{ marginBottom: 16, background: '#f6f8fa' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
               <strong style={{ marginRight: 8 }}>响应文件制作向导</strong>
-              <span style={{ color: '#666', fontSize: 12 }}>按采购文件模板，商务标/技术标/报价标三类缺一不可，避免废标</span>
+              <span style={{ color: '#666', fontSize: 12 }}>
+                {inquiryFamily
+                  ? '询比项目，需上传证书、业绩和报价文件'
+                  : '按采购文件模板，商务标/技术标/报价标三类缺一不可，避免废标'}
+              </span>
             </div>
             <Space wrap>
               {requiredFileTypes.map((r) => {

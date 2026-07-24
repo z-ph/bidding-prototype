@@ -11,14 +11,12 @@ import {
   Input,
   Select,
   Radio,
-  Upload,
   message
 } from 'antd'
 import {
   PlusOutlined,
   EditOutlined,
   DownOutlined,
-  UploadOutlined,
   ArrowLeftOutlined
 } from '@ant-design/icons'
 import { STATUS_COLORS } from '../config/permissions.js'
@@ -28,13 +26,10 @@ const { Option } = Select
 const { TextArea } = Input
 
 const categories = [
-  '平台公告',
-  '培训通知',
-  '办事指南',
-  '政策法规',
-  '产品更新',
-  '采购信息',
-  '常见问题'
+  '操作手册',
+  '驱动工具',
+  '模板文件',
+  '政策法规'
 ]
 
 const statusMap = {
@@ -43,30 +38,32 @@ const statusMap = {
   offline: '已下线'
 }
 
-export default function AdminNews() {
+export default function AdminDownloads() {
   const navigate = useNavigate()
-  const [news, setNews] = useState(() => portalStore.getNews())
+  const [downloads, setDownloads] = useState(() => portalStore.getDownloads())
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form] = Form.useForm()
 
   const refresh = (next) => {
-    setNews(next)
-    portalStore.saveNews(next)
+    setDownloads(next)
+    portalStore.saveDownloads(next)
   }
 
   const openCreate = () => {
     setEditing(null)
     form.resetFields()
-    form.setFieldsValue({ status: 'published', category: '平台公告' })
+    form.setFieldsValue({ status: 'published', category: '操作手册' })
     setModalOpen(true)
   }
 
   const openEdit = (record) => {
     setEditing(record)
     form.setFieldsValue({
-      title: record.title,
+      name: record.name,
       category: record.category,
+      version: record.version,
+      desc: record.desc,
       content: record.content,
       status: record.status
     })
@@ -74,48 +71,47 @@ export default function AdminNews() {
   }
 
   const handleOffline = (record) => {
-    const next = news.map((n) =>
-      n.id === record.id ? { ...n, status: 'offline' } : n
+    const next = downloads.map((d) =>
+      d.id === record.id ? { ...d, status: 'offline' } : d
     )
     refresh(next)
-    message.success('新闻已下线')
+    message.success('资源已下线')
   }
 
   const handlePublish = (record) => {
-    const next = news.map((n) =>
-      n.id === record.id ? { ...n, status: 'published' } : n
+    const next = downloads.map((d) =>
+      d.id === record.id ? { ...d, status: 'published' } : d
     )
     refresh(next)
-    message.success('新闻已发布')
+    message.success('资源已发布')
   }
 
   const handleSave = () => {
     form.validateFields().then((values) => {
       const now = new Date().toISOString().slice(0, 10)
       if (editing) {
-        const next = news.map((n) =>
-          n.id === editing.id
-            ? { ...n, ...values, publishTime: values.status === 'published' && n.status !== 'published' ? now : n.publishTime }
-            : n
+        const next = downloads.map((d) =>
+          d.id === editing.id
+            ? { ...d, ...values, updateTime: values.status === 'published' && d.status !== 'published' ? now : d.updateTime }
+            : d
         )
         refresh(next)
-        message.success('新闻已更新')
+        message.success('资源已更新')
       } else {
         const newItem = {
           id: Date.now(),
           ...values,
-          publishTime: values.status === 'published' ? now : '-',
-          attachments: []
+          updateTime: values.status === 'published' ? now : '-',
         }
-        refresh([newItem, ...news])
-        message.success('新闻已创建')
+        refresh([newItem, ...downloads])
+        message.success('资源已创建')
       }
       setModalOpen(false)
     })
   }
 
   const columns = [
-    { title: '标题', dataIndex: 'title', key: 'title', ellipsis: true },
+    { title: '文件名称', dataIndex: 'name', key: 'name', ellipsis: true },
     { title: '分类', dataIndex: 'category', key: 'category', width: 120 },
     {
       title: '状态',
@@ -128,7 +124,8 @@ export default function AdminNews() {
         </Tag>
       )
     },
-    { title: '发布时间', dataIndex: 'publishTime', key: 'publishTime', width: 120 },
+    { title: '版本', dataIndex: 'version', key: 'version', width: 100 },
+    { title: '更新时间', dataIndex: 'updateTime', key: 'updateTime', width: 120 },
     {
       title: '操作',
       key: 'action',
@@ -153,40 +150,40 @@ export default function AdminNews() {
   ]
 
   return (
-    <div className="admin-news">
+    <div className="admin-downloads">
       <Card
         title={
-          <div className="admin-news-header">
+          <div className="admin-downloads-header">
             <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate({ to: '/admin/dashboard' })}>
               返回
             </Button>
-            <span>新闻公告维护</span>
+            <span>下载中心管理</span>
           </div>
         }
         extra={
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            新增新闻
+            新增资源
           </Button>
         }
       >
-        <Table rowKey="id" dataSource={news} columns={columns} pagination={{ pageSize: 10 }} />
+        <Table rowKey="id" dataSource={downloads} columns={columns} pagination={{ pageSize: 10 }} />
       </Card>
 
       <Modal
-        title={editing ? '编辑新闻' : '新增新闻'}
+        title={editing ? '编辑资源' : '新增资源'}
         open={modalOpen}
         onOk={handleSave}
         onCancel={() => setModalOpen(false)}
-        width={720}
+        width={640}
         destroyOnClose
       >
-        <Form form={form} layout="vertical" initialValues={{ status: 'published', category: '平台公告' }}>
+        <Form form={form} layout="vertical" initialValues={{ status: 'published', category: '操作手册' }}>
           <Form.Item
-            label="标题"
-            name="title"
-            rules={[{ required: true, message: '请输入标题' }]}
+            label="文件名称"
+            name="name"
+            rules={[{ required: true, message: '请输入文件名称' }]}
           >
-            <Input placeholder="请输入新闻标题" />
+            <Input placeholder="请输入文件名称" />
           </Form.Item>
           <Form.Item
             label="分类"
@@ -199,22 +196,14 @@ export default function AdminNews() {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
-            label="正文"
-            name="content"
-            rules={[{ required: true, message: '请输入正文' }]}
-          >
-            <TextArea rows={8} placeholder="请输入新闻正文" />
+          <Form.Item label="版本" name="version">
+            <Input placeholder="例如 V1.0.0" />
           </Form.Item>
-          <Form.Item label="附件">
-            <Upload beforeUpload={() => false}>
-              <Button icon={<UploadOutlined />}>上传附件</Button>
-            </Upload>
+          <Form.Item label="说明" name="desc">
+            <Input placeholder="请输入资源说明" />
           </Form.Item>
-          <Form.Item label="封面图片">
-            <Upload beforeUpload={() => false} listType="picture" maxCount={1}>
-              <Button icon={<UploadOutlined />}>上传封面图片</Button>
-            </Upload>
+          <Form.Item label="文件内容（模拟下载内容）" name="content">
+            <TextArea rows={6} placeholder="请输入模拟下载的文本内容" />
           </Form.Item>
           <Form.Item
             label="状态"
@@ -230,12 +219,12 @@ export default function AdminNews() {
       </Modal>
 
       <style>{`
-        .admin-news {
+        .admin-downloads {
           max-width: 1200px;
           margin: 0 auto;
           padding: 20px;
         }
-        .admin-news-header {
+        .admin-downloads-header {
           display: flex;
           align-items: center;
           gap: 12px;

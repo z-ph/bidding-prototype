@@ -69,7 +69,8 @@ function useMenuItems(role) {
       children: [
         { key: '/admin/notice-list', label: '公告列表' },
         { key: '/admin/supplier-authorization', label: '供应商授权' },
-        { key: '/admin/fee-manage', label: '费用台账' }
+        { key: '/admin/fee-manage', label: '费用台账' },
+        { key: '/admin/supplier-ledger', label: '供应商台账' }
       ]
     },
     { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
@@ -107,7 +108,8 @@ function useMenuItems(role) {
       children: [
         { key: '/admin/notice-list', label: '公告列表' },
         { key: '/admin/supplier-authorization', label: '供应商授权' },
-        { key: '/admin/fee-manage', label: '费用台账' }
+        { key: '/admin/fee-manage', label: '费用台账' },
+        { key: '/admin/supplier-ledger', label: '供应商台账' }
       ]
     },
     { key: '/admin/approval-center', label: '审批中心', icon: AuditOutlined },
@@ -148,7 +150,8 @@ function useMenuItems(role) {
       children: [
         { key: '/admin/admin-users', label: '用户权限' },
         { key: '/admin/organization', label: '组织机构' },
-        { key: '/admin/sub-accounts', label: '子账号管理' }
+        { key: '/admin/sub-accounts', label: '子账号管理' },
+        { key: '/admin/supplier-ledger', label: '供应商台账' }
       ]
     },
     {
@@ -168,7 +171,9 @@ function useMenuItems(role) {
       label: '内容管理',
       icon: FileTextOutlined,
       children: [
-        { key: '/admin/admin-news', label: '新闻公告维护' }
+        { key: '/admin/admin-news', label: '新闻公告维护' },
+        { key: '/admin/admin-downloads', label: '下载中心管理' },
+        { key: '/admin/admin-help', label: '帮助中心管理' }
       ]
     },
     { key: '/admin/admin-supplier-audit', label: '准入审核', icon: FileProtectOutlined },

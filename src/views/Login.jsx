@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {
   Button,
+  Modal,
   Tabs,
   Form,
   Input,
@@ -36,6 +37,12 @@ export default function Login() {
   const [phoneForm] = Form.useForm()
   const [caForm] = Form.useForm()
   const [countdown, setCountdown] = useState(0)
+  const [captchaVisible, setCaptchaVisible] = useState(false)
+  const [captchaAnswer, setCaptchaAnswer] = useState(0)
+  const [captchaInput, setCaptchaInput] = useState('')
+  const [a, setA] = useState(0)
+  const [b, setB] = useState(0)
+  const canvasRef = useRef(null)
   const [caStatus, setCaStatus] = useState({ status: 'idle', message: '' })
 
   useEffect(() => {
@@ -49,6 +56,27 @@ export default function Login() {
     const id = setInterval(() => setCountdown((c) => c - 1), 1000)
     return () => clearInterval(id)
   }, [countdown])
+
+  useEffect(() => {
+    if (!captchaVisible || !canvasRef.current) return
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, 200, 60)
+    ctx.fillStyle = '#f0f0f0'
+    ctx.fillRect(0, 0, 200, 60)
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath()
+      ctx.moveTo(Math.random() * 200, Math.random() * 60)
+      ctx.lineTo(Math.random() * 200, Math.random() * 60)
+      ctx.strokeStyle = '#ccc'
+      ctx.stroke()
+    }
+    ctx.font = '28px Arial'
+    ctx.fillStyle = '#333'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(`${a} + ${b} = ?`, 100, 30)
+  }, [captchaVisible, a, b])
 
   const dashboardMap = {
     tenderee: '/admin/dashboard',
@@ -73,9 +101,28 @@ export default function Login() {
     doLogin(resolvedRole, rawAccount, '账号密码')
   }
 
-  const sendCode = () => {
+  const generateCaptcha = () => {
+    const newA = Math.floor(Math.random() * 20) + 1
+    const newB = Math.floor(Math.random() * 20) + 1
+    setA(newA)
+    setB(newB)
+    setCaptchaAnswer(newA + newB)
+  }
+
+  const confirmCaptcha = () => {
+    if (Number(captchaInput) !== captchaAnswer) {
+      message.error('图形验证码错误')
+      return
+    }
+    setCaptchaVisible(false)
+    setCaptchaInput('')
     message.success('验证码已发送：123456')
     setCountdown(60)
+  }
+
+  const sendCode = () => {
+    generateCaptcha()
+    setCaptchaVisible(true)
   }
 
   // 纯演示：手机号登录默认作为响应单位
@@ -292,6 +339,31 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      <Modal
+        title="图形验证码"
+        open={captchaVisible}
+        onCancel={() => { setCaptchaVisible(false); setCaptchaInput('') }}
+        footer={null}
+        destroyOnClose
+      >
+        <div style={{ textAlign: 'center', padding: '8px 0' }}>
+          <canvas ref={canvasRef} width={200} height={60} style={{ border: '1px solid #ddd', borderRadius: 4 }} />
+          <div style={{ marginTop: 12 }}>
+            <Input
+              placeholder="请输入计算结果"
+              value={captchaInput}
+              onChange={(e) => setCaptchaInput(e.target.value)}
+              style={{ width: 200 }}
+              onPressEnter={confirmCaptcha}
+            />
+          </div>
+          <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center', gap: 8 }}>
+            <Button type="primary" onClick={confirmCaptcha}>确认</Button>
+            <Button onClick={() => { generateCaptcha(); setCaptchaInput('') }}>重新生成</Button>
+          </div>
+        </div>
+      </Modal>
 
       <style>{`
         .login-page {

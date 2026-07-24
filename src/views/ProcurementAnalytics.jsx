@@ -38,12 +38,13 @@ const projectName = (id) => PROJECT_NAMES[String(id)] || (id ? `项目 ${id}` : 
 
 const formatPrice = (v) => Number(v).toLocaleString('zh-CN', { maximumFractionDigits: 2 })
 
-const RULE_ORDER = ['sameLegalPerson', 'parentChild', 'abnormalHighPrice']
-const RULE_COLORS = { sameLegalPerson: 'volcano', parentChild: 'geekblue', abnormalHighPrice: 'red' }
+const RULE_ORDER = ['sameLegalPerson', 'parentChild', 'abnormalHighPrice', 'sameIpResponse']
+const RULE_COLORS = { sameLegalPerson: 'volcano', parentChild: 'geekblue', abnormalHighPrice: 'red', sameIpResponse: 'purple' }
 const RULE_DESCS = {
   sameLegalPerson: '多家供应商的法定代表人为同一人时生成预警',
   parentChild: '供应商之间存在上下级（母公司 / 分公司等）关系时生成预警',
-  abnormalHighPrice: '供应商报价高出同材料历史均价超过设定阈值时生成预警'
+  abnormalHighPrice: '供应商报价高出同材料历史均价超过设定阈值时生成预警',
+  sameIpResponse: '不同响应单位使用相同 IP 地址进行关键操作（下载采购文件/上传响应文件/提交报价等）时生成预警'
 }
 
 export default function ProcurementAnalytics() {
