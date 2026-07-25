@@ -8,7 +8,7 @@ const QUAL_KEY = 'bidding-supplier-quals'
 
 const qualificationTypes = [
   { key: '营业执照', label: '营业执照', needExpiry: false },
-  { key: 'ISO9001认证', label: 'ISO9001认证', needExpiry: true },
+  { key: 'ISO9001认证或相关证书', label: 'ISO9001认证或相关证书', needExpiry: true },
   { key: '安全生产许可证', label: '安全生产许可证', needExpiry: true },
   { key: '特定行业资质', label: '特定行业资质', needExpiry: true }
 ]
@@ -23,7 +23,7 @@ const defaultForm = {
 
 const defaultQuals = {
   营业执照: [{ uid: '1', name: '营业执照.pdf', status: 'done', expiry: null }],
-  ISO9001认证: [{ uid: '2', name: 'ISO9001证书.pdf', status: 'done', expiry: dayjs('2027-06-30') }]
+  ISO9001认证或相关证书: [{ uid: '2', name: '相关证书.pdf', status: 'done', expiry: dayjs('2027-06-30') }]
 }
 
 function loadJSON(key, fallback) {

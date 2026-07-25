@@ -19,7 +19,7 @@ import { UploadOutlined } from '@ant-design/icons'
 
 const bidderQualifications = [
   { key: '营业执照', label: '营业执照' },
-  { key: 'ISO9001认证', label: 'ISO9001认证' },
+  { key: 'ISO9001认证或相关证书', label: 'ISO9001认证或相关证书' },
   { key: '安全生产许可证', label: '安全生产许可证' },
   { key: '特定行业资质', label: '特定行业资质' }
 ]

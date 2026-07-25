@@ -874,7 +874,7 @@ export default function ProjectCreate() {
                     { label: '营业执照', value: '营业执照' },
                     { label: '税务登记证', value: '税务登记证' },
                     { label: '组织机构代码证', value: '组织机构代码证' },
-                    { label: 'ISO9001认证', value: 'ISO9001认证' },
+                    { label: 'ISO9001认证或相关证书', value: 'ISO9001认证或相关证书' },
                     { label: '安全生产许可证', value: '安全生产许可证' },
                     { label: '特定行业资质', value: '特定行业资质' }
                   ]}

@@ -51,7 +51,7 @@ const FALLBACK_PROJECT = {
     { name: '第一采购包：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
     { name: '第二采购包：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
   ],
-  qualifications: ['营业执照', 'ISO9001认证'],
+  qualifications: ['营业执照', 'ISO9001认证或相关证书'],
   intro: '本项目为轨道交通设备采购，包含主设备及辅材两个采购包。'
 }
 

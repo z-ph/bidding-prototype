@@ -25,7 +25,7 @@ export const SEED_PROJECTS = [
       { name: '第一采购包：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-25 17:00' },
       { name: '第二采购包：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-25 17:00' }
     ],
-    qualifications: ['营业执照', 'ISO9001认证'],
+    qualifications: ['营业执照', 'ISO9001认证或相关证书'],
     intro: '本项目为轨道交通设备采购，包含主设备及辅材两个采购包。',
     createTime: '2026-07-01 09:00'
   },
@@ -201,7 +201,7 @@ export const SEED_PROJECTS = [
     packages: [
       { name: '第一采购包：系统运维', code: 'B1', budget: 260, content: '核心业务系统年度运维服务', purchaseMode: 'open', bidStart: '', bidEnd: '' }
     ],
-    qualifications: ['营业执照', 'ISO27001认证'],
+    qualifications: ['营业执照', 'ISO27001认证或相关证书'],
     intro: '已提交审核，等待管理员审核通过后发布采购。',
     createTime: '2026-07-18 11:00'
   },
