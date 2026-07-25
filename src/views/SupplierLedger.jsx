@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Alert, Button, Card, Col, Drawer, Form, Input, Modal, Row, Select, Table, Tag, message } from 'antd'
 import { getSuppliers, getSupplier, updateSupplier, updateSupplierStatus } from '../data/supplierStore'
+import { projectStore } from '../data/projects.js'
 import { useRole } from '../hooks/useRole.js'
 
 const SUPPLIER_TYPE_OPTIONS = [
@@ -20,6 +21,15 @@ const PROJECT_NAMES = {
   '3': 'XX大学实验室设备采购项目',
   '4': '物业服务采购项目',
   '5': '轨道交通电缆材料采购项目'
+}
+
+/**
+ * 从 projectStore 解析项目名，优先 store，写死的常量作为兜底。
+ * 演示原型直接展示；生产环境应统一走 store。
+ */
+const resolveProjectName = (pid) => {
+  const p = projectStore.getProjectById(pid)
+  return p?.name || PROJECT_NAMES[pid] || `项目 ${pid}`
 }
 
 export default function SupplierLedger() {
@@ -229,7 +239,7 @@ export default function SupplierLedger() {
             {currentSupplier.projects && currentSupplier.projects.length > 0 ? (
               <ul style={{ paddingLeft: 20, margin: 0 }}>
                 {currentSupplier.projects.map((pid) => (
-                  <li key={pid}>{PROJECT_NAMES[pid] || `项目 ${pid}`}</li>
+                  <li key={pid}>{resolveProjectName(pid)}</li>
                 ))}
               </ul>
             ) : (
