@@ -9,7 +9,7 @@ import EmptyState from '../components/EmptyState.jsx'
 
 // 采购方式口径：项目级采购方式已移除（cxy-016），列表/详情均由采购包派生
 export const PURCHASE_MODE_OPTIONS = [
-  { label: '公开采购', value: 'open' },
+  { label: '阳光采购', value: 'open' },
   { label: '邀请采购', value: 'invitation' },
   { label: '公开询比', value: 'inquiry' },
   { label: '邀请询比', value: 'invitation_inquiry' }
@@ -75,7 +75,7 @@ export function getPurchaseModeText(project) {
 }
 
 // ── 采购方式 → 流程节点映射（hall-purchase-method-mapping-20260721，两族两模板）──
-// 口径：2026-07-21 需求——开启大厅服务采购族（公开采购 open/邀请采购 invitation），
+// 口径：2026-07-21 需求——开启大厅服务采购族（阳光采购 open/邀请采购 invitation），
 // 比价大厅服务询比族（公开询比 inquiry/邀请询比 invitation_inquiry），
 // 评审大厅对所有项目开放。废止 2026-07-17 清单 20「唯邀请询比不用开启和评审」旧口径。
 // 方式取值与 ProjectCreate 的 PURCHASE_MODE_OPTIONS 一致：open / invitation / inquiry / invitation_inquiry
@@ -100,7 +100,7 @@ export const PURCHASE_METHOD_FLOW_MAP = {
   invitation_inquiry: [...BASE_FLOW_NODE_KEYS, 'comparison', 'evaluation', 'award']
 }
 
-// 按采购方式查询节点序列（未知方式回退公开采购全链路）
+// 按采购方式查询节点序列（未知方式回退阳光采购全链路）
 export function getFlowNodeKeys(purchaseMode) {
   return PURCHASE_METHOD_FLOW_MAP[purchaseMode] || PURCHASE_METHOD_FLOW_MAP.open
 }

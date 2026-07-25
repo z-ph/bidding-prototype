@@ -384,7 +384,7 @@ export default function OpeningHall() {
     return <ProjectEntryGuard />
   }
 
-  // 页面级门禁（hall-purchase-method-mapping-20260721）：开启大厅仅服务采购族（公开采购/邀请采购），
+  // 页面级门禁（hall-purchase-method-mapping-20260721）：开启大厅仅服务采购族（阳光采购/邀请采购），
   // 询比族项目（公开询比/邀请询比）请在比价大厅操作
   if (inquiryFamily) {
     return (
@@ -420,7 +420,7 @@ export default function OpeningHall() {
             type="info"
             showIcon
             closable={false}
-            title="口径说明：开启大厅服务采购族（公开采购、邀请采购），比价大厅服务询比族（公开询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求，废止 2026-07-17 清单 20 旧口径）。"
+            title="口径说明：开启大厅服务采购族（阳光采购、邀请采购），比价大厅服务询比族（公开询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求，废止 2026-07-17 清单 20 旧口径）。"
           />
         </Card>
       </div>

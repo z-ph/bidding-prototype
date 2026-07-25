@@ -50,7 +50,7 @@ export const PAGE_PERMISSIONS = {
   '/admin/award-confirm': ['tenderee', 'agent'],
   '/admin/award-notice': ['tenderee', 'agent', 'bidder'],
 
-  // 开启大厅：仅服务采购族（公开采购/邀请采购）；采购单位/采购代理/响应单位可进入，监督只读，操作权限各异
+  // 开启大厅：仅服务采购族（阳光采购/邀请采购）；采购单位/采购代理/响应单位可进入，监督只读，操作权限各异
   '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
 
   // 比价大厅：服务询比族（公开询比/邀请询比），角色口径同开启大厅（hall-purchase-method-mapping-20260721）

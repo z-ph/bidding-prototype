@@ -32,7 +32,7 @@ import { useRole } from '../hooks/useRole.js'
 import { validateAndScrollToError, scrollToElement, formRules, validateRequiredFields } from '../utils/formValidation.js'
 
 const PURCHASE_MODE_OPTIONS = [
-  { label: '公开采购', value: 'open' },
+  { label: '阳光采购', value: 'open' },
   { label: '邀请采购', value: 'invitation' },
   { label: '公开询比', value: 'inquiry' },
   { label: '邀请询比', value: 'invitation_inquiry' }
@@ -232,7 +232,7 @@ export default function ProjectCreate() {
           code: `B${prev.packages.length + 1}`,
           budget: '',
           content: '',
-          // 采购包级采购方式默认「公开采购」（cxy-016：项目级采购方式已移除）
+          // 采购包级采购方式默认「阳光采购」（cxy-016：项目级采购方式已移除）
           purchaseMode: 'open',
           bidStart: null,
           bidEnd: null

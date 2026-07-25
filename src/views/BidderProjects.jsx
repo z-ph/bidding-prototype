@@ -17,7 +17,7 @@ import { authorizationStore } from '../data/authorizationStore.js'
 export const INVITATION_RESPONSES_KEY = 'bidding-invitation-responses'
 
 const PURCHASE_MODE_LABELS = {
-  open: '公开采购',
+  open: '阳光采购',
   invitation: '邀请采购',
   inquiry: '公开询比',
   invitation_inquiry: '邀请询比'

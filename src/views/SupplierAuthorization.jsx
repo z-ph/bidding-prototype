@@ -10,7 +10,7 @@ import { INVITATION_RESPONSES_KEY } from './BidderProjects.jsx'
 // 授权为年度周期（授权日起 1 年），过期自动标记「需重新授权」并视同未授权（概要三）；
 // 响应邀请书在授权时按项目+供应商自动生成（清单 24，genInvitation 幂等）。
 const PURCHASE_MODE_LABELS = {
-  open: '公开采购',
+  open: '阳光采购',
   invitation: '邀请采购',
   inquiry: '公开询比',
   invitation_inquiry: '邀请询比'

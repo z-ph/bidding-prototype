@@ -6,7 +6,7 @@ export default function AdminDictionary() {
     {
       id: 1, name: '采购方式', code: 'purchase_mode', type: '分类', status: '启用',
       children: [
-        { id: 11, name: '公开采购', code: 'open', type: '选项', status: '启用' },
+        { id: 11, name: '阳光采购', code: 'open', type: '选项', status: '启用' },
         { id: 12, name: '邀请采购', code: 'invitation', type: '选项', status: '启用' },
         { id: 13, name: '公开询比', code: 'inquiry', type: '选项', status: '启用' },
         { id: 14, name: '邀请询比', code: 'invitation_inquiry', type: '选项', status: '启用' }

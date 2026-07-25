@@ -43,7 +43,7 @@ const projectMetaMap = {
     id: '1',
     name: 'XX市轨道交通设备采购项目',
     code: 'ZB20260701001',
-    purchaseMode: '公开采购',
+    purchaseMode: '阳光采购',
     orgMode: 'agent',
     bidOpenTime: '2026-07-21 09:30',
     bidCloseTime: '2026-07-20 17:00',
@@ -144,7 +144,7 @@ const FALLBACK_PROJECT_NAMES = {
 }
 
 const PURCHASE_MODE_LABELS = {
-  open: '公开采购',
+  open: '阳光采购',
   invitation: '邀请采购',
   inquiry: '公开询比',
   invitation_inquiry: '邀请询比'
