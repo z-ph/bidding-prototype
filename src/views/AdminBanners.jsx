@@ -139,7 +139,7 @@ export default function AdminBanners() {
             <Input placeholder="轮播主标题，如：全流程电子化采购平台" />
           </Form.Item>
           <Form.Item label="副标题" name="subtitle" rules={[{ required: true, message: '请输入副标题' }]}>
-            <Input placeholder="轮播副标题，如：公开、公平、公正、高效、安全" />
+            <Input placeholder="轮播副标题，如：阳光、公平、公正、高效、安全" />
           </Form.Item>
           <Form.Item label="背景图片（可选）" name="image">
             <Upload

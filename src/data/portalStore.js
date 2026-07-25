@@ -23,7 +23,7 @@ const defaultStats = {
 }
 
 const defaultBanners = [
-  { id: 1, title: '全流程电子化采购平台', subtitle: '公开、公平、公正、高效、安全', image: '', color: 'linear-gradient(135deg, #001529 0%, #003366 100%)', status: 'published' },
+  { id: 1, title: '全流程电子化采购平台', subtitle: '阳光、公平、公正、高效、安全', image: '', color: 'linear-gradient(135deg, #001529 0%, #003366 100%)', status: 'published' },
   { id: 2, title: '多角色协同工作', subtitle: '采购单位、响应单位、评审专家、监督人员一体化协同', image: '', color: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)', status: 'published' },
   { id: 3, title: '安全合规的CA认证', subtitle: '支持数字证书签章，保障响应文件安全与法律效力', image: '', color: 'linear-gradient(135deg, #001529 0%, #004080 100%)', status: 'published' }
 ]
