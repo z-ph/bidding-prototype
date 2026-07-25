@@ -144,7 +144,7 @@ export default function ComparisonHall() {
     return <ProjectEntryGuard />
   }
 
-  // 大厅归属门禁：采购族项目（阳光采购/邀请采购）请在开启大厅操作
+  // 大厅归属门禁：采购族项目（采购族）请在开启大厅操作
   if (!inquiryFamily) {
     return (
       <div className="comparison-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -158,7 +158,7 @@ export default function ComparisonHall() {
                   {project?.name || `项目ID：${projectId}`}（采购方式：{getPurchaseModeText(project)}）
                 </p>
                 <p style={{ margin: '8px 0 0' }}>
-                  阳光采购、邀请采购项目需在开启大厅完成签到、解密、唱价。
+                  采购族项目（阳光采购、邀请采购）需在开启大厅完成签到、解密、唱价。
                 </p>
               </>
             }
