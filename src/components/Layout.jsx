@@ -171,6 +171,7 @@ function useMenuItems(role) {
       label: '内容管理',
       icon: FileTextOutlined,
       children: [
+        { key: '/admin/admin-banners', label: '首页轮播管理' },
         { key: '/admin/admin-news', label: '新闻公告维护' },
         { key: '/admin/admin-downloads', label: '下载中心管理' },
         { key: '/admin/admin-help', label: '帮助中心管理' }

@@ -69,6 +69,7 @@ import { Route as AdminAdminHelpRouteImport } from './routes/admin.admin-help'
 import { Route as AdminAdminDownloadsRouteImport } from './routes/admin.admin-downloads'
 import { Route as AdminAdminDictionaryRouteImport } from './routes/admin.admin-dictionary'
 import { Route as AdminAdminDashboardRouteImport } from './routes/admin.admin-dashboard'
+import { Route as AdminAdminBannersRouteImport } from './routes/admin.admin-banners'
 import { Route as AdminProjectsIndexRouteImport } from './routes/admin.projects.index'
 import { Route as AdminProcurementRequirementsIndexRouteImport } from './routes/admin.procurement-requirements.index'
 import { Route as AdminProjectsTrackRouteImport } from './routes/admin.projects.track'
@@ -462,6 +463,13 @@ const AdminAdminDashboardRoute = AdminAdminDashboardRouteImport.update({
   path: '/admin-dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdminBannersRoute = AdminAdminBannersRouteImport.update({
+  id: '/admin-banners',
+  path: '/admin-banners',
+  getParentRoute: () => AdminRoute,
+} as any).lazy(() =>
+  import('./routes/admin.admin-banners.lazy').then((d) => d.Route),
+)
 const AdminProjectsIndexRoute = AdminProjectsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -522,6 +530,7 @@ export interface FileRoutesByFullPath {
   '/news': typeof NewsRoute
   '/register': typeof RegisterRoute
   '/review-change-list': typeof ReviewChangeListRoute
+  '/admin/admin-banners': typeof AdminAdminBannersRoute
   '/admin/admin-dashboard': typeof AdminAdminDashboardRoute
   '/admin/admin-dictionary': typeof AdminAdminDictionaryRoute
   '/admin/admin-downloads': typeof AdminAdminDownloadsRoute
@@ -589,6 +598,7 @@ export interface FileRoutesByTo {
   '/news': typeof NewsRoute
   '/register': typeof RegisterRoute
   '/review-change-list': typeof ReviewChangeListRoute
+  '/admin/admin-banners': typeof AdminAdminBannersRoute
   '/admin/admin-dashboard': typeof AdminAdminDashboardRoute
   '/admin/admin-dictionary': typeof AdminAdminDictionaryRoute
   '/admin/admin-downloads': typeof AdminAdminDownloadsRoute
@@ -656,6 +666,7 @@ export interface FileRoutesById {
   '/news': typeof NewsRoute
   '/register': typeof RegisterRoute
   '/review-change-list': typeof ReviewChangeListRoute
+  '/admin/admin-banners': typeof AdminAdminBannersRoute
   '/admin/admin-dashboard': typeof AdminAdminDashboardRoute
   '/admin/admin-dictionary': typeof AdminAdminDictionaryRoute
   '/admin/admin-downloads': typeof AdminAdminDownloadsRoute
@@ -726,6 +737,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/register'
     | '/review-change-list'
+    | '/admin/admin-banners'
     | '/admin/admin-dashboard'
     | '/admin/admin-dictionary'
     | '/admin/admin-downloads'
@@ -793,6 +805,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/register'
     | '/review-change-list'
+    | '/admin/admin-banners'
     | '/admin/admin-dashboard'
     | '/admin/admin-dictionary'
     | '/admin/admin-downloads'
@@ -859,6 +872,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/register'
     | '/review-change-list'
+    | '/admin/admin-banners'
     | '/admin/admin-dashboard'
     | '/admin/admin-dictionary'
     | '/admin/admin-downloads'
@@ -1353,6 +1367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/admin-banners': {
+      id: '/admin/admin-banners'
+      path: '/admin-banners'
+      fullPath: '/admin/admin-banners'
+      preLoaderRoute: typeof AdminAdminBannersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/projects/': {
       id: '/admin/projects/'
       path: '/'
@@ -1435,6 +1456,7 @@ const AdminProjectsRouteWithChildren = AdminProjectsRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAdminBannersRoute: typeof AdminAdminBannersRoute
   AdminAdminDashboardRoute: typeof AdminAdminDashboardRoute
   AdminAdminDictionaryRoute: typeof AdminAdminDictionaryRoute
   AdminAdminDownloadsRoute: typeof AdminAdminDownloadsRoute
@@ -1487,6 +1509,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdminBannersRoute: AdminAdminBannersRoute,
   AdminAdminDashboardRoute: AdminAdminDashboardRoute,
   AdminAdminDictionaryRoute: AdminAdminDictionaryRoute,
   AdminAdminDownloadsRoute: AdminAdminDownloadsRoute,
