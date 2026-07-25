@@ -11,6 +11,19 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.12.1',
+    date: '2026-07-25',
+    title: '首页轮播管理 + ISO证书用词 + 阳光采购 + 质量门',
+    changes: [
+      { type: 'feat', text: '首页轮播管理（AdminBanners）：8个预设主题 Radio.Button 一键选择 + ColorPicker 双色自定义 + Upload 图片上传，portalStore 同源驱动 Portal 首页 Carousel' },
+      { type: 'fix', text: '资质认证用词：ISO9001/ISO27001认证 → ISO9001/ISO27001认证或相关证书（Register/ProjectCreate/ProjectDetail/projects.js/SupplierProfile 5 处同步）' },
+      { type: 'fix', text: 'SupplierLedger 关联项目名优先从 projectStore.getProjectById() 解析，写死常量仅作兜底，消除数据源不一致隐患' },
+      { type: 'fix', text: '公开采购 → 阳光采购（甲方要求，p0-rename.mjs 同步更新）' },
+      { type: 'docs', text: '新增 subagent-quality-gate skill（AI专属设计验收） + scripts/quality-gate.mjs（机械验证脚本），npm run quality-gate 一键执行' },
+      { type: 'fix', text: 'AdminBanners 背景图片从 URL 文本输入改为 Upload 图片上传（picture-card 模式）' }
+    ]
+  },
+  {
     version: '0.12.0',
     date: '2026-07-24',
     title: 'P1/P2 需求实施：验证码防护、供应商台账、全过程监督、IP 预警、内容管理、流程优化',

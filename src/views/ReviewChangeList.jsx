@@ -4,6 +4,9 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0725 修复与增强
+  { id: '0725-001', source: '0725设计验收', module: '内容管理/供应商台账/全局', page: 'AdminBanners / SupplierLedger / projects.js / Register / ProjectCreate / ProjectDetail / SupplierProfile / p0-rename.mjs', severity: '中', issue: '设计验收发现多项问题：① 首页轮播管理缺失（banners 数据和 store 方法已有但无管理页面）；② AdminBanners 让管理员手写 CSS gradent（极差 UX）；③ 背景图片用 URL 输入而非 Upload；④ SupplierLedger 关联项目名写死在组件内，与 projectStore 不同源；⑤ 甲方要求"公开采购"改为"阳光采购"', status: '已修复', fix: '① 新增 AdminBanners 页面（8 预设主题 Radio.Button + ColorPicker 双色 + Upload 上传），管理员「内容管理」菜单组新增入口；② SupplierLedger resolveProjectName() 优先 projectStore.getProjectById()，写死常量仅兜底；③ p0-rename.mjs 中"公开招标→公开采购"改为"公开招标→阳光采购"，已替换文件同步；④ ISO9001/ISO27001 认证 → ISO9001 认证或相关证书（5 处同步）', commit: 'feat(admin-banners) + fix(supplier-ledger) + fix(terminology-tune)' },
+
   // 0724 P1/P2 需求实施
   { id: '0724-002', source: '0724需求实施', module: '全站', page: 'Login/Register/SupplierLedger/SupervisorHall/analyticsStore/AdminDownloads/AdminHelp/BidQuote/BidUpload/OpeningHall/EvaluationHall/ExpertExtraction/ExpertProfile/Portal/Downloads/Help 等 30+ 文件', severity: '中', issue: '采购平台DEMO反馈整理.md 第二节 P1/P2 需求：验证码防护缺失、无供应商台账、监督覆盖不全（仅开启+评审）、IP 风险预警缺失、内容管理缺少下载/帮助发布、流程交互多处理想化设计（分项报价门槛高、响应文件上传重复、开启缺响应单位确认与导出、评审无报表导出、专家缺品目分类、供应商注册缺类型选择）', status: '已修复', fix: 'P1.1 图形验证码（Canvas 数学题 + Modal）→ 短信验证码 → 登录/注册；P1.2 供应商台账（supplierStore + SupplierLedger CRUD + 审核，74 个文件路由权限菜单）→ P1.3 监督大厅 5 Tab 全流程覆盖（采购准备/响应监督/开启监督/评审监督/成交确认）→ P1.4 IP 预警规则（analyticsStore sameIpResponse + 种子数据）→ P2.1 内容管理下载/帮助发布（AdminDownloads/AdminHelp，portalStore 扩展 banners/helpDocs）→ P2.2 分项报价默认关闭/BidUpload 询比族去重/OpeningHall 专家门禁+确认+导出/EvaluationHall 6项报表导出/专家品目分类/供应商注册类型选择。Playwright 抽查构建通过', commit: 'feat(p1p2)' },
 
