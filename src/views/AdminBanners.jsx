@@ -142,7 +142,14 @@ export default function AdminBanners() {
             <Input placeholder="轮播副标题，如：公开、公平、公正、高效、安全" />
           </Form.Item>
           <Form.Item label="背景图片（可选）" name="image">
-            <Input placeholder="图片URL，如不填则使用纯色渐变背景" />
+            <Upload
+              beforeUpload={() => false}
+              listType="picture-card"
+              maxCount={1}
+              accept="image/*"
+            >
+              <Button icon={<UploadOutlined />}>上传图片</Button>
+            </Upload>
           </Form.Item>
           <Form.Item label="背景主题" name="theme">
             <Radio.Group optionType="button" buttonStyle="solid">
