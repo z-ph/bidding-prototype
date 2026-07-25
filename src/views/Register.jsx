@@ -214,7 +214,7 @@ export default function Register() {
           </div>
           <Row gutter={[16, 16]}>
             {bidderQualifications.map((q) => (
-              <Col span={12} key={q.key}>
+              <Col xs={24} sm={12} key={q.key}>
                 <Card size="small" title={q.label}>
                   <Upload
                     fileList={qualificationFiles[q.key] || []}
@@ -326,7 +326,8 @@ export default function Register() {
           padding: 40px 20px;
         }
         .register-container {
-          width: 520px;
+          width: 720px;
+          max-width: 100%;
           background: #fff;
           border-radius: 8px;
           padding: 32px;
@@ -344,6 +345,19 @@ export default function Register() {
           margin-top: 16px;
           text-align: center;
           color: #666;
+        }
+        @media (max-width: 768px) {
+          .register-page {
+            padding: 20px 12px;
+            align-items: flex-start;
+          }
+          .register-container {
+            padding: 20px 16px;
+          }
+          .register-container h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+          }
         }
       `}</style>
     </div>
