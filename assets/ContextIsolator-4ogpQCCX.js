@@ -1,0 +1,1 @@
+import{Q as e,Y as t}from"./useStore-DliLxn3V.js";import{S as n,tt as r}from"./button-kN9I3LUV.js";import{m as i}from"./EllipsisOutlined-BzlJva3y.js";var a=e(t()),ContextIsolator=e=>{let{space:t,form:o,children:s}=e;if(!r(s))return null;let c=s;return o&&(c=a.createElement(i,{override:!0,status:!0},c)),t&&(c=a.createElement(n,null,c)),c};export{ContextIsolator as t};
