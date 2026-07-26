@@ -1,9 +1,11 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { Alert, Button, Card, Col, Form, Input, Row, Steps, Switch, Table, Tag, Upload, message } from 'antd'
 import { InfoCircleFilled, UploadOutlined } from '@ant-design/icons'
 import { projectStore } from '../data/projects.js'
 import { quoteStore } from '../data/quoteStore.js'
+import { isInquiryFamily } from './ProjectList.jsx'
 import { useRole } from '../hooks/useRole.js'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
@@ -64,6 +66,11 @@ export default function BidQuote() {
   }
 
   const project = projectStore.getProjectById(projectId)
+
+  // 询比族判定与报价锁定（恢复 b2d2e49 重构丢失的定义）：
+  // 询比族项目报价在开启（进入比价大厅）后才启动，公告中阶段锁定不可填写
+  const isInquiryMode = isInquiryFamily(project)
+  const quoteLocked = isInquiryMode && project?.status === 'registering'
 
   const updateQuote = (key, value) => {
     setQuote((prev) => ({ ...prev, [key]: value }))

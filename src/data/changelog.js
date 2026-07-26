@@ -11,6 +11,14 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.12.2',
+    date: '2026-07-26',
+    title: 'BidQuote 运行时崩溃修复（isInquiryMode/quoteLocked 未定义）',
+    changes: [
+      { type: 'fix', text: 'BidQuote 恢复 b2d2e49 重构丢失的 isInquiryMode/quoteLocked 定义：isInquiryMode 改用 isInquiryFamily(project) 现行口径（询比族 inquiry/invitation_inquiry），quoteLocked 为询比族且状态 registering（公告中未开启）时锁定；修复前该页一打开即 ReferenceError 白屏' }
+    ]
+  },
+  {
     version: '0.12.1',
     date: '2026-07-25',
     title: '首页轮播管理 + ISO证书用词 + 阳光采购 + 质量门',

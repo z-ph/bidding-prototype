@@ -4,6 +4,9 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0726 修复
+  { id: '0726-001', source: '用户实测', module: '响应单位', page: 'BidQuote', severity: '高', issue: '在线报价页打开即白屏：isInquiryMode/quoteLocked 两变量在 JSX 中使用但从未定义（b2d2e49「取消 localStorage 改纯内存 mock」重构时丢失原定义，原定义基于旧 status 文案口径），纯 JS 项目无 typecheck、Vite 构建不检查未定义变量，运行时才暴露', status: '已修复', fix: '恢复定义并升级为现行口径：isInquiryMode = isInquiryFamily(project)（询比族 inquiry/invitation_inquiry，与 BidUpload/OpeningHall 同源）；quoteLocked = 询比族且 status === registering（公告中未开启，对齐 0721 大厅归属口径，原口径依赖已废弃的中文 status 文案）。Playwright 实测：项目 10（公开询比·待开启）可报价 5 步条、项目 6（邀请询比·公告中）锁定横幅、项目 1（阳光采购）4 步条，均无控制台错误', commit: 'fix(bidquote-inquiry)' },
+
   // 0725 修复与增强
   { id: '0725-001', source: '0725设计验收', module: '内容管理/供应商台账/全局', page: 'AdminBanners / SupplierLedger / projects.js / Register / ProjectCreate / ProjectDetail / SupplierProfile / p0-rename.mjs', severity: '中', issue: '设计验收发现多项问题：① 首页轮播管理缺失（banners 数据和 store 方法已有但无管理页面）；② AdminBanners 让管理员手写 CSS gradent（极差 UX）；③ 背景图片用 URL 输入而非 Upload；④ SupplierLedger 关联项目名写死在组件内，与 projectStore 不同源；⑤ 甲方要求"公开采购"改为"阳光采购"', status: '已修复', fix: '① 新增 AdminBanners 页面（8 预设主题 Radio.Button + ColorPicker 双色 + Upload 上传），管理员「内容管理」菜单组新增入口；② SupplierLedger resolveProjectName() 优先 projectStore.getProjectById()，写死常量仅兜底；③ p0-rename.mjs 中"公开招标→公开采购"改为"公开招标→阳光采购"，已替换文件同步；④ ISO9001/ISO27001 认证 → ISO9001 认证或相关证书（5 处同步）', commit: 'feat(admin-banners) + fix(supplier-ledger) + fix(terminology-tune)' },
 
