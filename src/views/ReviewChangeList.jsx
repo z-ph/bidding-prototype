@@ -5,6 +5,12 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0726 字眼整改
+  { id: '0726-004', source: '用户决策', module: '评审/开启', page: 'ExpertProject / EvaluationHall / OpeningHall', severity: '低', issue: '用户要求去掉「专家签到」字眼。排查发现两类：① OpeningHall 身份核验步骤描述仍写「采购单位/响应单位/专家签到」，与 yy0-006 已修口径（签到表无专家列）矛盾，属旧修残留；② ExpertProject 评审六步之一整步名为「专家签到」，EvaluationHall 有「专家签到表」导出按钮', status: '已修复', fix: '保留签到功能、只改字眼：OpeningHall 步骤描述→「采购单位/响应单位签到」；ExpertProject 步骤名/按钮/标题/tip/流程说明 5 处统一为「签到」；EvaluationHall 导出按钮→「签到表」。grep 全库「专家签到」零残留（台账历史原文除外），build 通过', commit: 'fix(expert-checkin-wording)' },
+
+  // 0726 CA 下线
+  { id: '0726-003', source: '用户决策', module: '全站', page: 'Login / BidUpload / OpeningHall / SystemSettings / portalStore / Portal / ExpertProject / SupervisorLogs / SupervisorAbnormal / ComparisonHall / AGENTS.md', severity: '高', issue: '用户要求删除所有 CA 相关内容。初轮按「签章/加密/解密全删」实施被纠偏：只删 CA，密码加密与解密阶段保留。旧口径冲突：yy0-003 要求「正式提交仅接受 CA 证书加密」、cal-004 解密弹窗为 CA 解密', status: '已修复', fix: '① Login 删 CA 登录 tab（证书检测/CA 驱动/证书申请/tour CA 步骤），保留账号密码+手机验证码；② BidUpload 加密固定密码加密（删 CA 选项与 CA 状态块），签章/加密/重新签章/重新加密动作链保留，正式提交门槛=全部文件已加密；③ OpeningHall 文件解密阶段保留，CA 私钥改解密密码；④ 门户清 CA 驱动/轮播/新闻/两条帮助；⑤ SystemSettings 删 CA 沙箱模式；⑥ ExpertProject 电子签名、监督日志/异常种子、ComparisonHall 注释去 CA 表述；⑦ AGENTS.md 外部服务口径删 CA 并禁止再引入；⑧ yy0-003/cal-004 台账 fix 追加 2026-07-26 口径变更注记（issue 原文不动）。电子签章类（AwardNotice/TenderDoc/EvaluationHall）与密码加解密流程保留。grep 全库 CA/UKey/数字证书零残留（仅台账历史），Playwright 抽查登录/上传/开启大厅/下载中心四页无 CA 且无控制台错误', commit: 'feat(remove-ca)' },
+
   // 0726 修复与基建
   { id: '0726-002', source: '用户决策', module: '全站基建', page: 'tsconfig.json / package.json / 223 个存量 js/jsx / AGENTS.md', severity: '中', issue: '0726-001（BidQuote 未定义变量白屏）暴露工程盲区：纯 JS 项目无任何静态检查，JSX 引用未定义变量 build 全绿、运行时才炸。AGENTS.md 原有「JavaScript（不引入 TypeScript）」口径被用户废止', status: '已修复', fix: '渐进式引入 TypeScript：① 新增 tsconfig.json（strict + allowJs/checkJs + react-jsx + bundler 解析）；② typescript 7.0.2 入 devDependencies，pnpm run typecheck（tsc --noEmit）并入 pnpm run build 门禁；③ 存量 223 个 .js/.jsx 批量打 // @ts-nocheck 基线（附解冻指引注释），全量 checkJs 实测基线 0 错；④ 探针验证：新 .tsx 中引用未定义变量被 TS2304 拦截；⑤ AGENTS.md 技术栈改为「TypeScript 优先 + 改动即解冻」规则；⑥ routeTree.gen.ts 自动生成文件不加 nocheck。实测 pnpm run build（typecheck + vite build）通过', commit: 'feat(typescript)' },
 
@@ -102,7 +108,7 @@ const reviewData = [
   // yy0 评审
   { id: 'yy0-001', source: 'yy0', module: '开标大厅', page: 'OpeningHall', severity: 'P0', issue: '解密动作应由投标人使用各自 CA 私钥完成，招标人/代理/监督不应代替解密', status: '已修复', fix: 'OpeningHall canDecrypt 限制仅投标人解密本企业文件，招标人/代理/监督仅查看状态', commit: 'fix(p1)' },
   { id: 'yy0-002', source: 'yy0', module: '投标文件上传', page: 'BidUpload', severity: 'P0', issue: '上传页缺少签章、加密、重新加密、查看加密结果动作，无法闭环', status: '已修复', fix: 'BidUpload 补齐签章/加密/重新签章/重新加密/提交回执动作链', commit: 'fix(p1)' },
-  { id: 'yy0-003', source: 'yy0', module: '投标文件上传', page: 'BidUpload', severity: 'P0', issue: '提示正式提交必须 CA 加密，但允许密码加密进入提交结果，规则矛盾', status: '已修复', fix: '密码加密仅保存草稿，正式提交仅接受 CA 证书加密并阻断密码加密', commit: 'fix(p1)' },
+  { id: 'yy0-003', source: 'yy0', module: '投标文件上传', page: 'BidUpload', severity: 'P0', issue: '提示正式提交必须 CA 加密，但允许密码加密进入提交结果，规则矛盾', status: '已修复', fix: '密码加密仅保存草稿，正式提交仅接受 CA 证书加密并阻断密码加密（2026-07-26 口径变更：CA 全线下线，密码加密转为唯一正式加密方式，规则矛盾随之消解，见 0726-003）', commit: 'fix(p1)' },
   { id: 'yy0-004', source: 'yy0', module: '投标文件上传', page: 'BidUpload', severity: 'P1', issue: '缺少投标文件与招标文件评审条款关联功能', status: '已修复', fix: 'BidUpload 新增评审条款关联面板，挂接关系持久化到 clauseStore', commit: 'fix(p1)' },
   { id: 'yy0-005', source: 'yy0', module: '专家任务', page: 'ExpertProject / 新增页面', severity: 'P1', issue: '缺少专家抽取、授权、通知、接收任务链路', status: '已修复', fix: '新增 ExpertExtraction 抽取 + ExpertTasks 任务中心，菜单/权限/路由接入', commit: 'fix(p1)' },
   { id: 'yy0-006', source: 'yy0', module: '开标大厅', page: 'OpeningHall', severity: 'P2', issue: '步骤文案写“专家签到”但签到表没有专家，对象不一致', status: '已修复', fix: '签到表与步骤文案对象一致，均无专家列', commit: 'fix(p1)' },
@@ -142,7 +148,7 @@ const reviewData = [
   { id: 'cal-001', source: 'cal', module: '招标文件', page: 'TenderDoc', severity: 'P0', issue: '委托代理模式下招标文件应由代理机构编制，招标人仅有查看/确认权限，编制入口应按组织方式动态控制', status: '已修复', fix: 'TenderDoc canEdit 按「角色 + 项目组织方式」双维度控制：委托代理(orgMode=agent)下招标人只读并显示原因提示，自行招标(self)下招标人/代理均可编制；projectMeta 增加 orgMode 字段', commit: 'fix(tender-doc-perm)' },
   { id: 'cal-002', source: 'cal', module: '发标管理/邀请招标', page: 'ProjectCreate / BidderProjects', severity: 'P0', issue: '投标邀请管理缺失：缺少受邀供应商选择、投标邀请书发送、受邀接受/拒绝、非受邀阻断报名、邀请状态跟踪', status: '已修复', fix: '邀请闭环补齐：受邀接受/拒绝入口+持久化、非受邀不可见不可操作（新口径无报名环节）、邀请状态跟踪（SupplierAuthorization 页）、邀请书自动生成（闭环）', commit: 'feat(project)' },
   { id: 'cal-003', source: 'cal', module: '开标管理', page: 'OpeningHall', severity: 'P1', issue: '代理机构开标准备前无法指定主持人/监督人', status: '已修复', fix: '开标参与人不再硬编码：OpeningHall 新增「阶段 0 开标准备」，招标人/代理可指定主持人/监督人（localStorage 持久化），未指定不可进入下一步；签到表与唱标联动该名单', commit: '-' },
-  { id: 'cal-004', source: 'cal', module: '开标大厅', page: 'OpeningHall', severity: 'P0', issue: '投标人缺少在线解密功能，招标人不可解密', status: '已修复', fix: 'OpeningHall canDecrypt 限制仅投标人解密本企业文件（CA 解密确认弹窗），招标人/代理/监督仅查看状态', commit: 'fix(p1)' },
+  { id: 'cal-004', source: 'cal', module: '开标大厅', page: 'OpeningHall', severity: 'P0', issue: '投标人缺少在线解密功能，招标人不可解密', status: '已修复', fix: 'OpeningHall canDecrypt 限制仅投标人解密本企业文件（CA 解密确认弹窗），招标人/代理/监督仅查看状态（2026-07-26 口径变更：CA 下线后弹窗改为密码解密，角色限制不变，见 0726-003）', commit: 'fix(p1)' },
   { id: 'cal-005', source: 'cal', module: '评标管理', page: 'ExpertExtraction / ExpertTasks', severity: 'P0', issue: '缺少专家抽取功能：按专业/地区/回避等条件随机抽取、抽取记录、通知、确认反馈、导出、补抽', status: '已修复', fix: '专家抽取增强（按清单 40/41 缩圈）：回避仅按单位；被抽中专家在 ExpertTasks 确认/拒绝（可填原因），拒绝后备选自动递补；备选名单；抽取结果 CSV 导出', commit: 'fix(p1)' },
   { id: 'cal-006', source: 'cal', module: '异议管理', page: 'ObjectionManage', severity: 'P1', issue: '招标人视角下无异议管理入口，无法查看异议并在线答复', status: '已修复', fix: '招标人菜单接入 ObjectionManage，支持查看/答复/驳回，与投标人质疑共用 objectionStore 闭环', commit: 'fix(objection)' },
   { id: 'cal-007', source: 'cal', module: '异议管理', page: 'Layout / BidderProjects', severity: 'P0', issue: '供应商工作台缺失异议管理，无法在线发起异议并查看答复状态', status: '无需修复', fix: '同上：无供应商异议环节，供应商异议管理需求作废', commit: '-' },

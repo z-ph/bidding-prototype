@@ -21,7 +21,6 @@ const DEFAULT_SETTINGS = {
   platformName: '采购平台',
   contactPhone: '0000-00000000',
   contactEmail: 'support@example.com',
-  caSandbox: true,
   smsMock: true,
   openReminderDays: 3
 }
@@ -129,9 +128,6 @@ export default function SystemSettings() {
           </Form.Item>
           <Form.Item label="平台 Logo" extra="演示环境占位，暂不支持上传；正式环境在此维护平台 Logo 图片。">
             <Input value="logo-placeholder.svg（占位）" disabled />
-          </Form.Item>
-          <Form.Item label="CA 沙箱模式" extra="开启后 CA 加解密/签章走沙箱模拟，不接入真实 CA 服务。">
-            <Switch checked={form.caSandbox} onChange={(checked) => updateField('caSandbox', checked)} />
           </Form.Item>
           <Form.Item label="短信模拟" extra="短信（天翼云）为预留接口，一期不实现；开启后短信相关动作仅模拟提示。">
             <Switch checked={form.smsMock} onChange={(checked) => updateField('smsMock', checked)} />

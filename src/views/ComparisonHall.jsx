@@ -10,7 +10,7 @@ import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 // 比价大厅（hall-purchase-method-mapping-20260721）：询比族项目（公开询比/邀请询比）的大厅。
-// 询比族供应商提交的是报价（quoteStore），无 CA 解密/唱价仪式，环节简化为：报价汇总 → 报价比较 → 比价完成。
+// 询比族供应商提交的是报价（quoteStore），无解密/唱价仪式，环节简化为：报价汇总 → 报价比较 → 比价完成。
 // 评审对所有项目开放：比价完成后携带 projectId 进入评审大厅。
 
 // 无报价种子时的演示兜底（与 EvaluationHall FALLBACK 同口径：真实数据优先）

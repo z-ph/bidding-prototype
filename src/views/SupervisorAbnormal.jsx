@@ -8,7 +8,7 @@ import { supervisorStore } from '../data/supervisorStore.js'
 
 // 首次 store 为空时种入的演示记录（只种一次）
 const SEED_RECORDS = [
-  { id: 'YC20260708001', projectId: '', project: 'XX市轨道交通设备采购项目', type: '开启异常', desc: '响应单位 A 公司 CA 证书检测失败，已要求重新插拔。', status: '已处理', time: '2026-07-08 15:10', source: 'abnormal' }
+  { id: 'YC20260708001', projectId: '', project: 'XX市轨道交通设备采购项目', type: '开启异常', desc: '响应单位 A 公司解密密码连续错误，已要求核对后重试。', status: '已处理', time: '2026-07-08 15:10', source: 'abnormal' }
 ]
 
 export default function SupervisorAbnormal() {

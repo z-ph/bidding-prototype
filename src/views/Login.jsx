@@ -10,12 +10,10 @@ import {
   Form,
   Input,
   message,
-  Space,
-  Tag
+  Space
 } from 'antd'
 import {
   CheckOutlined,
-  LockOutlined,
   QuestionCircleOutlined
 } from '@ant-design/icons'
 import { useRole } from '../hooks/useRole.js'
@@ -36,7 +34,6 @@ export default function Login() {
   const [activeTab, setActiveTab] = useState('account')
   const [accountForm] = Form.useForm()
   const [phoneForm] = Form.useForm()
-  const [caForm] = Form.useForm()
   const [countdown, setCountdown] = useState(0)
   const [captchaVisible, setCaptchaVisible] = useState(false)
   const [captchaAnswer, setCaptchaAnswer] = useState(0)
@@ -44,7 +41,6 @@ export default function Login() {
   const [a, setA] = useState(0)
   const [b, setB] = useState(0)
   const canvasRef = useRef(null)
-  const [caStatus, setCaStatus] = useState({ status: 'idle', message: '' })
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -132,16 +128,6 @@ export default function Login() {
     doLogin('bidder', phone, '手机验证码')
   }
 
-  const caLogin = () => {
-    const account = String(caForm.getFieldValue('account') || 'ca').trim()
-    setCaStatus({ status: 'checking', message: '正在检测 CA 证书...' })
-    setTimeout(() => {
-      setCaStatus({ status: 'success', message: '证书检测通过' })
-      const resolvedRole = resolveRoleFromAccount(account) || 'bidder'
-      doLogin(resolvedRole, account, 'CA 证书')
-    }, 800)
-  }
-
   const startTour = () => {
     setActiveTab('account')
     const driverObj = driver({
@@ -153,7 +139,7 @@ export default function Login() {
           element: '#login-tabs',
           popover: {
             title: '选择登录方式',
-            description: '平台支持账号密码、CA 数字证书、手机验证码三种登录方式，点击标签切换。',
+            description: '平台支持账号密码、手机验证码两种登录方式，点击标签切换。',
             side: 'bottom',
             align: 'center'
           }
@@ -177,16 +163,6 @@ export default function Login() {
             align: 'center'
           },
           onHighlighted: () => setActiveTab('account')
-        },
-        {
-          element: '#login-ca-panel',
-          popover: {
-            title: 'CA 数字证书登录',
-            description: '插入 CA UKey 后，点击"检测证书并登录"完成高安全身份认证。首次使用请下载 CA 驱动或申请证书。',
-            side: 'left',
-            align: 'center'
-          },
-          onHighlighted: () => setActiveTab('ca')
         },
         {
           element: '#login-phone-panel',
@@ -257,32 +233,6 @@ export default function Login() {
     </>
   )
 
-  const caTab = (
-    <div id="login-ca-panel" className="ca-login">
-      <LockOutlined style={{ fontSize: 60, color: '#409EFF' }} />
-      <p>请插入 CA 数字证书 UKey</p>
-      <Form form={caForm} layout="vertical" className="ca-account-form" initialValues={{ account: 'ca' }}>
-        <Form.Item label="账号" name="account">
-          <Input placeholder="请输入账号以确定角色" />
-        </Form.Item>
-      </Form>
-      <Button id="login-ca-btn" type="primary" onClick={caLogin} loading={caStatus.status === 'checking'}>
-        检测证书并登录
-      </Button>
-      {caStatus.status !== 'idle' && caStatus.status !== 'checking' && (
-        <div style={{ marginTop: 12 }}>
-          <Tag color={caStatus.status === 'success' ? 'success' : 'error'}>{caStatus.message}</Tag>
-        </div>
-      )}
-      <div className="ca-tips">
-        <Button type="link">下载 CA 驱动</Button>
-        <span>|</span>
-        <Button type="link">CA 证书申请</Button>
-      </div>
-      <p className="ca-demo-tip">演示环境：点击登录即模拟证书检测通过</p>
-    </div>
-  )
-
   const phoneTab = (
     <Form id="login-phone-panel" form={phoneForm} layout="vertical" initialValues={{ phone: '13800138000', code: '123456' }}>
       <Form.Item label="手机号" name="phone">
@@ -311,7 +261,6 @@ export default function Login() {
 
   const tabItems = [
     { key: 'account', label: '账号登录', children: accountTab },
-    { key: 'ca', label: 'CA 登录', children: caTab },
     { key: 'phone', label: '手机登录', children: phoneTab }
   ]
 
@@ -412,32 +361,6 @@ export default function Login() {
         .login-right {
           flex: 1;
           padding: 40px;
-        }
-        .ca-login {
-          text-align: center;
-          padding: 20px 20px;
-        }
-        .ca-login p {
-          margin: 12px 0;
-          color: #666;
-        }
-        .ca-account-form {
-          max-width: 280px;
-          margin: 0 auto 16px;
-          text-align: left;
-        }
-        .ca-tips {
-          margin-top: 20px;
-          display: flex;
-          justify-content: center;
-          gap: 16px;
-          color: #ccc;
-          align-items: center;
-        }
-        .ca-demo-tip {
-          color: #999;
-          font-size: 12px;
-          margin-top: 12px;
         }
         .role-hint {
           margin-top: 16px;

@@ -101,7 +101,7 @@ agent 在写代码前必须先确认：
   - 存量 `.js/.jsx` 顶部带 `// @ts-nocheck` 迁移基线，**改动哪个文件就解冻哪个**：删除该行的 `@ts-nocheck`、按需重命名为 `.tsx` 并修复类型后再提交；
   - `pnpm run typecheck`（`tsc --noEmit`）已并入 `pnpm run build` 门禁，typecheck 不过 build 不过；
   - `src/routeTree.gen.ts` 为自动生成文件，不手工加 `@ts-nocheck`，也不手工修改。
-- Mock 数据优先，外部服务（短信、CA）只做沙箱/预留接口
+- Mock 数据优先，外部服务（短信）只做沙箱/预留接口；CA 已全线下线（2026-07-26，台账 0726-003），加密/解密统一走密码加密，禁止再引入 CA/数字证书/UKey 相关入口
 
 ## 版本信息维护
 

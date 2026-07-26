@@ -5,7 +5,7 @@ export default function SupervisorLogs() {
   const logs = [
     { time: '2026-07-08 14:50:12', operator: '张三', role: '采购单位', action: '进入开启大厅', ip: '192.168.1.10', result: '成功' },
     { time: '2026-07-08 14:55:33', operator: 'A科技有限公司', role: '响应单位', action: '在线签到', ip: '192.168.1.21', result: '成功' },
-    { time: '2026-07-08 15:02:18', operator: 'A科技有限公司', role: '响应单位', action: 'CA 解密响应文件', ip: '192.168.1.21', result: '成功' },
+    { time: '2026-07-08 15:02:18', operator: 'A科技有限公司', role: '响应单位', action: '解密响应文件', ip: '192.168.1.21', result: '成功' },
     { time: '2026-07-08 15:10:05', operator: '李四', role: '采购代理', action: '执行唱价', ip: '192.168.1.11', result: '成功' },
     { time: '2026-07-08 15:30:22', operator: '专家甲', role: '评审专家', action: '提交评分', ip: '192.168.1.31', result: '成功' }
   ]

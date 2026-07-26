@@ -212,7 +212,7 @@ export default function OpeningHall() {
   const decrypt = (row) => {
     Modal.confirm({
       title: '解密确认',
-      content: `确定对 ${row.name} 的响应文件执行 CA 解密吗？`,
+      content: `确定对 ${row.name} 的响应文件执行解密吗？响应单位需使用上传时设置的解密密码。`,
       okText: '确认解密',
       cancelText: '取消',
       onOk: () => {
@@ -220,7 +220,7 @@ export default function OpeningHall() {
         setBidders((prev) =>
           prev.map((b) => (b.name === row.name ? { ...b, status: '已解密', time } : b))
         )
-        addOperationRecord('文件解密', `${row.name} 的响应文件已完成 CA 解密`)
+        addOperationRecord('文件解密', `${row.name} 的响应文件已完成解密`)
         message.success(`${row.name} 响应文件解密成功`)
       }
     })
@@ -475,9 +475,9 @@ export default function OpeningHall() {
           current={currentStage}
           items={[
             { title: '开启准备', description: '指定主持人/监督人' },
-            { title: '身份核验', description: '采购单位/响应单位/专家签到' },
+            { title: '身份核验', description: '采购单位/响应单位签到' },
             { title: '开启启动', description: '采购单位宣布开启' },
-            { title: '文件解密', description: '响应单位CA解密响应文件' },
+            { title: '文件解密', description: '响应单位解密响应文件' },
             { title: '唱价公示', description: '公开报价与核心信息' },
             { title: '开启结束', description: '生成开启记录' }
           ]}
@@ -673,7 +673,7 @@ export default function OpeningHall() {
           {currentStage === 3 && (
             <div className="stage-content">
               <h3>响应文件解密</h3>
-              <p className="tip">各响应单位使用各自 CA 私钥解密响应文件；主持人/代理仅可查看解密状态。</p>
+              <p className="tip">各响应单位使用上传时设置的解密密码解密本企业响应文件；主持人/代理仅可查看解密状态。</p>
               <Table
                 columns={bidderColumns}
                 dataSource={bidders}

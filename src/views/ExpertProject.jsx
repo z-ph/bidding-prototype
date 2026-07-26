@@ -437,7 +437,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           element: '#expert-steps',
           popover: {
             title: '评审流程',
-            description: '评审共分为 6 步：回避声明 → 专家签到 → 推选组长 → 查阅资料 → 在线评分 → 电子签名。限时提交制：截止时间前可随时提交。',
+            description: '评审共分为 6 步：回避声明 → 签到 → 推选组长 → 查阅资料 → 在线评分 → 电子签名。限时提交制：截止时间前可随时提交。',
             side: 'bottom',
             align: 'center'
           }
@@ -693,7 +693,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             current={activeStep}
             items={[
               { title: '回避声明' },
-              { title: '专家签到' },
+              { title: '签到' },
               { title: '推选组长' },
               { title: '查阅资料' },
               { title: '在线评分' },
@@ -727,17 +727,17 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                   disabled={!declared}
                   onClick={() => setActiveStep((prev) => prev + 1)}
                 >
-                  {declared ? '下一步：专家签到' : '请先勾选回避声明'}
+                  {declared ? '下一步：签到' : '请先勾选回避声明'}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* 步骤1：专家签到 */}
+          {/* 步骤1：签到 */}
           {activeStep === 1 && (
             <div className="step-content">
-              <h3>专家签到</h3>
-              <p className="tip">请确认身份信息并完成在线签到，评审开始前需全部专家签到完毕。</p>
+              <h3>签到</h3>
+              <p className="tip">请确认身份信息并完成在线签到，评审开始前需全部专家完成签到。</p>
               <Descriptions column={2} bordered>
                 <Descriptions.Item label="项目名称">{projectInfo.name}</Descriptions.Item>
                 <Descriptions.Item label="评审地点">线上评审大厅</Descriptions.Item>
@@ -853,7 +853,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           {activeStep === 5 && (
             <div className="step-content">
               <h3>电子签名确认</h3>
-              <p className="tip">请使用 CA 证书对评分结果和评审报告进行电子签名，签名后不可修改；如需修改须先撤销签名并记录原因。</p>
+              <p className="tip">请对评分结果和评审报告进行电子签名，签名后不可修改；如需修改须先撤销签名并记录原因。</p>
               <Card className={`sign-area${signed ? ' signed' : ''}`} size="small">
                 <div className="sign-placeholder" onClick={doSign} style={signed ? { cursor: 'default' } : undefined}>
                   <EditOutlined style={{ fontSize: 48, color: signed ? '#67C23A' : '#409EFF' }} />

@@ -12,7 +12,6 @@ import {
   Form,
   Input,
   Modal,
-  Radio,
   Row,
   Select,
   Space,
@@ -33,7 +32,6 @@ export default function BidUpload() {
   const searchParams = useSearch({ strict: false })
   const projectId = searchParams.projectId
   const [form] = Form.useForm()
-  const encryptMode = Form.useWatch('encryptMode', form)
   const selectedPackages = Form.useWatch('packages', form) || []
 
   // 采购包按所选项目动态拉取
@@ -77,7 +75,7 @@ export default function BidUpload() {
       signed: true,
       signTime: '2026-07-15 09:00:00',
       encrypted: true,
-      encryptMethod: 'ca',
+      encryptMethod: 'password',
       encryptTime: '2026-07-15 09:05:00'
     },
     {
@@ -87,7 +85,7 @@ export default function BidUpload() {
       signed: true,
       signTime: '2026-07-15 09:00:00',
       encrypted: true,
-      encryptMethod: 'ca',
+      encryptMethod: 'password',
       encryptTime: '2026-07-15 09:05:00'
     },
     {
@@ -149,7 +147,8 @@ export default function BidUpload() {
   const [receiptNo, setReceiptNo] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
-  const allEncrypted = fileList.length > 0 && fileList.every((f) => f.encrypted && f.encryptMethod === 'ca')
+  // 密码加密为唯一加密方式：全部文件已加密即可正式提交
+  const allEncrypted = fileList.length > 0 && fileList.every((f) => f.encrypted)
   const projectName = (projectStore.getProjectById(projectId) || {}).name || '-'
   const packageNames =
     packages.filter((p) => selectedPackages.includes(p.id)).map((p) => p.name).join('、') || '-'
@@ -165,12 +164,6 @@ export default function BidUpload() {
   const canSubmit = canDraft && allEncrypted && allTypesComplete
 
   const submitBtnText = (() => {
-    if (encryptMode === 'password') {
-      if (!quoteFilled) return '请填写开启一览表'
-      if (fileList.length === 0) return '请先上传文件'
-      if (!projectId || selectedPackages.length === 0) return '请完善响应信息'
-      return '保存草稿'
-    }
     if (!quoteFilled) return '请填写开启一览表'
     if (fileList.length === 0) return '请先上传文件'
     if (!allEncrypted) return '存在未加密文件'
@@ -220,14 +213,13 @@ export default function BidUpload() {
           ? {
               ...item,
               encrypted: true,
-              encryptMethod: encryptMode,
+              encryptMethod: 'password',
               encryptTime: new Date().toLocaleString()
             }
           : item
       )
     )
-    const methodText = encryptMode === 'password' ? '密码加密（草稿）' : 'CA 证书加密'
-    message.success(`${row.name} 已完成${methodText}`)
+    message.success(`${row.name} 已完成密码加密`)
   }
 
   const reSignFile = (row) => {
@@ -274,13 +266,11 @@ export default function BidUpload() {
 
   const encryptStatusLabel = (row) => {
     if (!row.encrypted) return '未加密'
-    if (row.encryptMethod === 'password') return '密码加密（草稿）'
-    return '已 CA 加密'
+    return '已加密（密码）'
   }
 
   const encryptStatusColor = (row) => {
     if (!row.encrypted) return 'pending'
-    if (row.encryptMethod === 'password') return 'pending'
     return 'completed'
   }
 
@@ -388,7 +378,7 @@ export default function BidUpload() {
         }
       >
         <Alert
-          title="正式提交必须使用 CA 证书加密响应文件。上传后请依次完成签章、加密，再进行正式提交；密码加密仅作为草稿/演示，不能生成正式回执。"
+          title="上传后请依次完成签章、密码加密，再进行正式提交；未签章加密的文件不能生成正式回执。"
           type="info"
           showIcon
           closable={false}
@@ -405,7 +395,7 @@ export default function BidUpload() {
 
         <Form
           form={form}
-          initialValues={{ encryptMode: 'ca', packages: [], projectId: projectId ? String(projectId) : undefined }}
+          initialValues={{ packages: [], projectId: projectId ? String(projectId) : undefined }}
           labelCol={{ flex: '0 0 120px' }}
           wrapperCol={{ flex: 'auto' }}
           className="upload-form"
@@ -426,21 +416,6 @@ export default function BidUpload() {
               ))}
             </Checkbox.Group>
           </Form.Item>
-          <Form.Item label="加密方式" name="encryptMode">
-            <Radio.Group>
-              <Radio value="ca">CA 证书加密（正式提交）</Radio>
-              <Radio value="password">密码加密（仅草稿/演示）</Radio>
-            </Radio.Group>
-          </Form.Item>
-          {encryptMode === 'ca' && (
-            <Form.Item label="CA 状态">
-              <div className="ca-status">
-                <CheckCircleFilled style={{ fontSize: 24, color: '#67C23A' }} />
-                <span>已检测到 CA 证书：深圳市电子商务安全证书管理有限公司</span>
-                <Button type="link">重新检测</Button>
-              </div>
-            </Form.Item>
-          )}
         </Form>
 
         <Divider />
@@ -518,9 +493,9 @@ export default function BidUpload() {
             style={{ width: '100%', marginTop: 16 }}
           />
 
-          {encryptMode === 'ca' && fileList.length > 0 && !allEncrypted && (
+          {fileList.length > 0 && !allEncrypted && (
             <Alert
-              title="存在未使用 CA 证书加密的文件，请先完成签章、加密后再正式提交"
+              title="存在未加密文件，请先完成签章、加密后再正式提交"
               type="error"
               showIcon
               closable={false}
@@ -573,18 +548,10 @@ export default function BidUpload() {
         </div>
 
         <div className="actions">
-          {encryptMode === 'password' ? (
-            <Button type="primary" size="large" onClick={saveDraft}>
-              {submitBtnText}
-            </Button>
-          ) : (
-            <>
-              <Button type="primary" size="large" onClick={submitBid}>
-                {submitBtnText}
-              </Button>
-              <Button size="large" onClick={saveDraft}>保存草稿</Button>
-            </>
-          )}
+          <Button type="primary" size="large" onClick={submitBid}>
+            {submitBtnText}
+          </Button>
+          <Button size="large" onClick={saveDraft}>保存草稿</Button>
         </div>
       </Card>
 
@@ -612,7 +579,7 @@ export default function BidUpload() {
           </Descriptions.Item>
           <Descriptions.Item label="提交时间">{submitTime}</Descriptions.Item>
           <Descriptions.Item label="回执编号">{receiptNo}</Descriptions.Item>
-          <Descriptions.Item label="加密方式">CA 证书加密</Descriptions.Item>
+          <Descriptions.Item label="加密方式">密码加密</Descriptions.Item>
         </Descriptions>
       </Modal>
 
@@ -639,12 +606,6 @@ export default function BidUpload() {
         }
         .bid-upload .upload-form {
           margin-top: 10px;
-        }
-        .bid-upload .ca-status {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          color: #67C23A;
         }
         .bid-upload .quote-section h3,
         .bid-upload .file-section h4 {

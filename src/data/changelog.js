@@ -12,6 +12,27 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.12.5',
+    date: '2026-07-26',
+    title: '去除「专家签到」字眼',
+    changes: [
+      { type: 'fix', text: 'OpeningHall 身份核验步骤描述「采购单位/响应单位/专家签到」→「采购单位/响应单位签到」，补齐 yy0-006 残留（签到表本就无专家列）' },
+      { type: 'fix', text: 'ExpertProject 评审步骤「专家签到」统一为「签到」（Steps/按钮/标题/tip/流程说明 5 处）；EvaluationHall 导出按钮「专家签到表」→「签到表」' }
+    ]
+  },
+  {
+    version: '0.12.4',
+    date: '2026-07-26',
+    title: 'CA 全线下线：登录/驱动/沙箱设置清除，加解密统一密码加密',
+    changes: [
+      { type: 'remove', text: '登录页删除 CA 登录 tab（含证书检测、CA 驱动/证书申请入口、引导 tour CA 步骤），保留账号密码 + 手机验证码两种方式' },
+      { type: 'remove', text: '门户清除 CA 内容：下载中心 CA 驱动、轮播图「安全合规的CA认证」、新闻「CA数字证书办理指南」、帮助中心两条 CA 常见问题' },
+      { type: 'remove', text: '系统设置删除「CA 沙箱模式」开关（含 caSandbox 配置项）' },
+      { type: 'fix', text: 'BidUpload 加密方式固定为密码加密：删除 CA 证书加密选项与 CA 状态检测块，签章/加密/重新签章/重新加密动作链保留，正式提交门槛改为全部文件已加密' },
+      { type: 'fix', text: 'OpeningHall 文件解密阶段保留，CA 私钥解密改为上传时设置的解密密码；ExpertProject/监督日志/异常种子同步去 CA 表述' }
+    ]
+  },
+  {
     version: '0.12.3',
     date: '2026-07-26',
     title: '引入 TypeScript（渐进迁移）+ typecheck 并入 build 门禁',
