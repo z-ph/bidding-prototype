@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 项目流程与角色操作辅助函数
 // 供 ProjectDetail、ProjectTrack 等页面统一使用，避免重复逻辑
 

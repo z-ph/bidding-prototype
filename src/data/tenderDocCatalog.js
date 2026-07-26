@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 采购文件默认目录模板
 // 供 TenderDoc 与 tenderDocStore 共享，避免多处维护
 //

@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 变更时间线数据：每轮实质变更（版本递增）在此登记，最新版本在前。
 // 维护要求见 AGENTS.md「版本信息维护」：递增 package.json version 时必须同步在此新增条目，
 // 页面 /admin/changelog 会自动按本数据渲染时间线。
@@ -10,6 +11,16 @@ export const CHANGE_TYPES = {
 }
 
 export const CHANGELOG = [
+  {
+    version: '0.12.3',
+    date: '2026-07-26',
+    title: '引入 TypeScript（渐进迁移）+ typecheck 并入 build 门禁',
+    changes: [
+      { type: 'feat', text: '引入 TypeScript 7.0.2：新增 tsconfig.json（strict + allowJs/checkJs），pnpm run typecheck（tsc --noEmit）并入 pnpm run build 门禁，未定义变量等错误构建期拦截' },
+      { type: 'feat', text: '渐进迁移基线：存量 223 个 .js/.jsx 批量打 // @ts-nocheck 基线（含解冻指引注释），新文件一律 .ts/.tsx 严格模式，改动哪个文件解冻哪个' },
+      { type: 'docs', text: 'AGENTS.md 技术栈口径更新：废止「JavaScript（不引入 TypeScript）」，改为 TypeScript 优先 + 解冻规则' }
+    ]
+  },
   {
     version: '0.12.2',
     date: '2026-07-26',

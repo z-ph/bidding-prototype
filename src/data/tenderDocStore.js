@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 采购文件版本链 mock 数据存储（纯内存静态种子，无任何持久化）
 // 支持按项目读取多版本采购文件，供 TenderDoc、BidDownload、ExpertProject 共享同一文件对象
 //

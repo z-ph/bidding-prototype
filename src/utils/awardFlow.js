@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 成交确认阶段共享口径（fix-award-step-regression-20260721）
 // 由 AwardConfirm（确认中选人）、AwardNotice（中选通知书）共同消费，
 // 统一阶段推导，杜绝两页面重复实现漂移导致「确认中选人后步骤回退第一步」。

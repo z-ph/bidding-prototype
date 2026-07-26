@@ -1,10 +1,13 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 import { useState, useMemo } from 'react'
 import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from 'antd'
 
 const { Title, Text } = Typography
 
 const reviewData = [
-  // 0726 修复
+  // 0726 修复与基建
+  { id: '0726-002', source: '用户决策', module: '全站基建', page: 'tsconfig.json / package.json / 223 个存量 js/jsx / AGENTS.md', severity: '中', issue: '0726-001（BidQuote 未定义变量白屏）暴露工程盲区：纯 JS 项目无任何静态检查，JSX 引用未定义变量 build 全绿、运行时才炸。AGENTS.md 原有「JavaScript（不引入 TypeScript）」口径被用户废止', status: '已修复', fix: '渐进式引入 TypeScript：① 新增 tsconfig.json（strict + allowJs/checkJs + react-jsx + bundler 解析）；② typescript 7.0.2 入 devDependencies，pnpm run typecheck（tsc --noEmit）并入 pnpm run build 门禁；③ 存量 223 个 .js/.jsx 批量打 // @ts-nocheck 基线（附解冻指引注释），全量 checkJs 实测基线 0 错；④ 探针验证：新 .tsx 中引用未定义变量被 TS2304 拦截；⑤ AGENTS.md 技术栈改为「TypeScript 优先 + 改动即解冻」规则；⑥ routeTree.gen.ts 自动生成文件不加 nocheck。实测 pnpm run build（typecheck + vite build）通过', commit: 'feat(typescript)' },
+
   { id: '0726-001', source: '用户实测', module: '响应单位', page: 'BidQuote', severity: '高', issue: '在线报价页打开即白屏：isInquiryMode/quoteLocked 两变量在 JSX 中使用但从未定义（b2d2e49「取消 localStorage 改纯内存 mock」重构时丢失原定义，原定义基于旧 status 文案口径），纯 JS 项目无 typecheck、Vite 构建不检查未定义变量，运行时才暴露', status: '已修复', fix: '恢复定义并升级为现行口径：isInquiryMode = isInquiryFamily(project)（询比族 inquiry/invitation_inquiry，与 BidUpload/OpeningHall 同源）；quoteLocked = 询比族且 status === registering（公告中未开启，对齐 0721 大厅归属口径，原口径依赖已废弃的中文 status 文案）。Playwright 实测：项目 10（公开询比·待开启）可报价 5 步条、项目 6（邀请询比·公告中）锁定横幅、项目 1（阳光采购）4 步条，均无控制台错误', commit: 'fix(bidquote-inquiry)' },
 
   // 0725 修复与增强

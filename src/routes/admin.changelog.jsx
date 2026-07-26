@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
 // 旧台账路由：重定向到 Tab 合并页对应 tab（2026-07-18 入口合并）

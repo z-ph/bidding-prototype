@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 专家库与抽取结果 mock 存储（纯内存静态种子，无任何持久化）
 // 维护专家专业领域、所属单位、回避单位；抽取结果按项目预置。
 // 专家确认状态 confirmStatus：pending 待确认 / confirmed 已确认参加 / declined 已拒绝

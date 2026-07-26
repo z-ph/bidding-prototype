@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 采购需求 mock 数据存储（纯内存静态种子，无任何持久化）
 // 状态：draft / published / approved / rejected
 

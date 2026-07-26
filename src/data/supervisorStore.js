@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 监督异常/意见记录 mock 存储（纯内存静态种子，无任何持久化）
 // 由 SupervisorHall（项目监督视图登记，source: 'hall'）与 SupervisorAbnormal（异常登记页，source: 'abnormal'）共同消费。
 

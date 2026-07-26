@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // e签宝采购数据分析接口（预留占位，一期不实现）
 //
 // 口径（spec/changes/add-procurement-analytics-20260717，任务 data-source-stub）：

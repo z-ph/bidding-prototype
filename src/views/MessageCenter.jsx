@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 消息中心：接入 messageStore（localStorage mock），修 cal-009 闭环缺口
 // 可见范围：toUser 指定本人 / toRole 命中当前角色（含「响应单位」⊂「响应单位/供应商」别名）/ 无接收方的系统广播
 // 审批通知（type=approval）由审批中心及各业务页在 create/act 后写入（清单 54）

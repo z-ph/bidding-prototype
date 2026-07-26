@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 import { Empty } from 'antd'
 
 // 自绘 SVG 折线图（无图表库依赖）：按供应商分组展示价格趋势，支持多序列对比。

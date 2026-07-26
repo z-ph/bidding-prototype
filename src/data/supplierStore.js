@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 供应商台账数据存储（localStorage 持久化）
 // localStorage key: bidding-suppliers
 // 与 SupplierProfile 的企业档案数据独立，本 store 为管理员/采购单位视角的供应商登记台账

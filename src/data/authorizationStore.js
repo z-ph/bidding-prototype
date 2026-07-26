@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 供应商授权 mock 数据存储（纯内存静态种子，无任何持久化）
 // 供 SupplierAuthorization（采购单位/代理维护授权名单）、BidDownload（采购文件下载门控）、
 // BidderProjects（响应邀请书查看）共享。

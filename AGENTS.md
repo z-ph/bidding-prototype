@@ -96,7 +96,11 @@ agent 在写代码前必须先确认：
 
 - React 19 + TanStack Router（文件路由） + Ant Design 6
 - Vite 构建
-- JavaScript（不引入 TypeScript）
+- **TypeScript 优先**（2026-07-26 起，废止原「JavaScript（不引入 TypeScript）」口径）：
+  - 新增文件一律用 `.ts/.tsx`，`strict` 模式，禁止 `any` 兜底滥用；
+  - 存量 `.js/.jsx` 顶部带 `// @ts-nocheck` 迁移基线，**改动哪个文件就解冻哪个**：删除该行的 `@ts-nocheck`、按需重命名为 `.tsx` 并修复类型后再提交；
+  - `pnpm run typecheck`（`tsc --noEmit`）已并入 `pnpm run build` 门禁，typecheck 不过 build 不过；
+  - `src/routeTree.gen.ts` 为自动生成文件，不手工加 `@ts-nocheck`，也不手工修改。
 - Mock 数据优先，外部服务（短信、CA）只做沙箱/预留接口
 
 ## 版本信息维护

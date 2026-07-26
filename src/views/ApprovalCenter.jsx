@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 审批中心：待办 / 已办 / 我发起的（2026-07-17 需求确认清单 48-53）
 // 数据源 approvalStore（localStorage mock）；操作后站内信通知（清单 54，messageStore）。
 // 待办口径：pendingFor(当前审批身份节点) ∪ pendingFor(用户名)（覆盖转办/加签到具体人）。

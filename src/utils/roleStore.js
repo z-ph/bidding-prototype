@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 角色登录态：纯内存 pub/sub 单例（无任何 localStorage / token / 过期机制）
 // 刷新页面即回到未登录状态（从登录页重新选角色进入演示）。
 // useRole() hook 与路由守卫（admin.jsx）统一从本模块读写角色。

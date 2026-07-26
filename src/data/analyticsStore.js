@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 采购数据分析 mock 数据存储（纯内存静态种子，无任何持久化）
 // 供 AnalyticsDashboard（价格趋势）、AnalyticsPriceCompare（材料比价）、AnalyticsRiskWarning（风险预警）共享。
 // 本文件为共享契约：导出名、参数与返回结构固定，实施 agent 不得修改签名；如需扩展请先协调。

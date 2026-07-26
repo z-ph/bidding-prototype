@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 响应单位报价 mock 存储（纯内存静态种子，无任何持久化）
 // 结构：{ "<projectId>::<supplierName>": { quote, items, savedAt } }
 //   quote: { [fieldKey]: value } 开启一览表填报值

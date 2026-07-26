@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 import { useEffect, useMemo, useState } from 'react'
 import { useSearch } from '@tanstack/react-router'
 import { Card, Select, InputNumber, Form, Button, Table, Tag, Alert, message, Modal, Empty, DatePicker } from 'antd'

@@ -1,3 +1,4 @@
+// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 采购数据分析看板（价格趋势 / 材料比价 / 风险预警 / 预警规则配置）
 // 依据：spec/changes/add-procurement-analytics-20260717（2026-07-17 会议概要八）。
 // 数据来源口径：数据由 e签宝 提供接口，原型阶段统一走 analyticsStore mock（预留 src/utils/eqianbaoAnalyticsApi.js 切换）。
