@@ -20,7 +20,7 @@ export const INVITATION_RESPONSES_KEY = 'bidding-invitation-responses'
 const PURCHASE_MODE_LABELS = {
   open: '阳光采购',
   invitation: '邀请采购',
-  inquiry: '公开询比',
+  inquiry: '阳光询比',
   invitation_inquiry: '邀请询比'
 }
 
@@ -106,7 +106,7 @@ export default function BidderProjects() {
   const [invitationResponses, setInvitationResponses] = useState(loadInvitationResponses)
   const [letterModal, setLetterModal] = useState({ open: false, project: null, invitation: null, text: '' })
 
-  // 种子项目：2 个公开项目 + 1 个受邀邀请项目 + 1 个未受邀邀请项目（演示可见性过滤）
+  // 种子项目：2 个开放项目 + 1 个受邀邀请项目 + 1 个未受邀邀请项目（演示可见性过滤）
   // 项目 3 与 authorizationStore 种子授权记录一致（A科技有限公司已授权，可下载采购文件）
   const [seedProjects] = useState([
     { id: 1, name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001', purchaseMode: 'open', deadline: '2026-07-20 17:00', openTime: '2026-07-21 09:30', owner: '张三', deptCode: 'CG' },
@@ -328,7 +328,7 @@ export default function BidderProjects() {
           element: '.bidder-projects .ant-table-tbody .ant-table-row:first-child .ant-btn-sm',
           popover: {
             title: '参与项目',
-            description: '公开项目可直接下载采购文件并报价；邀请项目需先接受邀请。不可操作时按钮会说明具体原因。',
+            description: '开放项目可直接下载采购文件并报价；邀请项目需先接受邀请。不可操作时按钮会说明具体原因。',
             side: 'left',
             align: 'center'
           }

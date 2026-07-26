@@ -160,7 +160,7 @@ export default function OpeningHall() {
     '完成在线签到',
     '宣布开启纪律并启动开启',
     '响应单位解密响应文件',
-    '公开唱价并公示报价',
+    '集中唱价并公示报价',
     '生成开启记录，进入评审'
   ]
 
@@ -314,7 +314,7 @@ export default function OpeningHall() {
     navigate({ to: '/admin/evaluation-hall', search: { projectId } })
   }
 
-  // 唱价确认（2026-07-26 口径）：投标人须以电子签章或签名方式二次确认唱价内容
+  // 唱价确认（2026-07-26 口径）：响应单位须以电子签章或签名方式二次确认唱价内容
   const submitBidderConfirm = () => {
     if (confirmMethod === 'sign' && !signName.trim()) {
       message.warning('请输入签名人姓名')
@@ -423,7 +423,7 @@ export default function OpeningHall() {
   }
 
   // 页面级门禁（hall-purchase-method-mapping-20260721）：开启大厅仅服务采购族（阳光采购/邀请采购），
-  // 询比族项目（公开询比/邀请询比）请在比价大厅操作
+  // 询比族项目（阳光询比/邀请询比）请在比价大厅操作
   if (inquiryFamily) {
     return (
       <div className="opening-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -437,7 +437,7 @@ export default function OpeningHall() {
                   {project?.name || `项目ID：${projectId}`}（采购方式：{getPurchaseModeText(project)}）
                 </p>
                 <p style={{ margin: '8px 0 0' }}>
-                  公开询比、邀请询比项目无需开启，报价截止后在比价大厅比较各供应商报价。
+                  阳光询比、邀请询比项目无需开启，报价截止后在比价大厅比较各供应商报价。
                 </p>
               </>
             }
@@ -458,7 +458,7 @@ export default function OpeningHall() {
             type="info"
             showIcon
             closable={false}
-            title="口径说明：开启大厅服务采购族（阳光采购、邀请采购），比价大厅服务询比族（公开询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求，废止 2026-07-17 清单 20 旧口径）。"
+            title="口径说明：开启大厅服务采购族（阳光采购、邀请采购），比价大厅服务询比族（阳光询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求，废止 2026-07-17 清单 20 旧口径）。"
           />
         </Card>
       </div>
@@ -515,7 +515,7 @@ export default function OpeningHall() {
             { title: '身份核验', description: '采购单位/响应单位签到' },
             { title: '开启启动', description: '采购单位宣布开启' },
             { title: '文件解密', description: '响应单位解密响应文件' },
-            { title: '唱价公示', description: '公开报价与核心信息' },
+            { title: '唱价公示', description: '公布报价与核心信息' },
             { title: '开启结束', description: '生成开启记录' }
           ]}
         />
@@ -737,7 +737,7 @@ export default function OpeningHall() {
           {currentStage === 4 && (
             <div className="stage-content">
               <h3>唱价公示</h3>
-              <p className="tip">按递交文件顺序公开响应报价与工期等核心信息</p>
+              <p className="tip">按递交文件顺序公布响应报价与工期等核心信息</p>
               <Descriptions column={2} style={{ marginBottom: 16 }}>
                 <Descriptions.Item label="唱价人（主持人）">{prep.host}</Descriptions.Item>
                 <Descriptions.Item label="监督人">{prep.supervisor}</Descriptions.Item>

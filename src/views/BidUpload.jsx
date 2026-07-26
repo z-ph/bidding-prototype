@@ -50,7 +50,7 @@ export default function BidUpload() {
   const project = useMemo(() => projectStore.getProjectById(projectId), [projectId])
   const inquiryFamily = useMemo(() => isInquiryFamily(project), [project])
 
-  // 必传文件类型清单按项目采购方式区分：招标族商务标/技术标/报价标，询比族证书/业绩/报价文件
+  // 必传文件类型清单按项目采购方式区分：采购族商务文件/技术文件/报价文件，询比族证书/业绩/报价文件
   const requiredFileTypes = useMemo(() => {
     if (inquiryFamily) {
       return [
@@ -60,9 +60,9 @@ export default function BidUpload() {
       ]
     }
     return [
-      { type: '商务标', desc: '响应函、授权委托书、营业执照等' },
-      { type: '技术标', desc: '技术方案、项目实施方案、参数响应表等' },
-      { type: '报价标', desc: '报价一览表、分项报价表等' }
+      { type: '商务文件', desc: '响应函、授权委托书、营业执照等' },
+      { type: '技术文件', desc: '技术方案、项目实施方案、参数响应表等' },
+      { type: '报价文件', desc: '报价一览表、分项报价表等' }
     ]
   }, [inquiryFamily])
 
@@ -70,7 +70,7 @@ export default function BidUpload() {
   const [fileList, setFileList] = useState([
     {
       name: '响应函.pdf',
-      type: '商务标',
+      type: '商务文件',
       size: '1.2 MB',
       signed: true,
       signTime: '2026-07-15 09:00:00',
@@ -80,7 +80,7 @@ export default function BidUpload() {
     },
     {
       name: '技术方案.docx',
-      type: '技术标',
+      type: '技术文件',
       size: '3.5 MB',
       signed: true,
       signTime: '2026-07-15 09:00:00',
@@ -90,7 +90,7 @@ export default function BidUpload() {
     },
     {
       name: '报价单.xlsx',
-      type: '报价标',
+      type: '报价文件',
       size: '0.8 MB',
       signed: false,
       signTime: null,
@@ -386,7 +386,7 @@ export default function BidUpload() {
         />
 
         <Alert
-          title={inquiryFamily ? '当前为询比项目，仅需上传证书、业绩和报价文件' : '当前为招标项目，需上传响应函、技术方案和报价单'}
+          title={inquiryFamily ? '当前为询比项目，仅需上传证书、业绩和报价文件' : '当前为采购项目，需上传响应函、技术方案和报价单'}
           type="info"
           showIcon
           closable={false}
@@ -457,7 +457,7 @@ export default function BidUpload() {
               <span style={{ color: '#666', fontSize: 12 }}>
                 {inquiryFamily
                   ? '询比项目，需上传证书、业绩和报价文件'
-                  : '按采购文件模板，商务标/技术标/报价标三类缺一不可，避免废标'}
+                  : '按采购文件模板，商务文件/技术文件/报价文件三类缺一不可，缺失将导致响应无效'}
               </span>
             </div>
             <Space wrap>

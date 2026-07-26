@@ -24,7 +24,7 @@ export default function AdminDashboard() {
   const todos = [
     { id: 1, content: '12 家新注册供应商等待准入审核', type: 'warning', time: '2026-07-08', path: '/admin/admin-supplier-audit' },
     { id: 2, content: '5 位专家注册等待资质审核', type: 'primary', time: '2026-07-08', path: '/admin/admin-supplier-audit' },
-    { id: 3, content: '系统检测到 3 条疑似串标预警', type: 'danger', time: '2026-07-07', path: '/admin/admin-logs' }
+    { id: 3, content: '系统检测到 3 条疑似串通报价预警', type: 'danger', time: '2026-07-07', path: '/admin/admin-logs' }
   ]
 
   const quickEntries = [

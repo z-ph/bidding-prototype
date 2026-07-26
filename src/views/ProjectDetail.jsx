@@ -184,7 +184,7 @@ export default function ProjectDetail() {
   const packageColumns = [
     { title: '采购包名称', dataIndex: 'name', width: 200 },
     { title: '采购包编号', dataIndex: 'code', width: 100 },
-    { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '阳光采购', invitation: '邀请采购', inquiry: '公开询比', invitation_inquiry: '邀请询比' }[v] || v || '-') },
+    { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '阳光采购', invitation: '邀请采购', inquiry: '阳光询比', invitation_inquiry: '邀请询比' }[v] || v || '-') },
     { title: '预算金额', dataIndex: 'budget', width: 120, render: (v) => (v ? `${v} 万元` : '-') },
     { title: '响应开始', dataIndex: 'bidStart', width: 160, render: (v) => formatTime(v) },
     { title: '采购截止', dataIndex: 'bidEnd', width: 160, render: (v) => formatTime(v) },

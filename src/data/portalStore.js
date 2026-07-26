@@ -10,7 +10,7 @@ const defaultNews = [
   { id: 4, title: '关于加强供应商诚信管理的公告', category: '政策法规', content: '为进一步规范采购市场秩序，加强供应商诚信管理，本公告自发布之日起执行。', publishTime: '2026-07-07', status: 'published', attachments: [] },
   { id: 5, title: '平台系统维护公告（7月12日凌晨）', category: '平台公告', content: '平台将于7月12日凌晨2:00-4:00进行系统维护，维护期间部分功能可能无法使用。', publishTime: '2026-07-06', status: 'offline', attachments: [] },
   { id: 6, title: '新版响应文件编制工具发布', category: '产品更新', content: '新版响应文件编制工具已发布，支持一键签章、自动检查功能。', publishTime: '2026-07-05', status: 'published', attachments: [{ name: '工具更新说明.pdf', size: '800KB' }] },
-  { id: 7, title: '2026年第三季度采购意向公开', category: '采购信息', content: '现将2026年第三季度采购意向公开，欢迎符合条件的供应商关注。', publishTime: '2026-07-04', status: 'published', attachments: [] },
+  { id: 7, title: '2026年第三季度采购意向公示', category: '采购信息', content: '现将2026年第三季度采购意向公示，欢迎符合条件的供应商关注。', publishTime: '2026-07-04', status: 'published', attachments: [] },
   { id: 8, title: '响应单位常见问题汇总（2026年7月版）', category: '常见问题', content: '汇总了近期响应单位咨询频率较高的问题及解答，供参考。', publishTime: '2026-07-03', status: 'published', attachments: [] },
   { id: 9, title: '监督投诉渠道及处理流程公示', category: '政策法规', content: '公示平台监督投诉渠道及处理流程，接受社会各界监督。', publishTime: '2026-07-02', status: 'published', attachments: [] },
   { id: 10, title: '平台用户隐私政策更新公告', category: '平台公告', content: '用户隐私政策已更新，请广大用户及时查阅并确认。', publishTime: '2026-07-01', status: 'published', attachments: [] }

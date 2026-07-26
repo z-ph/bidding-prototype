@@ -12,6 +12,17 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.12.7',
+    date: '2026-07-26',
+    title: '敏感词残留二轮清洗（公开/招标/投标等字眼全禁）',
+    changes: [
+      { type: 'fix', text: '采购方式「公开询比」→「阳光询比」（与「阳光采购」同族口径）：ProjectCreate / ProjectList / TenderDoc / ProjectDetail / BidderProjects / SupplierAuthorization / AdminDictionary 标签，及 OpeningHall / ComparisonHall / ProjectTrack / projects.js / quoteStore.js 相关文案共 15 处' },
+      { type: 'fix', text: '「公开×」文案清理：公开唱价并公示报价→集中唱价并公示报价、唱价阶段「公开报价/公开响应报价」→「公布报价」、公开项目/非公开项目→开放项目/邀请类项目（BidDownload / BidderProjects / SupplierAuthorization）、采购意向公开→采购意向公示（portalStore）' },
+      { type: 'fix', text: '标族复合词清理：BidUpload 必传文件类型 商务标/技术标/报价标→商务文件/技术文件/报价文件，tenderDocStore 评分项与 EvaluationHall 评分类 商务标/技术标/价格标→商务/技术/价格，BidQuote 询比价→询比，BidUpload 提示「当前为招标项目」→「当前为采购项目」，AdminDashboard 疑似串标预警→疑似串通报价预警，permissions 状态色板 已废标→已作废 / 已流标→已终止' },
+      { type: 'docs', text: '新增 scripts/p0-rename-pass4.mjs 一轮替换 21 文件 57 处；注释中「公开（路由）」语义改「免登录」5 处；ReviewChangeList / changelog 历史条目保留原文（用户 2026-07-26 确认，沿用 0724-001 口径）；grep 全库复核产品代码零残留' }
+    ]
+  },
+  {
     version: '0.12.6',
     date: '2026-07-26',
     title: '专家不签到 + 名单开评前保密 + 唱价签章确认与导出',

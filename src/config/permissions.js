@@ -54,7 +54,7 @@ export const PAGE_PERMISSIONS = {
   // 开启大厅：仅服务采购族（阳光采购/邀请采购）；采购单位/采购代理/响应单位可进入，监督只读，操作权限各异
   '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
 
-  // 比价大厅：服务询比族（公开询比/邀请询比），角色口径同开启大厅（hall-purchase-method-mapping-20260721）
+  // 比价大厅：服务询比族（阳光询比/邀请询比），角色口径同开启大厅（hall-purchase-method-mapping-20260721）
   '/admin/comparison-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
 
   // 评审大厅：对所有采购项目开放；采购单位/采购代理/评审专家/监督人员
@@ -74,7 +74,7 @@ export const PAGE_PERMISSIONS = {
   '/admin/supervisor-hall': ['supervisor'],
   '/admin/supervisor-logs': ['supervisor'],
 
-  // 开发阶段台账：不进任何业务角色主导航；公开合并页 /dev-ledger（无权限拦截），
+  // 开发阶段台账：不进任何业务角色主导航；免登录合并页 /dev-ledger（无权限拦截），
   // 以下两个 /admin 旧路径已重定向到合并页（已登录全角色可经 redirect 通过布局校验）
   '/admin/review-change-list': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
   '/admin/changelog': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
@@ -205,8 +205,8 @@ export const STATUS_COLORS = {
   已下线: 'default',
   已归档: 'success',
   已驳回: 'danger',
-  已废标: 'danger',
-  已流标: 'danger',
+  已作废: 'danger',
+  已终止: 'danger',
   异常: 'danger'
 }
 

@@ -13,7 +13,7 @@ import { INVITATION_RESPONSES_KEY } from './BidderProjects.jsx'
 const PURCHASE_MODE_LABELS = {
   open: '阳光采购',
   invitation: '邀请采购',
-  inquiry: '公开询比',
+  inquiry: '阳光询比',
   invitation_inquiry: '邀请询比'
 }
 
@@ -251,7 +251,7 @@ export default function SupplierAuthorization() {
         }
       >
         <Alert
-          title="授权按年度周期生效（授权日起 1 年），过期自动标记「需重新授权」并视同未授权；公开项目供应商可自行下载采购文件，非公开项目仅授权名单内供应商可下载。授权时系统自动生成响应邀请书。"
+          title="授权按年度周期生效（授权日起 1 年），过期自动标记「需重新授权」并视同未授权；开放项目供应商可自行下载采购文件，邀请类项目仅授权名单内供应商可下载。授权时系统自动生成响应邀请书。"
           type="info"
           showIcon
           closable={false}

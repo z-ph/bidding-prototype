@@ -107,9 +107,9 @@ export default function EvaluationHall() {
       return {
         real: false,
         items: [
-          { key: 'business', title: '商务标（30）' },
-          { key: 'tech', title: '技术标（40）' },
-          { key: 'price', title: '价格标（30）' }
+          { key: 'business', title: '商务（30）' },
+          { key: 'tech', title: '技术（40）' },
+          { key: 'price', title: '价格（30）' }
         ],
         rows: FALLBACK_SUMMARY
       }

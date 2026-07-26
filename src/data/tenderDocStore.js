@@ -17,9 +17,9 @@ const defaultFileList = [
 
 // 评审办法默认评分项（名称 + 权重），权重合计 100，驱动 ExpertProject 评分页
 const defaultScoreItems = [
-  { id: 'business', name: '商务标', weight: 30 },
-  { id: 'tech', name: '技术标', weight: 40 },
-  { id: 'price', name: '价格标', weight: 30 }
+  { id: 'business', name: '商务', weight: 30 },
+  { id: 'tech', name: '技术', weight: 40 },
+  { id: 'price', name: '价格', weight: 30 }
 ]
 
 export function getDefaultScoreItems() {

@@ -115,7 +115,7 @@ export default function BidDownload() {
   const blockedSubTitle = {
     expired: '您的授权已过年度有效期，需采购单位/代理重新授权后方可下载。请联系项目采购单位/代理办理重新授权。',
     revoked: '您的授权已被撤销，暂无法下载。如有疑问请联系项目采购单位/代理。',
-    none: '该项目为邀请/非公开项目，仅经采购单位/代理授权的供应商可下载采购文件。请联系项目采购单位/代理开通授权。'
+    none: '该项目为邀请类项目，仅经采购单位/代理授权的供应商可下载采购文件。请联系项目采购单位/代理开通授权。'
   }
 
   if (!projectId) return <ProjectEntryGuard />
@@ -128,7 +128,7 @@ export default function BidDownload() {
             <span>采购文件下载</span>
             <span>
               <Tag color={isPublicProject ? 'success' : 'warning'}>
-                {isPublicProject ? '公开项目·可自行下载' : '非公开项目·需授权'}
+                {isPublicProject ? '开放项目·可自行下载' : '邀请项目·需授权'}
               </Tag>
               <Tag color="success">项目：{projectMeta.name}</Tag>
             </span>

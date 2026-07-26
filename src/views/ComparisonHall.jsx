@@ -9,7 +9,7 @@ import { BASELINE_PROJECTS, getPurchaseModeText, isInquiryFamily } from './Proje
 import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
-// 比价大厅（hall-purchase-method-mapping-20260721）：询比族项目（公开询比/邀请询比）的大厅。
+// 比价大厅（hall-purchase-method-mapping-20260721）：询比族项目（阳光询比/邀请询比）的大厅。
 // 询比族供应商提交的是报价（quoteStore），无解密/唱价仪式，环节简化为：报价汇总 → 报价比较 → 比价完成。
 // 评审对所有项目开放：比价完成后携带 projectId 进入评审大厅。
 
@@ -180,7 +180,7 @@ export default function ComparisonHall() {
             type="info"
             showIcon
             closable={false}
-            title="口径说明：开启大厅服务采购族（阳光采购、邀请采购），比价大厅服务询比族（公开询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求）。"
+            title="口径说明：开启大厅服务采购族（阳光采购、邀请采购），比价大厅服务询比族（阳光询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求）。"
           />
         </Card>
       </div>

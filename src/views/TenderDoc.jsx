@@ -147,7 +147,7 @@ const FALLBACK_PROJECT_NAMES = {
 const PURCHASE_MODE_LABELS = {
   open: '阳光采购',
   invitation: '邀请采购',
-  inquiry: '公开询比',
+  inquiry: '阳光询比',
   invitation_inquiry: '邀请询比'
 }
 

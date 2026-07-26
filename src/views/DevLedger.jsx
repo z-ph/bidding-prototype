@@ -6,7 +6,7 @@ import Changelog from './Changelog.jsx'
 
 // 评审台账合并页（feat-dev-ledger-fab-20260718 / fix-dev-ledger-public-access-20260718）：
 // 开发阶段产物的统一入口，Tab 切换评审变更列表 / 变更时间线；
-// activeKey 由 URL search ?tab= 驱动，支持深链；公开路由（无需登录），入口为全局悬浮按钮。
+// activeKey 由 URL search ?tab= 驱动，支持深链；免登录路由，入口为全局悬浮按钮。
 export default function DevLedger() {
   const navigate = useNavigate()
   const search = useSearch({ strict: false })

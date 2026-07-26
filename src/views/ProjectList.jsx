@@ -12,7 +12,7 @@ import EmptyState from '../components/EmptyState.jsx'
 export const PURCHASE_MODE_OPTIONS = [
   { label: '阳光采购', value: 'open' },
   { label: '邀请采购', value: 'invitation' },
-  { label: '公开询比', value: 'inquiry' },
+  { label: '阳光询比', value: 'inquiry' },
   { label: '邀请询比', value: 'invitation_inquiry' }
 ]
 
@@ -77,7 +77,7 @@ export function getPurchaseModeText(project) {
 
 // ── 采购方式 → 流程节点映射（hall-purchase-method-mapping-20260721，两族两模板）──
 // 口径：2026-07-21 需求——开启大厅服务采购族（阳光采购 open/邀请采购 invitation），
-// 比价大厅服务询比族（公开询比 inquiry/邀请询比 invitation_inquiry），
+// 比价大厅服务询比族（阳光询比 inquiry/邀请询比 invitation_inquiry），
 // 评审大厅对所有项目开放。废止 2026-07-17 清单 20「唯邀请询比不用开启和评审」旧口径。
 // 方式取值与 ProjectCreate 的 PURCHASE_MODE_OPTIONS 一致：open / invitation / inquiry / invitation_inquiry
 export const FLOW_NODES = [

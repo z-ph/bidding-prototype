@@ -93,7 +93,7 @@ export default function AwardConfirm() {
       submittedBy: userName,
       projectId
     })
-    // 登记字段（文号/日期/结果/备注/附件）补充到实例上（仅消费 store 公开 list/saveAll，不改 store 文件）
+    // 登记字段（文号/日期/结果/备注/附件）补充到实例上（仅消费 store 导出的 list/saveAll，不改 store 文件）
     const all = approvalStore.list()
     const idx = all.findIndex((a) => String(a.id) === String(instance.id))
     if (idx >= 0) {

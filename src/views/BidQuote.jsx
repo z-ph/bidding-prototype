@@ -131,7 +131,7 @@ export default function BidQuote() {
         />
         {quoteLocked ? (
           <Alert
-            title="询比价项目的报价将在开启后启动，当前项目尚未开启，暂不可报价。请在项目中心等待开启完成后进入。"
+            title="询比项目的报价将在开启后启动，当前项目尚未开启，暂不可报价。请在项目中心等待开启完成后进入。"
             type="info"
             showIcon
             closable={false}
@@ -140,7 +140,7 @@ export default function BidQuote() {
         ) : (
           <Alert
             title={isInquiryMode
-              ? '当前为询比价项目，已开启，请填写最终报价，提交后进入唱价。'
+              ? '当前为询比项目，已开启，请填写最终报价，提交后进入唱价。'
               : '请按采购文件要求填写开启一览表和分项报价，提交后采购截止前可修改。'}
             type="warning"
             showIcon

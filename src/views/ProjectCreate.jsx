@@ -35,7 +35,7 @@ import { validateAndScrollToError, scrollToElement, formRules, validateRequiredF
 const PURCHASE_MODE_OPTIONS = [
   { label: '阳光采购', value: 'open' },
   { label: '邀请采购', value: 'invitation' },
-  { label: '公开询比', value: 'inquiry' },
+  { label: '阳光询比', value: 'inquiry' },
   { label: '邀请询比', value: 'invitation_inquiry' }
 ]
 

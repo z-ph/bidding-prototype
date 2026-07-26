@@ -247,7 +247,7 @@ export default function ProjectTrack() {
 
         {inquiryFamily && (
           <Alert
-            title="询比族项目（公开询比/邀请询比）：报价截止后进入比价大厅比较报价，再进入评审大厅评审（2026-07-21 新口径，无开启环节）。"
+            title="询比族项目（阳光询比/邀请询比）：报价截止后进入比价大厅比较报价，再进入评审大厅评审（2026-07-21 新口径，无开启环节）。"
             type="info"
             showIcon
             closable={false}
