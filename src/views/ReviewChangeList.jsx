@@ -5,6 +5,10 @@ import { Card, Table, Tag, Badge, Input, Select, Space, Typography, Alert } from
 const { Title, Text } = Typography
 
 const reviewData = [
+  // 0726 开启/评审口径（用户决策）
+  { id: '0726-006', source: '用户决策', module: '开启大厅/监督', page: 'OpeningHall / SupervisorHall / exportCsv.js（新增）', severity: '中', issue: '用户三条新口径：① 专家不参与开标，专家名单在开评标前都需要保密；② 唱标结束后投标人需再次确认唱标内容，需签字或盖章确定；③ 唱标结束后可导出唱标一览表，方便投标人/招标人后期导出', status: '已修复', fix: '① 保密排查：OpeningHall 签到表本就不含专家（yy0-006 口径一致）、expert-extraction 权限仅 tenderee/agent/admin（无泄漏）；SupervisorHall 评审监督 Tab 加门禁——项目进入 evaluating 前显示「专家名单与评分情况在开启/评审开始前保密」占位，之后可见；② 唱价公示阶段确认按钮改 Modal：电子签章确认/签名确认二选一（签名必填姓名），确认后显示存证 Alert（方式/确认人/时间）+ 操作记录；③ 新增 utils/exportCsv.js（BOM CSV），唱价公示与开启结束两阶段可导出，全角色通用。Playwright 实测：采购单位走通五阶段到唱价公示并导出 CSV（文件名/三家报价内容正确）、采购单位看不到确认按钮、项目 6（公告中）监督页保密占位无专家名、项目 5（评审中）可见评审委员会。签字/盖章 Modal 因阶段状态为组件内 state 未做响应单位 E2E，代码走查覆盖', commit: 'feat(opening-confirm-export)' },
+  { id: '0726-005', source: '用户决策', module: '评审', page: 'ExpertProject / EvaluationHall', severity: '中', issue: '用户明确「专家不需要签到」：0726-004 仅改字眼不够，签到环节本身应删除', status: '已修复', fix: 'ExpertProject 评审流程 6 步→5 步（回避声明 → 推选组长 → 查阅资料 → 在线评分 → 电子签名）：删除签到步骤页、Steps 项、评标委员会「签到状态」列，步骤编号整体前移；EvaluationHall 删除「签到表」导出按钮（响应单位签到表保留，开启签到不受影响）。Playwright 实测：专家进入项目 5 评审页 Steps 为 5 步无签到、无控制台错误', commit: 'feat(no-expert-checkin)' },
+
   // 0726 字眼整改
   { id: '0726-004', source: '用户决策', module: '评审/开启', page: 'ExpertProject / EvaluationHall / OpeningHall', severity: '低', issue: '用户要求去掉「专家签到」字眼。排查发现两类：① OpeningHall 身份核验步骤描述仍写「采购单位/响应单位/专家签到」，与 yy0-006 已修口径（签到表无专家列）矛盾，属旧修残留；② ExpertProject 评审六步之一整步名为「专家签到」，EvaluationHall 有「专家签到表」导出按钮', status: '已修复', fix: '保留签到功能、只改字眼：OpeningHall 步骤描述→「采购单位/响应单位签到」；ExpertProject 步骤名/按钮/标题/tip/流程说明 5 处统一为「签到」；EvaluationHall 导出按钮→「签到表」。grep 全库「专家签到」零残留（台账历史原文除外），build 通过', commit: 'fix(expert-checkin-wording)' },
 

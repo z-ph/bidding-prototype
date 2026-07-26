@@ -564,7 +564,6 @@ export default function EvaluationHall() {
             <Space wrap>
               <Button onClick={() => message.success('正在导出响应单位签到表...')}>响应单位签到表</Button>
               <Button onClick={() => message.success('正在导出开启一览表...')}>开启一览表</Button>
-              <Button onClick={() => message.success('正在导出签到表...')}>签到表</Button>
               <Button onClick={() => message.success('正在导出评审报告...')}>评审报告</Button>
               <Button onClick={() => message.success('正在导出成交报告...')}>成交报告</Button>
               <Button onClick={() => message.success('正在导出响应文件...')}>响应文件下载</Button>

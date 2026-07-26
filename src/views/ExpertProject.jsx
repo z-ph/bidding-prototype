@@ -31,7 +31,7 @@ import { evaluationStore, isEvalExpired, formatDeadline } from '../data/evaluati
 import { projectStore } from '../data/projects.js'
 import { useRole } from '../hooks/useRole.js'
 
-// 项目名/编号兜底映射：EvaluationDetail 头部与签到/报告展示依赖（原 evaluationProjects
+// 项目名/编号兜底映射：EvaluationDetail 头部与报告展示依赖（原 evaluationProjects
 // mock 列表已随无参态 ProjectTaskList 一并删除，0718-ux-006）
 const PROJECT_INFO = {
   '1': { id: '1', name: 'XX市轨道交通设备采购项目', code: 'ZB20260701001' },
@@ -437,7 +437,7 @@ function EvaluationDetail({ projectId, userName, onBack }) {
           element: '#expert-steps',
           popover: {
             title: '评审流程',
-            description: '评审共分为 6 步：回避声明 → 签到 → 推选组长 → 查阅资料 → 在线评分 → 电子签名。限时提交制：截止时间前可随时提交。',
+            description: '评审共分为 5 步：回避声明 → 推选组长 → 查阅资料 → 在线评分 → 电子签名。限时提交制：截止时间前可随时提交。',
             side: 'bottom',
             align: 'center'
           }
@@ -478,7 +478,6 @@ function EvaluationDetail({ projectId, userName, onBack }) {
       )
     },
     { title: '专业领域', dataIndex: 'field' },
-    { title: '签到状态', render: () => '已签到' },
     {
       title: '操作',
       width: 180,
@@ -693,7 +692,6 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             current={activeStep}
             items={[
               { title: '回避声明' },
-              { title: '签到' },
               { title: '推选组长' },
               { title: '查阅资料' },
               { title: '在线评分' },
@@ -727,32 +725,14 @@ function EvaluationDetail({ projectId, userName, onBack }) {
                   disabled={!declared}
                   onClick={() => setActiveStep((prev) => prev + 1)}
                 >
-                  {declared ? '下一步：签到' : '请先勾选回避声明'}
+                  {declared ? '下一步：推选组长' : '请先勾选回避声明'}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* 步骤1：签到 */}
+          {/* 步骤1：推选组长 */}
           {activeStep === 1 && (
-            <div className="step-content">
-              <h3>签到</h3>
-              <p className="tip">请确认身份信息并完成在线签到，评审开始前需全部专家完成签到。</p>
-              <Descriptions column={2} bordered>
-                <Descriptions.Item label="项目名称">{projectInfo.name}</Descriptions.Item>
-                <Descriptions.Item label="评审地点">线上评审大厅</Descriptions.Item>
-                <Descriptions.Item label="专家姓名">{userName}</Descriptions.Item>
-                <Descriptions.Item label="评审截止时间">{formatDeadline(evalData.deadline)}</Descriptions.Item>
-              </Descriptions>
-              <div className="stage-action">
-                <Button onClick={() => setActiveStep((prev) => prev - 1)}>返回</Button>
-                <Button type="primary" size="large" onClick={() => { message.success('签到成功'); setActiveStep((prev) => prev + 1) }}>完成签到</Button>
-              </div>
-            </div>
-          )}
-
-          {/* 步骤2：推选组长 */}
-          {activeStep === 2 && (
             <div className="step-content">
               <h3>推选评审组长</h3>
               <p className="tip">
@@ -780,8 +760,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             </div>
           )}
 
-          {/* 步骤3：查阅资料 */}
-          {activeStep === 3 && (
+          {/* 步骤2：查阅资料 */}
+          {activeStep === 2 && (
             <div className="step-content">
               <h3>查阅响应资料</h3>
               <p className="tip">请仔细查阅采购文件、响应文件、开启记录和报价一览表，为评分做准备。点击资料卡片可打开资料查阅侧栏。</p>
@@ -820,8 +800,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             </div>
           )}
 
-          {/* 步骤4：在线评分 */}
-          {activeStep === 4 && (
+          {/* 步骤3：在线评分 */}
+          {activeStep === 3 && (
             <div className="step-content">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3>在线评分</h3>
@@ -849,8 +829,8 @@ function EvaluationDetail({ projectId, userName, onBack }) {
             </div>
           )}
 
-          {/* 步骤5：电子签名 + 组长报告工作区 */}
-          {activeStep === 5 && (
+          {/* 步骤4：电子签名 + 组长报告工作区 */}
+          {activeStep === 4 && (
             <div className="step-content">
               <h3>电子签名确认</h3>
               <p className="tip">请对评分结果和评审报告进行电子签名，签名后不可修改；如需修改须先撤销签名并记录原因。</p>

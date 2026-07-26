@@ -62,6 +62,14 @@ export default function SupervisorHall() {
   )
   const committeeExperts = committee?.experts || []
 
+  // 专家名单保密口径（2026-07-26）：开启/评审开始前，专家名单与评分情况对监督视图保密，
+  // 项目进入评审中（evaluating）及以后阶段才可见
+  const EVALUATION_VISIBLE_STATUSES = [
+    'evaluating', '评审完成', 'evaluation-done',
+    '已确认中选人', 'winner-confirmed', '通知书已发', 'notice-sent', 'done'
+  ]
+  const expertListVisible = !!project && EVALUATION_VISIBLE_STATUSES.includes(project.status)
+
   // 评分汇总：evaluationStore 实时汇总每个专家的 scores 与 submitted 状态
   const scoreSummary = useMemo(() => {
     const expertEntries = Object.entries(evaluationStore.getEval(projectId).experts || {})
@@ -345,7 +353,9 @@ export default function SupervisorHall() {
     {
       key: 'evaluation',
       label: '评审监督',
-      children: (
+      children: !expertListVisible ? (
+        <Empty description="专家名单与评分情况在开启/评审开始前保密，项目进入评审后可查看" />
+      ) : (
         <>
           <h3>评审委员会</h3>
           {committeeExperts.length > 0 ? (

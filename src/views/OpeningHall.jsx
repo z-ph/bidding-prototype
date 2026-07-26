@@ -1,13 +1,14 @@
 // @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { Alert, AutoComplete, Button, Card, Descriptions, Result, Steps, Table, Tag, Timeline, message, Modal } from 'antd'
+import { Alert, AutoComplete, Button, Card, Descriptions, Input, Radio, Result, Steps, Table, Tag, Timeline, message, Modal } from 'antd'
 import { useRole } from '../hooks/useRole.js'
 import { projectStore } from '../data/projects.js'
 import { quoteStore } from '../data/quoteStore.js'
 import { BASELINE_PROJECTS, getPurchaseModeText, isInquiryFamily } from './ProjectList.jsx'
 import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
+import { exportCsv } from '../utils/exportCsv.js'
 
 // 开启准备配置（cal-003）：按项目持久化主持人/监督人指定结果
 // 未新建 src/data/openingPrepStore.js（本次仅允许改动两个视图文件），存储逻辑内联在此
@@ -66,6 +67,10 @@ export default function OpeningHall() {
   const [operationRecords, setOperationRecords] = useState([])
   const [deadline] = useState('2026-07-08 15:00')
   const [bidderConfirmed, setBidderConfirmed] = useState(false)
+  const [bidderConfirmInfo, setBidderConfirmInfo] = useState(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmMethod, setConfirmMethod] = useState('seal')
+  const [signName, setSignName] = useState('')
 
   // 主持人：采购单位/采购代理可操作开启流程；监督人员只读；响应单位只能签到/解密自己
   const isHost = ['tenderee', 'agent'].includes(role)
@@ -307,6 +312,38 @@ export default function OpeningHall() {
 
   const goEvaluate = () => {
     navigate({ to: '/admin/evaluation-hall', search: { projectId } })
+  }
+
+  // 唱价确认（2026-07-26 口径）：投标人须以电子签章或签名方式二次确认唱价内容
+  const submitBidderConfirm = () => {
+    if (confirmMethod === 'sign' && !signName.trim()) {
+      message.warning('请输入签名人姓名')
+      return
+    }
+    const time = new Date().toLocaleString()
+    const methodLabel = confirmMethod === 'seal' ? '电子签章' : '签名'
+    const name = confirmMethod === 'sign' ? signName.trim() : userName
+    setBidderConfirmed(true)
+    setBidderConfirmInfo({ methodLabel, name, time })
+    setConfirmOpen(false)
+    addOperationRecord('唱价确认', `${userName} 已通过${methodLabel}确认唱价内容（确认人：${name}）`)
+    message.success(`唱价内容已通过${methodLabel}确认`)
+  }
+
+  // 唱价一览表导出（CSV）：唱价公示与开启结束后均可导出，响应单位/采购单位/代理/监督通用
+  const exportBidTable = () => {
+    if (bids.length === 0) {
+      message.warning('暂无唱价数据可导出')
+      return
+    }
+    const date = new Date().toISOString().slice(0, 10)
+    exportCsv(
+      `唱价一览表_${project?.name || projectId}_${date}.csv`,
+      ['序号', '响应单位', '响应报价（万元）', '交货期', '质保期'],
+      bids.map((b) => [b.rank, b.name, b.price, b.delivery, b.quality])
+    )
+    addOperationRecord('导出唱价一览表', `${userName || '-'} 导出了唱价一览表（${bids.length} 家响应单位）`)
+    message.success('唱价一览表已导出')
   }
 
   const attendeeColumns = [
@@ -719,21 +756,26 @@ export default function OpeningHall() {
                     type="info"
                     showIcon
                     closable={false}
-                    title="请确认以上唱价内容与您的响应文件一致，确认后不可修改。"
+                    title="请确认以上唱价内容与您的响应文件一致，确认需签字或盖章，确认后不可修改。"
                     style={{ marginBottom: 12 }}
                   />
-                  <Button type="primary" size="large" onClick={() => {
-                    setBidderConfirmed(true)
-                    addOperationRecord('唱价确认', `${userName} 已确认唱价内容`)
-                    message.success('唱价内容已确认')
-                  }}>
-                    确认唱价内容
+                  <Button type="primary" size="large" onClick={() => { setSignName(userName || ''); setConfirmMethod('seal'); setConfirmOpen(true) }}>
+                    签字/盖章确认唱价内容
                   </Button>
                 </div>
               )}
+              {isBidder && bidderConfirmed && bidderConfirmInfo && (
+                <Alert
+                  type="success"
+                  showIcon
+                  closable={false}
+                  title={`您已于 ${bidderConfirmInfo.time} 通过${bidderConfirmInfo.methodLabel}确认唱价内容（确认人：${bidderConfirmInfo.name}），确认记录已存证。`}
+                  style={{ marginTop: 16, marginBottom: 16 }}
+                />
+              )}
 
               <div className="stage-action">
-                <Button onClick={() => message.success('正在导出唱价一览表...')}>导出唱价一览表</Button>
+                <Button onClick={exportBidTable}>导出唱价一览表</Button>
                 {isHost && <Button onClick={prevStage}>返回</Button>}
                 {isHost && (
                   <Button type="primary" size="large" onClick={finishOpening}>
@@ -752,6 +794,9 @@ export default function OpeningHall() {
                 title="开启结束"
                 subTitle={`开启记录已生成（主持人：${prep.host}；监督人：${prep.supervisor}），可进入评审环节`}
                 extra={[
+                  <Button key="export" onClick={exportBidTable}>
+                    导出唱价一览表
+                  </Button>,
                   canViewEvaluation && (
                     <Button key="evaluate" type="primary" onClick={goEvaluate}>
                       进入评审大厅
@@ -772,6 +817,34 @@ export default function OpeningHall() {
             </div>
           )}
         </div>
+
+        <Modal
+          title="唱价内容确认"
+          open={confirmOpen}
+          onCancel={() => setConfirmOpen(false)}
+          onOk={submitBidderConfirm}
+          okText="确认"
+          cancelText="取消"
+        >
+          <p style={{ marginBottom: 12 }}>请核对唱价一览表内容与您的响应文件一致，选择确认方式；确认后不可修改。</p>
+          <Radio.Group value={confirmMethod} onChange={(e) => setConfirmMethod(e.target.value)}>
+            <Radio value="seal">电子签章确认</Radio>
+            <Radio value="sign">签名确认</Radio>
+          </Radio.Group>
+          {confirmMethod === 'seal' && (
+            <div style={{ marginTop: 12, border: '1px dashed #409EFF', borderRadius: 4, padding: '16px 12px', textAlign: 'center', color: '#409EFF' }}>
+              点击「确认」即视为加盖电子签章（演示环境模拟签章存证）
+            </div>
+          )}
+          {confirmMethod === 'sign' && (
+            <Input
+              style={{ marginTop: 12 }}
+              value={signName}
+              onChange={(e) => setSignName(e.target.value)}
+              placeholder="请输入签名人姓名"
+            />
+          )}
+        </Modal>
 
         {operationRecords.length > 0 && (
           <Card size="small" title="操作记录" style={{ marginTop: 24 }}>

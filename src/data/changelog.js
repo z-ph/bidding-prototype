@@ -12,6 +12,17 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.12.6',
+    date: '2026-07-26',
+    title: '专家不签到 + 名单开评前保密 + 唱价签章确认与导出',
+    changes: [
+      { type: 'remove', text: '评审流程删除签到环节：ExpertProject 由 6 步改为 5 步（回避声明 → 推选组长 → 查阅资料 → 在线评分 → 电子签名），删除签到步骤页与评标委员会「签到状态」列；EvaluationHall 删除「签到表」导出按钮' },
+      { type: 'feat', text: '专家名单开评前保密：SupervisorHall 评审监督 Tab 在项目进入评审中（evaluating）前显示保密占位，不展示评审委员会名单与评分汇总；OpeningHall 签到表本就不含专家（yy0-006 口径），expert-extraction 权限仅采购单位/代理/管理员' },
+      { type: 'feat', text: '唱价结束后投标人二次确认：OpeningHall 唱价公示阶段「确认唱价内容」改为签字/盖章确认 Modal（电子签章确认 / 签名确认二选一，签名需输入姓名），确认后展示存证信息（方式/确认人/时间）并记入操作记录' },
+      { type: 'feat', text: '唱价一览表真实导出：新增 utils/exportCsv.js（带 BOM，Excel 不乱码），唱价公示与开启结束两阶段均可导出 CSV（序号/响应单位/报价/交货期/质保期），全角色通用' }
+    ]
+  },
+  {
     version: '0.12.5',
     date: '2026-07-26',
     title: '去除「专家签到」字眼',
