@@ -1,1 +1,0 @@
-import{n as e}from"./fileRoute-CYesOn2-.js";import{t}from"./Dashboard-DUS-hS_k.js";var n=e(`/admin/dashboard`)({component:t});export{n as Route};

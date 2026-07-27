@@ -1,1 +1,0 @@
-import{c as e}from"./useStore-DliLxn3V.js";import{n as t}from"./Match-t5NQBRyT.js";var n=e(),SplitComponent=()=>(0,n.jsx)(t,{});export{SplitComponent as component};

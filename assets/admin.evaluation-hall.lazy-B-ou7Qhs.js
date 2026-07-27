@@ -1,0 +1,66 @@
+import{Q as e,Y as t,c as n}from"./useStore-DliLxn3V.js";import{Ln as r,t as i}from"./button-kN9I3LUV.js";import{i as a,n as o}from"./fileRoute-CYesOn2-.js";import{t as s}from"./alert-7UhMD6Ax.js";import{n as c,t as l}from"./table-CsRCQ6G_.js";import{t as u}from"./message-C4PuKih5.js";import{t as d}from"./space-ClptNEZ3.js";import{t as f}from"./modal-BuJNyfb9.js";import{t as ee}from"./tabs-Be4V0Dsn.js";import{t as p}from"./empty-B5CqFOjl.js";import{t as m}from"./card-xz9k-4M9.js";import{t as h}from"./descriptions-BtlubTL6.js";import{t as g}from"./form-DlEcvdzX.js";import{t as te}from"./input-CNEvglm2.js";import{t as _}from"./tag-BtNDBJzJ.js";import{t as v}from"./timeline-C5ZTc_RT.js";import{t as y}from"./projects-De7WXujO.js";import{t as ne}from"./useRole-D9fO6mwg.js";import{t as b}from"./evaluationStore-BRqNg5VZ.js";import{t as x}from"./ProjectList-DEQIPZ0h.js";import{t as S}from"./ProjectEntryGuard-K8xizSaQ.js";import{t as C}from"./expertStore-rBAA_MJZ.js";var w=e(t(),1),T=n(),E=[`专家甲`,`专家乙`,`专家丙`],re=[{rank:1,name:`C股份有限公司`,business:28,tech:36,price:29,total:93,recommend:`推荐中选`},{rank:2,name:`A科技有限公司`,business:27,tech:34,price:28,total:89,recommend:`备选`},{rank:3,name:`B实业有限公司`,business:26,tech:31,price:27,total:84,recommend:`备选`}],D=[{name:`D有限公司`,reason:`未按要求加盖电子签章，响应文件无效。`}],O={evaluating:{label:`评审中`,color:`processing`},submitted:{label:`评审结果已提交`,color:`success`},confirmed:{label:`评审结果已确认`,color:`success`}};function EvaluationHall(){let e=r(),t=a({strict:!1}).projectId,{role:n,roleName:o,userName:k}=ne();(0,w.useMemo)(()=>y.getProjectById(t)||x.find(e=>String(e.id)===String(t))||null,[t]);let[A,j]=(0,w.useState)(()=>b.getEval(t)),[M,ie]=(0,w.useState)(()=>b.getSubmittedInfo(t)),reload=()=>{j(b.getEval(t)),ie(b.getSubmittedInfo(t))},N=(0,w.useMemo)(()=>{let e=[];return(C.getResult(t)?.experts||[]).forEach(t=>{t?.name&&!e.includes(t.name)&&e.push(t.name)}),Object.keys(A.experts||{}).forEach(t=>{e.includes(t)||e.push(t)}),e.length===0&&e.push(...E),e},[A,t]),P=A.leader||(N.includes(`专家甲`)?`专家甲`:N[0]),F=n===`expert`,I=F&&k===P,L=n===`tenderee`,R=n===`agent`,z=n===`supervisor`,B=O[A.status]||O.evaluating,V=A.deadline||`2026-07-15 18:00`,[H,U]=(0,w.useState)(I?`summary`:`progress`),[W,G]=(0,w.useState)([]),[K,q]=(0,w.useState)(()=>({opinion:A.report?.content||`经评审委员会评审，C股份有限公司综合得分最高，技术方案满足采购文件要求，报价合理，推荐为中选候选人。`,recommend:A.report?.candidates?.[0]||`C股份有限公司`})),J=(0,w.useMemo)(()=>N.map(e=>{let t=A.experts?.[e];return{name:e,isLeader:e===P,me:e===k,submitted:!!t?.submitted,submittedAt:t?.submittedAt||`-`,signed:!!t?.signed}}),[N,A,P,k]),Y=J.filter(e=>!e.submitted).map(e=>e.name),X=(0,w.useMemo)(()=>{let e=Object.values(A.experts||{}).filter(e=>e?.submitted&&e?.scores);if(e.length===0)return{real:!1,items:[{key:`business`,title:`商务（30）`},{key:`tech`,title:`技术（40）`},{key:`price`,title:`价格（30）`}],rows:re};let t=[...new Set(e.flatMap(e=>Object.values(e.scores).flatMap(e=>Object.keys(e||{}))))],n=[...new Set(e.flatMap(e=>Object.keys(e.scores)))].map(n=>{let r={name:n},i=0;return t.forEach(t=>{let a=e.map(e=>Number(e.scores?.[n]?.[t])).filter(e=>!Number.isNaN(e)),o=a.length?Math.round(a.reduce((e,t)=>e+t,0)/a.length*10)/10:0;r[t]=o,i+=o}),r.total=Math.round(i*10)/10,r});return n.sort((e,t)=>t.total-e.total),n.forEach((e,t)=>{e.rank=t+1,e.recommend=t===0?`推荐中选`:`备选`}),{real:!0,items:t.map(e=>({key:e,title:`${e}（均值）`})),rows:n}},[A]),addOperationRecord=(e,t)=>{G(n=>[{id:Date.now(),action:e,detail:t,time:new Date().toLocaleString()},...n])},saveReport=()=>{b.updateEval(t,e=>{e.report={id:e.report?.id||`RPT-${t}`,version:e.report?.version||`V1.0`,content:K.opinion,candidates:K.recommend?[K.recommend]:[],createdAt:new Date().toLocaleString(),createdBy:k,archived:!1}}),reload(),addOperationRecord(`保存报告`,`评审委员会意见及推荐中选候选人已保存`),u.success(`评审报告已保存`)},submitResult=()=>{M.allSubmitted&&f.confirm({title:`提交评审结果确认`,content:`共 ${M.total} 名专家均已提交评分。提交后评审结果将进入中选公示流程，确认提交吗？`,okText:`确认提交`,cancelText:`取消`,onOk:()=>{b.updateEval(t,e=>{e.status=`submitted`}),reload(),addOperationRecord(`提交评审结果`,`评审结果已提交，进入中选公示流程`),u.success(`评审结果已提交，进入中选公示流程`)}})},goExpertProject=()=>{e({to:`/admin/expert-project`,search:{projectId:t}})},ae=[{title:`排名`,dataIndex:`rank`,width:80},{title:`响应单位`,dataIndex:`name`,minWidth:200},...X.items.map(e=>({title:e.title,dataIndex:e.key,width:130})),{title:`总分`,dataIndex:`total`,width:100,render:e=>(0,T.jsx)(`strong`,{style:{color:`#409EFF`},children:e})},{title:`推荐意见`,dataIndex:`recommend`,width:120,render:e=>(0,T.jsx)(_,{color:e===`推荐中选`?`success`:`default`,children:e})}],oe=[{title:`专家`,dataIndex:`name`,render:(e,t)=>(0,T.jsxs)(T.Fragment,{children:[e,t.isLeader&&(0,T.jsx)(_,{color:`gold`,style:{marginLeft:8},children:`组长`}),t.me&&(0,T.jsx)(_,{color:`processing`,style:{marginLeft:8},children:`我`})]})},{title:`提交状态`,dataIndex:`submitted`,width:120,render:e=>(0,T.jsx)(_,{color:e?`success`:`warning`,children:e?`已提交`:`待提交`})},{title:`提交时间`,dataIndex:`submittedAt`,width:200},{title:`签名`,dataIndex:`signed`,width:100,render:e=>e?(0,T.jsx)(_,{color:`success`,children:`已签名`}):(0,T.jsx)(_,{children:`未签名`})}],Z={key:`summary`,label:`评分汇总`,children:(0,T.jsxs)(T.Fragment,{children:[!X.real&&(0,T.jsx)(s,{type:`info`,showIcon:!0,closable:!1,title:`当前为演示汇总数据：尚无专家提交真实评分，提交后此处自动切换为评分项均值汇总。`,style:{marginBottom:16}}),(0,T.jsx)(l,{columns:ae,dataSource:X.rows,rowKey:`name`,bordered:!0,pagination:!1,style:{width:`100%`}}),(0,T.jsxs)(`div`,{className:`chart-mock`,children:[(0,T.jsx)(`h4`,{children:`得分对比`}),(0,T.jsx)(`div`,{className:`bars`,children:X.rows.map(e=>(0,T.jsxs)(`div`,{className:`bar-item`,children:[(0,T.jsx)(`span`,{className:`bar-name`,children:e.name}),(0,T.jsx)(`div`,{className:`bar-track`,children:(0,T.jsx)(`div`,{className:`bar-fill`,style:{width:`${e.total}%`}})}),(0,T.jsx)(`span`,{className:`bar-value`,children:e.total})]},e.name))})]})]})},Q={key:`progress`,label:`评审进度`,children:(0,T.jsxs)(T.Fragment,{children:[(0,T.jsxs)(h,{column:3,style:{marginBottom:16},children:[(0,T.jsx)(h.Item,{label:`评审组长`,children:P}),(0,T.jsx)(h.Item,{label:`专家人数`,children:N.length}),(0,T.jsxs)(h.Item,{label:`已提交`,children:[M.submitted,`/`,M.total||N.length]})]}),(0,T.jsx)(l,{columns:oe,dataSource:J,rowKey:`name`,bordered:!0,pagination:!1,style:{width:`100%`}})]})},$={key:`reject`,label:`否决响应`,children:D.length===0?(0,T.jsx)(p,{description:`暂无否决响应`}):D.map((e,t)=>(0,T.jsx)(s,{title:`${e.name}：${e.reason}`,type:`error`,closable:!1,style:{marginBottom:12}},t))},se={key:`report`,label:`评审报告`,children:(0,T.jsxs)(g,{layout:`vertical`,children:[(0,T.jsx)(g.Item,{label:`评审委员会意见`,children:(0,T.jsx)(te.TextArea,{rows:6,placeholder:`汇总评审委员会整体意见...`,value:K.opinion,onChange:e=>q(t=>({...t,opinion:e.target.value}))})}),(0,T.jsx)(g.Item,{label:`推荐中选候选人`,children:(0,T.jsx)(c.Group,{value:K.recommend,onChange:e=>q(t=>({...t,recommend:e.target.value})),children:X.rows.map(e=>(0,T.jsxs)(c,{value:e.name,children:[e.name,`（`,e.total,`分）`]},e.name))})}),(0,T.jsx)(g.Item,{children:(0,T.jsx)(i,{type:`primary`,onClick:saveReport,children:`保存报告`})})]})},ce={key:`report`,label:`评审报告`,children:A.report?(0,T.jsxs)(h,{column:1,bordered:!0,children:[(0,T.jsx)(h.Item,{label:`报告编号`,children:A.report.id}),(0,T.jsx)(h.Item,{label:`版本`,children:A.report.version}),(0,T.jsx)(h.Item,{label:`评审委员会意见`,children:A.report.content}),(0,T.jsx)(h.Item,{label:`推荐中选候选人`,children:(A.report.candidates||[]).join(`、`)||`—`}),(0,T.jsxs)(h.Item,{label:`生成信息`,children:[A.report.createdBy,` · `,A.report.createdAt]})]}):(0,T.jsx)(p,{description:`评审报告尚未生成`})},le=I?[Z,Q,$,se]:F?[Q,Z]:[Q,Z,$,ce];return t?(0,T.jsxs)(`div`,{className:`evaluation-hall`,children:[(0,T.jsxs)(m,{title:(0,T.jsxs)(`div`,{className:`hall-header`,children:[(0,T.jsxs)(`div`,{children:[(0,T.jsx)(`h2`,{children:`评审大厅`}),(0,T.jsxs)(`p`,{className:`subtitle`,children:[`XX市轨道交通设备采购项目 · 采购包一：主设备 · 项目ID：`,t]})]}),(0,T.jsxs)(`div`,{className:`hall-meta`,children:[(0,T.jsx)(_,{color:B.color,style:{fontSize:14,padding:`4px 12px`},children:B.label}),(0,T.jsxs)(_,{color:I?`gold`:`default`,style:{fontSize:14,padding:`4px 12px`},children:[o,I?`（组长）`:``]}),(0,T.jsx)(i,{onClick:reload,children:`刷新状态`}),I&&A.status!==`submitted`&&A.status!==`confirmed`&&(0,T.jsx)(i,{type:`primary`,disabled:!M.allSubmitted,onClick:submitResult,children:`提交评审结果`})]})]}),children:[I?M.allSubmitted?(0,T.jsx)(s,{type:`success`,showIcon:!0,closable:!1,title:`全部 ${M.total} 名专家已提交评分，可提交评审结果。`,style:{marginBottom:20}}):(0,T.jsx)(s,{type:`warning`,showIcon:!0,closable:!1,title:`您是评审组长，可在全部专家提交后提交评审结果`,description:`未提交专家：${Y.join(`、`)||`—`}。`,style:{marginBottom:20}}):F?(0,T.jsx)(s,{type:`info`,showIcon:!0,closable:!1,title:`您是评审委员会成员，本页仅可查看评审进度与本人提交状态`,description:(0,T.jsxs)(T.Fragment,{children:[(0,T.jsx)(`span`,{style:{marginRight:12},children:`评分与签名请在「评审项目」中完成。`}),(0,T.jsx)(i,{type:`primary`,size:`small`,onClick:goExpertProject,children:`前往评分`})]}),style:{marginBottom:20}}):L?(0,T.jsx)(s,{type:`info`,showIcon:!0,closable:!1,title:`采购单位只读视图：可查看评审进度、评分汇总与评审报告，无操作权限。`,style:{marginBottom:20}}):R?(0,T.jsx)(s,{type:`info`,showIcon:!0,closable:!1,title:`采购代理只读视图：可查看评审进度与评分汇总；提交评审结果由评审组长完成。`,style:{marginBottom:20}}):z?(0,T.jsx)(s,{type:`info`,showIcon:!0,closable:!1,title:`监督人员只读视图：全程监督评审过程，不参与评分与提交。`,style:{marginBottom:20}}):null,(0,T.jsxs)(m,{size:`small`,title:`当前状态与下一步`,style:{marginBottom:20,background:`#f6ffed`},children:[(0,T.jsxs)(h,{column:2,children:[(0,T.jsx)(h.Item,{label:`当前阶段`,children:B.label}),(0,T.jsx)(h.Item,{label:`评审截止`,children:V}),(0,T.jsxs)(h.Item,{label:`专家提交进度`,children:[M.submitted,`/`,M.total||N.length,` 已提交`]}),(0,T.jsx)(h.Item,{label:`下一步`,children:I?A.status===`submitted`||A.status===`confirmed`?(0,T.jsx)(`span`,{children:`评审结果已提交，进入中选公示流程`}):M.allSubmitted?(0,T.jsxs)(T.Fragment,{children:[(0,T.jsx)(`span`,{style:{marginRight:12},children:`提交评审结果`}),(0,T.jsx)(i,{type:`primary`,size:`small`,onClick:submitResult,children:`提交结果`})]}):(0,T.jsx)(`span`,{children:`等待所有专家完成评分并提交`}):F?(0,T.jsxs)(T.Fragment,{children:[(0,T.jsx)(`span`,{style:{marginRight:12},children:`前往「评审项目」完成本人评分`}),(0,T.jsx)(i,{type:`primary`,size:`small`,onClick:goExpertProject,children:`去评分`})]}):A.status===`submitted`||A.status===`confirmed`?(0,T.jsx)(`span`,{children:`评审结果已提交，进入中选公示流程`}):(0,T.jsx)(`span`,{children:`等待评审委员会完成评审（只读）`})})]}),!M.allSubmitted&&(0,T.jsx)(s,{title:`阻断原因：尚有 ${Y.length} 名专家评分未提交（${Y.join(`、`)}），需所有专家提交后方可发布评审结果。`,type:`warning`,showIcon:!0,closable:!1,style:{marginTop:12}})]}),(0,T.jsx)(ee,{type:`card`,activeKey:H,onChange:U,items:le}),(A.status===`submitted`||A.status===`confirmed`)&&[`tenderee`,`agent`,`supervisor`].includes(n)&&(0,T.jsx)(m,{size:`small`,title:`导出报表`,style:{marginTop:20},children:(0,T.jsxs)(d,{wrap:!0,children:[(0,T.jsx)(i,{onClick:()=>u.success(`正在导出响应单位签到表...`),children:`响应单位签到表`}),(0,T.jsx)(i,{onClick:()=>u.success(`正在导出开启一览表...`),children:`开启一览表`}),(0,T.jsx)(i,{onClick:()=>u.success(`正在导出评审报告...`),children:`评审报告`}),(0,T.jsx)(i,{onClick:()=>u.success(`正在导出成交报告...`),children:`成交报告`}),(0,T.jsx)(i,{onClick:()=>u.success(`正在导出响应文件...`),children:`响应文件下载`})]})}),W.length>0&&(0,T.jsx)(m,{size:`small`,title:`操作记录`,style:{marginTop:20},children:(0,T.jsx)(v,{items:W.map(e=>({key:e.id,color:`blue`,content:(0,T.jsxs)(`div`,{children:[(0,T.jsx)(`strong`,{children:e.action}),(0,T.jsx)(`span`,{style:{color:`#999`,marginLeft:12,fontSize:12},children:e.time}),(0,T.jsx)(`p`,{style:{margin:`4px 0 0`,color:`#666`},children:e.detail})]})}))})})]}),(0,T.jsx)(`style`,{children:`
+        .evaluation-hall {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .evaluation-hall .hall-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+        }
+        .evaluation-hall .hall-header h2 {
+          margin: 0;
+        }
+        .evaluation-hall .subtitle {
+          color: #666;
+          margin: 8px 0 0;
+        }
+        .evaluation-hall .hall-meta {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        .evaluation-hall .chart-mock {
+          margin-top: 24px;
+          padding: 20px;
+          background: #f9fafc;
+          border-radius: 8px;
+        }
+        .evaluation-hall .chart-mock h4 {
+          margin-bottom: 16px;
+        }
+        .evaluation-hall .bars {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .evaluation-hall .bar-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .evaluation-hall .bar-name {
+          width: 160px;
+          font-size: 14px;
+          color: #333;
+        }
+        .evaluation-hall .bar-track {
+          flex: 1;
+          height: 20px;
+          background: #e4e7ed;
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        .evaluation-hall .bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #409EFF, #67C23A);
+          border-radius: 10px;
+          transition: width 0.5s;
+        }
+        .evaluation-hall .bar-value {
+          width: 40px;
+          text-align: right;
+          font-weight: bold;
+        }
+      `})]}):(0,T.jsx)(S,{})}var k=o(`/admin/evaluation-hall`)({component:EvaluationHall});export{k as Route};
