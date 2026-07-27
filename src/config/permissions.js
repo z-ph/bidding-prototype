@@ -43,9 +43,6 @@ export const PAGE_PERMISSIONS = {
   '/admin/supplier-authorization': ['tenderee', 'agent'],
   '/admin/approval-center': ['tenderee', 'agent'],
   '/admin/approval-flow-config': ['tenderee', 'admin'],
-  // 采购需求库：采购单位 + 采购代理（agent-project-requirement-management-20260721）
-  '/admin/procurement-requirements': ['tenderee', 'agent'],
-  '/admin/procurement-requirements/edit': ['tenderee', 'agent'],
   '/admin/fee-manage': ['tenderee', 'agent'],
   '/admin/expert-extraction': ['tenderee', 'agent', 'admin'],
   '/admin/award-confirm': ['tenderee', 'agent'],

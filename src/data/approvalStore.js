@@ -1,15 +1,60 @@
-// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
-// 审批流 mock 数据存储（纯内存静态种子，无任何持久化）
-// 供 ApprovalCenter（待办/已办/我发起的）、ApprovalFlowConfig（审批流配置）、
-// 采购需求/采购文件发布接入审批、审批归档视图、站内信审批通知共享。
-// 本文件为共享契约：导出名、参数与返回结构固定。
+// 审批流 mock 数据存储（localStorage 持久化，叠加在种子之上）
+// localStorage keys: bidding-approvals（审批单实例）、bidding-approval-flows（审批流配置）。
+// 2026-07-27 口径（docs/20260727-会议记录概要.md 五.5）：整个平台只有一个审核点——项目立项。
+// 采购需求/采购文件不再产生审批；中选结果审批在系统外完成，系统内只登记结果（0717 清单 31，
+// 登记数据存于项目 awardRegistration 字段，不再进本 store）。
+//
+// 消费方：ApprovalCenter（待办/已办/我发起的/审批操作）、TodoCenter（pendingFor 待办聚合）、
+// ProjectDetail（按 projectId 的审批归档展示）、ApprovalFlowConfig（审批流配置）、
+// ProjectCreate（提交立项时 create 建单）。本文件为共享契约：导出名、参数与返回结构固定。
 
-// 审批节点类型：项目立项/采购需求/采购文件/中选结果
+import { projectStore } from './projects.js'
+
+/**
+ * @typedef {Object} ApprovalRecord
+ * @property {string} node
+ * @property {string} action
+ * @property {string} actor
+ * @property {string} [comment]
+ * @property {string} at
+ */
+
+/**
+ * @typedef {Object} Approval
+ * @property {string} id
+ * @property {string} type
+ * @property {string} refId
+ * @property {string} title
+ * @property {string} projectId
+ * @property {string} submittedBy
+ * @property {string} publisherKind
+ * @property {string[]} chain
+ * @property {number} currentNodeIndex
+ * @property {string} currentAssignee
+ * @property {string} status
+ * @property {string} submittedAt
+ * @property {string} finishedAt
+ * @property {ApprovalRecord[]} records
+ */
+
+/**
+ * @typedef {Object} FlowConfig
+ * @property {string} id
+ * @property {string} name
+ * @property {string} publisherKind
+ * @property {string[]} chain
+ * @property {string} status
+ * @property {string} [remark]
+ * @property {string} [updatedAt]
+ * @property {string} [publishedAt]
+ */
+
+const APPROVALS_KEY = 'bidding-approvals'
+const FLOWS_KEY = 'bidding-approval-flows'
+
+// 审批节点类型：仅项目立项（2026-07-27 口径，原 requirement/tender-doc/award-result 已收敛）
 export const APPROVAL_TYPES = [
-  { value: 'project', label: '项目立项' },
-  { value: 'requirement', label: '采购需求' },
-  { value: 'tender-doc', label: '采购文件' },
-  { value: 'award-result', label: '中选结果' }
+  { value: 'project', label: '项目立项' }
 ]
 
 export const APPROVAL_STATUS_MAP = {
@@ -27,6 +72,7 @@ export const DEFAULT_CHAINS = {
 }
 
 // 审批流配置 seed：status draft（未发布）/ published（已发布启用）/ disabled（停用）
+/** @type {FlowConfig[]} */
 const SEED_FLOW_CONFIGS = [
   {
     id: 'flow-1',
@@ -34,7 +80,7 @@ const SEED_FLOW_CONFIGS = [
     publisherKind: 'agent',
     chain: ['采购管理部'],
     status: 'published',
-    remark: '采购代理发布的需求/采购文件，由采购单位（采购管理部）审核',
+    remark: '采购代理提交的项目立项，由采购单位（采购管理部）审核',
     updatedAt: '2026-07-10 09:00',
     publishedAt: '2026-07-10 09:30'
   },
@@ -44,14 +90,14 @@ const SEED_FLOW_CONFIGS = [
     publisherKind: 'self',
     chain: ['需求部门', '采购管理部'],
     status: 'published',
-    remark: '采购单位自行发布，依次经需求部门、采购管理部审核',
+    remark: '采购单位自行提交项目立项，依次经需求部门、采购管理部审核',
     updatedAt: '2026-07-10 09:00',
     publishedAt: '2026-07-10 09:30'
   }
 ]
 
-// 审批单实例 seed：项目 8 立项审批中、项目 2 需求审批中（代理发起）、项目 1 采购文件审批中（第二节点）、
-// 项目 1 立项已通过、项目 4 中选结果已通过
+// 审批单实例 seed（仅项目立项）：项目 8 立项审批中、项目 1 立项已通过
+/** @type {Approval[]} */
 const SEED_APPROVALS = [
   {
     id: 'ap-4',
@@ -87,65 +133,88 @@ const SEED_APPROVALS = [
       { node: '需求部门', action: 'approve', actor: '王五', comment: '立项依据充分，同意。', at: '2026-07-01 16:00' },
       { node: '采购管理部', action: 'approve', actor: '张三', comment: '同意立项，按计划推进。', at: '2026-07-02 15:00' }
     ]
-  },
-  {
-    id: 'ap-1',
-    type: 'requirement',
-    refId: 'REQ20260714002',
-    title: '物业保洁服务采购',
-    projectId: '2',
-    submittedBy: '李四',
-    publisherKind: 'agent',
-    chain: ['采购管理部'],
-    currentNodeIndex: 0,
-    currentAssignee: '',
-    status: 'pending',
-    submittedAt: '2026-07-12 10:00',
-    finishedAt: '',
-    records: []
-  },
-  {
-    id: 'ap-2',
-    type: 'tender-doc',
-    refId: 'td-1-1',
-    title: 'XX市轨道交通设备采购项目 采购文件 V1.0 发布',
-    projectId: '1',
-    submittedBy: '张三',
-    publisherKind: 'self',
-    chain: ['需求部门', '采购管理部'],
-    currentNodeIndex: 1,
-    currentAssignee: '',
-    status: 'pending',
-    submittedAt: '2026-07-08 09:00',
-    finishedAt: '',
-    records: [
-      { node: '需求部门', action: 'approve', actor: '王五', comment: '需求已核实，同意。', at: '2026-07-08 14:20' }
-    ]
-  },
-  {
-    id: 'ap-3',
-    type: 'award-result',
-    refId: 'award-4',
-    title: '物业服务采购项目 中选结果审批登记',
-    projectId: '4',
-    submittedBy: '赵工',
-    publisherKind: 'agent',
-    chain: ['采购管理部'],
-    currentNodeIndex: 1,
-    currentAssignee: '',
-    status: 'approved',
-    submittedAt: '2026-07-03 11:00',
-    finishedAt: '2026-07-04 09:30',
-    records: [
-      { node: '采购管理部', action: 'approve', actor: '张三', comment: '中选结果审批通过，准予发布。', at: '2026-07-04 09:30' }
-    ]
   }
 ]
 
+/**
+ * @template T
+ * @param {T} value
+ * @returns {T}
+ */
 function clone(value) {
   return value ? JSON.parse(JSON.stringify(value)) : value
 }
 
+/**
+ * @param {string} key
+ * @param {any} data
+ */
+function saveToStorage(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data))
+  } catch {
+    // ignore storage errors
+  }
+}
+
+/**
+ * 读取持久化数据；首次加载写入种子
+ * @template T
+ * @param {string} key
+ * @param {T[]} seeds
+ * @returns {T[]}
+ */
+function loadWithSeeds(key, seeds) {
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw) {
+      return JSON.parse(raw)
+    }
+  } catch {
+    // ignore parse errors
+  }
+  const initial = clone(seeds)
+  saveToStorage(key, initial)
+  return initial
+}
+
+/** @type {Approval[] | null} */
+let _approvalsCache = null
+/** @type {FlowConfig[] | null} */
+let _flowsCache = null
+
+/**
+ * @returns {Approval[]}
+ */
+function getApprovalsCached() {
+  if (!_approvalsCache) {
+    _approvalsCache = loadWithSeeds(APPROVALS_KEY, SEED_APPROVALS)
+  }
+  return _approvalsCache
+}
+
+/**
+ * @returns {FlowConfig[]}
+ */
+function getFlowsCached() {
+  if (!_flowsCache) {
+    _flowsCache = loadWithSeeds(FLOWS_KEY, SEED_FLOW_CONFIGS)
+  }
+  return _flowsCache
+}
+
+function persistApprovals() {
+  saveToStorage(APPROVALS_KEY, getApprovalsCached())
+}
+
+function persistFlows() {
+  saveToStorage(FLOWS_KEY, getFlowsCached())
+}
+
+/**
+ * @param {Record<string, any>} item
+ * @param {Record<string, any>} [filter]
+ */
 function matchesFilter(item, filter = {}) {
   return Object.entries(filter).every(([k, v]) => {
     if (v === undefined || v === null || v === '') return true
@@ -153,20 +222,57 @@ function matchesFilter(item, filter = {}) {
   })
 }
 
+/**
+ * 立项审批结果联动项目状态（2026-07-27 口径）：
+ * 末级通过 → 项目 pending 推进为 approved（待发布，发布采购按钮可用）；
+ * 驳回 → 项目退回 draft 并记录驳回意见，经办人可修改后重新提交。
+ * @param {Approval} approval
+ * @param {string} [comment]
+ */
+function syncProjectStatus(approval, comment) {
+  if (approval.type !== 'project' || !approval.projectId) return
+  const project = projectStore.getProjectById(approval.projectId)
+  if (!project || project.status !== 'pending') return
+  const now = new Date().toLocaleString()
+  if (approval.status === 'approved') {
+    projectStore.saveProject({ ...project, status: 'approved', approveTime: now, rejectReason: '' })
+  } else if (approval.status === 'rejected') {
+    projectStore.saveProject({ ...project, status: 'draft', rejectReason: comment || '未填写原因' })
+  }
+}
+
 export const approvalStore = {
   // ---------- 审批单实例 ----------
-  // filter 支持 { status, type, submittedBy, projectId } 等字段精确匹配
+  /**
+   * filter 支持 { status, type, submittedBy, projectId } 等字段精确匹配
+   * @param {Record<string, any>} [filter]
+   * @returns {Approval[]}
+   */
   list(filter) {
-    const all = clone(SEED_APPROVALS)
+    const all = clone(getApprovalsCached())
     return filter ? all.filter((item) => matchesFilter(item, filter)) : all
   },
-  saveAll() {
+  /**
+   * 全量替换审批单并持久化（兼容既有调用方）
+   * @param {Approval[]} [list]
+   */
+  saveAll(list) {
+    _approvalsCache = (list || []).map((item) => ({ ...item }))
+    persistApprovals()
     return null
   },
+  /**
+   * @param {string|number} id
+   * @returns {Approval | null}
+   */
   get(id) {
     return this.list().find((item) => String(item.id) === String(id)) || null
   },
-  // 按发布者类型取当前生效的审批链：优先已发布启用的流程配置，缺失时回退默认链
+  /**
+   * 按发布者类型取当前生效的审批链：优先已发布启用的流程配置，缺失时回退默认链
+   * @param {string} publisherKind
+   * @returns {string[]}
+   */
   resolveChain(publisherKind) {
     const kind = publisherKind === 'self' ? 'self' : 'agent'
     const config = this.getFlowConfigs().find(
@@ -175,10 +281,15 @@ export const approvalStore = {
     const chain = config?.chain?.length ? config.chain : DEFAULT_CHAINS[kind]
     return [...chain]
   },
-  // 纯演示：创建审批单不写入数据，返回构造好的实例供展示
+  /**
+   * 创建审批单并真实写入 localStorage（2026-07-27 起由 no-op 演示改为持久化）
+   * @param {{ type: string, refId: string|number, title?: string, publisherKind?: string, submittedBy?: string, projectId?: string|number }} input
+   * @returns {Approval}
+   */
   create({ type, refId, title, publisherKind = 'agent', submittedBy = '', projectId = '' }) {
-    return {
-      id: 'ap-demo',
+    /** @type {Approval} */
+    const instance = {
+      id: `ap-${Date.now()}`,
       type,
       refId: String(refId ?? ''),
       title: title || '',
@@ -189,16 +300,62 @@ export const approvalStore = {
       currentNodeIndex: 0,
       currentAssignee: '',
       status: 'pending',
-      submittedAt: '（演示）',
+      submittedAt: new Date().toLocaleString(),
       finishedAt: '',
       records: []
     }
+    getApprovalsCached().unshift(instance)
+    persistApprovals()
+    return { ...instance }
   },
-  // 纯演示：审批操作不写入数据，原样返回该审批单
-  act(id) {
-    return this.get(id)
+  /**
+   * 审批操作（真实写入）：approve/reject/add-sign/transfer/return。
+   * approve 在末级节点办结为 approved，否则推进到下一节点；
+   * reject 直接办结为 rejected（驳回必须带原因，由调用方校验）；
+   * add-sign/transfer 将当前节点转给 target 办理；return 退回上一节点（首节点停留）。
+   * @param {string|number} id
+   * @param {string} [action]
+   * @param {string} [actor]
+   * @param {string} [comment]
+   * @param {string} [target]
+   * @returns {Approval | null}
+   */
+  act(id, action = 'approve', actor = '', comment = '', target = '') {
+    const list = getApprovalsCached()
+    const item = list.find((a) => String(a.id) === String(id))
+    if (!item || item.status !== 'pending') return null
+    const now = new Date().toLocaleString()
+    const node = item.chain[item.currentNodeIndex] || ''
+    item.records.push({ node, action, actor, comment, at: now })
+
+    if (action === 'approve') {
+      item.currentAssignee = ''
+      if (item.currentNodeIndex >= item.chain.length - 1) {
+        item.status = 'approved'
+        item.finishedAt = now
+      } else {
+        item.currentNodeIndex += 1
+      }
+    } else if (action === 'reject') {
+      item.status = 'rejected'
+      item.finishedAt = now
+      item.currentAssignee = ''
+    } else if (action === 'add-sign' || action === 'transfer') {
+      if (target) item.currentAssignee = target
+    } else if (action === 'return') {
+      item.currentNodeIndex = Math.max(0, item.currentNodeIndex - 1)
+      item.currentAssignee = ''
+    }
+
+    persistApprovals()
+    syncProjectStatus(item, comment)
+    return { ...item }
   },
-  // 某角色/人员的待办：当前节点名匹配 role，或转办后 currentAssignee 匹配 role
+  /**
+   * 某角色/人员的待办：当前节点名匹配 role，或转办后 currentAssignee 匹配 role
+   * @param {string} role
+   * @returns {Approval[]}
+   */
   pendingFor(role) {
     if (!role) return []
     return this.list({ status: 'pending' }).filter((item) => {
@@ -206,29 +363,84 @@ export const approvalStore = {
       return item.chain[item.currentNodeIndex] === role
     })
   },
-  // 某角色/人员已处理过的审批单（records 中出现其操作）
+  /**
+   * 某角色/人员已处理过的审批单（records 中出现其操作）
+   * @param {string} role
+   * @returns {Approval[]}
+   */
   doneBy(role) {
     if (!role) return []
     return this.list().filter((item) => item.records.some((r) => r.actor === role))
   },
 
   // ---------- 审批流配置 ----------
+  /**
+   * @returns {FlowConfig[]}
+   */
   getFlowConfigs() {
-    return clone(SEED_FLOW_CONFIGS)
+    return clone(getFlowsCached())
   },
-  saveFlowConfigs() {
+  /**
+   * 全量替换审批流配置并持久化（兼容既有调用方）
+   * @param {FlowConfig[]} [configs]
+   */
+  saveFlowConfigs(configs) {
+    _flowsCache = (configs || []).map((item) => ({ ...item }))
+    persistFlows()
     return null
   },
+  /**
+   * @param {string|number} id
+   * @returns {FlowConfig | null}
+   */
   getFlowConfigById(id) {
     return this.getFlowConfigs().find((f) => String(f.id) === String(id)) || null
   },
+  /**
+   * 新建/更新审批流配置（按 id upsert），真实写入 localStorage
+   * @param {Partial<FlowConfig>} config
+   * @returns {FlowConfig}
+   */
   saveFlowConfig(config) {
-    // 纯演示：不保存数据
-    return config
+    const list = getFlowsCached()
+    const now = new Date().toLocaleString()
+    /** @type {FlowConfig} */
+    const toSave = {
+      id: config.id || `flow-${Date.now()}`,
+      name: config.name || '未命名审批流',
+      publisherKind: config.publisherKind === 'self' ? 'self' : 'agent',
+      chain: [...(config.chain || [])],
+      status: config.status || 'draft',
+      remark: config.remark || '',
+      updatedAt: now,
+      publishedAt: config.publishedAt || ''
+    }
+    const idx = list.findIndex((f) => String(f.id) === String(toSave.id))
+    if (idx >= 0) {
+      toSave.publishedAt = list[idx].publishedAt || ''
+      list[idx] = toSave
+    } else {
+      list.push(toSave)
+    }
+    persistFlows()
+    return { ...toSave }
   },
+  /**
+   * 启停/发布审批流，真实写入 localStorage
+   * @param {string|number} id
+   * @param {string} status
+   * @returns {FlowConfig | null}
+   */
   setFlowStatus(id, status) {
-    // 纯演示：不保存数据
-    const found = this.getFlowConfigById(id)
-    return found ? { ...found, status } : null
+    const list = getFlowsCached()
+    const found = list.find((f) => String(f.id) === String(id))
+    if (!found) return null
+    found.status = status
+    found.updatedAt = new Date().toLocaleString()
+    if (status === 'published' && !found.publishedAt) {
+      found.publishedAt = found.updatedAt
+    }
+    persistFlows()
+    return { ...found }
   }
 }

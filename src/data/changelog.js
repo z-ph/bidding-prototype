@@ -12,6 +12,18 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.13.0',
+    date: '2026-07-27',
+    title: '创建项目单页化 + 删除采购需求库 + 审批收敛为仅立项（0727 会后补充口径）',
+    changes: [
+      { type: 'feat', text: '创建项目五步向导合并为整页一次填完（ProjectCreate.jsx → ProjectCreate.tsx 重写）：保留分组卡片与提交前确认区；最小必要字段——删除需求来源/需求编号/关联采购需求/项目成员/业绩/财务/信誉/报价字段模板/邀请响应单位等字段，项目编号保持自动生成不可编辑；采购需求页内直接创建（需求说明 + 附件上传，上传优先）；供应商要求收敛为资质 checkbox + 允许联合体两项' },
+      { type: 'remove', text: '删除采购需求库环节（0727 会议 3.7）：移除 ProcurementRequirementList/Edit 两视图与 5 个路由文件、permissions 两项权限、招标人/代理两个菜单入口；旧 URL /admin/procurement-requirements* 重定向到 /admin/projects/create；requirements.js 数据文件保留（ProjectDetail 存量种子项目 linkedRequirementId 只读展示）' },
+      { type: 'remove', text: '审批点收敛为仅项目立项（0727 五.5，台账 0727-mt-004）：APPROVAL_TYPES 仅保留 project，删除 ap-1/2/3 种子；采购文件发布不再建审批单（确认后直接发布）；中选结果不再建审批单，沿用 0717 清单 31 系统外审批只登记结果（登记数据改存项目 awardRegistration 字段，localStorage 持久化）' },
+      { type: 'feat', text: '立项审核闭环补齐：approvalStore/projectStore 由 no-op 演示改为 localStorage 真实写入（keys：bidding-approvals / bidding-approval-flows / bidding-projects，叠加种子）；ProjectCreate 提交即生成立项审批单；审批通过 → 项目 pending 推进为 approved（待发布，发布采购按钮可用），驳回 → 退回 draft 并记录驳回意见可重新提交；审批流配置真实读写' },
+      { type: 'docs', text: 'docs/role-permission-matrix.md 新增第八节（删需求库菜单/权限、审批仅立项口径）；ReviewChangeList 0727-mt-002/003/004 标记已修复；新增 devDependency @types/react + @types/react-dom（TS 优先口径下首个 .tsx 页面所需的 React 类型声明）' }
+    ]
+  },
+  {
     version: '0.12.7',
     date: '2026-07-26',
     title: '敏感词残留二轮清洗（公开/招标/投标等字眼全禁）',

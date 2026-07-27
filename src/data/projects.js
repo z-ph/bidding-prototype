@@ -1,12 +1,56 @@
-// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
-// 项目 mock 数据存储（纯内存静态种子，无任何持久化）
-// 刷新即恢复初始演示数据；全部页面共享同一数据源，保证跳转后数据连贯。
+// 项目 mock 数据存储（localStorage 持久化，叠加在种子之上）
+// localStorage key: bidding-projects（2026-07-27 起由纯内存种子改为持久化，
+// 支撑立项审核闭环：创建项目/审批联动状态推进刷新不丢）。
+// 刷新后种子与新增/变更数据均在；全部页面共享同一数据源，保证跳转后数据连贯。
 //
 // 演示主线（status 为唯一事实源，全部阶段页面读取本 store）：
-//   2 草稿 → 8 待审核 → 1 采购中 → 6 公告中(邀请询比) → 10 待开启(阳光询比) → 3 待开启(今日开启)
-//   → 5 评审中 → 9 已确认中选人 → 4 通知书已发 → 7 已完成
+//   2 草稿 → 8 待审核 → (立项审批通过 → 待发布 approved) → 1 采购中 → 6 公告中(邀请询比)
+//   → 10 待开启(阳光询比) → 3 待开启(今日开启) → 5 评审中 → 9 已确认中选人 → 4 通知书已发 → 7 已完成
 // 大厅归属（hall-purchase-method-mapping-20260721）：采购族（3 等）→开启大厅；询比族（6/10）→比价大厅；评审对所有项目开放
 
+const STORAGE_KEY = 'bidding-projects'
+
+/**
+ * @typedef {Object} ProjectPackage
+ * @property {string} [name]
+ * @property {string} [code]
+ * @property {string|number} [budget]
+ * @property {string} [content]
+ * @property {string} [purchaseMode]
+ * @property {string} [bidStart]
+ * @property {string} [bidEnd]
+ */
+
+/**
+ * @typedef {Object} Project
+ * @property {string|number} id
+ * @property {string} [name]
+ * @property {string} [code]
+ * @property {string} [orgMode]
+ * @property {string|number} [budget]
+ * @property {string} [status]
+ * @property {string} [publishTime]
+ * @property {string} [deadline]
+ * @property {string} [openTime]
+ * @property {string} [demandSource]
+ * @property {string} [demandCode]
+ * @property {string} [linkedRequirementId]
+ * @property {string} [agentId]
+ * @property {ProjectPackage[]} [packages]
+ * @property {string[]} [qualifications]
+ * @property {string} [intro]
+ * @property {string} [createTime]
+ * @property {string} [submitTime]
+ * @property {string} [updateTime]
+ * @property {string} [approveTime]
+ * @property {string} [rejectReason]
+ * @property {string} [awardStage]
+ * @property {Object} [winner]
+ * @property {Object} [notice]
+ * @property {Object} [awardRegistration]
+ */
+
+/** @type {Project[]} */
 export const SEED_PROJECTS = [
   {
     id: '1',
@@ -203,7 +247,7 @@ export const SEED_PROJECTS = [
       { name: '第一采购包：系统运维', code: 'B1', budget: 260, content: '核心业务系统年度运维服务', purchaseMode: 'open', bidStart: '', bidEnd: '' }
     ],
     qualifications: ['营业执照', 'ISO27001认证或相关证书'],
-    intro: '已提交审核，等待管理员审核通过后发布采购。',
+    intro: '已提交审核，等待立项审批通过后发布采购。',
     createTime: '2026-07-18 11:00'
   },
   {
@@ -231,20 +275,108 @@ export const SEED_PROJECTS = [
   }
 ]
 
+/**
+ * @param {Project[]} data
+ */
+function saveProjectsToStorage(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  } catch {
+    // ignore storage errors
+  }
+}
+
+/**
+ * @returns {Project[]}
+ */
+function loadProjects() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      return JSON.parse(raw)
+    }
+  } catch {
+    // ignore parse errors
+  }
+  // 首次加载：写入种子数据
+  const seeds = SEED_PROJECTS.map((p) => ({ ...p }))
+  saveProjectsToStorage(seeds)
+  return seeds
+}
+
+// 内存缓存，避免频繁读 localStorage
+/** @type {Project[] | null} */
+let _cache = null
+
+/**
+ * @returns {Project[]}
+ */
+function getCached() {
+  if (!_cache) {
+    _cache = loadProjects()
+  }
+  return _cache
+}
+
+function persist() {
+  saveProjectsToStorage(getCached())
+}
+
+/**
+ * 为新项目分配 id：现有数字 id 最大值 + 1（字符串），无非数字 id 时回退时间戳
+ * @param {Project[]} list
+ * @returns {string}
+ */
+function nextProjectId(list) {
+  const numericIds = list.map((p) => Number(p.id)).filter((n) => Number.isFinite(n))
+  if (numericIds.length > 0) {
+    return String(Math.max(...numericIds) + 1)
+  }
+  return String(Date.now())
+}
+
 export const projectStore = {
+  /**
+   * @returns {Project[]}
+   */
   getProjects() {
-    return SEED_PROJECTS.map((p) => ({ ...p }))
+    return getCached().map((p) => ({ ...p }))
   },
-  saveProjects() {
-    // 纯演示：不保存数据
+  /**
+   * 全量替换项目列表并持久化
+   * @param {Project[]} projects
+   */
+  saveProjects(projects) {
+    _cache = (projects || []).map((p) => ({ ...p }))
+    persist()
     return null
   },
+  /**
+   * @param {string|number} id
+   * @returns {Project | undefined}
+   */
   getProjectById(id) {
-    const found = SEED_PROJECTS.find((p) => String(p.id) === String(id))
+    const found = getCached().find((p) => String(p.id) === String(id))
     return found ? { ...found } : undefined
   },
+  /**
+   * 新增或更新项目（按 id upsert），无 id 时自动分配；真实写入 localStorage
+   * @param {Project} project
+   * @returns {Project}
+   */
   saveProject(project) {
-    // 纯演示：不保存数据，原样返回入参以兼容调用方
-    return project
+    const list = getCached()
+    const toSave = { ...project }
+    if (toSave.id === undefined || toSave.id === null || toSave.id === '') {
+      toSave.id = nextProjectId(list)
+    }
+    const idx = list.findIndex((p) => String(p.id) === String(toSave.id))
+    if (idx >= 0) {
+      list[idx] = toSave
+    } else {
+      list.unshift(toSave)
+    }
+    persist()
+    return { ...toSave }
   }
 }

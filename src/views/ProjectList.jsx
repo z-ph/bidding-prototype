@@ -23,6 +23,8 @@ const PURCHASE_MODE_VALUE_BY_LABEL = Object.fromEntries(
 export const PROJECT_STATUS_MAP = {
   draft: { text: '草稿', color: 'default' },
   pending: { text: '待审核', color: 'processing' },
+  // 立项审批通过（2026-07-27 口径：唯一审核点），待发布采购
+  approved: { text: '待发布', color: 'success' },
   tendering: { text: '采购中', color: 'success' },
   registering: { text: '公告中', color: 'geekblue' },
   pending_open: { text: '待开启', color: 'warning' },
@@ -40,7 +42,8 @@ export const PROJECT_STATUS_MAP = {
 // 当前状态 → 下一步动作（默认口径，操作列与详情页共用；询比族见 INQUIRY_FAMILY_NEXT_STEP_MAP / getNextStepInfo）
 export const NEXT_STEP_MAP = {
   draft: { label: '继续编辑', description: '草稿待完善，继续编辑后可提交审核' },
-  pending: { label: '查看进度', description: '已提交审核，等待管理员审核' },
+  pending: { label: '查看进度', description: '已提交审核，等待立项审批' },
+  approved: { label: '发布采购', description: '立项审批已通过，可发布采购' },
   tendering: { label: '发布公告', description: '采购中，下一步前往发布公告' },
   registering: { label: '进入开启', description: '公告中，采购截止后进入开启大厅' },
   pending_open: { label: '开启大厅', description: '待开启，进入开启大厅完成开启' },
@@ -284,6 +287,15 @@ export default function ProjectList() {
       navigate({ to: '/admin/projects/create', search: { editId: row.id } })
       return
     }
+    if (row.status === 'approved') {
+      // 立项已通过：采购单位可直接发布采购，其他角色仅查看详情
+      if (role === 'tenderee') {
+        publish(row)
+        return
+      }
+      viewDetail(row)
+      return
+    }
     if (row.status === 'pending' || row.status === 'done') {
       viewDetail(row)
       return
@@ -372,7 +384,7 @@ export default function ProjectList() {
           {beforeOpenStatuses.includes(row.status) && role === 'tenderee' && (
             <Button type="link" onClick={() => edit(row)}>编辑</Button>
           )}
-          {row.status === 'draft' && role === 'tenderee' && (
+          {(row.status === 'draft' || row.status === 'approved') && role === 'tenderee' && (
             <Button type="link" onClick={() => publish(row)}>发布采购</Button>
           )}
           <Button type="link" onClick={() => nextStep(row)}>{nextLabel(row)}</Button>
@@ -404,6 +416,7 @@ export default function ProjectList() {
                   { label: '全部', value: '' },
                   { label: '草稿', value: 'draft' },
                   { label: '待审核', value: 'pending' },
+                  { label: '待发布', value: 'approved' },
                   { label: '采购中', value: 'tendering' },
                   { label: '公告中', value: 'registering' },
                   { label: '待开启', value: 'pending_open' },

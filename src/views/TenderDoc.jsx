@@ -36,7 +36,6 @@ import { tenderDocStore, getDefaultScoreItems } from '../data/tenderDocStore.js'
 import { tenderDocTemplates, CLAUSE_AUTO_MATCH_NOTE } from '../data/tenderDocCatalog.js'
 import { projectStore } from '../data/projects.js'
 import { approvalStore } from '../data/approvalStore.js'
-import { messageStore } from '../data/messageStore.js'
 
 // 模拟项目结构化采购数据：项目基本信息 + 采购包/包件结构化字段
 const projectMetaMap = {
@@ -622,32 +621,17 @@ export default function TenderDoc() {
     message.success('已提交确认')
   }
 
-  // 采购单位确认并提交审批（待确认 → 待审批）：生成真实审批单，由审批中心流转（清单 22/48）
-  const confirmAndSubmitApproval = () => {
+  // 采购单位确认后直接发布（2026-07-27 口径：平台仅立项一个审核点，采购文件无需审批，直接发布）
+  const confirmAndPublish = () => {
     const now = new Date().toLocaleString()
-    const chainDesc = `${publisherKind === 'agent' ? '代理发布' : '采购单位发布'} → ${approvalChain.join(' → ')}`
-    const instance = approvalStore.create({
-      type: 'tender-doc',
-      refId: selectedVersion.id,
-      title: `${projectMeta?.name || '采购文件'} ${selectedVersion.versionNo} 发布`,
-      publisherKind,
-      submittedBy: userName || creatorName,
-      projectId
-    })
     updateSelectedVersion({
-      status: 'pendingApproval',
+      status: 'published',
       confirmer: userName || '张三',
-      approvalId: instance.id,
+      publishedAt: now,
       updatedAt: now
     })
-    messageStore.add({
-      toRole: instance.chain[0],
-      title: `【审批待办】采购文件 ${selectedVersion.versionNo} 发布`,
-      content: `${userName || creatorName} 提交了「${projectMeta?.name || projectId}」采购文件 ${selectedVersion.versionNo} 发布申请（${chainDesc}），请及时审批。`,
-      type: 'approval'
-    })
-    pushHistory(`${userName || '张三'} 确认版本 ${selectedVersion.versionNo} 并提交审批（${chainDesc}，审批单 ${instance.id}）`, 'success')
-    message.success('已确认并提交审批，请在审批中心跟踪进度；通过后自动发布')
+    pushHistory(`${userName || '张三'} 确认版本 ${selectedVersion.versionNo} 并直接发布（2026-07-27 口径：采购文件无需审批）`, 'success')
+    message.success(`采购文件 ${selectedVersion.versionNo} 已发布生效`)
   }
 
   // 待确认退回：版本回到编制中
@@ -701,7 +685,7 @@ export default function TenderDoc() {
     }
     if (status === 'pendingConfirm' && !isHistoryVersion && canConfirm) {
       actions.push(<Button key="return" onClick={returnToEditing}>退回编制</Button>)
-      actions.push(<Button key="confirm" type="primary" onClick={confirmAndSubmitApproval}>确认并提交审批</Button>)
+      actions.push(<Button key="confirm" type="primary" onClick={confirmAndPublish}>确认并发布</Button>)
     }
     if (status === 'pendingConfirm' && !isHistoryVersion && !canConfirm) {
       actions.push(<span key="hint" className="flow-hint">待采购单位确认（当前角色无确认权限）</span>)
@@ -1211,8 +1195,8 @@ export default function TenderDoc() {
               <Descriptions.Item label="确认人">{selectedVersion.confirmer || '-'}</Descriptions.Item>
               <Descriptions.Item label="最近更新">{selectedVersion.updatedAt || '-'}</Descriptions.Item>
               <Descriptions.Item label="发布时间">{selectedVersion.publishedAt || '-'}</Descriptions.Item>
-              <Descriptions.Item label="审批链" span={2}>
-                {publisherKind === 'agent' ? '代理发布' : '采购单位发布'} → {approvalChain.join(' → ')}
+              <Descriptions.Item label="发布口径" span={2}>
+                确认后直接发布，无需审批（2026-07-27 口径：平台仅项目立项一个审核点）
               </Descriptions.Item>
             </Descriptions>
 
@@ -1229,7 +1213,7 @@ export default function TenderDoc() {
             </div>
 
             <Alert
-              title="按 2026-07-17 需求口径，采购文件需审批后发布（清单 22/48）：确认后生成审批单，由审批中心流转；通过后自动发布生效，驳回退回经办人重新编制。"
+              title="按 2026-07-27 口径，平台仅项目立项一个审核点：采购文件无需审批，采购单位确认后直接发布生效。"
               type="info"
               showIcon
               closable={false}

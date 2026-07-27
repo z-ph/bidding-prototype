@@ -13,6 +13,8 @@ import {
 export const STATUS_TO_NODE_KEY = {
   draft: 'requirement',
   pending: 'requirement',
+  // 立项已通过、待发布采购（2026-07-27 口径）：立项环节完成，定位到公告节点前
+  approved: 'notice',
   tendering: 'notice',
   registering: 'bid',
   pending_open: 'opening',
@@ -104,6 +106,15 @@ export function getTendereeActions(project) {
           desc: '项目已提交审核，等待采购管理部处理',
           buttonText: '查看审批',
           action: go('/admin/approval-center')
+        }
+      ]
+    case 'approved':
+      return [
+        {
+          title: '发布采购',
+          desc: '立项审批已通过，发布采购后项目进入采购中状态',
+          buttonText: '发布采购',
+          action: { type: 'publish' }
         }
       ]
     case 'tendering':
@@ -252,6 +263,15 @@ export function getAgentActions(project) {
           action: go('/admin/approval-center')
         }
       ]
+    case 'approved':
+      return [
+        {
+          title: '立项已通过',
+          desc: '立项审批已通过，待采购单位发布采购',
+          buttonText: '查看项目',
+          action: go('/admin/projects')
+        }
+      ]
     case 'tendering':
       return [
         {
@@ -369,6 +389,7 @@ export function getTendereeStatusSummary(project) {
   const statusTextMap = {
     draft: '草稿待完善',
     pending: '已提交审核',
+    approved: '立项已通过，待发布采购',
     tendering: '采购中',
     registering: '公告中，等待供应商响应',
     pending_open: '采购截止，等待开启',

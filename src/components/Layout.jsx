@@ -62,7 +62,6 @@ function useMenuItems(role) {
         { key: '/admin/projects/track', label: '项目跟踪' }
       ]
     },
-    { key: '/admin/procurement-requirements', label: '采购需求库', icon: FileTextOutlined },
     {
       key: '/admin/biz-records-group',
       label: '业务台账',
@@ -88,8 +87,9 @@ function useMenuItems(role) {
   ]
 
   // 采购代理菜单（refactor-agent-menu-workflow-20260718；agent-project-requirement-management-20260721：
-  // 代理可管理项目含创建项目、管理采购需求）：阶段操作（采购文件编制/公告发布/专家抽取/中选通知书）
-  // 全部下沉到项目驾驶舱携带 projectId 进入，菜单只保留跨项目台账入口
+  // 代理可管理项目含创建项目；2026-07-27 口径删除采购需求库，需求在创建项目页内联创建）：
+  // 阶段操作（采购文件编制/公告发布/专家抽取/中选通知书）全部下沉到项目驾驶舱携带 projectId 进入，
+  // 菜单只保留跨项目台账入口
   const agentMenus = [
     {
       key: '/admin/projects-group',
@@ -101,7 +101,6 @@ function useMenuItems(role) {
         { key: '/admin/projects/track', label: '项目跟踪' }
       ]
     },
-    { key: '/admin/procurement-requirements', label: '采购需求库', icon: FileTextOutlined },
     {
       key: '/admin/biz-records-group',
       label: '业务台账',

@@ -71,7 +71,6 @@ import { Route as AdminAdminDictionaryRouteImport } from './routes/admin.admin-d
 import { Route as AdminAdminDashboardRouteImport } from './routes/admin.admin-dashboard'
 import { Route as AdminAdminBannersRouteImport } from './routes/admin.admin-banners'
 import { Route as AdminProjectsIndexRouteImport } from './routes/admin.projects.index'
-import { Route as AdminProcurementRequirementsIndexRouteImport } from './routes/admin.procurement-requirements.index'
 import { Route as AdminProjectsTrackRouteImport } from './routes/admin.projects.track'
 import { Route as AdminProjectsCreateRouteImport } from './routes/admin.projects.create'
 import { Route as AdminProcurementRequirementsEditRouteImport } from './routes/admin.procurement-requirements.edit'
@@ -477,16 +476,6 @@ const AdminProjectsIndexRoute = AdminProjectsIndexRouteImport.update({
 } as any).lazy(() =>
   import('./routes/admin.projects.index.lazy').then((d) => d.Route),
 )
-const AdminProcurementRequirementsIndexRoute =
-  AdminProcurementRequirementsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AdminProcurementRequirementsRoute,
-  } as any).lazy(() =>
-    import('./routes/admin.procurement-requirements.index.lazy').then(
-      (d) => d.Route,
-    ),
-  )
 const AdminProjectsTrackRoute = AdminProjectsTrackRouteImport.update({
   id: '/track',
   path: '/track',
@@ -506,11 +495,7 @@ const AdminProcurementRequirementsEditRoute =
     id: '/edit',
     path: '/edit',
     getParentRoute: () => AdminProcurementRequirementsRoute,
-  } as any).lazy(() =>
-    import('./routes/admin.procurement-requirements.edit.lazy').then(
-      (d) => d.Route,
-    ),
-  )
+  } as any)
 const AdminProjectsDetailIdRoute = AdminProjectsDetailIdRouteImport.update({
   id: '/detail/$id',
   path: '/detail/$id',
@@ -584,7 +569,6 @@ export interface FileRoutesByFullPath {
   '/admin/procurement-requirements/edit': typeof AdminProcurementRequirementsEditRoute
   '/admin/projects/create': typeof AdminProjectsCreateRoute
   '/admin/projects/track': typeof AdminProjectsTrackRoute
-  '/admin/procurement-requirements/': typeof AdminProcurementRequirementsIndexRoute
   '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/projects/detail/$id': typeof AdminProjectsDetailIdRoute
 }
@@ -633,6 +617,7 @@ export interface FileRoutesByTo {
   '/admin/notification-manage': typeof AdminNotificationManageRoute
   '/admin/opening-hall': typeof AdminOpeningHallRoute
   '/admin/organization': typeof AdminOrganizationRoute
+  '/admin/procurement-requirements': typeof AdminProcurementRequirementsRouteWithChildren
   '/admin/review-change-list': typeof AdminReviewChangeListRoute
   '/admin/sub-accounts': typeof AdminSubAccountsRoute
   '/admin/supervisor-abnormal': typeof AdminSupervisorAbnormalRoute
@@ -650,7 +635,6 @@ export interface FileRoutesByTo {
   '/admin/procurement-requirements/edit': typeof AdminProcurementRequirementsEditRoute
   '/admin/projects/create': typeof AdminProjectsCreateRoute
   '/admin/projects/track': typeof AdminProjectsTrackRoute
-  '/admin/procurement-requirements': typeof AdminProcurementRequirementsIndexRoute
   '/admin/projects': typeof AdminProjectsIndexRoute
   '/admin/projects/detail/$id': typeof AdminProjectsDetailIdRoute
 }
@@ -720,7 +704,6 @@ export interface FileRoutesById {
   '/admin/procurement-requirements/edit': typeof AdminProcurementRequirementsEditRoute
   '/admin/projects/create': typeof AdminProjectsCreateRoute
   '/admin/projects/track': typeof AdminProjectsTrackRoute
-  '/admin/procurement-requirements/': typeof AdminProcurementRequirementsIndexRoute
   '/admin/projects/': typeof AdminProjectsIndexRoute
   '/admin/projects/detail/$id': typeof AdminProjectsDetailIdRoute
 }
@@ -791,7 +774,6 @@ export interface FileRouteTypes {
     | '/admin/procurement-requirements/edit'
     | '/admin/projects/create'
     | '/admin/projects/track'
-    | '/admin/procurement-requirements/'
     | '/admin/projects/'
     | '/admin/projects/detail/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -840,6 +822,7 @@ export interface FileRouteTypes {
     | '/admin/notification-manage'
     | '/admin/opening-hall'
     | '/admin/organization'
+    | '/admin/procurement-requirements'
     | '/admin/review-change-list'
     | '/admin/sub-accounts'
     | '/admin/supervisor-abnormal'
@@ -857,7 +840,6 @@ export interface FileRouteTypes {
     | '/admin/procurement-requirements/edit'
     | '/admin/projects/create'
     | '/admin/projects/track'
-    | '/admin/procurement-requirements'
     | '/admin/projects'
     | '/admin/projects/detail/$id'
   id:
@@ -926,7 +908,6 @@ export interface FileRouteTypes {
     | '/admin/procurement-requirements/edit'
     | '/admin/projects/create'
     | '/admin/projects/track'
-    | '/admin/procurement-requirements/'
     | '/admin/projects/'
     | '/admin/projects/detail/$id'
   fileRoutesById: FileRoutesById
@@ -1381,13 +1362,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProjectsIndexRouteImport
       parentRoute: typeof AdminProjectsRoute
     }
-    '/admin/procurement-requirements/': {
-      id: '/admin/procurement-requirements/'
-      path: '/'
-      fullPath: '/admin/procurement-requirements/'
-      preLoaderRoute: typeof AdminProcurementRequirementsIndexRouteImport
-      parentRoute: typeof AdminProcurementRequirementsRoute
-    }
     '/admin/projects/track': {
       id: '/admin/projects/track'
       path: '/track'
@@ -1421,15 +1395,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminProcurementRequirementsRouteChildren {
   AdminProcurementRequirementsEditRoute: typeof AdminProcurementRequirementsEditRoute
-  AdminProcurementRequirementsIndexRoute: typeof AdminProcurementRequirementsIndexRoute
 }
 
 const AdminProcurementRequirementsRouteChildren: AdminProcurementRequirementsRouteChildren =
   {
     AdminProcurementRequirementsEditRoute:
       AdminProcurementRequirementsEditRoute,
-    AdminProcurementRequirementsIndexRoute:
-      AdminProcurementRequirementsIndexRoute,
   }
 
 const AdminProcurementRequirementsRouteWithChildren =

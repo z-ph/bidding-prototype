@@ -16,24 +16,25 @@ const ROLE_APPROVAL_NODES = {
 }
 
 // 审批类型 → 处理页面（目标路径须在 permissions 中对对应角色放行）
+// 2026-07-27 口径：仅项目立项一种审批类型，统一进审批中心处理
 const APPROVAL_TYPE_PATH = {
-  requirement: '/admin/procurement-requirements',
-  'tender-doc': '/admin/tender-doc',
-  'award-result': '/admin/award-confirm'
+  project: '/admin/approval-center'
 }
 
 // 项目状态 → 各角色需处理的待办（目标路径须在 permissions 中对对应角色放行）
 const PROJECT_STATUS_TODOS = {
   tenderee: {
     draft: { text: '为草稿，待发布采购', path: '/admin/projects' },
-    pending: { text: '已提交，待确认发布', path: '/admin/projects' },
+    pending: { text: '已提交，待立项审批', path: '/admin/projects' },
+    approved: { text: '立项已通过，待发布采购', path: '/admin/projects' },
     registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
     pending_open: { text: '待开启，请确认开启安排', path: '/admin/opening-hall' },
     evaluating: { text: '评审中，待确认评审结果', path: '/admin/award-confirm' }
   },
   agent: {
     draft: { text: '为草稿，采购文件待编制', path: '/admin/tender-doc' },
-    pending: { text: '已提交，待确认发布', path: '/admin/projects' },
+    pending: { text: '已提交，待立项审批', path: '/admin/projects' },
+    approved: { text: '立项已通过，待采购单位发布采购', path: '/admin/projects' },
     registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
     pending_open: { text: '待开启，请完成开启准备', path: '/admin/opening-hall' },
     evaluating: { text: '评审中，待汇总提交评审报告', path: '/admin/evaluation-hall' }

@@ -5,7 +5,6 @@ import { Alert, Button, Card, DatePicker, Descriptions, Form, Input, Radio, Sele
 import { LockOutlined, UploadOutlined } from '@ant-design/icons'
 import { projectStore } from '../data/projects.js'
 import { evaluationStore } from '../data/evaluationStore.js'
-import { approvalStore } from '../data/approvalStore.js'
 import { useRole } from '../hooks/useRole.js'
 import { BASELINE_PROJECTS } from './ProjectList.jsx'
 import { AWARD_STAGES, STAGE_LABELS, stageIndex, resolveAwardStage as resolveAwardStageBase } from '../utils/awardFlow.js'
@@ -20,7 +19,7 @@ const resolveAwardStage = (projectId, project) =>
 export default function AwardConfirm() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false })
-  const { role, userName } = useRole()
+  const { userName } = useRole()
   const projectIdFromQuery = searchParams.projectId
 
   const [projectId, setProjectId] = useState(String(projectIdFromQuery))
@@ -64,17 +63,14 @@ export default function AwardConfirm() {
     setReRegistering(false)
   }, [projectId, refreshTick])
 
-  // 本项目的中选结果审批登记记录（approvalStore type=award-result，按 refId=award-{projectId} 匹配，取最新一条）
+  // 本项目的中选结果审批登记（清单 31：审批不在本系统完成，系统内仅登记外部审批结果；
+  // 2026-07-27 口径：平台仅立项一个审核点，登记数据存于项目 awardRegistration 字段，不进审批中心）
   const registration = useMemo(
-    () =>
-      approvalStore
-        .list({ type: 'award-result' })
-        .find((a) => a.refId === `award-${projectId}`) || null,
-    [projectId, refreshTick]
+    () => project?.awardRegistration || null,
+    [project]
   )
 
-  // 登记外部审批结果：保存为 approvalStore 实例（type award-result），创建后直接 act approve 标记已登记，
-  // records 注明「外部审批结果登记」，不产生系统内审批待办（清单 31）
+  // 登记外部审批结果：写入项目 awardRegistration（localStorage 持久化），不产生系统内审批待办（清单 31）
   const registerResult = () => {
     if (!regForm.docNo.trim()) {
       message.warning('请填写审批文号')
@@ -85,48 +81,19 @@ export default function AwardConfirm() {
       return
     }
     const docDate = regForm.docDate.format('YYYY-MM-DD')
-    const instance = approvalStore.create({
-      type: 'award-result',
-      refId: `award-${projectId}`,
-      title: `${projectName} 中选结果审批登记`,
-      publisherKind: role === 'agent' ? 'agent' : 'self',
-      submittedBy: userName,
-      projectId
-    })
-    // 登记字段（文号/日期/结果/备注/附件）补充到实例上（仅消费 store 导出的 list/saveAll，不改 store 文件）
-    const all = approvalStore.list()
-    const idx = all.findIndex((a) => String(a.id) === String(instance.id))
-    if (idx >= 0) {
-      all[idx] = {
-        ...all[idx],
+    projectStore.saveProject({
+      ...project,
+      id: projectId,
+      awardRegistration: {
         docNo: regForm.docNo.trim(),
         docDate,
         result: regForm.result,
         remark: regForm.remark.trim(),
-        attachments: regForm.files.map((f) => f.name)
+        attachments: regForm.files.map((f) => f.name),
+        registeredBy: userName,
+        registeredAt: new Date().toLocaleString()
       }
-      approvalStore.saveAll(all)
-    }
-    approvalStore.act(
-      instance.id,
-      'approve',
-      userName,
-      `外部审批结果登记：${regForm.result}（文号 ${regForm.docNo.trim()}，日期 ${docDate}）`
-    )
-    // 清单 31：审批在外部完成，系统内仅登记结果——登记后直接置为已通过并写入 finishedAt，
-    // 不产生系统内审批待办（self 链两级时 act 只推进一个节点，需在此补齐收尾）
-    const after = approvalStore.list()
-    const afterIdx = after.findIndex((a) => String(a.id) === String(instance.id))
-    if (afterIdx >= 0) {
-      after[afterIdx] = {
-        ...after[afterIdx],
-        status: 'approved',
-        finishedAt: new Date().toLocaleString(),
-        currentNodeIndex: Math.max(0, (after[afterIdx].chain || []).length - 1),
-        currentAssignee: ''
-      }
-      approvalStore.saveAll(after)
-    }
+    })
     message.success('审批结果已登记，记录已进入项目归档')
     setRefreshTick((t) => t + 1)
   }
@@ -308,9 +275,9 @@ export default function AwardConfirm() {
                   </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="登记人">
-                  {registration.records?.[0]?.actor || registration.submittedBy || '-'}
+                  {registration.registeredBy || '-'}
                 </Descriptions.Item>
-                <Descriptions.Item label="登记时间">{registration.finishedAt || '-'}</Descriptions.Item>
+                <Descriptions.Item label="登记时间">{registration.registeredAt || '-'}</Descriptions.Item>
                 <Descriptions.Item label="附件">
                   {(registration.attachments || []).join('、') || '-'}
                 </Descriptions.Item>

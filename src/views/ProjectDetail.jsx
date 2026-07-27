@@ -209,7 +209,7 @@ export default function ProjectDetail() {
                   编辑
                 </Button>
               )}
-              {role === 'tenderee' && project.status === 'draft' && (
+              {role === 'tenderee' && (project.status === 'draft' || project.status === 'approved') && (
                 <Button type="primary" onClick={publish}>发布采购</Button>
               )}
               <Button onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : '/admin/projects' })}>返回列表</Button>

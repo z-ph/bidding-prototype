@@ -1,0 +1,93 @@
+{
+  "proposal": "simplify-project-creation-20260727",
+  "note": "来源：docs/20260727-会议记录概要.md 五.5 会后补充口径（效力高于会议讨论稿）。审核点=仅立项审核，用户已口头确认。",
+  "tasks": [
+    {
+      "id": "project-create-single-page",
+      "title": "创建项目五步向导合并为单页整表",
+      "description": "ProjectCreate.jsx：Steps 5 步（基本信息/需求与成员/采购包设置/供应商要求/提交审核）合并为整页一次填完，保留分组卡片排版与提交前信息确认区；删除分步 prev/next 逻辑；最小必要字段：项目编号保持自动生成；删除需求来源、需求编号、linkedRequirementIds（关联采购需求）字段，改为页内直接填写采购需求（需求说明 + 附件上传，上传优先）；供应商要求收敛为资质 checkbox + 允许联合体两项，其余字段删除（可缺了补，不多了删）。",
+      "files": [
+        "src/views/ProjectCreate.jsx"
+      ],
+      "acceptance": [
+        "创建项目无分步条，整页可见全部字段并一次提交",
+        "页面无「关联采购需求」「需求来源」「需求编号」字段",
+        "项目编号自动生成不可编辑",
+        "提交后项目真实写入 projectStore 并出现在项目列表"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "remove-requirement-module",
+      "title": "删除采购需求库环节",
+      "description": "删除 ProcurementRequirementList/ProcurementRequirementEdit 视图、5 个 admin.procurement-requirements* 路由文件；新增旧 URL → /admin/projects/create 重定向；permissions.js 删除两项 /admin/procurement-requirements* 权限；Layout.jsx 删除 tenderee L65 与 agent L104 两个「采购需求库」菜单入口；grep requirementStore 消费方，无其他消费方则删除 src/data/requirements.js，有则保留数据文件仅删页面入口并在报告中说明。",
+      "files": [
+        "src/views/ProcurementRequirementList.jsx",
+        "src/views/ProcurementRequirementEdit.jsx",
+        "src/routes/admin.procurement-requirements.jsx",
+        "src/routes/admin.procurement-requirements.index.jsx",
+        "src/routes/admin.procurement-requirements.index.lazy.jsx",
+        "src/routes/admin.procurement-requirements.edit.jsx",
+        "src/routes/admin.procurement-requirements.edit.lazy.jsx",
+        "src/config/permissions.js",
+        "src/components/Layout.jsx",
+        "src/data/requirements.js"
+      ],
+      "acceptance": [
+        "全角色主导航无「采购需求库」入口",
+        "访问 /admin/procurement-requirements 重定向到创建项目页",
+        "grep 无失效 import，build 通过"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "approval-only-initiation",
+      "title": "审批类型收敛为仅项目立项",
+      "description": "approvalStore.js：APPROVAL_TYPES 仅保留 project 项目立项；删除 ap-1（requirement）/ap-2（tender-doc）/ap-3（award-result）种子；TenderDoc.jsx 发布采购文件不再调用 approvalStore.create（直接发布）；AwardConfirm.jsx 不再创建中选结果审批单，保留「登记系统外审批结果」展示（0717 清单 31 口径）；ApprovalCenter 类型筛选/标签适配单一类型；审批流配置页（admin 系统设置）适配仅剩项目立项一种类型，不报错。",
+      "files": [
+        "src/data/approvalStore.js",
+        "src/views/TenderDoc.jsx",
+        "src/views/AwardConfirm.jsx",
+        "src/views/ApprovalCenter.jsx"
+      ],
+      "acceptance": [
+        "审批中心仅剩项目立项类型，种子仅 ap-4/ap-5",
+        "采购文件发布、中选结果确认不产生审批单",
+        "审批流配置页正常渲染"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "initiation-approval-loop",
+      "title": "立项审核闭环：提交建单、审批联动项目状态",
+      "description": "ProjectCreate.submit 提交时调用 approvalStore.create 真实创建项目立项审批单；approvalStore.create/act 从 no-op 改为真实写入 localStorage（叠加种子，schema 与 key 在报告中说明）；审批通过 → 项目 pending 推进为可发布状态（发布采购按钮可用），驳回 → 项目退回 draft 并记录驳回意见；TodoCenter pendingFor、ProjectDetail 审批归档展示保持兼容；编辑模式 ?editId= 载入行为不回归。",
+      "files": [
+        "src/views/ProjectCreate.jsx",
+        "src/data/approvalStore.js",
+        "src/data/projects.js",
+        "src/views/ApprovalCenter.jsx",
+        "src/views/ProjectList.jsx"
+      ],
+      "acceptance": [
+        "创建项目提交后审批中心出现对应立项审批单（刷新后仍在）",
+        "审批通过后项目状态从待审核推进，项目列表发布采购可用",
+        "驳回后项目回到草稿并可重新编辑提交",
+        "localStorage 持久化，刷新不丢"
+      ],
+      "status": "已完成"
+    },
+    {
+      "id": "docs-sync",
+      "title": "文档同步：角色权限矩阵",
+      "description": "docs/role-permission-matrix.md：tenderee/agent 菜单结构删除「采购需求库」，说明采购需求在创建项目页内联创建；审批相关说明更新为仅立项审核。",
+      "files": [
+        "docs/role-permission-matrix.md"
+      ],
+      "acceptance": [
+        "矩阵菜单结构与 Layout.jsx 实际一致",
+        "说明文字含新增/删除/合并/重命名变更说明"
+      ],
+      "status": "已完成"
+    }
+  ]
+}
