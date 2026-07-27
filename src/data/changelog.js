@@ -12,6 +12,15 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.13.1',
+    date: '2026-07-27',
+    title: '采购包改 Excel 清单上传 + 后台布局滚动修正',
+    changes: [
+      { type: 'feat', text: '采购包字段大幅精简（用户反馈「一堆字段太烦」+ 0727 会议 3.6 清单 Excel 导入口径）：每包仅保留名称、采购方式、预算金额、清单 Excel 上传四项；编号自动生成禁用；删除采购包内容字段与每包时间字段；响应开始/采购截止时间上移为「共性时间」全部采购包统一填一次（保存时写入每个包的 bidStart/bidEnd，下游 ProjectList/BidderProjects/TenderDoc 等按 packages[0].bidEnd 读取的链路不变）；清单「导什么认什么」，系统不校验内容；提交校验：缺清单/缺共性时间/时间倒挂分别拦截' },
+      { type: 'fix', text: '后台布局滚动修正（用户反馈）：左侧边栏与顶部 Header 固定，页面整体不再滚动，仅右下内容区（Content）滚动；边栏菜单超高时边栏内部独立滚动' }
+    ]
+  },
+  {
     version: '0.13.0',
     date: '2026-07-27',
     title: '创建项目单页化 + 删除采购需求库 + 审批收敛为仅立项（0727 会后补充口径）',

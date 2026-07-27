@@ -60,10 +60,9 @@ interface PackageItem {
   name: string
   code: string
   budget: string
-  content: string
   purchaseMode: string
-  bidStart: Dayjs | null
-  bidEnd: Dayjs | null
+  /** 采购清单 Excel（0727 口径：每包单独导入一份，导什么认什么，系统不校验内容） */
+  listFile: UploadFile[]
 }
 
 interface ProjectFormData {
@@ -82,6 +81,9 @@ interface ProjectFormData {
   agentId: string
   agentContractConfirmed: boolean
   attachments: UploadFile[]
+  /** 共性时间（0727 口径：全部采购包统一填一次，保存时写入每个包） */
+  bidStart: Dayjs | null
+  bidEnd: Dayjs | null
   packages: PackageItem[]
   qualifications: string[]
   allowConsortium: boolean
@@ -106,16 +108,17 @@ const formatTime = (t: Dayjs | string | null | undefined) => {
   return dayjs(t).format('YYYY-MM-DD HH:mm')
 }
 
-// 保存前把时间字段序列化为字符串，保证 localStorage 持久化后可被 dayjs 还原
+// 保存前把时间字段序列化为字符串，保证 localStorage 持久化后可被 dayjs 还原；
+// 共性时间同步写入每个采购包（下游 ProjectList/BidderProjects/TenderDoc 等按 packages[0].bidEnd 读取）
 function serializeFormData(formData: ProjectFormData) {
+  const bidStart = formData.bidStart ? formData.bidStart.format('YYYY-MM-DD HH:mm') : ''
+  const bidEnd = formData.bidEnd ? formData.bidEnd.format('YYYY-MM-DD HH:mm') : ''
   return {
     ...formData,
     openTime: formData.openTime ? formData.openTime.format('YYYY-MM-DD HH:mm') : '',
-    packages: formData.packages.map((pkg) => ({
-      ...pkg,
-      bidStart: pkg.bidStart ? pkg.bidStart.format('YYYY-MM-DD HH:mm') : '',
-      bidEnd: pkg.bidEnd ? pkg.bidEnd.format('YYYY-MM-DD HH:mm') : ''
-    }))
+    bidStart,
+    bidEnd,
+    packages: formData.packages.map((pkg) => ({ ...pkg, bidStart, bidEnd }))
   }
 }
 
@@ -140,6 +143,8 @@ export default function ProjectCreate() {
     agentId: '',
     agentContractConfirmed: false,
     attachments: [],
+    bidStart: null,
+    bidEnd: null,
     packages: [],
     qualifications: ['营业执照'],
     allowConsortium: false
@@ -159,12 +164,14 @@ export default function ProjectCreate() {
     const restored = {
       ...stored,
       openTime: toDayjs(stored.openTime),
+      // 共性时间：新项目在项目级，存量项目从首个采购包回填
+      bidStart: toDayjs(stored.bidStart || stored.packages?.[0]?.bidStart),
+      bidEnd: toDayjs(stored.bidEnd || stored.packages?.[0]?.bidEnd),
       demandText: stored.demandText || '',
       attachments: stored.attachments || [],
       packages: (stored.packages || []).map((pkg: Record<string, unknown>) => ({
         ...pkg,
-        bidStart: toDayjs(pkg.bidStart as string),
-        bidEnd: toDayjs(pkg.bidEnd as string)
+        listFile: (pkg.listFile as UploadFile[]) || []
       }))
     } as ProjectFormData
     setFormData((prev) => ({ ...prev, ...restored }))
@@ -186,12 +193,8 @@ export default function ProjectCreate() {
 
   const PACKAGE_REQUIRED_FIELDS: { key: keyof PackageItem; label: string }[] = [
     { key: 'name', label: '采购包名称' },
-    { key: 'code', label: '采购包编号' },
     { key: 'budget', label: '预算金额' },
-    { key: 'content', label: '采购包内容' },
-    { key: 'purchaseMode', label: '采购方式' },
-    { key: 'bidStart', label: '响应开始时间' },
-    { key: 'bidEnd', label: '采购截止时间' }
+    { key: 'purchaseMode', label: '采购方式' }
   ]
 
   const validatePackages = (): string | null => {
@@ -206,8 +209,8 @@ export default function ProjectCreate() {
           return `采购包 ${i + 1} 缺少${field.label}`
         }
       }
-      if (pkg.bidStart && pkg.bidEnd && pkg.bidEnd.valueOf() <= pkg.bidStart.valueOf()) {
-        return `采购包 ${i + 1} 的采购截止时间必须晚于响应开始时间`
+      if (!pkg.listFile || pkg.listFile.length === 0) {
+        return `采购包 ${i + 1} 请上传采购清单 Excel`
       }
     }
     if (budgetExceeded) {
@@ -235,13 +238,12 @@ export default function ProjectCreate() {
         ...prev.packages,
         {
           name: '',
+          // 编号自动生成（B1、B2…），无需手填
           code: `B${prev.packages.length + 1}`,
           budget: '',
-          content: '',
           // 采购包级采购方式默认「阳光采购」（cxy-016：项目级采购方式已移除）
           purchaseMode: 'open',
-          bidStart: null,
-          bidEnd: null
+          listFile: []
         }
       ]
     }))
@@ -313,6 +315,18 @@ export default function ProjectCreate() {
       }
     }
 
+    // 共性时间：全部采购包统一（0727 口径）
+    if (!formData.bidStart || !formData.bidEnd) {
+      message.error('请填写响应开始时间与采购截止时间（全部采购包统一）')
+      scrollToElement('.section-header')
+      return
+    }
+    if (formData.bidEnd.valueOf() <= formData.bidStart.valueOf()) {
+      message.error('采购截止时间必须晚于响应开始时间')
+      scrollToElement('.section-header')
+      return
+    }
+
     // 校验采购包设置
     const pkgError = validatePackages()
     if (pkgError) {
@@ -366,7 +380,7 @@ export default function ProjectCreate() {
     <div className="project-create">
       <Alert
         title="当前办理阶段：项目立项"
-        description="整页一次填完即可提交；项目编号自动生成，采购需求可直接上传附件。提交后生成「项目立项」审批单，审批通过后方可发布采购。"
+        description="整页一次填完即可提交；项目编号自动生成，采购需求可直接上传附件，采购包清单直接上传 Excel。提交后生成「项目立项」审批单，审批通过后方可发布采购。"
         type="info"
         showIcon
         closable={false}
@@ -537,6 +551,32 @@ export default function ProjectCreate() {
           </div>
           <Button type="primary" icon={<PlusOutlined />} onClick={addPackage}>添加采购包</Button>
         </div>
+        <Card size="small" title="共性时间（全部采购包统一，只需填一次）" style={{ marginBottom: 16 }}>
+          <Row gutter={20}>
+            <Col span={12}>
+              <Form.Item label="响应开始时间" required>
+                <DatePicker
+                  showTime
+                  style={{ width: '100%' }}
+                  placeholder="响应开始时间"
+                  value={formData.bidStart}
+                  onChange={(value) => updateField('bidStart', value)}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="采购截止时间" required>
+                <DatePicker
+                  showTime
+                  style={{ width: '100%' }}
+                  placeholder="采购截止时间"
+                  value={formData.bidEnd}
+                  onChange={(value) => updateField('bidEnd', value)}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Card>
         {formData.packages.length === 0 && (
           <EmptyState description="暂无采购包，请添加" icon="Folder" />
         )}
@@ -549,7 +589,7 @@ export default function ProjectCreate() {
           >
             <Row gutter={20}>
               <Col span={8}>
-                <Form.Item label="采购包名称">
+                <Form.Item label="采购包名称" required>
                   <Input
                     placeholder="例如：第一采购包"
                     value={pkg.name}
@@ -559,15 +599,11 @@ export default function ProjectCreate() {
               </Col>
               <Col span={8}>
                 <Form.Item label="采购包编号">
-                  <Input
-                    placeholder="例如：B1"
-                    value={pkg.code}
-                    onChange={(e) => updatePackage(idx, 'code', e.target.value)}
-                  />
+                  <Input placeholder="自动生成" disabled value={pkg.code} />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="预算金额">
+                <Form.Item label="预算金额" required>
                   <Input
                     placeholder="万元"
                     value={pkg.budget}
@@ -578,7 +614,7 @@ export default function ProjectCreate() {
             </Row>
             <Row gutter={20}>
               <Col span={8}>
-                <Form.Item label="采购方式">
+                <Form.Item label="采购方式" required>
                   <Select
                     placeholder="请选择"
                     value={pkg.purchaseMode}
@@ -587,39 +623,22 @@ export default function ProjectCreate() {
                   />
                 </Form.Item>
               </Col>
-            </Row>
-            <Row gutter={20}>
-              <Col span={12}>
-                <Form.Item label="响应开始时间">
-                  <DatePicker
-                    showTime
-                    style={{ width: '100%' }}
-                    placeholder="响应开始时间"
-                    value={pkg.bidStart}
-                    onChange={(value) => updatePackage(idx, 'bidStart', value)}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="采购截止时间">
-                  <DatePicker
-                    showTime
-                    style={{ width: '100%' }}
-                    placeholder="采购截止时间"
-                    value={pkg.bidEnd}
-                    onChange={(value) => updatePackage(idx, 'bidEnd', value)}
-                  />
+              <Col span={16}>
+                <Form.Item label="采购清单（Excel）" required>
+                  <Upload
+                    fileList={pkg.listFile}
+                    onChange={({ fileList }) => updatePackage(idx, 'listFile', fileList.slice(-1))}
+                    beforeUpload={() => false}
+                    accept=".xlsx,.xls,.csv"
+                  >
+                    <Button type="primary">上传清单 Excel</Button>
+                  </Upload>
+                  <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
+                    每个采购包导入一份清单，导什么认什么，系统不校验清单内容
+                  </div>
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item label="采购包内容">
-              <Input.TextArea
-                rows={2}
-                placeholder="描述本采购包采购内容"
-                value={pkg.content}
-                onChange={(e) => updatePackage(idx, 'content', e.target.value)}
-              />
-            </Form.Item>
           </Card>
         ))}
       </Card>
@@ -659,6 +678,8 @@ export default function ProjectCreate() {
           <Descriptions.Item label="组织方式">{orgModeLabel[formData.orgMode] || '-'}</Descriptions.Item>
           <Descriptions.Item label="项目预算">{formData.budget || '-'} 万元</Descriptions.Item>
           <Descriptions.Item label="开启时间">{formatTime(formData.openTime)}</Descriptions.Item>
+          <Descriptions.Item label="响应开始">{formatTime(formData.bidStart)}</Descriptions.Item>
+          <Descriptions.Item label="采购截止">{formatTime(formData.bidEnd)}</Descriptions.Item>
           <Descriptions.Item label="采购包预算合计">{packageBudgetTotal} 万元</Descriptions.Item>
           <Descriptions.Item label="采购包数量">{formData.packages.length} 个</Descriptions.Item>
           <Descriptions.Item label="需求附件">{formData.attachments.length > 0 ? formData.attachments.map((f) => f.name).join('、') : '-'}</Descriptions.Item>
@@ -667,13 +688,13 @@ export default function ProjectCreate() {
           <Descriptions.Item label="允许联合体">{formData.allowConsortium ? '允许' : '不允许'}</Descriptions.Item>
         </Descriptions>
         {formData.packages.length > 0 && (
-          <Card size="small" title="采购包采购方式与时间" style={{ marginTop: 16 }}>
+          <Card size="small" title="采购包清单" style={{ marginTop: 16 }}>
             {formData.packages.map((pkg, idx) => (
               <div key={idx} className="package-review-row">
                 <strong>采购包 {idx + 1} {pkg.name || pkg.code}</strong>
                 <span>采购方式：{PURCHASE_MODE_OPTIONS.find((o) => o.value === pkg.purchaseMode)?.label || '-'}</span>
-                <span>响应开始：{formatTime(pkg.bidStart)}</span>
-                <span>采购截止：{formatTime(pkg.bidEnd)}</span>
+                <span>预算：{pkg.budget || '-'} 万元</span>
+                <span>清单：{pkg.listFile?.length ? pkg.listFile[0].name : '未上传'}</span>
               </div>
             ))}
           </Card>
