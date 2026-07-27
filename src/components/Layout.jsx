@@ -215,8 +215,8 @@ export default function Layout() {
   }
 
   return (
-    <AntLayout style={{ minHeight: '100vh' }}>
-      <Sider width={240} style={{ backgroundColor: '#001529', color: '#fff' }}>
+    <AntLayout style={{ height: '100vh', overflow: 'hidden' }}>
+      <Sider width={240} style={{ backgroundColor: '#001529', color: '#fff', height: '100vh', overflow: 'hidden' }}>
         <div
           style={{
             height: 64,
@@ -234,13 +234,15 @@ export default function Layout() {
           <BookOutlined style={{ marginRight: 10, fontSize: 24 }} />
           <span>采购平台</span>
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          style={{ backgroundColor: '#001529' }}
-          items={menuItems}
-        />
+        <div style={{ height: 'calc(100vh - 64px)', overflowY: 'auto' }}>
+          <Menu
+            theme="dark"
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            style={{ backgroundColor: '#001529' }}
+            items={menuItems}
+          />
+        </div>
       </Sider>
       <AntLayout>
         <Header style={{
@@ -266,7 +268,7 @@ export default function Layout() {
             <Button type="link" onClick={logout}>退出</Button>
           </div>
         </Header>
-        <Content style={{ padding: 20, backgroundColor: '#f5f7fa' }}>
+        <Content style={{ padding: 20, backgroundColor: '#f5f7fa', height: 'calc(100vh - 64px)', overflowY: 'auto' }}>
           <Outlet />
         </Content>
       </AntLayout>
