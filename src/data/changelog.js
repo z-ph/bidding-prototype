@@ -24,7 +24,7 @@ export const CHANGELOG = [
       { type: 'feat', text: '项目审批定性改「发布审核」（用户指令 ④）：立项审批在 OA 完成，平台唯一审核点=采购公告发布前审核；APPROVAL_TYPES 标签、审批单标题、ProjectCreate Alert/按钮/提示、ApprovalCenter/ApprovalFlowConfig/TodoCenter/projectFlow 等全站「立项」字样清零' },
       { type: 'feat', text: '「采购包/包件」统一为「标段」+ 标段 Excel 批量导入（用户指令 ⑥）：全站用户可见文本与种子文本统一为标段（数据键 packages 不变，恢复「标段」用法，部分推翻 0724-001 映射）；标段设置卡片新增「下载模板」「Excel 批量导入」（新增依赖 xlsx 0.18.5）：模板列为标段名称/采购方式/预算金额，导入逐行校验（名称非空、方式四选一、预算为数字），非法行 Modal 按 Excel 行号报错、合法行追加，支撑大量标段场景；每标段清单 Excel 上传要求不变' },
       { type: 'fix', text: '删除「评审地点」字段（用户指令 ⑧）：ProjectCreate 表单/接口/序列化清理，TenderDoc mock 与展示 5 处一并清除；内部采购简化流程不要求专门场地' },
-      { type: 'docs', text: '用户指令 ⑦ 验证为零修改条目：审批示例已无「招标文件」字样（grep 全库仅历史台账保留原文）。提案 spec/changes/2026-07-31-role-trim-and-modes-20260731/（含验收记录：build/quality-gate 通过、残留 grep 零命中、Playwright 实测 38/38 零 pageerror）；docs/role-permission-matrix.md 追加 §九；docs/需求与评审意见-最终口径.md 时间线补登 0727/0731 两行' }
+      { type: 'docs', text: '用户指令 ⑦ 验证为零修改条目：审批示例已无「招标文件」字样（grep 全库仅历史台账保留原文）。提案 spec/changes/2026-07-31-role-trim-and-modes-20260731/（含验收记录：build/quality-gate 通过、残留 grep 零命中、Playwright 实测 38/38 零 pageerror）；docs/role-permission-matrix.md 追加 §九；docs/需求与评审意见-最终口径.md 时间线补登 0727/0731 两行并新增 0727/0731 增量口径摘要；README 角色与技术栈口径同步刷新（存量陈旧：角色仍写招标人/监督人员、React 18/antd 5）' }
     ]
   },
   {
