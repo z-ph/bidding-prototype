@@ -24,8 +24,7 @@ const DEFAULT_SCOPE_BY_ROLE = {
   tenderee: 'enterprise',
   agent: 'enterprise',
   bidder: 'enterprise',
-  expert: 'enterprise',
-  supervisor: 'all'
+  expert: 'enterprise'
 }
 
 export default function Login() {
@@ -80,7 +79,6 @@ export default function Login() {
     agent: '/admin/dashboard',
     bidder: '/admin/dashboard',
     expert: '/admin/dashboard',
-    supervisor: '/admin/supervisor-hall',
     admin: '/admin/dashboard'
   }
 
@@ -148,7 +146,7 @@ export default function Login() {
           element: '#login-role',
           popover: {
             title: '选择您的角色',
-            description: '平台支持采购单位、采购代理、响应单位、评审专家、监督人员、平台管理员六种角色，登录后进入对应工作台。',
+            description: '平台支持采购单位、采购代理、响应单位、评审专家、平台管理员五种角色，登录后进入对应工作台。',
             side: 'right',
             align: 'center'
           },
@@ -189,12 +187,13 @@ export default function Login() {
     driverObj.drive()
   }
 
+  // 采购单位拆「经办/审核」两个演示账号（2026-07-31 口径）：经办提交、审核员审批，二者互斥
   const roleButtons = [
-    { key: 'tenderee', label: '采购单位' },
+    { key: 'tenderee', label: '采购单位-经办' },
+    { key: 'tenderee-audit', label: '采购单位-审核' },
     { key: 'agent', label: '采购代理' },
     { key: 'bidder', label: '响应单位' },
     { key: 'expert', label: '评审专家' },
-    { key: 'supervisor', label: '监督人员' },
     { key: 'admin', label: '管理员' }
   ]
 
@@ -220,15 +219,17 @@ export default function Login() {
               size="small"
               onClick={() => {
                 accountForm.setFieldsValue({ account: role.key, password: '123456' })
-                doLogin(role.key, role.key, '账号密码')
+                // roleValue 必须传解析后的角色（tenderee-audit → tenderee），account 传按钮各自的 key
+                doLogin(resolveRoleFromAccount(role.key), role.key, '账号密码')
               }}
             >
               {role.label}
             </Button>
           ))}
         </Space>
-        <p style={{ marginTop: 8 }}>tenderee → 采购单位，agent → 采购代理，bidder → 响应单位，</p>
-        <p>expert → 评审专家，supervisor → 监督人员，admin → 管理员</p>
+        <p style={{ marginTop: 8 }}>tenderee → 采购单位（经办），tenderee-audit → 采购单位（审核），agent → 采购代理，</p>
+        <p>bidder → 响应单位，expert → 评审专家，admin → 管理员</p>
+        <p style={{ marginTop: 8 }}>经办提交、审核员审批，不能审核本人提交的单据（经办与审核互斥）。</p>
       </div>
     </>
   )
@@ -283,8 +284,6 @@ export default function Login() {
           </div>
           <Tabs id="login-tabs" activeKey={activeTab} onChange={setActiveTab} type="card" items={tabItems} />
           <div className="register-link">
-            还没有账号？<Button type="link" onClick={() => navigate({ to: '/register' })}>立即注册</Button>
-            <span style={{ margin: '0 8px' }}>|</span>
             <Button type="link" onClick={() => navigate({ to: '/' })}>返回首页</Button>
           </div>
         </div>

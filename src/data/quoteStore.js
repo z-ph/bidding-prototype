@@ -4,8 +4,8 @@
 //   quote: { [fieldKey]: value } 开启一览表填报值
 //   items: [{ name, spec, quantity, unit, price }] 分项报价表
 //
-// 种子口径：项目 3（待开启，采购族）三家响应单位均已报价，总价与开启大厅唱价一致（万元）；
-// 项目 6（邀请询比）/ 项目 10（阳光询比）三家供应商均已报价，供比价大厅演示（hall-purchase-method-mapping-20260721）
+// 种子口径：项目 3（待开启，比选族）三家响应单位均已报价，总价与开启大厅唱价一致（万元）；
+// 项目 6（直接采购）/ 项目 10（零星采购）三家供应商均已报价，供比价大厅演示（hall-purchase-method-mapping-20260721）
 
 const SEED_QUOTES = {
   '3::A科技有限公司': {

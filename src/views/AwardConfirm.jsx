@@ -12,7 +12,7 @@ import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
 // 成交确认阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
 // 与 AwardNotice 同一口径，避免重复实现漂移导致步骤回退。
-// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评审，不再传询比短路分支
+// hall-purchase-method-mapping-20260721 后所有项目（含比价族）均走评审，不再传比价短路分支
 const resolveAwardStage = (projectId, project) =>
   resolveAwardStageBase(projectId, project, evaluationStore, null)
 
@@ -38,7 +38,7 @@ export default function AwardConfirm() {
     return Array.from(map.entries()).map(([value, label]) => ({ value, label }))
   }, [])
 
-  // 与项目列表同一数据源：projectStore 优先，基线 mock 兜底（邀请询比演示项目来自基线）
+  // 与项目列表同一数据源：projectStore 优先，基线 mock 兜底（直接采购演示项目来自基线）
   const project = useMemo(
     () =>
       projectStore.getProjectById(projectId) ||
@@ -64,7 +64,7 @@ export default function AwardConfirm() {
   }, [projectId, refreshTick])
 
   // 本项目的中选结果审批登记（清单 31：审批不在本系统完成，系统内仅登记外部审批结果；
-  // 2026-07-27 口径：平台仅立项一个审核点，登记数据存于项目 awardRegistration 字段，不进审批中心）
+  // 2026-07-27 口径：平台仅发布审核一个审核点，登记数据存于项目 awardRegistration 字段，不进审批中心）
   const registration = useMemo(
     () => project?.awardRegistration || null,
     [project]

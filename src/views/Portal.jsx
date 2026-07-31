@@ -49,7 +49,6 @@ export default function Portal() {
   }, [noticeType, notices])
 
   const quickLinks = [
-    { title: '供应商注册', desc: '成为平台认证供应商', icon: UserOutlined, color: '#409EFF', path: '/register' },
     { title: '下载中心', desc: '响应工具、操作手册', icon: DownloadOutlined, color: '#67C23A', path: '/downloads' },
     { title: '帮助中心', desc: '操作教程与常见问题', icon: QuestionOutlined, color: '#E6A23C', path: '/help' },
     { title: '采购单位入口', desc: '发布需求、管理项目', icon: BankOutlined, color: '#F56C6C', path: '/login' }
@@ -225,7 +224,7 @@ export default function Portal() {
         }
         .quick-links {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(3, 1fr);
           gap: 20px;
         }
         .quick-card {

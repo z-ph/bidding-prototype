@@ -1,6 +1,8 @@
 // @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 审批中心：待办 / 已办 / 我发起的（2026-07-17 需求确认清单 48-53）
-// 2026-07-27 口径：平台仅「项目立项」一个审核点，本中心只处理项目立项审批单。
+// 2026-07-27 口径：平台仅「发布审核」一个审核点，本中心只处理发布审核单。
+// 2026-07-31 口径：采购单位拆经办/审核两个演示账号，经办与审核互斥——不能审核本人提交的单据
+// （按 submittedByAccount 与当前登录 account 判定，显示名仍用 submittedBy）。
 // 数据源 approvalStore（localStorage mock）；操作后站内信通知（清单 54，messageStore）。
 // 待办口径：pendingFor(当前审批身份节点) ∪ pendingFor(用户名)（覆盖转办/加签到具体人）。
 // 详情抽屉即审批归档记录视图：节点/动作/操作人/意见/签名(mock)/时间全量只读展示。
@@ -80,7 +82,7 @@ function typeLabel(type) {
 }
 
 export default function ApprovalCenter() {
-  const { role, userName } = useRole()
+  const { role, userName, account } = useRole()
   const [activeTab, setActiveTab] = useState('todo')
   const [refresh, setRefresh] = useState(0)
   // 采购单位（tenderee）可在「采购管理部 / 需求部门」两个审批身份间切换；其他角色按本人姓名匹配待办
@@ -194,6 +196,11 @@ export default function ApprovalCenter() {
   const submitAction = () => {
     const { type, record } = actionModal
     if (!type || !record) return
+    // 经办/审核互斥防御（2026-07-31 口径）：本人提交的单据一律不得审批
+    if (record.submittedByAccount && record.submittedByAccount === account) {
+      message.error('不能审核本人提交的单据（经办与审核互斥）')
+      return
+    }
     const opinion = comment.trim()
     if (type === 'reject' && !opinion) {
       message.warning('驳回必须填写原因（清单 49）')
@@ -203,7 +210,7 @@ export default function ApprovalCenter() {
       message.warning(type === 'add-sign' ? '请选择加签人' : '请选择接收人')
       return
     }
-    const updated = approvalStore.act(record.id, type, userName, opinion, target || '')
+    const updated = approvalStore.act(record.id, type, userName, opinion, target)
     if (!updated) {
       message.error('操作失败，审批单不存在或已办结')
       return
@@ -215,13 +222,19 @@ export default function ApprovalCenter() {
     setRefresh((n) => n + 1)
   }
 
-  const canAct = (record) => record.status === 'pending' && todoList.some((t) => t.id === record.id)
+  // 本人提交的待办单（经办/审核互斥）：只读详情，不出审批操作
+  const isOwnSubmission = (record) =>
+    record.status === 'pending' && !!record.submittedByAccount && record.submittedByAccount === account
+
+  const canAct = (record) =>
+    record.status === 'pending' && record.submittedByAccount !== account && todoList.some((t) => t.id === record.id)
 
   const actionButtons = (record, size = 'small') => (
     <Space size="small" wrap>
       <Button type="link" size={size} icon={<EyeOutlined />} onClick={() => setDetail(record)}>
         详情
       </Button>
+      {isOwnSubmission(record) && <Tag color="orange">本人提交，不可审核</Tag>}
       {canAct(record) && (
         <>
           <Button type="link" size={size} icon={<CheckOutlined />} onClick={() => openAction('approve', record)}>
@@ -364,7 +377,7 @@ export default function ApprovalCenter() {
           <div>
             <h3>审批中心</h3>
             <p className="tip">
-              项目立项单据的审批处理（2026-07-27 口径：平台仅立项一个审核点）；支持通过、驳回、加签、转办、退回（清单 52）。
+              采购公告发布前审核（发布审核）单据的审批处理（2026-07-27 口径：平台仅发布审核一个审核点，审核通过后方可发布采购公告）；支持通过、驳回、加签、转办、退回（清单 52）。
             </p>
           </div>
           {role === 'tenderee' && (
@@ -383,8 +396,8 @@ export default function ApprovalCenter() {
         <Alert
           title={
             role === 'tenderee'
-              ? `当前以「${identity}」身份查看待办；转办/加签到「${userName}」的单据同时计入待办。`
-              : `待办按当前用户「${userName}」匹配（含转办/加签到本人的单据）。`
+              ? `当前以「${identity}」身份查看待办；转办/加签到「${userName}」的单据同时计入待办。经办与审核互斥：不能审核本人提交的单据。`
+              : `待办按当前用户「${userName}」匹配（含转办/加签到本人的单据）。经办与审核互斥：不能审核本人提交的单据。`
           }
           type="info"
           showIcon

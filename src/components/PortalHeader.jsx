@@ -20,7 +20,7 @@ export default function PortalHeader({ activeKey }) {
             element: '.logo',
             popover: {
               title: '欢迎来到采购平台',
-              description: '这里是平台门户，您可以浏览公告、注册账号或登录系统。',
+              description: '这里是平台门户，您可以浏览公告或登录系统。',
               side: 'bottom',
               align: 'center'
             }
@@ -47,7 +47,7 @@ export default function PortalHeader({ activeKey }) {
             element: '#portal-quick-links',
             popover: {
               title: '快速入口',
-              description: '供应商注册、下载中心、帮助中心、采购单位入口，一键直达。',
+              description: '下载中心、帮助中心、采购单位入口，一键直达。',
               side: 'top',
               align: 'start'
             }
@@ -97,7 +97,6 @@ export default function PortalHeader({ activeKey }) {
         </div>
         <div className="actions">
           <Button type="link" icon={<QuestionCircleOutlined />} onClick={startTour}>新手指引</Button>
-          <Button type="link" onClick={() => navigate({ to: '/register' })}>注册</Button>
           <Button id="portal-login-btn" type="primary" onClick={() => navigate({ to: '/login' })}>登录</Button>
         </div>
       </Layout.Header>

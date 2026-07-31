@@ -13,7 +13,7 @@ import {
 export const STATUS_TO_NODE_KEY = {
   draft: 'requirement',
   pending: 'requirement',
-  // 立项已通过、待发布采购（2026-07-27 口径）：立项环节完成，定位到公告节点前
+  // 发布审核已通过、待发布采购（2026-07-27 口径）：发布审核环节完成，定位到公告节点前
   approved: 'notice',
   tendering: 'notice',
   registering: 'bid',
@@ -28,7 +28,7 @@ export const STATUS_TO_NODE_KEY = {
   done: 'award'
 }
 
-// 询比族项目：待开启状态定位到比价节点（hall-purchase-method-mapping-20260721）；
+// 比价族项目：待开启状态定位到比价节点（hall-purchase-method-mapping-20260721）；
 // 其余状态与默认映射一致（registering→bid、evaluating→evaluation）
 export const INQUIRY_FAMILY_STATUS_TO_NODE_KEY = {
   pending_open: 'comparison'
@@ -79,7 +79,7 @@ export function getTendereeActions(project) {
 
   const commonView = (target) => go(target, { projectId })
 
-  // 大厅族分流（hall-purchase-method-mapping-20260721）：采购族→开启大厅，询比族→比价大厅
+  // 大厅族分流（hall-purchase-method-mapping-20260721）：比选族→开启大厅，比价族→比价大厅
   const inquiryFamily = isInquiryFamily(project)
   const hallTarget = inquiryFamily ? '/admin/comparison-hall' : '/admin/opening-hall'
 
@@ -88,7 +88,7 @@ export function getTendereeActions(project) {
       return [
         {
           title: '继续编辑项目',
-          desc: '完善项目基本信息、采购包和供应商要求后提交审核',
+          desc: '完善项目基本信息、标段和供应商要求后提交审核',
           buttonText: '编辑项目',
           action: go('/admin/projects/create', { editId: projectId })
         },
@@ -112,7 +112,7 @@ export function getTendereeActions(project) {
       return [
         {
           title: '发布采购',
-          desc: '立项审批已通过，发布采购后项目进入采购中状态',
+          desc: '发布审核已通过，发布采购后项目进入采购中状态',
           buttonText: '发布采购',
           action: { type: 'publish' }
         }
@@ -240,7 +240,7 @@ export function getAgentActions(project) {
 
   const commonView = (target) => go(target, { projectId })
 
-  // 大厅族分流（hall-purchase-method-mapping-20260721）：采购族→开启大厅，询比族→比价大厅
+  // 大厅族分流（hall-purchase-method-mapping-20260721）：比选族→开启大厅，比价族→比价大厅
   const inquiryFamily = isInquiryFamily(project)
   const hallTarget = inquiryFamily ? '/admin/comparison-hall' : '/admin/opening-hall'
 
@@ -266,8 +266,8 @@ export function getAgentActions(project) {
     case 'approved':
       return [
         {
-          title: '立项已通过',
-          desc: '立项审批已通过，待采购单位发布采购',
+          title: '发布审核已通过',
+          desc: '发布审核已通过，待采购单位发布采购',
           buttonText: '查看项目',
           action: go('/admin/projects')
         }
@@ -389,7 +389,7 @@ export function getTendereeStatusSummary(project) {
   const statusTextMap = {
     draft: '草稿待完善',
     pending: '已提交审核',
-    approved: '立项已通过，待发布采购',
+    approved: '发布审核已通过，待发布采购',
     tendering: '采购中',
     registering: '公告中，等待供应商响应',
     pending_open: '采购截止，等待开启',

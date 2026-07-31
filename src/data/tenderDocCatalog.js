@@ -46,7 +46,7 @@ export const defaultCatalog = withAutoMatchField(baseCatalog)
 
 const baseTemplates = [
   {
-    name: '货物类阳光采购',
+    name: '货物类公开比选',
     catalog: [
       {
         key: '采购公告',
@@ -71,7 +71,7 @@ const baseTemplates = [
     ]
   },
   {
-    name: '服务类阳光采购',
+    name: '服务类公开比选',
     catalog: [
       {
         key: '采购公告',

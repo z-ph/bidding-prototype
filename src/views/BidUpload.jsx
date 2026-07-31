@@ -34,15 +34,15 @@ export default function BidUpload() {
   const [form] = Form.useForm()
   const selectedPackages = Form.useWatch('packages', form) || []
 
-  // 采购包按所选项目动态拉取
+  // 标段按所选项目动态拉取
   const packages = useMemo(() => {
     const project = projectStore.getProjectById(projectId)
     if (project?.packages?.length) {
       return project.packages.map((p) => ({ id: p.code || p.name, name: p.name, code: p.code }))
     }
     return [
-      { id: 'B1', name: '第一采购包：主设备', code: 'B1' },
-      { id: 'B2', name: '第二采购包：辅材', code: 'B2' }
+      { id: 'B1', name: '第一标段：主设备', code: 'B1' },
+      { id: 'B2', name: '第二标段：辅材', code: 'B2' }
     ]
   }, [projectId])
 
@@ -50,7 +50,7 @@ export default function BidUpload() {
   const project = useMemo(() => projectStore.getProjectById(projectId), [projectId])
   const inquiryFamily = useMemo(() => isInquiryFamily(project), [project])
 
-  // 必传文件类型清单按项目采购方式区分：采购族商务文件/技术文件/报价文件，询比族证书/业绩/报价文件
+  // 必传文件类型清单按项目采购方式区分：比选族商务文件/技术文件/报价文件，比价族证书/业绩/报价文件
   const requiredFileTypes = useMemo(() => {
     if (inquiryFamily) {
       return [
@@ -386,7 +386,7 @@ export default function BidUpload() {
         />
 
         <Alert
-          title={inquiryFamily ? '当前为询比项目，仅需上传证书、业绩和报价文件' : '当前为采购项目，需上传响应函、技术方案和报价单'}
+          title={inquiryFamily ? '当前为比价族项目，仅需上传证书、业绩和报价文件' : '当前为采购项目，需上传响应函、技术方案和报价单'}
           type="info"
           showIcon
           closable={false}
@@ -409,7 +409,7 @@ export default function BidUpload() {
               options={(projectStore.getProjects() || []).map((p) => ({ label: p.name, value: String(p.id) }))}
             />
           </Form.Item>
-          <Form.Item label="响应采购包" name="packages">
+          <Form.Item label="响应标段" name="packages">
             <Checkbox.Group>
               {packages.map((pkg) => (
                 <Checkbox key={pkg.id} value={pkg.id}>{pkg.name}</Checkbox>
@@ -456,7 +456,7 @@ export default function BidUpload() {
               <strong style={{ marginRight: 8 }}>响应文件制作向导</strong>
               <span style={{ color: '#666', fontSize: 12 }}>
                 {inquiryFamily
-                  ? '询比项目，需上传证书、业绩和报价文件'
+                  ? '比价族项目，需上传证书、业绩和报价文件'
                   : '按采购文件模板，商务文件/技术文件/报价文件三类缺一不可，缺失将导致响应无效'}
               </span>
             </div>
@@ -568,7 +568,7 @@ export default function BidUpload() {
       >
         <Descriptions column={1} bordered>
           <Descriptions.Item label="项目名称">{projectName}</Descriptions.Item>
-          <Descriptions.Item label="响应采购包">{packageNames}</Descriptions.Item>
+          <Descriptions.Item label="响应标段">{packageNames}</Descriptions.Item>
           <Descriptions.Item label="文件数量">{fileList.length} 份</Descriptions.Item>
           <Descriptions.Item label="文件清单">
             <ul style={{ margin: 0, paddingLeft: 16 }}>

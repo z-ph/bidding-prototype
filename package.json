@@ -1,7 +1,7 @@
 {
   "name": "bidding-prototype",
   "private": true,
-  "version": "0.13.1",
+  "version": "0.14.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,7 +19,8 @@
     "driver.js": "^1.7.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-page-review": "github:z-ph/react-page-review#v0.8.0"
+    "react-page-review": "github:z-ph/react-page-review#v0.8.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tanstack/router-plugin": "^1.168.20",

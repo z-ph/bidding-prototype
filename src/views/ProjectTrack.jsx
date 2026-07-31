@@ -34,7 +34,6 @@ export default function ProjectTrack() {
   const searchParams = useSearch({ strict: false })
   const { role } = useRole()
   const isBidder = role === 'bidder'
-  const isSupervisor = role === 'supervisor'
   const isTenderSide = ['tenderee', 'agent', 'admin'].includes(role)
   const queryProjectId = searchParams.projectId
   const [projectId, setProjectId] = useState(queryProjectId || '1')
@@ -57,8 +56,8 @@ export default function ProjectTrack() {
       name: projectOptions.find((p) => p.value === projectId)?.label || '-',
       deadline: '2026-07-20 17:00',
       packages: [
-        { name: '第一采购包：主设备', code: 'B1', bidEnd: '2026-07-20 17:00' },
-        { name: '第二采购包：辅材', code: 'B2', bidEnd: '2026-07-20 17:00' }
+        { name: '第一标段：主设备', code: 'B1', bidEnd: '2026-07-20 17:00' },
+        { name: '第二标段：辅材', code: 'B2', bidEnd: '2026-07-20 17:00' }
       ]
     }
   }, [projectId, projectOptions])
@@ -70,7 +69,7 @@ export default function ProjectTrack() {
 
   const go = (path) => navigate({ to: path })
 
-  // 采购方/监督方：基于项目真实状态的流程节点
+  // 采购方：基于项目真实状态的流程节点
   const tenderFlowNodes = useMemo(() => getProjectFlowNodes(currentProject), [currentProject])
   const tendereeSummary = useMemo(
     () => getTendereeStatusSummary(currentProject),
@@ -99,7 +98,7 @@ export default function ProjectTrack() {
     ? { label: '去下载', path: `/admin/bid-download?projectId=${projectId}` }
     : null
 
-  // 响应单位视角时间线（hall-purchase-method-mapping-20260721：采购族含线上开启，询比族含线上比价；评审对所有项目开放）
+  // 响应单位视角时间线（hall-purchase-method-mapping-20260721：比选族含线上开启，比价族含线上比价；评审对所有项目开放）
   const bidderNodes = [
     { key: 'requirement', title: '创建采购需求', desc: '采购单位创建需求并提交审核', time: '2026-07-01 10:00', color: 'green', icon: 'CheckCircleOutlined' },
     { key: 'doc', title: '编制采购文件', desc: '代理机构编制采购文件、配置评审办法', time: '2026-07-02 14:00', color: 'green', icon: 'EditOutlined' },
@@ -234,11 +233,9 @@ export default function ProjectTrack() {
         )}
 
         <Alert
-          title={isSupervisor
-            ? '当前为监督视角，仅可查看项目进度，不可执行操作。'
-            : isBidder
-              ? '当前为响应单位视角：公告期从下载采购文件开始（新口径无报名/缴费环节），请在采购截止前完成响应文件上传。'
-              : '当前为采购方视角，下载采购文件、上传响应文件等响应单位动作由供应商在其工作台完成。'}
+          title={isBidder
+            ? '当前为响应单位视角：公告期从下载采购文件开始（新口径无报名/缴费环节），请在采购截止前完成响应文件上传。'
+            : '当前为采购方视角，下载采购文件、上传响应文件等响应单位动作由供应商在其工作台完成。'}
           type="info"
           showIcon
           closable={false}
@@ -247,7 +244,7 @@ export default function ProjectTrack() {
 
         {inquiryFamily && (
           <Alert
-            title="询比族项目（阳光询比/邀请询比）：报价截止后进入比价大厅比较报价，再进入评审大厅评审（2026-07-21 新口径，无开启环节）。"
+            title="比价族项目（零星采购/直接采购）：报价截止后进入比价大厅比较报价，再进入评审大厅评审（2026-07-21 新口径，无开启环节）。"
             type="info"
             showIcon
             closable={false}
@@ -255,15 +252,15 @@ export default function ProjectTrack() {
           />
         )}
 
-        <Card size="small" title="采购包采购截止时间" style={{ marginBottom: 20 }}>
+        <Card size="small" title="标段采购截止时间" style={{ marginBottom: 20 }}>
           <Table
             rowKey="code"
             size="small"
             pagination={false}
             dataSource={currentProject.packages || []}
             columns={[
-              { title: '采购包名称', dataIndex: 'name' },
-              { title: '采购包编号', dataIndex: 'code', width: 120 },
+              { title: '标段名称', dataIndex: 'name' },
+              { title: '标段编号', dataIndex: 'code', width: 120 },
               { title: '采购截止时间', dataIndex: 'bidEnd', width: 180, render: (v) => v || '-' }
             ]}
           />

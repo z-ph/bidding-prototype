@@ -12,6 +12,22 @@ export const CHANGE_TYPES = {
 
 export const CHANGELOG = [
   {
+    version: '0.14.0',
+    date: '2026-07-31',
+    title: '监督角色删除 + 注册/费用台账下线 + 采购方式四种新名 + 发布审核 + 标段与 Excel 批量导入 + 经办/审核双账号（0731 口径整改）',
+    changes: [
+      { type: 'remove', text: '监督角色（supervisor）彻底删除（用户指令 ①）：SupervisorHall/SupervisorAbnormal/SupervisorLogs 三视图 + 6 路由 + supervisorStore 物理删除；permissions/roleStore/Login/Layout/Dashboard 等 20 文件清洗角色分支与「监督」文案；开启大厅开启仪式的「监督人」业务概念一并移除（阻断条件由主持人+监督人双人改为仅指定主持人——本批最大语义改动，如需恢复应以业务字段而非平台角色重新设计）' },
+      { type: 'remove', text: '注册页整体下线（用户指令 ②）：Register 视图/路由删除，登录页「立即注册」、门户头部「注册」按钮、门户「供应商注册」卡片全部移除；旧 URL /register 重定向到 /login；一期供应商由采购方批量导入发放账号（只删入口，不建导入功能）' },
+      { type: 'remove', text: '费用台账下架（用户指令 ⑤）：FeeManage 视图/路由/两个菜单入口/工作台快捷卡片/TodoCenter 待办/permissions 权限与面包屑全删；旧 URL /admin/fee-manage 重定向到工作台；一期不做报名费和在线支付，仅预留付款凭证扩展能力（不建页面）' },
+      { type: 'feat', text: '演示账号拆经办/审核 + 不能自审互斥（用户指令 ⑨）：登录页「采购单位」拆为「采购单位-经办」「采购单位-审核」（role 均 tenderee，ACCOUNT_ROLE_MAP 增 tenderee-audit）；approvalStore 审批单新增 submittedByAccount，ProjectCreate 提交写入当前 account；审批中心本人提交单据只读标「本人提交，不可审核」、操作按钮隐藏 + submitAction 防御拦截' },
+      { type: 'feat', text: '采购方式统一为新四种（用户指令 ③）：open→公开比选、invitation→邀请比选、inquiry→零星采购、invitation_inquiry→直接采购（枚举值不变只换标签）；标签映射/种子/公告/模板/大厅归属注释全站 31 文件 242 处替换；大厅归属口径改为比选族（公开比选/邀请比选→开启大厅）、比价族（零星采购/直接采购→比价大厅）。注意：恢复「公开」字眼，部分推翻 0724-001 敏感词映射' },
+      { type: 'feat', text: '项目审批定性改「发布审核」（用户指令 ④）：立项审批在 OA 完成，平台唯一审核点=采购公告发布前审核；APPROVAL_TYPES 标签、审批单标题、ProjectCreate Alert/按钮/提示、ApprovalCenter/ApprovalFlowConfig/TodoCenter/projectFlow 等全站「立项」字样清零' },
+      { type: 'feat', text: '「采购包/包件」统一为「标段」+ 标段 Excel 批量导入（用户指令 ⑥）：全站用户可见文本与种子文本统一为标段（数据键 packages 不变，恢复「标段」用法，部分推翻 0724-001 映射）；标段设置卡片新增「下载模板」「Excel 批量导入」（新增依赖 xlsx 0.18.5）：模板列为标段名称/采购方式/预算金额，导入逐行校验（名称非空、方式四选一、预算为数字），非法行 Modal 按 Excel 行号报错、合法行追加，支撑大量标段场景；每标段清单 Excel 上传要求不变' },
+      { type: 'fix', text: '删除「评审地点」字段（用户指令 ⑧）：ProjectCreate 表单/接口/序列化清理，TenderDoc mock 与展示 5 处一并清除；内部采购简化流程不要求专门场地' },
+      { type: 'docs', text: '用户指令 ⑦ 验证为零修改条目：审批示例已无「招标文件」字样（grep 全库仅历史台账保留原文）。提案 spec/changes/2026-07-31-role-trim-and-modes-20260731/（含验收记录：build/quality-gate 通过、残留 grep 零命中、Playwright 实测 38/38 零 pageerror）；docs/role-permission-matrix.md 追加 §九；docs/需求与评审意见-最终口径.md 时间线补登 0727/0731 两行' }
+    ]
+  },
+  {
     version: '0.13.1',
     date: '2026-07-27',
     title: '采购包改 Excel 清单上传 + 后台布局滚动修正',

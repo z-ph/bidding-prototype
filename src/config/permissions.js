@@ -7,7 +7,6 @@ export const ROLE_NAMES = {
   agent: '采购代理',
   bidder: '响应单位/供应商',
   expert: '评审专家',
-  supervisor: '监督人员',
   admin: '平台管理员'
 }
 
@@ -16,17 +15,16 @@ export const ROLE_COLORS = {
   agent: '#059669',
   bidder: '#D97706',
   expert: '#DB2777',
-  supervisor: '#DC2626',
   admin: '#475569'
 }
 
 // 页面路径 => 允许访问的角色列表
 export const PAGE_PERMISSIONS = {
   // 通用首页
-  '/admin/dashboard': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+  '/admin/dashboard': ['tenderee', 'agent', 'bidder', 'expert', 'admin'],
 
   // 待办中心：全部角色
-  '/admin/todo-center': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+  '/admin/todo-center': ['tenderee', 'agent', 'bidder', 'expert', 'admin'],
 
   // 采购数据分析（角色暂定，待甲方确认）
   '/admin/analytics': ['tenderee', 'agent', 'admin'],
@@ -43,19 +41,18 @@ export const PAGE_PERMISSIONS = {
   '/admin/supplier-authorization': ['tenderee', 'agent'],
   '/admin/approval-center': ['tenderee', 'agent'],
   '/admin/approval-flow-config': ['tenderee', 'admin'],
-  '/admin/fee-manage': ['tenderee', 'agent'],
   '/admin/expert-extraction': ['tenderee', 'agent', 'admin'],
   '/admin/award-confirm': ['tenderee', 'agent'],
   '/admin/award-notice': ['tenderee', 'agent', 'bidder'],
 
-  // 开启大厅：仅服务采购族（阳光采购/邀请采购）；采购单位/采购代理/响应单位可进入，监督只读，操作权限各异
-  '/admin/opening-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
+  // 开启大厅：仅服务比选族（公开比选/邀请比选）；采购单位/采购代理/响应单位可进入，操作权限各异
+  '/admin/opening-hall': ['tenderee', 'agent', 'bidder'],
 
-  // 比价大厅：服务询比族（阳光询比/邀请询比），角色口径同开启大厅（hall-purchase-method-mapping-20260721）
-  '/admin/comparison-hall': ['tenderee', 'agent', 'bidder', 'supervisor'],
+  // 比价大厅：服务比价族（零星采购/直接采购），角色口径同开启大厅（hall-purchase-method-mapping-20260721）
+  '/admin/comparison-hall': ['tenderee', 'agent', 'bidder'],
 
-  // 评审大厅：对所有采购项目开放；采购单位/采购代理/评审专家/监督人员
-  '/admin/evaluation-hall': ['tenderee', 'agent', 'expert', 'supervisor'],
+  // 评审大厅：对所有采购项目开放；采购单位/采购代理/评审专家
+  '/admin/evaluation-hall': ['tenderee', 'agent', 'expert'],
 
   // 响应单位页面
   '/admin/bidder-projects': ['bidder'],
@@ -67,14 +64,10 @@ export const PAGE_PERMISSIONS = {
   '/admin/expert-project': ['expert'],
   '/admin/expert-tasks': ['expert'],
 
-  // 监督页面
-  '/admin/supervisor-hall': ['supervisor'],
-  '/admin/supervisor-logs': ['supervisor'],
-
   // 开发阶段台账：不进任何业务角色主导航；免登录合并页 /dev-ledger（无权限拦截），
   // 以下两个 /admin 旧路径已重定向到合并页（已登录全角色可经 redirect 通过布局校验）
-  '/admin/review-change-list': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
-  '/admin/changelog': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
+  '/admin/review-change-list': ['tenderee', 'agent', 'bidder', 'expert', 'admin'],
+  '/admin/changelog': ['tenderee', 'agent', 'bidder', 'expert', 'admin'],
 
   // 管理员页面
   '/admin/admin-users': ['admin'],
@@ -101,25 +94,22 @@ export const PAGE_PERMISSIONS = {
   '/admin/expert-profile': ['expert'],
 
   // 消息中心
-  '/admin/message-center': ['tenderee', 'agent', 'bidder', 'expert', 'supervisor', 'admin'],
-
-  // 监督异常登记
-  '/admin/supervisor-abnormal': ['supervisor']
+  '/admin/message-center': ['tenderee', 'agent', 'bidder', 'expert', 'admin']
 }
 
 // 账号默认角色映射（演示环境用）
+// tenderee-audit：采购单位审核员演示账号，与经办账号（tenderee）互斥（不能审核本人提交的单据）
 export const ACCOUNT_ROLE_MAP = {
   tenderee: 'tenderee',
+  'tenderee-audit': 'tenderee',
   agent: 'agent',
   bidder: 'bidder',
   expert: 'expert',
-  supervisor: 'supervisor',
   admin: 'admin',
   zhangsan: 'tenderee',
   lisi: 'agent',
   gongying: 'bidder',
-  zhuanjia: 'expert',
-  jiandu: 'supervisor'
+  zhuanjia: 'expert'
 }
 
 // 面包屑中文映射
@@ -143,8 +133,6 @@ export const BREADCRUMB_NAMES = {
   ExpertProject: '评审任务',
   ExpertExtraction: '专家抽取',
   ExpertTasks: '我的任务',
-  SupervisorHall: '监督大厅',
-  SupervisorLogs: '操作日志',
   AdminDashboard: '管理控制台',
   AdminUsers: '用户权限',
   AdminDictionary: '参数字典',
@@ -152,12 +140,10 @@ export const BREADCRUMB_NAMES = {
   AdminLogs: '日志审计',
   AwardConfirm: '确认中选人',
   AwardNotice: '中选通知书',
-  FeeManage: '费用台账',
   Organization: '组织机构',
   SupplierProfile: '企业档案',
   ExpertProfile: '专家信息',
   MessageCenter: '消息中心',
-  SupervisorAbnormal: '异常登记',
   AdminBanners: '首页轮播管理',
   AdminNews: '新闻公告维护',
   AdminDownloads: '下载中心管理',

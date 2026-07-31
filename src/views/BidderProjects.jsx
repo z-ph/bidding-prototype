@@ -18,10 +18,10 @@ import { authorizationStore } from '../data/authorizationStore.js'
 export const INVITATION_RESPONSES_KEY = 'bidding-invitation-responses'
 
 const PURCHASE_MODE_LABELS = {
-  open: '阳光采购',
-  invitation: '邀请采购',
-  inquiry: '阳光询比',
-  invitation_inquiry: '邀请询比'
+  open: '公开比选',
+  invitation: '邀请比选',
+  inquiry: '零星采购',
+  invitation_inquiry: '直接采购'
 }
 
 const INVITATION_STATUS = {
@@ -47,7 +47,7 @@ function saveInvitationResponses(data) {
   }
 }
 
-// 响应邀请书 mock 文本：项目信息/采购包/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
+// 响应邀请书 mock 文本：项目信息/标段/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
 function buildInvitationLetter(project, invitation, supplierName) {
   const packages = (project.packages || [])
     .map((p) => p.name || p.code)
@@ -62,8 +62,8 @@ function buildInvitationLetter(project, invitation, supplierName) {
     `致：${supplierName || invitation.supplierName || invitation.supplierId}`,
     '',
     `贵单位已被邀请参加「${project.name}」（项目编号：${project.code || project.id}）的响应活动。`,
-    `采购方式：${project.type || PURCHASE_MODE_LABELS[project.purchaseMode] || '邀请采购'}`,
-    `采购包：${packages}`,
+    `采购方式：${project.type || PURCHASE_MODE_LABELS[project.purchaseMode] || '邀请比选'}`,
+    `标段：${packages}`,
     `采购截止时间：${deadline}`,
     `开启时间：${openTime}`,
     '',
@@ -205,7 +205,7 @@ export default function BidderProjects() {
     })
   }, [seedProjects, storeInvitationProjects, invitationResponses, supplierName])
 
-  // 新口径：非受邀供应商对邀请采购项目不可见、不可操作（无报名环节，阻断点为可见性与操作入口）
+  // 新口径：非受邀供应商对邀请比选项目不可见、不可操作（无报名环节，阻断点为可见性与操作入口）
   const visibleProjects = useMemo(() => availableProjects.filter((p) => p.invited), [availableProjects])
 
   // 响应邀请书自动生成：受邀项目加载即为当前供应商生成邀请书记录（genInvitation 幂等）
@@ -295,7 +295,7 @@ export default function BidderProjects() {
       已中选: ['award'],
       已完成: ['award']
     }
-    // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开启入口替换为比价大厅
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：比价族项目的开启入口替换为比价大厅
     const keys = (statusEntries[project.status] || []).map((k) =>
       k === 'opening' && isInquiryFamily(project) ? 'comparison' : k
     )
@@ -434,7 +434,7 @@ export default function BidderProjects() {
       children: (
         <>
           <Alert
-            title="邀请采购/邀请询比项目仅受邀供应商可见并可操作；接受邀请后即可下载采购文件、参与响应。"
+            title="邀请比选/直接采购项目仅受邀供应商可见并可操作；接受邀请后即可下载采购文件、参与响应。"
             type="info"
             showIcon
             closable={false}

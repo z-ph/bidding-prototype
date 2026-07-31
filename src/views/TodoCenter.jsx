@@ -16,7 +16,7 @@ const ROLE_APPROVAL_NODES = {
 }
 
 // 审批类型 → 处理页面（目标路径须在 permissions 中对对应角色放行）
-// 2026-07-27 口径：仅项目立项一种审批类型，统一进审批中心处理
+// 2026-07-27 口径：仅发布审核一种审批类型，统一进审批中心处理
 const APPROVAL_TYPE_PATH = {
   project: '/admin/approval-center'
 }
@@ -25,16 +25,16 @@ const APPROVAL_TYPE_PATH = {
 const PROJECT_STATUS_TODOS = {
   tenderee: {
     draft: { text: '为草稿，待发布采购', path: '/admin/projects' },
-    pending: { text: '已提交，待立项审批', path: '/admin/projects' },
-    approved: { text: '立项已通过，待发布采购', path: '/admin/projects' },
+    pending: { text: '已提交，待发布审核', path: '/admin/projects' },
+    approved: { text: '发布审核已通过，待发布采购', path: '/admin/projects' },
     registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
     pending_open: { text: '待开启，请确认开启安排', path: '/admin/opening-hall' },
     evaluating: { text: '评审中，待确认评审结果', path: '/admin/award-confirm' }
   },
   agent: {
     draft: { text: '为草稿，采购文件待编制', path: '/admin/tender-doc' },
-    pending: { text: '已提交，待立项审批', path: '/admin/projects' },
-    approved: { text: '立项已通过，待采购单位发布采购', path: '/admin/projects' },
+    pending: { text: '已提交，待发布审核', path: '/admin/projects' },
+    approved: { text: '发布审核已通过，待采购单位发布采购', path: '/admin/projects' },
     registering: { text: '公告中，请关注供应商响应进展', path: '/admin/projects' },
     pending_open: { text: '待开启，请完成开启准备', path: '/admin/opening-hall' },
     evaluating: { text: '评审中，待汇总提交评审报告', path: '/admin/evaluation-hall' }
@@ -47,9 +47,7 @@ const PROJECT_STATUS_TODOS = {
 
 // 系统待办 mock：目标路径均为已存在且角色可访问的页面
 const SYSTEM_TODOS = {
-  tenderee: [
-    { title: '采购结果已发布，中选人响应费用待登记', source: '费用台账', time: '2026-07-17 09:00', path: '/admin/fee-manage' }
-  ],
+  tenderee: [],
   agent: [
     { title: '委托代理合同待确认后开展代理业务', source: '委托代理', time: '2026-07-17 09:00', path: '/admin/projects' }
   ],
@@ -59,9 +57,6 @@ const SYSTEM_TODOS = {
   expert: [
     { title: '有评审任务待签收确认', source: '评审任务', time: '2026-07-17 09:00', path: '/admin/expert-tasks' },
     { title: '专家信息待完善（专业领域/回避单位）', source: '专家信息', time: '2026-07-16 15:00', path: '/admin/expert-profile' }
-  ],
-  supervisor: [
-    { title: '有开启异常登记待跟进处理', source: '异常登记', time: '2026-07-17 09:00', path: '/admin/supervisor-abnormal' }
   ],
   admin: [
     { title: '新进注册用户待分配角色与权限', source: '用户权限管理', time: '2026-07-17 09:00', path: '/admin/admin-users' },
@@ -120,7 +115,7 @@ export default function TodoCenter() {
       .filter((p) => map[p.status])
       .map((p) => {
         const todo = map[p.status]
-        // 大厅族分流（hall-purchase-method-mapping-20260721）：询比族项目的开启大厅入口改为比价大厅
+        // 大厅族分流（hall-purchase-method-mapping-20260721）：比价族项目的开启大厅入口改为比价大厅
         const toComparison = todo.path === '/admin/opening-hall' && isInquiryFamily(p)
         return {
           id: `project-${p.id}`,

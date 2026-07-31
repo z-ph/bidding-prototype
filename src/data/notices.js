@@ -1,6 +1,6 @@
 // @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 // 公告全生命周期 mock 数据存储（纯内存静态种子，无任何持久化）
-// 支持草稿、已发布、已撤回三种状态，含采购包关联与变更原因
+// 支持草稿、已发布、已撤回三种状态，含标段关联与变更原因
 
 export const NOTICE_TYPES = [
   { label: '采购公告', value: 'tender', tagType: 'primary' },
@@ -43,7 +43,7 @@ const SEED_NOTICES = [
     code: 'GG20260708001',
     status: 'published',
     publishTime: '2026-07-08',
-    content: 'XX市轨道交通设备采购项目已具备采购条件，现进行阳光采购。采购截止时间：2026-07-25 17:00，开启时间：2026-07-26 09:30。',
+    content: 'XX市轨道交通设备采购项目已具备采购条件，现进行公开比选。采购截止时间：2026-07-25 17:00，开启时间：2026-07-26 09:30。',
     attachments: [{ name: '采购公告.pdf', size: '320KB' }]
   },
   {
@@ -56,7 +56,7 @@ const SEED_NOTICES = [
     code: 'GG20260705002',
     status: 'published',
     publishTime: '2026-07-05',
-    content: 'XX大学实验室设备采购项目已具备采购条件，现进行阳光采购。采购截止时间：2026-07-20 10:00，开启时间：2026-07-20 15:00。',
+    content: 'XX大学实验室设备采购项目已具备采购条件，现进行公开比选。采购截止时间：2026-07-20 10:00，开启时间：2026-07-20 15:00。',
     attachments: [{ name: '采购公告.pdf', size: '298KB' }]
   },
   {
@@ -82,7 +82,7 @@ const SEED_NOTICES = [
     code: 'GG20260706004',
     status: 'published',
     publishTime: '2026-07-06',
-    content: '轨道交通电缆材料采购项目已具备采购条件，现进行阳光采购。采购截止时间：2026-07-14 17:00。',
+    content: '轨道交通电缆材料采购项目已具备采购条件，现进行公开比选。采购截止时间：2026-07-14 17:00。',
     attachments: []
   },
   {
@@ -95,7 +95,7 @@ const SEED_NOTICES = [
     code: 'GG20260710005',
     status: 'published',
     publishTime: '2026-07-10',
-    content: '因采购需求调整，第二采购包（实验耗材）最高限价由 200 万元调整为 180 万元，其余内容不变。',
+    content: '因采购需求调整，第二标段（实验耗材）最高限价由 200 万元调整为 180 万元，其余内容不变。',
     attachments: []
   },
   {
@@ -108,7 +108,7 @@ const SEED_NOTICES = [
     code: 'GG20260715006',
     status: 'published',
     publishTime: '2026-07-15',
-    content: '办公耗材框架协议采购项目采用邀请询比方式采购，报价截止时间：2026-07-24 17:00。',
+    content: '办公耗材框架协议采购项目采用直接采购方式采购，报价截止时间：2026-07-24 17:00。',
     attachments: []
   },
   {

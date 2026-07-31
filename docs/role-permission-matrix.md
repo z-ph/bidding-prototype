@@ -41,10 +41,10 @@
 - 项目详情「当前阶段操作」无条件渲染招标人动作（getTendereeActions），代理看到"确认采购结果"等错位操作。
 - "专家抽取"无 projectId 守卫，内置选择器默认选中第一个项目，菜单直达时展示任意项目的抽取页。
 
-**目标菜单结构（已实施；2026-07-21 增补创建项目；2026-07-27 删除采购需求库）**：
+**目标菜单结构（已实施；2026-07-21 增补创建项目；2026-07-27 删除采购需求库；2026-07-31 删除费用台账）**：
 - 工作台、待办中心（common 组）
 - 委托项目：项目列表、创建项目（2026-07-21 新增）、项目跟踪
-- 业务台账：公告列表、供应商授权、费用台账
+- 业务台账：公告列表、供应商授权、供应商台账（2026-07-31 删除费用台账）
 - 审批中心
 - 采购数据分析
 - 消息中心
@@ -94,7 +94,9 @@
 - ExpertProject 无参重定向：无 projectId 时渲染 `<Navigate to="/admin/expert-tasks" replace />`；删除 ProjectTaskList 组件与 evaluationProjects mock 常量（PROJECT_INFO 项目名/编号兜底映射保留，EvaluationDetail 头部/签到/报告展示依赖）；详情页「返回列表」从 /admin/expert-project 改跳 /admin/expert-tasks。
 - 工作台按钮对齐：Dashboard 专家分支「开始评标」（任务表操作列）与「进入评标大厅」（卡片右上角）按钮目标从 /admin/expert-project 改为 /admin/expert-tasks，表格数据与其他角色分支零改动。
 
-### 2.5 监督人员
+### 2.5 监督人员（2026-07-31 口径：该角色已整体删除，本节以下内容为历史记录，见 §九）
+
+> 2026-07-31 起平台不再设监督角色：监督大厅/异常登记/操作日志三页、`supervisorStore`、各页面的 supervisor 只读分支全部下线。
 
 **重构前问题（2026-07-18 已重构）**：
 - "监督大厅"是通用空载视图：签到、唱标、评标委员会、评分汇总全部硬编码 mock，无 projectId、无项目上下文（红线 3 变体）。
@@ -247,3 +249,28 @@
 - `APPROVAL_TYPES` 仅保留 `project`（项目立项）；采购文件发布无需审批（确认后直接发布）；中选结果审批在系统外完成，系统内仅登记结果（0717 清单 31，登记数据存项目 `awardRegistration` 字段，不进审批中心）。
 - 立项审批链：代理提交 → 采购管理部；采购单位提交 → 需求部门 → 采购管理部（`approvalStore` 已改为 localStorage 真实写入）。
 - 立项通过 → 项目状态 `pending` 推进为 `approved`（待发布，项目列表「发布采购」可用）；驳回 → 退回 `draft` 并记录驳回意见，可修改后重新提交。
+
+
+---
+
+## 九、2026-07-31 变更：监督角色删除、注册页下线、费用台账下架、经办/审核拆分（role-trim-and-modes-20260731，Wave A）
+
+口径来源：2026-07-27 会议口径整改批次（提案 `spec/changes/2026-07-31-role-trim-and-modes-20260731/`）。本节为 Wave A 四条；采购方式/标段/发布审核等文案收口在 Wave B，本节不涉及。
+
+**菜单结构变化**：
+
+- **删除**：监督角色全部菜单（监督大厅、异常登记、操作日志）随角色一并删除；§2.5 目标结构作废（保留作历史记录），§4.2 权限矩阵表「监督人员」列、§七 顶层项计数同步失效，后续整体重写时一并清理。
+- **删除**：招标人、代理「业务台账」分组内的「费用台账」菜单项（`Layout.jsx` 两处）；Dashboard 工作台「费用台账」快捷入口、TodoCenter 费用台账系统待办同步删除。「预留付款凭证扩展能力」仅为口径说明，不建页面/菜单。
+- **删除**：门户头部「注册」按钮、门户首页「供应商注册」快捷卡片、登录页「立即注册」入口。一期供应商由采购方批量导入发放账号，不建任何导入功能。
+
+**权限与路由**：
+
+- `permissions.js`：`ROLE_NAMES`/`ROLE_COLORS`/`ACCOUNT_ROLE_MAP`/`BREADCRUMB_NAMES` 删除 supervisor 相关条目；`PAGE_PERMISSIONS` 各数组移除 'supervisor' 并删除 supervisor-hall/supervisor-logs/supervisor-abnormal、`/admin/fee-manage` 四条。
+- 删除路由/视图：SupervisorHall/SupervisorAbnormal/SupervisorLogs（+6 个路由文件）、Register（+`register.lazy.jsx`）、FeeManage（+`admin.fee-manage.lazy.jsx`）、`src/data/supervisorStore.js`。
+- 旧 URL 重定向（沿用 0727 旧需求库做法）：`/register` → `/login`；`/admin/fee-manage` → `/admin/dashboard`。
+
+**演示账号经办/审核拆分（不能自审互斥）**：
+
+- `ACCOUNT_ROLE_MAP` 增加 `tenderee-audit → tenderee`；登录页「采购单位」按钮拆为「采购单位-经办」「采购单位-审核」两个演示账号（role 均为 tenderee，account 分别为 tenderee / tenderee-audit）。
+- `approvalStore` 审批单增加 `submittedByAccount` 字段（显示名仍用 `submittedBy`）；`ProjectCreate` 提交立项时写入当前 account。
+- 审批中心：`canAct` 排除本人提交的单据；本人提交的待办单操作列只留「详情」并显示 Tag「本人提交，不可审核」；`submitAction` 增加防御性拦截（`不能审核本人提交的单据（经办与审核互斥）`）。

@@ -67,8 +67,8 @@ export default function BidQuote() {
 
   const project = projectStore.getProjectById(projectId)
 
-  // 询比族判定与报价锁定（恢复 b2d2e49 重构丢失的定义）：
-  // 询比族项目报价在开启（进入比价大厅）后才启动，公告中阶段锁定不可填写
+  // 比价族判定与报价锁定（恢复 b2d2e49 重构丢失的定义）：
+  // 比价族项目报价在开启（进入比价大厅）后才启动，公告中阶段锁定不可填写
   const isInquiryMode = isInquiryFamily(project)
   const quoteLocked = isInquiryMode && project?.status === 'registering'
 
@@ -131,7 +131,7 @@ export default function BidQuote() {
         />
         {quoteLocked ? (
           <Alert
-            title="询比项目的报价将在开启后启动，当前项目尚未开启，暂不可报价。请在项目中心等待开启完成后进入。"
+            title="比价族项目的报价将在开启后启动，当前项目尚未开启，暂不可报价。请在项目中心等待开启完成后进入。"
             type="info"
             showIcon
             closable={false}
@@ -140,7 +140,7 @@ export default function BidQuote() {
         ) : (
           <Alert
             title={isInquiryMode
-              ? '当前为询比项目，已开启，请填写最终报价，提交后进入唱价。'
+              ? '当前为比价族项目，已开启，请填写最终报价，提交后进入唱价。'
               : '请按采购文件要求填写开启一览表和分项报价，提交后采购截止前可修改。'}
             type="warning"
             showIcon

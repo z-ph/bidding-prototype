@@ -8,12 +8,12 @@ import { useRole } from '../hooks/useRole.js'
 import { projectStore } from '../data/projects.js'
 import EmptyState from '../components/EmptyState.jsx'
 
-// 采购方式口径：项目级采购方式已移除（cxy-016），列表/详情均由采购包派生
+// 采购方式口径：项目级采购方式已移除（cxy-016），列表/详情均由标段派生
 export const PURCHASE_MODE_OPTIONS = [
-  { label: '阳光采购', value: 'open' },
-  { label: '邀请采购', value: 'invitation' },
-  { label: '阳光询比', value: 'inquiry' },
-  { label: '邀请询比', value: 'invitation_inquiry' }
+  { label: '公开比选', value: 'open' },
+  { label: '邀请比选', value: 'invitation' },
+  { label: '零星采购', value: 'inquiry' },
+  { label: '直接采购', value: 'invitation_inquiry' }
 ]
 
 const PURCHASE_MODE_VALUE_BY_LABEL = Object.fromEntries(
@@ -23,7 +23,7 @@ const PURCHASE_MODE_VALUE_BY_LABEL = Object.fromEntries(
 export const PROJECT_STATUS_MAP = {
   draft: { text: '草稿', color: 'default' },
   pending: { text: '待审核', color: 'processing' },
-  // 立项审批通过（2026-07-27 口径：唯一审核点），待发布采购
+  // 发布审核通过（2026-07-27 口径：唯一审核点），待发布采购
   approved: { text: '待发布', color: 'success' },
   tendering: { text: '采购中', color: 'success' },
   registering: { text: '公告中', color: 'geekblue' },
@@ -39,11 +39,11 @@ export const PROJECT_STATUS_MAP = {
   done: { text: '已完成', color: 'default' }
 }
 
-// 当前状态 → 下一步动作（默认口径，操作列与详情页共用；询比族见 INQUIRY_FAMILY_NEXT_STEP_MAP / getNextStepInfo）
+// 当前状态 → 下一步动作（默认口径，操作列与详情页共用；比价族见 INQUIRY_FAMILY_NEXT_STEP_MAP / getNextStepInfo）
 export const NEXT_STEP_MAP = {
   draft: { label: '继续编辑', description: '草稿待完善，继续编辑后可提交审核' },
-  pending: { label: '查看进度', description: '已提交审核，等待立项审批' },
-  approved: { label: '发布采购', description: '立项审批已通过，可发布采购' },
+  pending: { label: '查看进度', description: '已提交审核，等待发布审核' },
+  approved: { label: '发布采购', description: '发布审核已通过，可发布采购' },
   tendering: { label: '发布公告', description: '采购中，下一步前往发布公告' },
   registering: { label: '进入开启', description: '公告中，采购截止后进入开启大厅' },
   pending_open: { label: '开启大厅', description: '待开启，进入开启大厅完成开启' },
@@ -61,7 +61,7 @@ export const NEXT_STEP_MAP = {
 // 演示环境不再预置 mock 基线数据；所有项目均通过页面 CRUD 写入 projectStore（localStorage）
 export const BASELINE_PROJECTS = []
 
-// 项目采购方式由采购包派生：去重后拼接；无采购包数据时回退到历史 type 字段
+// 项目采购方式由标段派生：去重后拼接；无标段数据时回退到历史 type 字段
 export function getPurchaseModeValues(project) {
   if (Array.isArray(project?.packages) && project.packages.length > 0) {
     return [...new Set(project.packages.map((pkg) => pkg.purchaseMode).filter(Boolean))]
@@ -79,9 +79,9 @@ export function getPurchaseModeText(project) {
 }
 
 // ── 采购方式 → 流程节点映射（hall-purchase-method-mapping-20260721，两族两模板）──
-// 口径：2026-07-21 需求——开启大厅服务采购族（阳光采购 open/邀请采购 invitation），
-// 比价大厅服务询比族（阳光询比 inquiry/邀请询比 invitation_inquiry），
-// 评审大厅对所有项目开放。废止 2026-07-17 清单 20「唯邀请询比不用开启和评审」旧口径。
+// 口径：2026-07-21 需求——开启大厅服务比选族（公开比选 open/邀请比选 invitation），
+// 比价大厅服务比价族（零星采购 inquiry/直接采购 invitation_inquiry），
+// 评审大厅对所有项目开放。废止 2026-07-17 清单 20「唯直接采购不用开启和评审」旧口径。
 // 方式取值与 ProjectCreate 的 PURCHASE_MODE_OPTIONS 一致：open / invitation / inquiry / invitation_inquiry
 export const FLOW_NODES = [
   { key: 'requirement', label: '创建采购需求' },
@@ -96,7 +96,7 @@ export const FLOW_NODES = [
 
 const BASE_FLOW_NODE_KEYS = ['requirement', 'doc', 'notice', 'bid']
 
-// 两族模板：采购族 = 开启 + 评审；询比族 = 比价 + 评审（评审对所有项目开放）
+// 两族模板：比选族 = 开启 + 评审；比价族 = 比价 + 评审（评审对所有项目开放）
 export const PURCHASE_METHOD_FLOW_MAP = {
   open: [...BASE_FLOW_NODE_KEYS, 'opening', 'evaluation', 'award'],
   invitation: [...BASE_FLOW_NODE_KEYS, 'opening', 'evaluation', 'award'],
@@ -104,7 +104,7 @@ export const PURCHASE_METHOD_FLOW_MAP = {
   invitation_inquiry: [...BASE_FLOW_NODE_KEYS, 'comparison', 'evaluation', 'award']
 }
 
-// 按采购方式查询节点序列（未知方式回退阳光采购全链路）
+// 按采购方式查询节点序列（未知方式回退公开比选全链路）
 export function getFlowNodeKeys(purchaseMode) {
   return PURCHASE_METHOD_FLOW_MAP[purchaseMode] || PURCHASE_METHOD_FLOW_MAP.open
 }
@@ -114,23 +114,23 @@ export function isFlowNodeEnabled(purchaseMode, nodeKey) {
   return getFlowNodeKeys(purchaseMode).includes(nodeKey)
 }
 
-// 询比族判定：全部采购包均为询比类（inquiry/invitation_inquiry）→ 走比价大厅
+// 比价族判定：全部标段均为比价类（inquiry/invitation_inquiry）→ 走比价大厅
 export function isInquiryFamily(project) {
   const values = getPurchaseModeValues(project)
   return values.length > 0 && values.every((v) => v === 'inquiry' || v === 'invitation_inquiry')
 }
 
-// 纯邀请询比项目判定：全部采购包均为 invitation_inquiry（成交确认阶段兼容口径沿用，见 utils/awardFlow.js）
+// 纯直接采购项目判定：全部标段均为 invitation_inquiry（成交确认阶段兼容口径沿用，见 utils/awardFlow.js）
 export function isInvitedRfqProject(project) {
   const values = getPurchaseModeValues(project)
   return values.length > 0 && values.every((v) => v === 'invitation_inquiry')
 }
 
-// 询比族下一步口径（hall-purchase-method-mapping-20260721）：报价相关状态进入比价大厅，评审中进入评审大厅
+// 比价族下一步口径（hall-purchase-method-mapping-20260721）：报价相关状态进入比价大厅，评审中进入评审大厅
 export const INQUIRY_FAMILY_NEXT_STEP_MAP = {
   ...NEXT_STEP_MAP,
-  registering: { label: '进入比价', description: '询比族项目报价截止后进入比价大厅比较报价' },
-  pending_open: { label: '比价大厅', description: '询比族项目进入比价大厅完成报价比较' }
+  registering: { label: '进入比价', description: '比价族项目报价截止后进入比价大厅比较报价' },
+  pending_open: { label: '比价大厅', description: '比价族项目进入比价大厅完成报价比较' }
 }
 
 // 当前状态 → 下一步动作（按采购方式族分流；操作列与详情页共用同一口径）
@@ -288,7 +288,7 @@ export default function ProjectList() {
       return
     }
     if (row.status === 'approved') {
-      // 立项已通过：采购单位可直接发布采购，其他角色仅查看详情
+      // 发布审核已通过：采购单位可直接发布采购，其他角色仅查看详情
       if (role === 'tenderee') {
         publish(row)
         return
@@ -314,7 +314,7 @@ export default function ProjectList() {
       viewDetail(row)
       return
     }
-    // 大厅族分流（hall-purchase-method-mapping-20260721）：采购族→开启大厅，询比族→比价大厅；评审对所有项目开放
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：比选族→开启大厅，比价族→比价大厅；评审对所有项目开放
     if (row.status === 'registering' || row.status === 'pending_open') {
       navigate({ to: isInquiryFamily(row) ? '/admin/comparison-hall' : '/admin/opening-hall', search: { projectId: row.id } })
       return

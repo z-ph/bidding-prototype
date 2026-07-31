@@ -1,6 +1,9 @@
-// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
+// 旧缴费页面路由（2026-07-31 口径：页面下架，仅预留付款凭证扩展能力，不建页面/菜单）
 export const Route = createFileRoute('/admin/fee-manage')({
-  staticData: { title: '费用台账' },
+  staticData: { title: '工作台' },
+  beforeLoad: () => {
+    throw redirect({ to: '/admin/dashboard', replace: true })
+  }
 })

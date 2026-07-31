@@ -8,7 +8,6 @@ const roleOptions = [
   { label: '采购代理', value: 'agent' },
   { label: '响应单位', value: 'bidder' },
   { label: '评审专家', value: 'expert' },
-  { label: '监督人员', value: 'supervisor' },
   { label: '平台管理员', value: 'admin' }
 ]
 

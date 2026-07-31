@@ -8,8 +8,7 @@ const DEFAULT_USERS = [
   { account: 'tenderee01', name: '张三', role: '采购单位', org: 'XX市轨道交通集团', status: '启用' },
   { account: 'agent01', name: '李四', role: '采购代理', org: 'XX采购代理有限公司', status: '启用' },
   { account: 'bidder01', name: 'A科技有限公司', role: '响应单位', org: 'A科技有限公司', status: '启用' },
-  { account: 'expert01', name: '专家甲', role: '评审专家', org: '个人', status: '启用' },
-  { account: 'supervisor01', name: '王监督', role: '监督人员', org: '监督办公室', status: '启用' }
+  { account: 'expert01', name: '专家甲', role: '评审专家', org: '个人', status: '启用' }
 ]
 
 export function loadUsers() {

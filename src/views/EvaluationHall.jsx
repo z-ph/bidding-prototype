@@ -34,7 +34,7 @@ export default function EvaluationHall() {
   const projectId = searchParams.projectId
   const { role, roleName, userName } = useRole()
 
-  // 评审大厅对所有采购项目开放（hall-purchase-method-mapping-20260721，废止邀请询比无评审旧口径）
+  // 评审大厅对所有采购项目开放（hall-purchase-method-mapping-20260721，废止直接采购无评审旧口径）
   const project = useMemo(
     () =>
       projectStore.getProjectById(projectId) ||
@@ -73,7 +73,6 @@ export default function EvaluationHall() {
   const isLeader = isExpert && userName === leaderName
   const isTenderee = role === 'tenderee'
   const isAgent = role === 'agent'
-  const isSupervisor = role === 'supervisor'
 
   const statusInfo = STATUS_MAP[evalData.status] || STATUS_MAP.evaluating
   const deadline = evalData.deadline || '2026-07-15 18:00'
@@ -377,7 +376,7 @@ export default function EvaluationHall() {
     )
   }
 
-  // 角色视图拆分（2052-008）：组长可编辑报告；专家成员仅进度+汇总；采购单位/代理/监督全只读
+  // 角色视图拆分（2052-008）：组长可编辑报告；专家成员仅进度+汇总；采购单位/代理全只读
   const tabItems = isLeader
     ? [summaryTab, progressTab, rejectTab, reportEditTab]
     : isExpert
@@ -447,17 +446,6 @@ export default function EvaluationHall() {
         />
       )
     }
-    if (isSupervisor) {
-      return (
-        <Alert
-          type="info"
-          showIcon
-          closable={false}
-          title="监督人员只读视图：全程监督评审过程，不参与评分与提交。"
-          style={{ marginBottom: 20 }}
-        />
-      )
-    }
     return null
   }
 
@@ -508,7 +496,7 @@ export default function EvaluationHall() {
           <div className="hall-header">
             <div>
               <h2>评审大厅</h2>
-              <p className="subtitle">XX市轨道交通设备采购项目 · 采购包一：主设备 · 项目ID：{projectId}</p>
+              <p className="subtitle">XX市轨道交通设备采购项目 · 标段一：主设备 · 项目ID：{projectId}</p>
             </div>
             <div className="hall-meta">
               <Tag color={statusInfo.color} style={{ fontSize: 14, padding: '4px 12px' }}>
@@ -559,7 +547,7 @@ export default function EvaluationHall() {
         />
 
         {/* 评审完成后导出报表 */}
-        {(evalData.status === 'submitted' || evalData.status === 'confirmed') && ['tenderee', 'agent', 'supervisor'].includes(role) && (
+        {(evalData.status === 'submitted' || evalData.status === 'confirmed') && ['tenderee', 'agent'].includes(role) && (
           <Card size="small" title="导出报表" style={{ marginTop: 20 }}>
             <Space wrap>
               <Button onClick={() => message.success('正在导出响应单位签到表...')}>响应单位签到表</Button>

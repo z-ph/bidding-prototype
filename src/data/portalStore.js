@@ -12,7 +12,7 @@ const defaultNews = [
   { id: 6, title: '新版响应文件编制工具发布', category: '产品更新', content: '新版响应文件编制工具已发布，支持一键签章、自动检查功能。', publishTime: '2026-07-05', status: 'published', attachments: [{ name: '工具更新说明.pdf', size: '800KB' }] },
   { id: 7, title: '2026年第三季度采购意向公示', category: '采购信息', content: '现将2026年第三季度采购意向公示，欢迎符合条件的供应商关注。', publishTime: '2026-07-04', status: 'published', attachments: [] },
   { id: 8, title: '响应单位常见问题汇总（2026年7月版）', category: '常见问题', content: '汇总了近期响应单位咨询频率较高的问题及解答，供参考。', publishTime: '2026-07-03', status: 'published', attachments: [] },
-  { id: 9, title: '监督投诉渠道及处理流程公示', category: '政策法规', content: '公示平台监督投诉渠道及处理流程，接受社会各界监督。', publishTime: '2026-07-02', status: 'published', attachments: [] },
+  { id: 9, title: '投诉渠道及处理流程公示', category: '政策法规', content: '公示平台投诉渠道及处理流程，接受社会各界反馈。', publishTime: '2026-07-02', status: 'published', attachments: [] },
   { id: 10, title: '平台用户隐私政策更新公告', category: '平台公告', content: '用户隐私政策已更新，请广大用户及时查阅并确认。', publishTime: '2026-07-01', status: 'published', attachments: [] }
 ]
 
@@ -24,7 +24,7 @@ const defaultStats = {
 
 const defaultBanners = [
   { id: 1, title: '全流程电子化采购平台', subtitle: '阳光、公平、公正、高效、安全', image: '', color: 'linear-gradient(135deg, #001529 0%, #003366 100%)', status: 'published' },
-  { id: 2, title: '多角色协同工作', subtitle: '采购单位、响应单位、评审专家、监督人员一体化协同', image: '', color: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)', status: 'published' }
+  { id: 2, title: '多角色协同工作', subtitle: '采购单位、响应单位、评审专家一体化协同', image: '', color: 'linear-gradient(135deg, #003366 0%, #0066cc 100%)', status: 'published' }
 ]
 
 const defaultDownloads = [
@@ -36,10 +36,10 @@ const defaultDownloads = [
 ]
 
 const defaultHelpDocs = [
-  { id: 1, title: '如何注册成为平台供应商？', category: '操作指南', content: '点击首页右上角"注册"，选择"供应商"角色，填写企业基本信息并上传营业执照、资质证书等材料，提交后等待平台管理员审核。\n\n操作步骤：\n1. 访问平台首页，点击右上角"注册"按钮\n2. 选择"供应商"角色\n3. 填写企业基本信息（企业名称、统一社会信用代码、法人信息等）\n4. 上传营业执照、资质证书等材料\n5. 提交申请，等待平台管理员审核', updateTime: '2026-07-10', status: 'published', attachments: [] },
-  { id: 2, title: '如何参与项目响应？', category: '操作指南', content: '供应商完成入库审核后无需报名。使用供应商账号登录，在"项目中心"找到目标项目，直接下载采购文件并编制响应文件；邀请采购项目需收到邀请后方可参与。', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 1, title: '如何成为平台供应商？', category: '操作指南', content: '一期供应商账号由采购方批量导入并发放，无需自助注册。供应商使用发放的账号登录后，在「企业档案」中完善企业基本信息并上传营业执照、资质证书等材料，由平台管理员完成准入审核。\n\n操作步骤：\n1. 使用采购方发放的供应商账号登录平台\n2. 进入工作台「企业档案」\n3. 填写企业基本信息（企业名称、统一社会信用代码、法人信息等）\n4. 上传营业执照、资质证书等材料\n5. 提交后等待平台管理员审核', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 2, title: '如何参与项目响应？', category: '操作指南', content: '供应商完成入库审核后无需报名。使用供应商账号登录，在"项目中心"找到目标项目，直接下载采购文件并编制响应文件；邀请比选项目需收到邀请后方可参与。', updateTime: '2026-07-10', status: 'published', attachments: [] },
   { id: 3, title: '响应文件如何上传？', category: '操作指南', content: '进入"我参与的项目"，选择对应项目点击"上传响应文件"，完成签章和密码加密后提交。请确保在上传前已完成响应文件的编制和检查。', updateTime: '2026-07-10', status: 'published', attachments: [] },
-  { id: 6, title: '中选后需要缴纳哪些费用？', category: '常见问题', content: '按平台口径，响应阶段不缴纳保证金和文件费；采购结果发布后，由中选人线下缴纳响应费用，采购单位/代理在"费用台账"登记凭证。', updateTime: '2026-07-10', status: 'published', attachments: [] },
+  { id: 6, title: '中选后需要缴纳哪些费用？', category: '常见问题', content: '按平台口径，响应阶段不缴纳保证金和文件费；采购结果发布后，由中选人线下缴纳响应费用，缴费凭证由采购单位/代理线下登记（平台仅预留付款凭证扩展能力）。', updateTime: '2026-07-10', status: 'published', attachments: [] },
   { id: 7, title: '平台技术支持联系方式', category: '联系方式', content: '电话：400-123-4567（工作日 9:00-18:00）\n邮箱：support@bidding-platform.example.com\n地址：XX市XX区公共资源交易中心 3 楼电子采购服务窗口', updateTime: '2026-07-10', status: 'published', attachments: [] }
 ]
 

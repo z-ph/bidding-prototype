@@ -11,10 +11,10 @@ import { INVITATION_RESPONSES_KEY } from './BidderProjects.jsx'
 // 授权为年度周期（授权日起 1 年），过期自动标记「需重新授权」并视同未授权（概要三）；
 // 响应邀请书在授权时按项目+供应商自动生成（清单 24，genInvitation 幂等）。
 const PURCHASE_MODE_LABELS = {
-  open: '阳光采购',
-  invitation: '邀请采购',
-  inquiry: '阳光询比',
-  invitation_inquiry: '邀请询比'
+  open: '公开比选',
+  invitation: '邀请比选',
+  inquiry: '零星采购',
+  invitation_inquiry: '直接采购'
 }
 
 // 与 ProjectCreate 注册企业一致的平台供应商名册（mock）
@@ -44,7 +44,7 @@ function loadInvitationResponses() {
   }
 }
 
-// 响应邀请书 mock 文本：项目信息/采购包/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
+// 响应邀请书 mock 文本：项目信息/标段/时间由项目数据填充，模板为占位（真实模板联系采购管理部）
 function buildInvitationLetter(project, invitation, supplierName) {
   const packages = (project?.packages || [])
     .map((p) => p.name || p.code)
@@ -59,8 +59,8 @@ function buildInvitationLetter(project, invitation, supplierName) {
     `致：${supplierName || invitation.supplierName || invitation.supplierId}`,
     '',
     `贵单位已被邀请参加「${project?.name || invitation.projectId}」（项目编号：${project?.code || project?.id || invitation.projectId}）的响应活动。`,
-    `采购方式：${PURCHASE_MODE_LABELS[project?.purchaseMode] || project?.purchaseMode || '邀请采购'}`,
-    `采购包：${packages}`,
+    `采购方式：${PURCHASE_MODE_LABELS[project?.purchaseMode] || project?.purchaseMode || '邀请比选'}`,
+    `标段：${packages}`,
     `采购截止时间：${deadline}`,
     `开启时间：${openTime}`,
     '',

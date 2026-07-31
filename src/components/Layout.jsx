@@ -5,13 +5,10 @@ import {
   DashboardOutlined,
   FolderOutlined,
   FileTextOutlined,
-  PlayCircleOutlined,
   UserOutlined,
   ToolOutlined,
   UnorderedListOutlined,
   FileProtectOutlined,
-  MoneyCollectOutlined,
-  WarningOutlined,
   BankOutlined,
   MessageOutlined,
   TeamOutlined,
@@ -69,7 +66,6 @@ function useMenuItems(role) {
       children: [
         { key: '/admin/notice-list', label: '公告列表' },
         { key: '/admin/supplier-authorization', label: '供应商授权' },
-        { key: '/admin/fee-manage', label: '费用台账' },
         { key: '/admin/supplier-ledger', label: '供应商台账' }
       ]
     },
@@ -108,7 +104,6 @@ function useMenuItems(role) {
       children: [
         { key: '/admin/notice-list', label: '公告列表' },
         { key: '/admin/supplier-authorization', label: '供应商授权' },
-        { key: '/admin/fee-manage', label: '费用台账' },
         { key: '/admin/supplier-ledger', label: '供应商台账' }
       ]
     },
@@ -130,13 +125,6 @@ function useMenuItems(role) {
   const expertMenus = [
     { key: '/admin/expert-tasks', label: '我的评审任务', icon: ScheduleOutlined },
     { key: '/admin/expert-profile', label: '专家信息', icon: UserOutlined },
-    { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
-  ]
-
-  const supervisorMenus = [
-    { key: '/admin/supervisor-hall', label: '监督大厅', icon: PlayCircleOutlined },
-    { key: '/admin/supervisor-abnormal', label: '异常登记', icon: WarningOutlined },
-    { key: '/admin/supervisor-logs', label: '操作日志', icon: UnorderedListOutlined },
     { key: '/admin/message-center', label: '消息中心', icon: MessageOutlined }
   ]
 
@@ -188,7 +176,6 @@ function useMenuItems(role) {
     agent: [...common, ...agentMenus],
     bidder: [...common, ...bidderMenus],
     expert: [...common, ...expertMenus],
-    supervisor: [...common, ...supervisorMenus],
     admin: adminMenus
   }
 

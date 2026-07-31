@@ -1,7 +1,6 @@
 // @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
 import { useMemo } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import dayjs from 'dayjs'
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import {
@@ -12,7 +11,6 @@ import {
   Tag,
   Timeline,
   Table,
-  Descriptions,
   message
 } from 'antd'
 import {
@@ -24,7 +22,6 @@ import {
   UploadOutlined,
   BellOutlined,
   ClockCircleOutlined,
-  WalletOutlined,
   SearchOutlined,
   FileProtectOutlined,
   QuestionCircleOutlined,
@@ -34,8 +31,6 @@ import { useRole } from '../hooks/useRole.js'
 import StatusTag from '../components/StatusTag.jsx'
 import AdminDashboard from './AdminDashboard.jsx'
 import { projectStore } from '../data/projects.js'
-import { evaluationStore } from '../data/evaluationStore.js'
-import { supervisorStore } from '../data/supervisorStore.js'
 import { PROJECT_STATUS_MAP, PURCHASE_MODE_OPTIONS, isInquiryFamily } from './ProjectList.jsx'
 
 // 快捷入口使用种子项目中对应状态的演示项目 id
@@ -44,7 +39,7 @@ const DEMO_ENTRY_PROJECT = {
   '确认中选': '5',    // 5=评审中(评审已提交),可演示确认中选
   '发布公告': '1',    // 1=采购中,可演示发布公告
   '开启大厅': '3',    // 3=待开启,今日15:00开启
-  '比价大厅': '10',   // 10=待开启(阳光询比),演示比价大厅
+  '比价大厅': '10',   // 10=待开启(零星采购),演示比价大厅
   '评审大厅': '5',    // 5=评审中,有完整评审数据
 }
 
@@ -70,7 +65,6 @@ export default function Dashboard() {
     agent: '采购代理工作台',
     bidder: '响应单位工作台',
     expert: '评审专家工作台',
-    supervisor: '监督工作台',
     admin: '平台管理控制台'
   }
   const roleTitle = roleMap[role] || '工作台'
@@ -80,21 +74,9 @@ export default function Dashboard() {
       agent: '受委托执行采购流程，编制文件、发公告、组织开启/评审',
       bidder: '下载文件、上传响应文件、报价',
       expert: '参与评审、独立评分、签署评审报告',
-      supervisor: '查看并监督开启、评审、成交确认全过程',
       admin: '维护系统基础数据、用户权限、日志审计'
     }
     return map[role] || ''
-  }, [role])
-
-  // 监督概览三项计数：今日开启/今日评审来自项目与评审 store，异常预警来自 supervisorStore 待处理记录
-  const supervisorStats = useMemo(() => {
-    if (role !== 'supervisor') return null
-    const projects = projectStore.getProjects()
-    return {
-      todayOpening: projects.filter((p) => p.openTime && dayjs(p.openTime).isSame(dayjs(), 'day')).length,
-      todayEvaluating: projects.filter((p) => evaluationStore.getEval(p.id).deadline).length,
-      abnormalPending: supervisorStore.getRecords().filter((r) => r.status === '待处理').length
-    }
   }, [role])
 
   const stats = [
@@ -139,8 +121,7 @@ export default function Dashboard() {
   const tendereeQuickEntries = [
     { title: '创建项目', icon: PlusOutlined, color: '#409EFF', path: '/admin/projects/create' },
     { title: '审批文件', icon: FileTextOutlined, color: '#909399', path: '/admin/tender-doc' },
-    { title: '确认中选', icon: BellOutlined, color: '#E6A23C', path: '/admin/award-confirm' },
-    { title: '费用台账', icon: WalletOutlined, color: '#67C23A', path: '/admin/fee-manage' }
+    { title: '确认中选', icon: BellOutlined, color: '#E6A23C', path: '/admin/award-confirm' }
   ]
 
   const agentQuickEntries = [
@@ -179,7 +160,7 @@ export default function Dashboard() {
   const continueProject = (row) => {
     const statusText = PROJECT_STATUS_MAP[row.status]?.text || row.status
     let path = STAGE_PATH_MAP[statusText] || '/admin/projects'
-    // 大厅族分流（hall-purchase-method-mapping-20260721）：公告中/待开启的询比族项目进入比价大厅
+    // 大厅族分流（hall-purchase-method-mapping-20260721）：公告中/待开启的比价族项目进入比价大厅
     if ((statusText === '公告中' || statusText === '待开启') && isInquiryFamily(row)) {
       path = '/admin/comparison-hall'
     }
@@ -333,17 +314,6 @@ export default function Dashboard() {
           popover: {
             title: '评审任务',
             description: '这里显示分配给您评审的项目，点击“开始评审”进入评审大厅。',
-            side: 'bottom',
-            align: 'start'
-          }
-        }
-      ],
-      supervisor: [
-        {
-          element: '.ant-card',
-          popover: {
-            title: '监督概览',
-            description: '查看今日开启、评审场次和异常预警，进入监督大厅可查看详细过程。',
             side: 'bottom',
             align: 'start'
           }
@@ -521,23 +491,6 @@ export default function Dashboard() {
           }
         >
           <Table rowKey="project" dataSource={expertTasks} columns={expertColumns} pagination={false} />
-        </Card>
-      )}
-
-      {role === 'supervisor' && (
-        <Card
-          title={
-            <div className="card-header">
-              <span>监督概览</span>
-              <Button type="link" onClick={() => navigate({ to: '/admin/supervisor-hall' })}>进入监督大厅</Button>
-            </div>
-          }
-        >
-          <Descriptions column={3} bordered>
-            <Descriptions.Item label="今日开启">{supervisorStats?.todayOpening ?? 0} 场</Descriptions.Item>
-            <Descriptions.Item label="今日评审">{supervisorStats?.todayEvaluating ?? 0} 场</Descriptions.Item>
-            <Descriptions.Item label="异常预警">{supervisorStats?.abnormalPending ?? 0} 条</Descriptions.Item>
-          </Descriptions>
         </Card>
       )}
 

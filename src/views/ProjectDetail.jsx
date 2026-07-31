@@ -49,11 +49,11 @@ const FALLBACK_PROJECT = {
   linkedRequirementId: '',
   agentId: '',
   packages: [
-    { name: '第一采购包：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
-    { name: '第二采购包：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
+    { name: '第一标段：主设备', code: 'B1', budget: 600, content: '主设备采购', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' },
+    { name: '第二标段：辅材', code: 'B2', budget: 250, content: '辅助材料', purchaseMode: 'open', bidStart: '2026-07-10 09:00', bidEnd: '2026-07-20 17:00' }
   ],
   qualifications: ['营业执照', 'ISO9001认证或相关证书'],
-  intro: '本项目为轨道交通设备采购，包含主设备及辅材两个采购包。'
+  intro: '本项目为轨道交通设备采购，包含主设备及辅材两个标段。'
 }
 
 const formatDate = (v) => {
@@ -118,7 +118,7 @@ export default function ProjectDetail() {
     : null
 
   const purchaseModeText = getPurchaseModeText(project)
-  // 下一步口径与项目列表一致（含邀请询比直达成交确认），统一走 getNextStepInfo
+  // 下一步口径与项目列表一致（含直接采购直达成交确认），统一走 getNextStepInfo
   const nextStepInfo = getNextStepInfo(project)
 
   const beforeOpen = ['draft', 'tendering', 'registering'].includes(project.status)
@@ -182,9 +182,9 @@ export default function ProjectDetail() {
   }
 
   const packageColumns = [
-    { title: '采购包名称', dataIndex: 'name', width: 200 },
-    { title: '采购包编号', dataIndex: 'code', width: 100 },
-    { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '阳光采购', invitation: '邀请采购', inquiry: '阳光询比', invitation_inquiry: '邀请询比' }[v] || v || '-') },
+    { title: '标段名称', dataIndex: 'name', width: 200 },
+    { title: '标段编号', dataIndex: 'code', width: 100 },
+    { title: '采购方式', dataIndex: 'purchaseMode', width: 120, render: (v) => ({ open: '公开比选', invitation: '邀请比选', inquiry: '零星采购', invitation_inquiry: '直接采购' }[v] || v || '-') },
     { title: '预算金额', dataIndex: 'budget', width: 120, render: (v) => (v ? `${v} 万元` : '-') },
     { title: '响应开始', dataIndex: 'bidStart', width: 160, render: (v) => formatTime(v) },
     { title: '采购截止', dataIndex: 'bidEnd', width: 160, render: (v) => formatTime(v) },
@@ -271,13 +271,13 @@ export default function ProjectDetail() {
           </Descriptions.Item>
         </Descriptions>
 
-        <Card title="采购包信息" size="small" style={{ marginBottom: 20 }}>
+        <Card title="标段信息" size="small" style={{ marginBottom: 20 }}>
           <Table
             rowKey="code"
             dataSource={project.packages || []}
             columns={packageColumns}
             pagination={false}
-            locale={{ emptyText: <EmptyState description="暂无采购包，可在编辑项目中添加" /> }}
+            locale={{ emptyText: <EmptyState description="暂无标段，可在编辑项目中添加" /> }}
           />
         </Card>
 

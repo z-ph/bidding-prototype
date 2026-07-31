@@ -8,7 +8,6 @@ const DEFAULT_USER_INFO = {
   agent: { nickname: '李四', org: 'XX采购代理有限公司', dept: '采购代理部', deptCode: 'ZB' },
   bidder: { nickname: 'A科技有限公司', org: 'A科技有限公司', dept: '响应部', deptCode: 'TB' },
   expert: { nickname: '专家甲', org: '外部专家库', dept: '专家委员会', deptCode: 'ZJ' },
-  supervisor: { nickname: '王监督', org: '监督办公室', dept: '监督组', deptCode: 'JD' },
   admin: { nickname: '平台管理员', org: '平台运营中心', dept: '运维部', deptCode: 'YW' }
 }
 
@@ -17,7 +16,6 @@ export const WORKSPACE_MAP = {
   agent: '/admin/dashboard',
   bidder: '/admin/dashboard',
   expert: '/admin/dashboard',
-  supervisor: '/admin/supervisor-hall',
   admin: '/admin/dashboard'
 }
 

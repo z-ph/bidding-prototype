@@ -1,11 +1,12 @@
-// 创建项目（2026-07-27 口径，docs/20260727-会议记录概要.md 五.5）：
+// 创建项目（2026-07-27 口径，docs/20260727-会议记录概要.md 五.5；2026-07-31 起审批定名「发布审核」）：
 // 五步向导合并为整页一次填完；最小必要字段（可缺了补，不多了删）；
 // 项目编号自动生成不可编辑；采购需求页内直接创建（需求说明 + 附件上传，上传优先），
-// 不再关联外部需求库；提交即生成「项目立项」审批单（平台唯一审核点）。
+// 不再关联外部需求库；提交即生成「发布审核」单（平台唯一审核点，采购公告发布前审核）。
 import { useState, useEffect } from 'react'
 import type { ComponentType } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import dayjs, { Dayjs } from 'dayjs'
+import * as XLSX from 'xlsx'
 import {
   Alert,
   Card,
@@ -18,12 +19,13 @@ import {
   Radio,
   Descriptions,
   Button,
+  Modal,
   Row,
   Col,
   message
 } from 'antd'
 import type { UploadFile } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, DownloadOutlined, ImportOutlined } from '@ant-design/icons'
 import EmptyStateBase from '../components/EmptyState.jsx'
 import { projectStore } from '../data/projects.js'
 import { approvalStore } from '../data/approvalStore.js'
@@ -44,11 +46,19 @@ const EmptyState = EmptyStateBase as ComponentType<{
 }>
 
 const PURCHASE_MODE_OPTIONS = [
-  { label: '阳光采购', value: 'open' },
-  { label: '邀请采购', value: 'invitation' },
-  { label: '阳光询比', value: 'inquiry' },
-  { label: '邀请询比', value: 'invitation_inquiry' }
+  { label: '公开比选', value: 'open' },
+  { label: '邀请比选', value: 'invitation' },
+  { label: '零星采购', value: 'inquiry' },
+  { label: '直接采购', value: 'invitation_inquiry' }
 ]
+
+// Excel 批量导入：模板列「采购方式」中文标签 → 枚举值（与 PURCHASE_MODE_OPTIONS 一致）
+const IMPORT_MODE_MAP: Record<string, string> = {
+  公开比选: 'open',
+  邀请比选: 'invitation',
+  零星采购: 'inquiry',
+  直接采购: 'invitation_inquiry'
+}
 
 const AGENT_OPTIONS = [
   { label: '诚信采购代理有限公司', value: 'agent_01' },
@@ -61,7 +71,7 @@ interface PackageItem {
   code: string
   budget: string
   purchaseMode: string
-  /** 采购清单 Excel（0727 口径：每包单独导入一份，导什么认什么，系统不校验内容） */
+  /** 采购清单 Excel（0727 口径：每标段单独导入一份，导什么认什么，系统不校验内容） */
   listFile: UploadFile[]
 }
 
@@ -74,14 +84,13 @@ interface ProjectFormData {
   code: string
   budget: string
   openTime: Dayjs | null
-  evalLocation: string
   intro: string
   demandText: string
   orgMode: 'self' | 'agent'
   agentId: string
   agentContractConfirmed: boolean
   attachments: UploadFile[]
-  /** 共性时间（0727 口径：全部采购包统一填一次，保存时写入每个包） */
+  /** 共性时间（0727 口径：全部标段统一填一次，保存时写入每个标段） */
   bidStart: Dayjs | null
   bidEnd: Dayjs | null
   packages: PackageItem[]
@@ -89,7 +98,7 @@ interface ProjectFormData {
   allowConsortium: boolean
 }
 
-// 基本信息 Form 托管字段（编号自动生成、需求说明/附件/采购包等非 Form 托管字段单独校验）
+// 基本信息 Form 托管字段（编号自动生成、需求说明/附件/标段等非 Form 托管字段单独校验）
 interface BasicFormValues {
   name?: string
   budget?: string
@@ -109,7 +118,7 @@ const formatTime = (t: Dayjs | string | null | undefined) => {
 }
 
 // 保存前把时间字段序列化为字符串，保证 localStorage 持久化后可被 dayjs 还原；
-// 共性时间同步写入每个采购包（下游 ProjectList/BidderProjects/TenderDoc 等按 packages[0].bidEnd 读取）
+// 共性时间同步写入每个标段（下游 ProjectList/BidderProjects/TenderDoc 等按 packages[0].bidEnd 读取）
 function serializeFormData(formData: ProjectFormData) {
   const bidStart = formData.bidStart ? formData.bidStart.format('YYYY-MM-DD HH:mm') : ''
   const bidEnd = formData.bidEnd ? formData.bidEnd.format('YYYY-MM-DD HH:mm') : ''
@@ -122,11 +131,24 @@ function serializeFormData(formData: ProjectFormData) {
   }
 }
 
+// 生成标段批量导入模板（表头 + 2 行示例）并触发浏览器下载
+function downloadPackageTemplate() {
+  const rows = [
+    ['标段名称（必填）', '采购方式（公开比选/邀请比选/零星采购/直接采购 四选一）', '预算金额（万元，数字）'],
+    ['第一标段：主设备', '公开比选', 600],
+    ['第二标段：辅材', '零星采购', 250]
+  ]
+  const worksheet = XLSX.utils.aoa_to_sheet(rows)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, '标段导入模板')
+  XLSX.writeFile(workbook, '标段导入模板.xlsx')
+}
+
 export default function ProjectCreate() {
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as Record<string, unknown>
   const editId = searchParams.editId ? String(searchParams.editId) : ''
-  const { role, userName } = useRole()
+  const { role, userName, account } = useRole()
   // 代理创建项目默认「委托代理」组织方式（agent-project-requirement-management-20260721）
   const defaultOrgMode: 'self' | 'agent' = role === 'agent' ? 'agent' : 'self'
   const [form] = Form.useForm<BasicFormValues>()
@@ -136,7 +158,6 @@ export default function ProjectCreate() {
     code: generateProjectCode(),
     budget: '',
     openTime: null,
-    evalLocation: '线上评审大厅',
     intro: '',
     demandText: '',
     orgMode: defaultOrgMode,
@@ -164,7 +185,7 @@ export default function ProjectCreate() {
     const restored = {
       ...stored,
       openTime: toDayjs(stored.openTime),
-      // 共性时间：新项目在项目级，存量项目从首个采购包回填
+      // 共性时间：新项目在项目级，存量项目从首个标段回填
       bidStart: toDayjs(stored.bidStart || stored.packages?.[0]?.bidStart),
       bidEnd: toDayjs(stored.bidEnd || stored.packages?.[0]?.bidEnd),
       demandText: stored.demandText || '',
@@ -192,29 +213,29 @@ export default function ProjectCreate() {
     Number(formData.budget) > 0 && packageBudgetTotal > Number(formData.budget)
 
   const PACKAGE_REQUIRED_FIELDS: { key: keyof PackageItem; label: string }[] = [
-    { key: 'name', label: '采购包名称' },
+    { key: 'name', label: '标段名称' },
     { key: 'budget', label: '预算金额' },
     { key: 'purchaseMode', label: '采购方式' }
   ]
 
   const validatePackages = (): string | null => {
     if (formData.packages.length === 0) {
-      return '请至少添加一个采购包'
+      return '请至少添加一个标段'
     }
     for (let i = 0; i < formData.packages.length; i++) {
       const pkg = formData.packages[i]
       for (const field of PACKAGE_REQUIRED_FIELDS) {
         const value = pkg[field.key]
         if (value === '' || value === null || value === undefined) {
-          return `采购包 ${i + 1} 缺少${field.label}`
+          return `标段 ${i + 1} 缺少${field.label}`
         }
       }
       if (!pkg.listFile || pkg.listFile.length === 0) {
-        return `采购包 ${i + 1} 请上传采购清单 Excel`
+        return `标段 ${i + 1} 请上传采购清单 Excel`
       }
     }
     if (budgetExceeded) {
-      return '采购包预算合计超过项目预算，请调整后再继续'
+      return '标段预算合计超过项目预算，请调整后再继续'
     }
     return null
   }
@@ -241,12 +262,71 @@ export default function ProjectCreate() {
           // 编号自动生成（B1、B2…），无需手填
           code: `B${prev.packages.length + 1}`,
           budget: '',
-          // 采购包级采购方式默认「阳光采购」（cxy-016：项目级采购方式已移除）
+          // 标段级采购方式默认「公开比选」（cxy-016：项目级采购方式已移除）
           purchaseMode: 'open',
           listFile: []
         }
       ]
     }))
+  }
+
+  // Excel 批量导入标段：本地解析（不上传服务器），逐行校验后合法行追加、非法行弹窗列明原因
+  const importPackages = async (file: File) => {
+    try {
+      const buffer = await file.arrayBuffer()
+      const workbook = XLSX.read(buffer, { type: 'array' })
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+      const rows = XLSX.utils.sheet_to_json<unknown[]>(worksheet, { header: 1, defval: '' })
+      // 跳过表头；忽略整行为空的行
+      const dataRows = rows.slice(1).filter((row) => row.some((cell) => String(cell).trim() !== ''))
+      if (dataRows.length === 0) {
+        message.warning('未解析到有效数据行，请使用「下载模板」的格式填写')
+        return
+      }
+      const validRows: Omit<PackageItem, 'code'>[] = []
+      const rowErrors: string[] = []
+      dataRows.forEach((row, idx) => {
+        const excelRowNo = idx + 2 // 表头占第 1 行
+        const name = String(row[0] ?? '').trim()
+        const modeLabel = String(row[1] ?? '').trim()
+        const budget = Number(String(row[2] ?? '').trim())
+        const problems: string[] = []
+        if (!name) problems.push('标段名称为空')
+        const purchaseMode = IMPORT_MODE_MAP[modeLabel]
+        if (!purchaseMode) problems.push(`采购方式「${modeLabel || '空'}」须为四选一（公开比选/邀请比选/零星采购/直接采购）`)
+        if (!Number.isFinite(budget) || budget <= 0) problems.push('预算金额须为大于 0 的数字')
+        if (problems.length > 0) {
+          rowErrors.push(`第 ${excelRowNo} 行：${problems.join('；')}`)
+          return
+        }
+        validRows.push({ name, budget: String(budget), purchaseMode, listFile: [] })
+      })
+      if (validRows.length > 0) {
+        // 编号沿用手工添加的自动生成规则（B1、B2… 按追加位置顺延）
+        setFormData((prev) => ({
+          ...prev,
+          packages: [
+            ...prev.packages,
+            ...validRows.map((pkg, i) => ({ ...pkg, code: `B${prev.packages.length + i + 1}` }))
+          ]
+        }))
+        message.success(`成功导入 ${validRows.length} 个标段，采购清单 Excel 仍需逐标段上传`)
+      }
+      if (rowErrors.length > 0) {
+        Modal.warning({
+          title: `${rowErrors.length} 行校验未通过，未导入`,
+          content: (
+            <ul style={{ paddingLeft: 18, margin: 0, maxHeight: 320, overflow: 'auto' }}>
+              {rowErrors.map((err) => (
+                <li key={err}>{err}</li>
+              ))}
+            </ul>
+          )
+        })
+      }
+    } catch {
+      message.error('文件解析失败，请使用「下载模板」生成的格式')
+    }
   }
 
   const removePackage = (idx: number) => {
@@ -315,9 +395,9 @@ export default function ProjectCreate() {
       }
     }
 
-    // 共性时间：全部采购包统一（0727 口径）
+    // 共性时间：全部标段统一（0727 口径）
     if (!formData.bidStart || !formData.bidEnd) {
-      message.error('请填写响应开始时间与采购截止时间（全部采购包统一）')
+      message.error('请填写响应开始时间与采购截止时间（全部标段统一）')
       scrollToElement('.section-header')
       return
     }
@@ -327,7 +407,7 @@ export default function ProjectCreate() {
       return
     }
 
-    // 校验采购包设置
+    // 校验标段设置
     const pkgError = validatePackages()
     if (pkgError) {
       message.error(pkgError)
@@ -345,16 +425,17 @@ export default function ProjectCreate() {
         submitTime: formData.submitTime || new Date().toISOString()
       })
       if (nextStatus === 'pending') {
-        // 平台唯一审核点（2026-07-27 口径）：提交即真实创建项目立项审批单（localStorage 持久化）
+        // 平台唯一审核点（2026-07-27 口径，0731 定名「发布审核」）：提交即真实创建发布审核单（localStorage 持久化）
         approvalStore.create({
           type: 'project',
           refId: saved.id,
-          title: `${saved.name} 立项审批`,
+          title: `${saved.name} 发布审核`,
           publisherKind: role === 'agent' ? 'agent' : 'self',
           submittedBy: userName,
+          submittedByAccount: account,
           projectId: saved.id
         })
-        message.success(`项目「${saved.name}」已提交审核（待审核），立项审批单已生成，可在审批中心跟踪进度`)
+        message.success(`项目「${saved.name}」已提交审核（待审核），发布审核单已生成，可在审批中心跟踪进度`)
       } else {
         message.success(`项目「${saved.name}」修改已保存`)
       }
@@ -379,8 +460,8 @@ export default function ProjectCreate() {
   return (
     <div className="project-create">
       <Alert
-        title="当前办理阶段：项目立项"
-        description="整页一次填完即可提交；项目编号自动生成，采购需求可直接上传附件，采购包清单直接上传 Excel。提交后生成「项目立项」审批单，审批通过后方可发布采购。"
+        title="当前办理阶段：发布审核"
+        description="整页一次填完即可提交；项目编号自动生成，采购需求可直接上传附件，标段清单直接上传 Excel（也可用模板批量导入标段）。提交后生成「发布审核」单，审核通过后方可发布采购公告。"
         type="info"
         showIcon
         closable={false}
@@ -426,15 +507,6 @@ export default function ProjectCreate() {
                   style={{ width: '100%' }}
                   value={formData.openTime}
                   onChange={(value) => updateField('openTime', value)}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="评审地点">
-                <Input
-                  placeholder="线上评审/线下地点"
-                  value={formData.evalLocation}
-                  onChange={(e) => updateField('evalLocation', e.target.value)}
                 />
               </Form.Item>
             </Col>
@@ -539,19 +611,32 @@ export default function ProjectCreate() {
       <Card className="form-card">
         <div className="section-header">
           <div>
-            <h3>采购包/包件设置</h3>
+            <h3>标段设置</h3>
             <p className="section-tip">
-              项目预算：{formData.budget || 0} 万元 · 采购包预算合计：{packageBudgetTotal} 万元
+              项目预算：{formData.budget || 0} 万元 · 标段预算合计：{packageBudgetTotal} 万元
               {budgetExceeded && (
                 <span style={{ color: '#ff4d4f', marginLeft: 12 }}>
-                  采购包预算合计超过项目预算
+                  标段预算合计超过项目预算
                 </span>
               )}
             </p>
           </div>
-          <Button type="primary" icon={<PlusOutlined />} onClick={addPackage}>添加采购包</Button>
+          <div className="section-actions">
+            <Button icon={<DownloadOutlined />} onClick={downloadPackageTemplate}>下载模板</Button>
+            <Upload
+              accept=".xlsx,.xls,.csv"
+              showUploadList={false}
+              beforeUpload={(file) => {
+                importPackages(file)
+                return false
+              }}
+            >
+              <Button icon={<ImportOutlined />}>Excel 批量导入</Button>
+            </Upload>
+            <Button type="primary" icon={<PlusOutlined />} onClick={addPackage}>添加标段</Button>
+          </div>
         </div>
-        <Card size="small" title="共性时间（全部采购包统一，只需填一次）" style={{ marginBottom: 16 }}>
+        <Card size="small" title="共性时间（全部标段统一，只需填一次）" style={{ marginBottom: 16 }}>
           <Row gutter={20}>
             <Col span={12}>
               <Form.Item label="响应开始时间" required>
@@ -578,27 +663,27 @@ export default function ProjectCreate() {
           </Row>
         </Card>
         {formData.packages.length === 0 && (
-          <EmptyState description="暂无采购包，请添加" icon="Folder" />
+          <EmptyState description="暂无标段，请添加或用 Excel 批量导入" icon="Folder" />
         )}
         {formData.packages.map((pkg, idx) => (
           <Card
             key={idx}
-            title={<div className="package-header"><span>采购包 {idx + 1}：{pkg.name || '未命名采购包'}</span></div>}
+            title={<div className="package-header"><span>标段 {idx + 1}：{pkg.name || '未命名标段'}</span></div>}
             extra={<Button type="link" danger onClick={() => removePackage(idx)}>删除</Button>}
             className="package-card"
           >
             <Row gutter={20}>
               <Col span={8}>
-                <Form.Item label="采购包名称" required>
+                <Form.Item label="标段名称" required>
                   <Input
-                    placeholder="例如：第一采购包"
+                    placeholder="例如：第一标段"
                     value={pkg.name}
                     onChange={(e) => updatePackage(idx, 'name', e.target.value)}
                   />
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item label="采购包编号">
+                <Form.Item label="标段编号">
                   <Input placeholder="自动生成" disabled value={pkg.code} />
                 </Form.Item>
               </Col>
@@ -634,7 +719,7 @@ export default function ProjectCreate() {
                     <Button type="primary">上传清单 Excel</Button>
                   </Upload>
                   <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
-                    每个采购包导入一份清单，导什么认什么，系统不校验清单内容
+                    每个标段导入一份清单，导什么认什么，系统不校验清单内容
                   </div>
                 </Form.Item>
               </Col>
@@ -680,18 +765,18 @@ export default function ProjectCreate() {
           <Descriptions.Item label="开启时间">{formatTime(formData.openTime)}</Descriptions.Item>
           <Descriptions.Item label="响应开始">{formatTime(formData.bidStart)}</Descriptions.Item>
           <Descriptions.Item label="采购截止">{formatTime(formData.bidEnd)}</Descriptions.Item>
-          <Descriptions.Item label="采购包预算合计">{packageBudgetTotal} 万元</Descriptions.Item>
-          <Descriptions.Item label="采购包数量">{formData.packages.length} 个</Descriptions.Item>
+          <Descriptions.Item label="标段预算合计">{packageBudgetTotal} 万元</Descriptions.Item>
+          <Descriptions.Item label="标段数量">{formData.packages.length} 个</Descriptions.Item>
           <Descriptions.Item label="需求附件">{formData.attachments.length > 0 ? formData.attachments.map((f) => f.name).join('、') : '-'}</Descriptions.Item>
           <Descriptions.Item label="代理机构">{formData.orgMode === 'agent' ? (AGENT_OPTIONS.find((a) => a.value === formData.agentId)?.label || '-') : '-'}</Descriptions.Item>
           <Descriptions.Item label="资质要求">{formData.qualifications.join('、') || '-'}</Descriptions.Item>
           <Descriptions.Item label="允许联合体">{formData.allowConsortium ? '允许' : '不允许'}</Descriptions.Item>
         </Descriptions>
         {formData.packages.length > 0 && (
-          <Card size="small" title="采购包清单" style={{ marginTop: 16 }}>
+          <Card size="small" title="标段清单" style={{ marginTop: 16 }}>
             {formData.packages.map((pkg, idx) => (
               <div key={idx} className="package-review-row">
-                <strong>采购包 {idx + 1} {pkg.name || pkg.code}</strong>
+                <strong>标段 {idx + 1} {pkg.name || pkg.code}</strong>
                 <span>采购方式：{PURCHASE_MODE_OPTIONS.find((o) => o.value === pkg.purchaseMode)?.label || '-'}</span>
                 <span>预算：{pkg.budget || '-'} 万元</span>
                 <span>清单：{pkg.listFile?.length ? pkg.listFile[0].name : '未上传'}</span>
@@ -700,7 +785,7 @@ export default function ProjectCreate() {
           </Card>
         )}
         <div className="step-actions">
-          <Button type="primary" onClick={submit}>提交审核（生成立项审批单）</Button>
+          <Button type="primary" onClick={submit}>提交审核（生成发布审核单）</Button>
           <Button onClick={saveDraft}>保存草稿</Button>
         </div>
       </Card>
@@ -722,6 +807,11 @@ export default function ProjectCreate() {
         }
         .section-header h3 {
           margin: 0;
+        }
+        .section-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
         }
         .section-tip {
           color: #666;

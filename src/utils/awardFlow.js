@@ -17,8 +17,8 @@ export const stageIndex = (stage) => AWARD_STAGES.indexOf(stage)
 
 // 现状可用的阶段判定（按优先级）：
 // 1. 项目记录上的 awardStage —— 成交确认侧操作回写，最优先；
-// 2. 邀请询比（RFQ）项目当前口径无开启/评审环节，直接视为「评审完成」
-//    （hall-purchase-method-mapping-20260721 实施后询比族也走评审，届时可删除本分支）；
+// 2. 直接采购（RFQ）项目当前口径无开启/评审环节，直接视为「评审完成」
+//    （hall-purchase-method-mapping-20260721 实施后比价族也走评审，届时可删除本分支）；
 // 3. evaluationStore 评审状态 submitted/confirmed —— 评审环节已提交评审报告，视为「评审完成」。
 export function resolveAwardStage(projectId, project, evaluationStore, isInvitedRfqProject) {
   if (project?.awardStage) return project.awardStage

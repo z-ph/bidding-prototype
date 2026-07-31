@@ -28,9 +28,6 @@ import { Route as AdminSystemSettingsRouteImport } from './routes/admin.system-s
 import { Route as AdminSupplierProfileRouteImport } from './routes/admin.supplier-profile'
 import { Route as AdminSupplierLedgerRouteImport } from './routes/admin.supplier-ledger'
 import { Route as AdminSupplierAuthorizationRouteImport } from './routes/admin.supplier-authorization'
-import { Route as AdminSupervisorLogsRouteImport } from './routes/admin.supervisor-logs'
-import { Route as AdminSupervisorHallRouteImport } from './routes/admin.supervisor-hall'
-import { Route as AdminSupervisorAbnormalRouteImport } from './routes/admin.supervisor-abnormal'
 import { Route as AdminSubAccountsRouteImport } from './routes/admin.sub-accounts'
 import { Route as AdminReviewChangeListRouteImport } from './routes/admin.review-change-list'
 import { Route as AdminProjectsRouteImport } from './routes/admin.projects'
@@ -85,7 +82,7 @@ const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import('./routes/register.lazy').then((d) => d.Route))
+} as any)
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
@@ -186,27 +183,6 @@ const AdminSupplierAuthorizationRoute =
   } as any).lazy(() =>
     import('./routes/admin.supplier-authorization.lazy').then((d) => d.Route),
   )
-const AdminSupervisorLogsRoute = AdminSupervisorLogsRouteImport.update({
-  id: '/supervisor-logs',
-  path: '/supervisor-logs',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.supervisor-logs.lazy').then((d) => d.Route),
-)
-const AdminSupervisorHallRoute = AdminSupervisorHallRouteImport.update({
-  id: '/supervisor-hall',
-  path: '/supervisor-hall',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.supervisor-hall.lazy').then((d) => d.Route),
-)
-const AdminSupervisorAbnormalRoute = AdminSupervisorAbnormalRouteImport.update({
-  id: '/supervisor-abnormal',
-  path: '/supervisor-abnormal',
-  getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.supervisor-abnormal.lazy').then((d) => d.Route),
-)
 const AdminSubAccountsRoute = AdminSubAccountsRouteImport.update({
   id: '/sub-accounts',
   path: '/sub-accounts',
@@ -283,9 +259,7 @@ const AdminFeeManageRoute = AdminFeeManageRouteImport.update({
   id: '/fee-manage',
   path: '/fee-manage',
   getParentRoute: () => AdminRoute,
-} as any).lazy(() =>
-  import('./routes/admin.fee-manage.lazy').then((d) => d.Route),
-)
+} as any)
 const AdminExpertTasksRoute = AdminExpertTasksRouteImport.update({
   id: '/expert-tasks',
   path: '/expert-tasks',
@@ -554,9 +528,6 @@ export interface FileRoutesByFullPath {
   '/admin/projects': typeof AdminProjectsRouteWithChildren
   '/admin/review-change-list': typeof AdminReviewChangeListRoute
   '/admin/sub-accounts': typeof AdminSubAccountsRoute
-  '/admin/supervisor-abnormal': typeof AdminSupervisorAbnormalRoute
-  '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
-  '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
   '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
   '/admin/supplier-ledger': typeof AdminSupplierLedgerRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
@@ -620,9 +591,6 @@ export interface FileRoutesByTo {
   '/admin/procurement-requirements': typeof AdminProcurementRequirementsRouteWithChildren
   '/admin/review-change-list': typeof AdminReviewChangeListRoute
   '/admin/sub-accounts': typeof AdminSubAccountsRoute
-  '/admin/supervisor-abnormal': typeof AdminSupervisorAbnormalRoute
-  '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
-  '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
   '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
   '/admin/supplier-ledger': typeof AdminSupplierLedgerRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
@@ -689,9 +657,6 @@ export interface FileRoutesById {
   '/admin/projects': typeof AdminProjectsRouteWithChildren
   '/admin/review-change-list': typeof AdminReviewChangeListRoute
   '/admin/sub-accounts': typeof AdminSubAccountsRoute
-  '/admin/supervisor-abnormal': typeof AdminSupervisorAbnormalRoute
-  '/admin/supervisor-hall': typeof AdminSupervisorHallRoute
-  '/admin/supervisor-logs': typeof AdminSupervisorLogsRoute
   '/admin/supplier-authorization': typeof AdminSupplierAuthorizationRoute
   '/admin/supplier-ledger': typeof AdminSupplierLedgerRoute
   '/admin/supplier-profile': typeof AdminSupplierProfileRoute
@@ -759,9 +724,6 @@ export interface FileRouteTypes {
     | '/admin/projects'
     | '/admin/review-change-list'
     | '/admin/sub-accounts'
-    | '/admin/supervisor-abnormal'
-    | '/admin/supervisor-hall'
-    | '/admin/supervisor-logs'
     | '/admin/supplier-authorization'
     | '/admin/supplier-ledger'
     | '/admin/supplier-profile'
@@ -825,9 +787,6 @@ export interface FileRouteTypes {
     | '/admin/procurement-requirements'
     | '/admin/review-change-list'
     | '/admin/sub-accounts'
-    | '/admin/supervisor-abnormal'
-    | '/admin/supervisor-hall'
-    | '/admin/supervisor-logs'
     | '/admin/supplier-authorization'
     | '/admin/supplier-ledger'
     | '/admin/supplier-profile'
@@ -893,9 +852,6 @@ export interface FileRouteTypes {
     | '/admin/projects'
     | '/admin/review-change-list'
     | '/admin/sub-accounts'
-    | '/admin/supervisor-abnormal'
-    | '/admin/supervisor-hall'
-    | '/admin/supervisor-logs'
     | '/admin/supplier-authorization'
     | '/admin/supplier-ledger'
     | '/admin/supplier-profile'
@@ -1059,27 +1015,6 @@ declare module '@tanstack/react-router' {
       path: '/supplier-authorization'
       fullPath: '/admin/supplier-authorization'
       preLoaderRoute: typeof AdminSupplierAuthorizationRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/supervisor-logs': {
-      id: '/admin/supervisor-logs'
-      path: '/supervisor-logs'
-      fullPath: '/admin/supervisor-logs'
-      preLoaderRoute: typeof AdminSupervisorLogsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/supervisor-hall': {
-      id: '/admin/supervisor-hall'
-      path: '/supervisor-hall'
-      fullPath: '/admin/supervisor-hall'
-      preLoaderRoute: typeof AdminSupervisorHallRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/supervisor-abnormal': {
-      id: '/admin/supervisor-abnormal'
-      path: '/supervisor-abnormal'
-      fullPath: '/admin/supervisor-abnormal'
-      preLoaderRoute: typeof AdminSupervisorAbnormalRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/sub-accounts': {
@@ -1466,9 +1401,6 @@ interface AdminRouteChildren {
   AdminProjectsRoute: typeof AdminProjectsRouteWithChildren
   AdminReviewChangeListRoute: typeof AdminReviewChangeListRoute
   AdminSubAccountsRoute: typeof AdminSubAccountsRoute
-  AdminSupervisorAbnormalRoute: typeof AdminSupervisorAbnormalRoute
-  AdminSupervisorHallRoute: typeof AdminSupervisorHallRoute
-  AdminSupervisorLogsRoute: typeof AdminSupervisorLogsRoute
   AdminSupplierAuthorizationRoute: typeof AdminSupplierAuthorizationRoute
   AdminSupplierLedgerRoute: typeof AdminSupplierLedgerRoute
   AdminSupplierProfileRoute: typeof AdminSupplierProfileRoute
@@ -1520,9 +1452,6 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProjectsRoute: AdminProjectsRouteWithChildren,
   AdminReviewChangeListRoute: AdminReviewChangeListRoute,
   AdminSubAccountsRoute: AdminSubAccountsRoute,
-  AdminSupervisorAbnormalRoute: AdminSupervisorAbnormalRoute,
-  AdminSupervisorHallRoute: AdminSupervisorHallRoute,
-  AdminSupervisorLogsRoute: AdminSupervisorLogsRoute,
   AdminSupplierAuthorizationRoute: AdminSupplierAuthorizationRoute,
   AdminSupplierLedgerRoute: AdminSupplierLedgerRoute,
   AdminSupplierProfileRoute: AdminSupplierProfileRoute,

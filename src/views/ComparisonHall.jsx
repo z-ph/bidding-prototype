@@ -9,8 +9,8 @@ import { BASELINE_PROJECTS, getPurchaseModeText, isInquiryFamily } from './Proje
 import StatusTag from '../components/StatusTag.jsx'
 import ProjectEntryGuard from '../components/ProjectEntryGuard.jsx'
 
-// 比价大厅（hall-purchase-method-mapping-20260721）：询比族项目（阳光询比/邀请询比）的大厅。
-// 询比族供应商提交的是报价（quoteStore），无解密/唱价仪式，环节简化为：报价汇总 → 报价比较 → 比价完成。
+// 比价大厅（hall-purchase-method-mapping-20260721）：比价族项目（零星采购/直接采购）的大厅。
+// 比价族供应商提交的是报价（quoteStore），无解密/唱价仪式，环节简化为：报价汇总 → 报价比较 → 比价完成。
 // 评审对所有项目开放：比价完成后携带 projectId 进入评审大厅。
 
 // 无报价种子时的演示兜底（与 EvaluationHall FALLBACK 同口径：真实数据优先）
@@ -33,13 +33,13 @@ export default function ComparisonHall() {
       null,
     [projectId]
   )
-  // 大厅归属门禁：比价大厅仅服务询比族；采购族项目引导至开启大厅
+  // 大厅归属门禁：比价大厅仅服务比价族；比选族项目引导至开启大厅
   const inquiryFamily = isInquiryFamily(project)
 
   const [currentStage, setCurrentStage] = useState(0)
   const [operationRecords, setOperationRecords] = useState([])
 
-  // 采购单位/采购代理可主持比价；监督人员只读；响应单位只能查看自己的报价
+  // 采购单位/采购代理可主持比价；响应单位只能查看自己的报价
   const isHost = ['tenderee', 'agent'].includes(role)
   const isBidder = role === 'bidder'
   const roleTagColor = isHost ? 'warning' : 'default'
@@ -145,21 +145,21 @@ export default function ComparisonHall() {
     return <ProjectEntryGuard />
   }
 
-  // 大厅归属门禁：采购族项目（采购族）请在开启大厅操作
+  // 大厅归属门禁：比选族项目（公开比选/邀请比选）请在开启大厅操作
   if (!inquiryFamily) {
     return (
       <div className="comparison-hall" style={{ maxWidth: 1100, margin: '0 auto' }}>
         <Card>
           <Result
             status="info"
-            title="采购族项目请在开启大厅操作"
+            title="比选族项目请在开启大厅操作"
             subTitle={
               <>
                 <p style={{ margin: 0 }}>
                   {project?.name || `项目ID：${projectId}`}（采购方式：{getPurchaseModeText(project)}）
                 </p>
                 <p style={{ margin: '8px 0 0' }}>
-                  采购族项目（阳光采购、邀请采购）需在开启大厅完成签到、解密、唱价。
+                  比选族项目（公开比选、邀请比选）需在开启大厅完成签到、解密、唱价。
                 </p>
               </>
             }
@@ -171,7 +171,7 @@ export default function ComparisonHall() {
               >
                 前往开启大厅
               </Button>,
-              <Button key="back" onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : role === 'supervisor' ? '/admin/supervisor-hall' : '/admin/projects' })}>
+              <Button key="back" onClick={() => navigate({ to: role === 'bidder' ? '/admin/bidder-projects' : '/admin/projects' })}>
                 返回
               </Button>
             ]}
@@ -180,7 +180,7 @@ export default function ComparisonHall() {
             type="info"
             showIcon
             closable={false}
-            title="口径说明：开启大厅服务采购族（阳光采购、邀请采购），比价大厅服务询比族（阳光询比、邀请询比），评审大厅对所有项目开放（2026-07-21 需求）。"
+            title="口径说明：开启大厅服务比选族（公开比选、邀请比选），比价大厅服务比价族（零星采购、直接采购），评审大厅对所有项目开放（2026-07-21 需求）。"
           />
         </Card>
       </div>
@@ -198,7 +198,7 @@ export default function ComparisonHall() {
             </div>
             <div className="hall-meta">
               <Tag color="purple" style={{ fontSize: 14, padding: '4px 12px' }}>
-                询比族项目
+                比价族项目
               </Tag>
               <Tag color={roleTagColor} style={{ fontSize: 14, padding: '4px 12px' }}>
                 {roleName}

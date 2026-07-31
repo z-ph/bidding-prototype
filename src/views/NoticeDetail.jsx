@@ -128,7 +128,7 @@ export default function NoticeDetail() {
             </Descriptions.Item>
             <Descriptions.Item label="联系人">{notice.contactName || '-'}</Descriptions.Item>
             <Descriptions.Item label="联系电话">{notice.contactPhone || '-'}</Descriptions.Item>
-            <Descriptions.Item label="关联采购包">
+            <Descriptions.Item label="关联标段">
               {notice.packages?.map((p) => p.name).join('、') || '-'}
             </Descriptions.Item>
             <Descriptions.Item label="采购截止">{notice.deadline || '-'}</Descriptions.Item>

@@ -1,6 +1,9 @@
-// @ts-nocheck — TS 渐进迁移基线：解冻本文件时删除本行并修复类型（见 AGENTS.md 技术栈）
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
+// 旧自助注册页路由（2026-07-31 口径：注册页整体下线，一期供应商由采购方批量导入发放账号）
 export const Route = createFileRoute('/register')({
-  staticData: { title: '注册' },
+  staticData: { title: '登录' },
+  beforeLoad: () => {
+    throw redirect({ to: '/login', replace: true })
+  }
 })

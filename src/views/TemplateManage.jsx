@@ -46,7 +46,7 @@ const defaultTemplates = [
     maintainer: '采购管理部',
     updatedAt: '2026-07-08 10:00',
     status: '启用',
-    remark: '邀请采购项目自动生成响应邀请书（清单 24）'
+    remark: '邀请比选项目自动生成响应邀请书（清单 24）'
   },
   {
     id: 'tpl-4',

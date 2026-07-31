@@ -11,7 +11,7 @@ import { useRole } from '../hooks/useRole.js'
 
 // 成交确认阶段推导统一走 utils/awardFlow.js（fix-award-step-regression-20260721），
 // 与 AwardConfirm 同一口径，避免重复实现漂移导致步骤回退。
-// hall-purchase-method-mapping-20260721 后所有项目（含询比族）均走评审，不再传询比短路分支
+// hall-purchase-method-mapping-20260721 后所有项目（含比价族）均走评审，不再传比价短路分支
 const resolveAwardStage = (projectId, project) =>
   resolveAwardStageBase(projectId, project, evaluationStore, null)
 

@@ -37,17 +37,16 @@ import { tenderDocTemplates, CLAUSE_AUTO_MATCH_NOTE } from '../data/tenderDocCat
 import { projectStore } from '../data/projects.js'
 import { approvalStore } from '../data/approvalStore.js'
 
-// 模拟项目结构化采购数据：项目基本信息 + 采购包/包件结构化字段
+// 模拟项目结构化采购数据：项目基本信息 + 标段结构化字段
 const projectMetaMap = {
   '1': {
     id: '1',
     name: 'XX市轨道交通设备采购项目',
     code: 'ZB20260701001',
-    purchaseMode: '阳光采购',
+    purchaseMode: '公开比选',
     orgMode: 'agent',
     bidOpenTime: '2026-07-21 09:30',
     bidCloseTime: '2026-07-20 17:00',
-    evalLocation: '线上评审大厅',
     budget: 850,
     evaluationMethod: '综合评分法',
     quoteFields: [
@@ -58,7 +57,7 @@ const projectMetaMap = {
     ],
     bidSummaryColumns: [
       { title: '序号', dataIndex: 'seq', width: 80 },
-      { title: '采购包', dataIndex: 'packageName', width: 200 },
+      { title: '标段', dataIndex: 'packageName', width: 200 },
       { title: '响应单位', dataIndex: 'bidder', minWidth: 200 },
       { title: '响应总价（万元）', dataIndex: 'totalPrice', width: 160 },
       { title: '交货期（天）', dataIndex: 'deliveryDays', width: 120 },
@@ -67,14 +66,14 @@ const projectMetaMap = {
     packages: [
       {
         code: 'B1',
-        name: '第一采购包：主设备',
+        name: '第一标段：主设备',
         budget: 600,
         content: '主设备采购',
         delivery: '合同签订后 90 天内'
       },
       {
         code: 'B2',
-        name: '第二采购包：辅材',
+        name: '第二标段：辅材',
         budget: 250,
         content: '辅助材料',
         delivery: '合同签订后 60 天内'
@@ -85,10 +84,9 @@ const projectMetaMap = {
     id: '3',
     name: '软件开发服务项目',
     code: 'ZB20260703003',
-    purchaseMode: '邀请采购',
+    purchaseMode: '邀请比选',
     bidOpenTime: '2026-07-15 09:00',
     bidCloseTime: '2026-07-14 17:00',
-    evalLocation: '线上评审大厅',
     budget: 120,
     evaluationMethod: '综合评分法',
     quoteFields: [
@@ -98,7 +96,7 @@ const projectMetaMap = {
     ],
     bidSummaryColumns: [
       { title: '序号', dataIndex: 'seq', width: 80 },
-      { title: '采购包', dataIndex: 'packageName', width: 200 },
+      { title: '标段', dataIndex: 'packageName', width: 200 },
       { title: '响应单位', dataIndex: 'bidder', minWidth: 200 },
       { title: '响应总价（万元）', dataIndex: 'totalPrice', width: 160 },
       { title: '开发周期（月）', dataIndex: 'devCycle', width: 140 },
@@ -124,7 +122,6 @@ const defaultProjectMeta = {
   orgMode: 'self',
   bidOpenTime: '-',
   bidCloseTime: '-',
-  evalLocation: '-',
   budget: 0,
   evaluationMethod: '-',
   quoteFields: [],
@@ -144,10 +141,10 @@ const FALLBACK_PROJECT_NAMES = {
 }
 
 const PURCHASE_MODE_LABELS = {
-  open: '阳光采购',
-  invitation: '邀请采购',
-  inquiry: '阳光询比',
-  invitation_inquiry: '邀请询比'
+  open: '公开比选',
+  invitation: '邀请比选',
+  inquiry: '零星采购',
+  invitation_inquiry: '直接采购'
 }
 
 function fmtTime(v) {
@@ -159,7 +156,7 @@ function fmtTime(v) {
 function deriveBidSummaryColumns(quoteFields) {
   return [
     { title: '序号', dataIndex: 'seq', width: 80 },
-    { title: '采购包', dataIndex: 'packageName', width: 200 },
+    { title: '标段', dataIndex: 'packageName', width: 200 },
     { title: '响应单位', dataIndex: 'bidder', minWidth: 200 },
     ...(quoteFields || []).map((f) => ({
       title: f.unit ? `${f.label}（${f.unit}）` : f.label,
@@ -181,13 +178,12 @@ function mapStoredProject(p) {
     orgMode: p.orgMode === 'agent' ? 'agent' : 'self',
     bidOpenTime: fmtTime(p.openTime),
     bidCloseTime: fmtTime(p.deadline || p.packages?.[0]?.bidEnd),
-    evalLocation: p.evalLocation || '线上评审大厅',
     budget: p.budget || 0,
     evaluationMethod: p.evaluationMethod || '综合评分法',
     quoteFields,
     packages: (p.packages || []).map((pkg, i) => ({
       code: pkg.code || `B${i + 1}`,
-      name: pkg.name || `采购包 ${i + 1}`,
+      name: pkg.name || `标段 ${i + 1}`,
       content: pkg.content || '-',
       budget: pkg.budget ?? 0,
       delivery: pkg.delivery || fmtTime(pkg.bidEnd)
@@ -621,7 +617,7 @@ export default function TenderDoc() {
     message.success('已提交确认')
   }
 
-  // 采购单位确认后直接发布（2026-07-27 口径：平台仅立项一个审核点，采购文件无需审批，直接发布）
+  // 采购单位确认后直接发布（2026-07-27 口径：平台仅发布审核一个审核点，采购文件无需审批，直接发布）
   const confirmAndPublish = () => {
     const now = new Date().toLocaleString()
     updateSelectedVersion({
@@ -667,8 +663,8 @@ export default function TenderDoc() {
   }
 
   const packageColumns = [
-    { title: '采购包编号', dataIndex: 'code', width: 100 },
-    { title: '采购包名称', dataIndex: 'name', minWidth: 200 },
+    { title: '标段编号', dataIndex: 'code', width: 100 },
+    { title: '标段名称', dataIndex: 'name', minWidth: 200 },
     { title: '采购内容', dataIndex: 'content', minWidth: 160 },
     { title: '预算（万元）', dataIndex: 'budget', width: 120, render: (v) => `${v} 万元` },
     { title: '交货/服务期', dataIndex: 'delivery', minWidth: 180 }
@@ -938,7 +934,7 @@ export default function TenderDoc() {
         {activeStep === 0 && projectMeta && (
           <>
             <Alert
-              title={`采购文件已关联项目「${projectMeta.name}」（编号：${projectMeta.code}）。请确认项目基本信息与采购包设置无误；如需切换项目，请使用页面顶部的项目选择器。`}
+              title={`采购文件已关联项目「${projectMeta.name}」（编号：${projectMeta.code}）。请确认项目基本信息与标段设置无误；如需切换项目，请使用页面顶部的项目选择器。`}
               type="info"
               showIcon
               closable={false}
@@ -952,11 +948,10 @@ export default function TenderDoc() {
               <Descriptions.Item label="项目预算">{projectMeta.budget ? `${projectMeta.budget} 万元` : '-'}</Descriptions.Item>
               <Descriptions.Item label="开启时间">{projectMeta.bidOpenTime}</Descriptions.Item>
               <Descriptions.Item label="采购截止">{projectMeta.bidCloseTime}</Descriptions.Item>
-              <Descriptions.Item label="评审地点">{projectMeta.evalLocation}</Descriptions.Item>
               <Descriptions.Item label="评审方法">{projectMeta.evaluationMethod}</Descriptions.Item>
             </Descriptions>
 
-            <Divider titlePlacement="left" style={{ marginTop: 16 }}>采购包/包件信息</Divider>
+            <Divider titlePlacement="left" style={{ marginTop: 16 }}>标段信息</Divider>
             <Table
               rowKey="code"
               dataSource={projectMeta.packages}
@@ -1196,7 +1191,7 @@ export default function TenderDoc() {
               <Descriptions.Item label="最近更新">{selectedVersion.updatedAt || '-'}</Descriptions.Item>
               <Descriptions.Item label="发布时间">{selectedVersion.publishedAt || '-'}</Descriptions.Item>
               <Descriptions.Item label="发布口径" span={2}>
-                确认后直接发布，无需审批（2026-07-27 口径：平台仅项目立项一个审核点）
+                确认后直接发布，无需审批（2026-07-27 口径：平台仅发布审核一个审核点）
               </Descriptions.Item>
             </Descriptions>
 
@@ -1213,7 +1208,7 @@ export default function TenderDoc() {
             </div>
 
             <Alert
-              title="按 2026-07-27 口径，平台仅项目立项一个审核点：采购文件无需审批，采购单位确认后直接发布生效。"
+              title="按 2026-07-27 口径，平台仅发布审核一个审核点：采购文件无需审批，采购单位确认后直接发布生效。"
               type="info"
               showIcon
               closable={false}

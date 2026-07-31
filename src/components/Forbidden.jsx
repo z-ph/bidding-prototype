@@ -8,16 +8,14 @@ const HOME_MAP = {
   agent: '/admin/dashboard',
   bidder: '/admin/dashboard',
   expert: '/admin/dashboard',
-  supervisor: '/admin/supervisor-hall',
   admin: '/admin/dashboard'
 }
 
 const ROLE_PERMISSION_HINT = {
-  tenderee: '采购单位可查看并管理本单位项目、采购包、开启及评审大厅。',
+  tenderee: '采购单位可查看并管理本单位项目、标段、开启及评审大厅。',
   agent: '采购代理可协助编制采购文件、组织开启评审。',
   bidder: '响应单位可下载采购文件、上传响应文件及进入开启大厅。',
   expert: '专家可进入评审大厅参与评分。',
-  supervisor: '监督人员可进入监督大厅查看开启评审过程。',
   admin: '平台管理员拥有全部页面访问权限。'
 }
 
